@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+///////////////////////////////////////////////////////////////////////////////////
+// 
+//  Copyright (c) 2014 <nailsonnego@gmail.com>
+// 
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+// 
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+// 
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+//
+///////////////////////////////////////////////////////////////////////////////////
+-->
+
+<nail:NailMain xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:nail="library://ns.nail.com/naillib">
+	
+	<fx:Style source="css/style.css"/>
+	
+	<fx:Script>
+		<![CDATA[
+			import flash.net.registerClassAlias;
+			
+			import mx.core.UIComponent;
+			
+			import nail.components.controls.Alert;
+			import nail.core.INailApplication;
+			import nail.objectbuilder.commands.CommandType;
+			import nail.objectbuilder.commands.GetSpriteListCommand;
+			import nail.objectbuilder.commands.GetThingCommand;
+			import nail.objectbuilder.core.ObjectBuilder;
+			import nail.otlib.assets.AssetsInfo;
+			import nail.otlib.components.controls.CustomProgressBar;
+			import nail.otlib.things.ThingCategory;
+			import nail.otlib.things.ThingType;
+			import nail.workers.Command;
+			
+			//--------------------------------------------------------------------------
+			//
+			// PROPERTIES
+			//
+			//--------------------------------------------------------------------------
+			
+			[Embed(source="../workerswfs/nail/objectbuilder/core/ObjectBuilderWorker.swf", mimeType="application/octet-stream")]
+			public var ObjectBuilderWorker : Class;
+			
+			private var _progressBar : CustomProgressBar;
+			
+			//--------------------------------------------------------------------------
+			//
+			// METHODS
+			//
+			//--------------------------------------------------------------------------
+			
+			//--------------------------------------
+			// Override Public
+			//--------------------------------------
+			
+			override public function register() : void
+			{
+				registerClassAlias("ThingType", ThingType);
+				registerClassAlias("AssetsInfo", AssetsInfo);
+				registerFunction(CommandType.SHOW_PROGRESS_BAR, onShowProgressBar);
+				registerFunction(CommandType.HIDE_PROGRESS_BAR, onHideProgressBar);
+				registerFunction(CommandType.SHOW_MESSAGE, onShowMessage);
+				registerFunction(CommandType.LOAD_COMPLETE, onLoadComplete);
+				registerFunction(CommandType.SET_ASSETS_INFO, onSetAssetsInfo);
+				registerFunction(CommandType.SET_THING, onSetThing);
+				registerFunction(CommandType.SET_SPRITE_LIST, onSetSpriteList);
+			}
+			
+			//--------------------------------------
+			// Private
+			//--------------------------------------
+			
+			private function onShowProgressBar(args:Array) : void
+			{
+				if (_progressBar == null)
+				{
+					_progressBar = new CustomProgressBar();
+					_progressBar.title = args[0];
+				}
+				_progressBar.open();
+			}
+			
+			private function onHideProgressBar(args:Array) : void
+			{
+				if (_progressBar != null)
+				{
+					_progressBar.close();
+					_progressBar = null;
+				}
+			}
+			
+			private function onShowMessage(args:Array) : void
+			{
+				var text : String;
+				
+				text = args[0];
+				Alert.show(text, args[1], Alert.OK, UIComponent(application));
+				ObjectBuilder(application).appendLog(text);
+			}
+			
+			private function onLoadComplete(args:Array) : void
+			{
+				ObjectBuilder(application).clear();
+				
+				sendCommand(new Command(CommandType.GET_ASSETS_INFO));
+				sendCommand(new GetSpriteListCommand(0));
+				sendCommand(new GetThingCommand(100, ThingCategory.ITEM));
+			}
+			
+			public function onSetAssetsInfo(args:Array) : void
+			{
+				ObjectBuilder(application).setAssetsInfo(args[0]);
+			}
+			
+			private function onSetThing(args:Array) : void
+			{
+				var thing : ThingType;
+				var list : Array;
+				
+				thing = args[0];
+				list = args[1];
+				ObjectBuilder(application).setThing(thing, list);
+			}
+			
+			private function onSetSpriteList(args:Array) : void
+			{	
+				var target : uint;
+				var min : uint;
+				var max : uint;
+				var list : Array;
+				
+				target = args[0];
+				min = args[1];
+				max = args[2];
+				list = args[3];
+				ObjectBuilder(application).setSpriteList(target, min, max, list);
+			}
+			
+			//--------------------------------------
+			// Override Protected
+			//--------------------------------------
+			
+			override protected function createApplicationInstance() : INailApplication
+			{
+				return new ObjectBuilder();
+			}
+			
+			override protected function createWorkerByteClass() : ByteArray
+			{
+				return new ObjectBuilderWorker();
+			}
+			
+			override protected function onProgress(bar:uint, loaded:uint, total:uint) : void
+			{
+				if (_progressBar != null)
+				{
+					_progressBar.setProgress(bar, loaded, total);
+				}
+			}
+			
+		]]>
+	</fx:Script>
+</nail:NailMain>

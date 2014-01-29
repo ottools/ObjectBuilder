@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<versions>
+	<version value="1030" string="10.30" dat="52A59036" spr="52A5905F" otb="53"/>
+	<version value="1031" string="10.31" dat="52AED581" spr="52AED5A7" otb="54"/>
+	<version value="1032" string="10.32" dat="52D8D0A9" spr="52D8D0CE" otb="55"/>
+</versions>

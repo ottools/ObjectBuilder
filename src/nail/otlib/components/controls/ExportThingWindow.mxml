@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+///////////////////////////////////////////////////////////////////////////////////
+// 
+//  Copyright (c) 2014 <nailsonnego@gmail.com>
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+// 
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+// 
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+//
+///////////////////////////////////////////////////////////////////////////////////
+-->
+
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  xmlns:nail="library://ns.nail.com/naillib"
+		  title="Export"
+		  showStatusBar="false"
+		  backgroundColor="0x494949"
+		  width="400"
+		  height="230"
+		  resizable="false"
+		  maximizable="false"
+		  minimizable="false"
+		  fontSize="11"
+		  creationComplete="creationCompleteHandler(event)">
+	
+	<s:layout>
+		<s:VerticalLayout gap="10"
+						  paddingLeft="10"
+						  paddingRight="10"
+						  paddingTop="10"
+						  paddingBottom="10"
+						  horizontalAlign="right"/>
+	</s:layout>
+	
+	<fx:Declarations>
+		<s:RadioButtonGroup id="formatRadioButtonGroup"
+							selectedIndex="0"
+							change="formatRadioButtonGroupChangeHandler(event)"/>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import spark.events.TextOperationEvent;
+			
+			import nail.otlib.assets.AssetsVersion;
+			import nail.utils.PathUtil;
+			
+			//--------------------------------------------------------------------------
+			//
+			// PROPERTIES
+			//
+			//--------------------------------------------------------------------------
+			
+			private var _version : AssetsVersion;
+			
+			private var _directory : File;
+			
+			private var _file : File;
+			
+			private var _cancel : Boolean = true;
+			
+			//--------------------------------------------------------------------------
+			//
+			// METHODS
+			//
+			//--------------------------------------------------------------------------
+			
+			//--------------------------------------
+			// Public
+			//--------------------------------------
+			
+			public function setDirectory(directory:File) : void
+			{
+				var path : String;
+				
+				_directory = directory;
+				_file = null;
+				
+				if (_directory != null)
+				{
+					try
+					{
+						path = PathUtil.combine(_directory.nativePath, nameTextInput.text + getFormat());
+						_file = new File(path);
+					} 
+					catch(error:Error) 
+					{
+						
+					}
+				}
+				
+				confirmButton.enabled = (_file != null);
+			}
+			
+			//--------------------------------------
+			// Private
+			//--------------------------------------
+			
+			private function getFormat() : String
+			{
+				var format : String = ".png";
+				if (formatRadioButtonGroup != null)
+				{
+					format = "." + String(formatRadioButtonGroup.selectedValue).toLowerCase();
+				}
+				return format;
+			}
+			
+			//--------------------------------------
+			// Event Handlers
+			//--------------------------------------
+			
+			protected function creationCompleteHandler(event:FlexEvent):void
+			{
+				versionDropDownList.dataProvider = new ArrayCollection( AssetsVersion.getList() );
+				
+				if (_version != null)
+				{
+					versionDropDownList.selectedItem = _version;
+				}
+			}
+			
+			protected function nameTextInputChangeHandler(event:TextOperationEvent) : void
+			{
+				setDirectory(_directory);
+			}
+			
+			protected function directoryTextInputChangeHandler(event:TextOperationEvent) : void
+			{
+				var directory : File;
+				
+				try
+				{
+					directory = new File(directoryTextInput.text);
+				} 
+				catch(error:Error) 
+				{
+					directory = null;
+				}
+				
+				setDirectory(directory);
+			}
+			
+			protected function browseButtonClickHandler(event:MouseEvent) : void
+			{
+				var directory : File;
+				directory = new File();
+				directory.addEventListener(Event.SELECT, fileSelectHandler);
+				directory.browseForDirectory("Select folder");
+				
+				function fileSelectHandler(event:Event) : void
+				{
+					directoryTextInput.text = directory.nativePath;
+					setDirectory(directory);
+				}
+			}
+
+			protected function formatRadioButtonGroupChangeHandler(event:Event) : void
+			{
+				setDirectory(_directory);
+			}
+			
+			protected function confirmButtonClickHandler(event:MouseEvent) : void
+			{
+				_cancel = false;
+				this.close();
+			}
+			
+			protected function windowClosingHandler(event:Event):void
+			{
+				if (_cancel)
+				{
+					_file = null;
+				}
+			}
+			
+			//--------------------------------------
+			// Getters / Setters 
+			//--------------------------------------
+			
+			public function get file():File
+			{
+				return _file;
+			}
+			
+			public function get version() : AssetsVersion
+			{
+				return _version;
+			}
+			
+			public function set version(value:AssetsVersion) : void
+			{
+				if (value != _version)
+				{
+					_version = value;
+					
+					if (versionDropDownList != null)
+					{
+						versionDropDownList.selectedItem = version;
+					}
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:Group width="100%">
+		<s:Label text="Name:"
+				 fontSize="10" 
+				 color="0xDFDFDF"/>
+		<s:TextInput id="nameTextInput"
+					 left="0"
+					 right="0"
+					 top="15"
+					 change="nameTextInputChangeHandler(event)"/>
+	</s:Group>
+	
+	<s:Group width="100%">
+		<s:Label text="Output Folder:"
+				 fontSize="10" 
+				 color="0xDFDFDF"/>
+		<s:TextInput id="directoryTextInput"
+					 left="0"
+					 right="65"
+					 top="15"
+					 change="directoryTextInputChangeHandler(event)"/>
+		<s:Button id="browseButton"
+				  label="Browse"
+				  height="22"
+				  top="15"
+				  right="0"
+				  click="browseButtonClickHandler(event)"/>
+	</s:Group>
+	
+	<nail:GroupBox label="Format"
+				   width="100%">
+		<nail:layout>
+			<s:HorizontalLayout paddingLeft="10"
+								paddingRight="10"
+								paddingTop="10"
+								paddingBottom="10"
+								verticalAlign="middle"/>
+		</nail:layout>
+		<s:RadioButton label="PNG"
+					   groupName="formatRadioButtonGroup"
+					   selected="true"/>
+		<s:RadioButton label="BMP" 
+					   groupName="formatRadioButtonGroup"/>
+		<s:RadioButton label="JPG"
+					   groupName="formatRadioButtonGroup"/>
+		<s:RadioButton id="obdFormatRadioButton"
+					   label="OBD"
+					   groupName="formatRadioButtonGroup"/>
+		<s:DropDownList id="versionDropDownList"
+						enabled="{obdFormatRadioButton.selected}"
+						change="{_version = versionDropDownList.selectedItem as AssetsVersion}"/>
+	</nail:GroupBox>
+	
+	<s:Spacer height="10"/>
+	
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="0x272727"/>
+		</s:stroke>
+	</s:Line>
+	
+	<s:HGroup width="100%"
+			  verticalAlign="middle"
+			  horizontalAlign="right">
+		<s:Button id="confirmButton"
+				  label="Confirm"
+				  width="70"
+				  enabled="false"
+				  click="confirmButtonClickHandler(event)"/>
+		<s:Button id="cancelButton"
+				  label="Cancel"
+				  width="70"
+				  click="close()"/>
+	</s:HGroup>
+	
+</s:Window>

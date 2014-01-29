@@ -1,0 +1,1044 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+///////////////////////////////////////////////////////////////////////////////////
+// 
+//  Copyright (c) 2014 <nailsonnego@gmail.com>
+// 
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+// 
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+// 
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+//
+///////////////////////////////////////////////////////////////////////////////////
+-->
+
+<nail:NailApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx"
+					  xmlns:nail="library://ns.nail.com/naillib"
+					  xmlns:otlib="library://ns.nail.com/otlib"
+					  xmlns:controls="nail.otlib.components.controls.*"
+					  width="800"
+					  height="600"
+					  maximizable="false"
+					  resizable="false"
+					  backgroundColor="0x494949"
+					  showStatusBar="false">
+	
+	<nail:layout>
+		<s:HorizontalLayout gap="3"/>
+	</nail:layout>
+	
+	<fx:Declarations>
+		<fx:XMLList id="menuXML">
+			<menuitem label="File">
+				<menuitem label="Open" data="fileOpen" icon="nail.objectbuilder.core.Icons_OPEN"/>
+				<menuitem label="Compile" data="fileCompile" icon="nail.objectbuilder.core.Icons_SAVE"/>
+			</menuitem>
+			<menuitem label="Edit">
+				<menuitem label="Show Log" data="editShowLog"/>
+			</menuitem>	
+			<menuitem label="Help">
+				<menuitem label="About Object Builder" data="helpAbout" icon="nail.objectbuilder.core.Icons_INFO"/>
+			</menuitem>	
+		</fx:XMLList>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.MenuEvent;
+			
+			import spark.components.List;
+			import spark.events.IndexChangeEvent;
+			
+			import nail.components.NailMain;
+			import nail.components.controls.Alert;
+			import nail.managers.PopUpWindowManager;
+			import nail.objectbuilder.commands.ChangeThingCommand;
+			import nail.objectbuilder.commands.CompileAssetsCommand;
+			import nail.objectbuilder.commands.DuplicateThingCommand;
+			import nail.objectbuilder.commands.ExportThingCommand;
+			import nail.objectbuilder.commands.GetSpriteListCommand;
+			import nail.objectbuilder.commands.GetThingCommand;
+			import nail.objectbuilder.commands.ImportSpriteCommand;
+			import nail.objectbuilder.commands.LoadAssetsCommand;
+			import nail.objectbuilder.commands.NewThingCommand;
+			import nail.objectbuilder.commands.ReplaceSpriteCommand;
+			import nail.objectbuilder.settings.ObjectBuilderSettings;
+			import nail.otlib.assets.AssetsInfo;
+			import nail.otlib.assets.AssetsVersion;
+			import nail.otlib.components.controls.CompileAssetsWindow;
+			import nail.otlib.components.controls.ExportThingWindow;
+			import nail.otlib.components.controls.LogWidget;
+			import nail.otlib.components.controls.OpenAssetsWindow;
+			import nail.otlib.events.ThingEditorEvent;
+			import nail.otlib.things.ThingCategory;
+			import nail.otlib.things.ThingType;
+			import nail.otlib.utils.SpriteData;
+			import nail.otlib.utils.ThingData;
+			import nail.settings.Settings;
+			import nail.utils.BitmapUtils;
+			import nail.utils.FileLoader;
+			import nail.utils.FileUtils;
+			import nail.utils.StringUtil;
+			import nail.workers.Command;
+			
+			//--------------------------------------------------------------------------
+			//
+			// PROPERTIES
+			//
+			//--------------------------------------------------------------------------
+			
+			private var _settings : ObjectBuilderSettings = new ObjectBuilderSettings();
+			
+			[Bindable]
+			private var _spritesCollection : ArrayCollection = new ArrayCollection(); 
+			
+			private var _thingData : ThingData;
+			
+			private var _nextThingData : ThingData;
+			
+			private var _thingDataChanged : Boolean;
+			
+			[Bindable]
+			private var _info : AssetsInfo;
+			
+			private var _selectIndex : int;
+			
+			private var _spriteMin : uint;
+			
+			private var _spriteMax :uint;
+			
+			private var _logWidget : LogWidget = new LogWidget();
+			
+			//--------------------------------------------------------------------------
+			//
+			// METHODS
+			//
+			//--------------------------------------------------------------------------
+			
+			//--------------------------------------
+			// Public
+			//--------------------------------------
+			
+			public function setAssetsInfo(info:AssetsInfo) : void
+			{
+				_info = info;
+				
+				if (_info != null)
+				{
+					assetsVersionLabel.text = AssetsVersion.getVersionByValue(_info.version).toString();
+					datSignatureLabel.text = _info.datSignature.toString(16).toUpperCase();
+					itemsCountLabel.text = _info.maxItemId.toString();
+					outfitsCountLabel.text  =_info.maxOutfitId.toString();
+					effectsCountLabel.text = _info.maxEffectId.toString();
+					missilesCountLabel.text = _info.maxMissileId.toString();
+					sprSignatureLabel.text = _info.sprSignature.toString(16).toUpperCase();
+					spritesCountLabel.text = _info.maxSpriteId.toString();
+					thingStepper.minimum = _info.minItemId;
+					thingStepper.maximum = _info.maxItemId;
+					spriteStepper.minimum = _info.minSpriteId;
+					spriteStepper.maximum = _info.maxSpriteId
+				}
+			}
+			
+			public function setThing(thing:ThingType, list:Array) : void
+			{
+				var rect : Rectangle;
+				var bitmap : BitmapData;
+				var pixels : ByteArray;
+				var sprite : SpriteData;
+				var sprites : Vector.<SpriteData>;
+				var length : uint;
+				var i :uint;
+				
+				length = list.length;
+				if (length == 0)
+				{
+					return;
+				}
+				
+				rect = new Rectangle(0, 0, 32, 32);
+				sprites = new Vector.<SpriteData>(length);
+				
+				for (i = 0; i < length; i++)
+				{
+					pixels = list[i];
+					if (pixels != null)
+					{
+						bitmap = new BitmapData(rect.width, rect.height, true, 0);
+						bitmap.setPixels(rect, pixels);
+						sprite = new SpriteData();
+						sprite.id = thing.spriteIndex[i];
+						sprite.bitmap = bitmap;	
+						sprites[i] = sprite;
+					}
+				}
+				
+				this.thingData = new ThingData(thing, sprites);
+			}
+			
+			public function setSpriteList(target:uint, min:uint, max:uint, list:Array) : void
+			{
+				var length :uint;
+				var i : int;
+				var rect : Rectangle;
+				var pixels : ByteArray;
+				var bitmap : BitmapData;
+				var sprite : SpriteData;
+				
+				_spritesCollection.removeAll();
+				_selectIndex = -1;
+				_spriteMin = min;
+				_spriteMax = max;
+				rect = new Rectangle(0, 0, 32, 32);
+				
+				length = list.length;
+				for (i = 0; i < length; i++)
+				{
+					pixels = list[i];
+					if (pixels != null)
+					{
+						bitmap = new BitmapData(rect.width, rect.height, true, 0);
+						bitmap.setPixels(rect, pixels);
+						sprite = new SpriteData();
+						sprite.id = i;
+						sprite.bitmap = bitmap;
+						_spritesCollection.addItem(sprite);
+						if (i == target)
+						{
+							_selectIndex = _spritesCollection.getItemIndex(sprite);
+						}
+					}
+				}
+			}
+			
+			public function appendLog(text:String) : void
+			{
+				_logWidget.appendText(text);
+			}
+			
+			public function clear() : void
+			{
+				_thingData = null;
+				_thingDataChanged = false
+				_info = null;
+				_nextThingData = null;
+				_selectIndex = -1;
+				_spriteMax 0;
+				_spriteMin 0;
+				_spritesCollection.removeAll();
+				
+				editThing(null);
+				thingView.thingData = null;
+				assetsVersionLabel.text = null;
+				datSignatureLabel.text = null;
+				itemsCountLabel.text = null;
+				outfitsCountLabel.text = null;
+				effectsCountLabel.text = null;
+				missilesCountLabel.text = null;
+				sprSignatureLabel.text = null;
+				spritesCountLabel.text = null;
+				categoryDropDownList.selectedIndex = 0;
+				thingStepper.value = 0;
+				spriteStepper.value = 0;
+				_logWidget.clear();
+			}
+			
+			//--------------------------------------
+			// Override Public
+			//--------------------------------------
+			
+			override public function getSettings() : Settings
+			{
+				return _settings;
+			}
+			
+			//--------------------------------------
+			// Override Protected
+			//--------------------------------------
+			
+			override protected function commitProperties() : void
+			{
+				super.commitProperties();
+				
+				if (_thingDataChanged)
+				{
+					setThingData(_nextThingData);
+					_thingDataChanged = false;
+				}
+			}
+			
+			//--------------------------------------
+			// Private
+			//--------------------------------------
+			
+			private function loadAssets(dat:File, spr:File, version:AssetsVersion) : void
+			{
+				var command : LoadAssetsCommand;
+				command = new LoadAssetsCommand(dat, spr, version);
+				sendCommand(command);
+			}
+			
+			private function compileAssets(dat:File, spr:File, version:AssetsVersion) : void
+			{
+				var command : CompileAssetsCommand;
+				command = new CompileAssetsCommand(dat, spr, version);
+				sendCommand(command);
+			}
+			
+			private function onOpenFile() : void
+			{
+				var window : OpenAssetsWindow;
+				window = new OpenAssetsWindow();
+				window.directory = _settings.getLastDirectory();
+				window.addEventListener(Event.CLOSE, windowCloseHandler);
+				window.open();
+				
+				PopUpWindowManager.addWindow(window);
+				
+				function windowCloseHandler(event:Event) : void
+				{
+					if (window.datFile != null && window.sprFile != null && window.version != null)
+					{
+						loadAssets(window.datFile, window.sprFile, window.version);
+						_settings.lastDirectory = FileUtils.getDirectory(window.datFile).nativePath;
+					}
+				}
+			}
+			
+			private function selectSprite(id:uint) : void
+			{
+				var length :uint;
+				var i : uint;
+				var sprite : SpriteData;
+				
+				// Return if id is current selected.
+				if (_info == null || this.selectedSpriteId == id)
+				{
+					return;
+				}
+				
+				// Search index if id is in range of loaded list.
+				if (id >= _spriteMin && id <= _spriteMax)
+				{
+					length = _spritesCollection.length;
+					for (i = 0; i < length; i++)
+					{
+						sprite = _spritesCollection.getItemAt(i) as SpriteData;
+						if (sprite.id == id)
+						{
+							spritesList.selectedIndex = i;
+							spritesList.ensureIndexIsVisible(i);
+							spriteStepper.value = id;
+							break;
+						}
+					}
+				}
+				else 
+				{
+					// Request new list by target id.
+					sendCommand(new GetSpriteListCommand(id));
+				}
+			}
+			
+			private function onCompile() : void
+			{
+				var window : CompileAssetsWindow;
+				
+				if (_info == null)
+				{
+					return;
+				}
+				
+				window = new CompileAssetsWindow();
+				window.directory = _settings.getLastDirectory();
+				window.version = AssetsVersion.getVersionByValue(_info.version);
+				window.addEventListener(Event.CLOSE, windowCloseHandler);
+				window.open();
+				
+				function windowCloseHandler(event:Event) : void
+				{
+					if (window.datFile != null && window.sprFile != null && window.version != null)
+					{
+						compileAssets(window.datFile, window.sprFile, window.version);
+					}
+				}
+			}
+			
+			private function onShowLog() : void
+			{
+				_logWidget.show();
+			}
+			
+			private function editThing(data:ThingData) : void
+			{
+				thingAtrributes.thingData = data;
+				thingAtrributes.visible = (data != null)
+				confirmButton.enabled = thingAtrributes.changed;
+				cancelButton.enabled = (data != null);
+			}
+			
+			private function getCurrentCategory() : String
+			{
+				switch(categoryDropDownList.selectedIndex)
+				{
+					case 0:
+						return ThingCategory.ITEM;
+					case 1:
+						return ThingCategory.OUTFIT;
+					case 2:
+						return ThingCategory.EFFECT;
+					case 3:
+						return ThingCategory.MISSILE;
+				}
+				return null;
+			}
+			
+			private function getMinThingId() : uint
+			{
+				var category : String = getCurrentCategory();
+				if (_info != null && !StringUtil.isEmptyOrNull(category))
+				{
+					switch(category)
+					{
+						case ThingCategory.ITEM:
+							return _info.minItemId;
+						case ThingCategory.OUTFIT:
+							return _info.minOutfitId;
+						case ThingCategory.EFFECT:
+							return _info.minEffectId;
+						case ThingCategory.MISSILE:
+							return _info.minMissileId;
+					}
+				}
+				return 0;
+			}
+			
+			private function getMaxThingId() : uint
+			{
+				var category : String = getCurrentCategory();
+				if (_info != null && !StringUtil.isEmptyOrNull(category))
+				{
+					switch(category) 
+					{
+						case ThingCategory.ITEM:
+							return _info.maxItemId;
+						case ThingCategory.OUTFIT:
+							return _info.maxOutfitId;
+						case ThingCategory.EFFECT:
+							return _info.maxEffectId;
+						case ThingCategory.MISSILE:
+							return _info.maxMissileId;
+					}
+				}
+				return 0;
+			}
+			
+			private function setThingData(data:ThingData) : void
+			{
+				_thingData = data;
+				thingView.thingData = data;
+			}
+			
+			private function sendCommand(command:Command) : void
+			{
+				NailMain.instance.sendCommand(command);
+			}
+			
+			//--------------------------------------
+			// Event Handlers
+			//--------------------------------------
+			
+			override protected function createMenuDataProvider() : XMLList
+			{
+				return menuXML;
+			}
+			
+			protected function confirmButtonClickHandler(event:MouseEvent) : void
+			{
+				if (thingAtrributes.changed)
+				{
+					if (thingAtrributes.saveChanges())
+					{
+						sendCommand(new ChangeThingCommand(thingAtrributes.thingData));
+					}
+				}
+			}
+			
+			protected function cancelButtonClickHandler(event:MouseEvent) : void
+			{
+				editThing(null);
+			}
+			
+			protected function listUpdateCompleteHandler(event:FlexEvent) : void
+			{
+				if (_selectIndex != -1)
+				{
+					spritesList.selectedIndex = _selectIndex;
+					spritesList.ensureIndexIsVisible(_selectIndex);
+					spriteStepper.value = this.selectedSpriteId;
+				}
+				_selectIndex = -1;
+			}
+			
+			override protected function menuItemClickHandler(event:MenuEvent) : void
+			{
+				var data : String = String(event.item.@data);
+				
+				switch(data) 
+				{
+					case "fileOpen":
+						this.onOpenFile();
+						break;
+					
+					case "fileCompile":
+						this.onCompile();
+						break;
+					
+					case "editShowLog":
+						this.onShowLog();
+						break;
+					
+					case "helpAbout":
+						this.onAboutApplication();
+						break;
+				}
+			}
+			
+			protected function categoryDropDownListChangeHandler(event:IndexChangeEvent) : void
+			{
+				if (_info != null)
+				{
+					thingStepper.minimum = getMinThingId();
+					thingStepper.maximum = getMaxThingId();
+					thingStepper.value = thingStepper.minimum;
+					sendCommand(new GetThingCommand(thingStepper.minimum, getCurrentCategory()));
+				}
+			}
+			
+			protected function thingChangedHandler(event:ThingEditorEvent) : void
+			{
+				confirmButton.enabled = false;
+			}
+			
+			protected function thingPropertyChangedHandler(event:ThingEditorEvent) : void
+			{
+				this.updateTitle();
+				confirmButton.enabled = thingAtrributes.changed;
+			}
+			
+			protected function thingSpriteDoubleClickHandler(event:ThingEditorEvent) : void
+			{
+				selectSprite(event.sprite);
+			}
+			
+			protected function thingStepperChangeHandler(event:Event) : void
+			{
+				if (_info != null && this.thingData != null)
+				{
+					sendCommand(new GetThingCommand(thingStepper.value, getCurrentCategory()));
+				}
+			}
+			
+			protected function exportThingButtonClickHandler(event:MouseEvent) : void
+			{
+				var window : ExportThingWindow;
+				
+				if (_info == null)
+				{
+					return;
+				}
+				
+				window = new ExportThingWindow();
+				window.addEventListener(Event.CLOSE, windowCloseHandler);
+				window.open();
+				PopUpWindowManager.addWindow(window);
+				
+				function windowCloseHandler(event:Event) : void
+				{
+					if (window.file != null)
+					{
+						sendCommand(new ExportThingCommand(thingData, window.version, window.file));
+					}
+				}
+			}
+			
+			protected function duplicateThingButtonClickHandler(event:MouseEvent):void
+			{
+				if (_info != null && this.thingData != null)
+				{
+					sendCommand(new DuplicateThingCommand(this.thingData));
+				}
+			}
+			
+			protected function editThingButtonClickHandler(event:MouseEvent) : void
+			{
+				var message : String;
+				
+				if (_info == null || thingAtrributes.thingData == this.thingData)
+				{
+					return;
+				}
+				
+				if (thingAtrributes.thingData != null && thingAtrributes.changed)
+				{
+					message = StringUtil.substitute("Save changes in the {0} {1}?",
+						thingAtrributes.thingData.category,
+						thingAtrributes.thingData.id);
+					Alert.show(message, "Info", Alert.YES | Alert.NO | Alert.CANCEL, this, closeHandler);
+					return;
+				}
+				
+				editThing(thingData);
+				
+				function closeHandler(event:CloseEvent) : void
+				{
+					if (event.detail == Alert.YES)
+					{
+						if (thingAtrributes.saveChanges())
+						{
+							sendCommand(new ChangeThingCommand(thingAtrributes.thingData));
+						}
+					}
+					else if (event.detail == Alert.CANCEL)
+					{
+						return;
+					}	
+					
+					editThing(thingData);
+				}
+			}
+			
+			protected function newThingButtonClickHandler(event:MouseEvent) : void
+			{
+				var category : String;
+				
+				if (_info != null)
+				{
+					category = getCurrentCategory();
+					if (category != null)
+					{
+						sendCommand(new NewThingCommand(category));
+					}
+				}
+			}
+			
+			protected function replaceSpriteButtonClickHandler(event:MouseEvent) : void
+			{
+				var loader : FileLoader;
+				
+				if (_info == null || this.selectedSpriteId == 0)
+				{
+					return;
+				}
+				
+				loader = new FileLoader();
+				loader.addEventListener(Event.COMPLETE, completeHandler);
+				loader.loadBitmapData();
+				
+				function completeHandler(event:Event) : void
+				{
+					var bitmap : BitmapData;
+					var spriteData : SpriteData;
+					
+					bitmap = BitmapData(loader.data);
+					if (bitmap.width != 32 && bitmap.height != 32)
+					{
+						Alert.show("Invalid size. Please, import bitmap with 32x32 pixels.");
+						return;
+					}
+					
+					// Transform bitmap 24 to 32 bits
+					if (!bitmap.transparent)
+					{
+						bitmap = BitmapUtils.to32bits(bitmap);
+					}
+					
+					// Replace magenta to transparent color
+					BitmapUtils.replaceColor(bitmap, 0xFFFF00FF, 0x00FF00FF);
+					
+					spriteData = spritesList.selectedItem as SpriteData;
+					if (spriteData != null)
+					{
+						sendCommand(new ReplaceSpriteCommand(spriteData.id, bitmap));
+					}
+				}
+			}
+			
+			protected function importSpriteButtonClickHandler(event:MouseEvent) : void
+			{
+				var loader : FileLoader;
+				
+				if (_info == null)
+				{
+					return;
+				}
+				
+				loader = new FileLoader();
+				loader.addEventListener(Event.COMPLETE, completeHandler);
+				loader.loadBitmapData();
+				
+				function completeHandler(event:Event) : void
+				{
+					var bitmap : BitmapData = BitmapData(loader.data);
+					if (bitmap.width != 32 && bitmap.height != 32)
+					{
+						Alert.show("Invalid size. Please, import bitmap with 32x32 pixels.");
+						return;
+					}
+					
+					// Transform bitmap 24 to 32 bits
+					if (!bitmap.transparent)
+					{
+						bitmap = BitmapUtils.to32bits(bitmap);
+					}
+					
+					// Replace magenta to transparent color
+					BitmapUtils.replaceColor(bitmap, 0xFFFF00FF, 0x00FF00FF);
+					
+					sendCommand(new ImportSpriteCommand(bitmap));
+				}
+			}
+			
+			protected function spritesListChangeHandler(event:IndexChangeEvent) : void
+			{
+				if (_info != null)
+				{
+					spriteStepper.value = this.selectedSpriteId;
+				}
+			}
+			
+			protected function spriteStepperChangeHandler(event:Event) : void
+			{
+				if (_info != null)
+				{
+					selectSprite(spriteStepper.value);
+				}
+			}
+			
+			//--------------------------------------
+			// Getters / Setters 
+			//--------------------------------------
+			
+			public function get thingData() : ThingData
+			{
+				return _thingData;
+			}
+			
+			public function set thingData(value:ThingData) : void
+			{
+				if (_thingData != value)
+				{
+					_nextThingData = value;
+					_thingDataChanged = true;
+					invalidateProperties();
+				}
+			}
+			
+			public function get selectedSpriteId() : uint
+			{
+				if (spritesList != null && spritesList.selectedItem != null)
+				{
+					return SpriteData(spritesList.selectedItem).id;
+				}
+				return 0;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:BorderContainer width="165"
+					   height="100%"
+					   fontSize="11"
+					   skinClass="nail.components.skins.BorderContainerSkin">
+		<s:layout>
+			<s:VerticalLayout horizontalAlign="center"
+							  paddingRight="5"
+							  paddingLeft="5"
+							  paddingTop="10"
+							  paddingBottom="10"
+							  gap="10"/>
+		</s:layout>
+		
+		<nail:GroupBox label="Info"
+					   width="100%"
+					   fontSize="10">
+			<nail:layout>
+				<s:TileLayout requestedColumnCount="2"
+							  paddingLeft="5"
+							  paddingRight="5"
+							  paddingTop="10"
+							  paddingBottom="10"/>
+			</nail:layout>
+			<s:Label text="Version:"/>
+			<s:Label id="assetsVersionLabel"/>
+			<s:Label text="Dat:"/>
+			<s:RichEditableText id="datSignatureLabel"
+								editable="false"
+								height="15"/>
+			<s:Label text="Items:"/>
+			<s:RichEditableText id="itemsCountLabel"
+								editable="false"
+								height="15"/>
+			<s:Label text="Outfits:"/>
+			<s:RichEditableText id="outfitsCountLabel"
+								editable="false"
+								height="15"/>
+			<s:Label text="Effects:"/>
+			<s:RichEditableText id="effectsCountLabel"
+								editable="false"
+								height="15"/>
+			<s:Label text="Missiles:"/>
+			<s:RichEditableText id="missilesCountLabel"
+								editable="false"
+								height="15"/>
+			<s:Label text="Spr:"/>
+			<s:RichEditableText id="sprSignatureLabel"
+								editable="false"
+								height="15"/>
+			<s:Label text="Sprites:"/>
+			<s:RichEditableText id="spritesCountLabel"
+								editable="false"
+								height="15"/>
+		</nail:GroupBox>
+		
+		<s:Line width="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0x272727"/>
+			</s:stroke>
+			<s:filters>
+				<s:DropShadowFilter color="0x636363"
+									blurX="1"
+									blurY="1"
+									distance="1"/>
+			</s:filters>
+		</s:Line>
+		
+		<s:DropDownList id="categoryDropDownList"
+						selectedIndex="0"
+						width="100%"
+						height="20"
+						change="categoryDropDownListChangeHandler(event)">
+			<s:dataProvider>
+				<s:ArrayList>
+					<fx:String>Item</fx:String>
+					<fx:String>Outfit</fx:String>
+					<fx:String>Effect</fx:String>
+					<fx:String>Missile</fx:String>
+				</s:ArrayList>
+			</s:dataProvider>
+		</s:DropDownList>	
+		
+		<nail:GroupBox label="View"
+					   width="100%"
+					   height="100%">
+			<controls:ThingView id="thingView"
+								horizontalCenter="0"
+								verticalCenter="0"/>
+		</nail:GroupBox>
+		
+		<nail:XNumericStepper id="thingStepper"
+							  width="100%"
+							  fontSize="11"
+							  change="thingStepperChangeHandler(event)"/>
+		
+		<s:HGroup width="100%"
+				  horizontalAlign="right"
+				  verticalAlign="middle"
+				  gap="3">
+			<s:Button id="replaceThingButton"
+					  toolTip="Replace"
+					  width="19"
+					  height="19"
+					  enabled="false"
+					  icon="{Icons.REPLACE}"/>
+			<s:Button id="importThingButton"
+					  toolTip="Import"
+					  width="19"
+					  height="19"
+					  enabled="false"
+					  icon="{Icons.IMPORT}"/>
+			<s:Button id="exportThingButton"
+					  toolTip="Export"
+					  width="19"
+					  height="19"
+					  icon="{Icons.EXPORT}"
+					  enabled="false"
+					  click="exportThingButtonClickHandler(event)"/>
+			<s:Button id="editThingButton"
+					  toolTip="Edit"
+					  width="19"
+					  height="19"
+					  icon="{Icons.EDIT}"
+					  click="editThingButtonClickHandler(event)"/>
+			<s:Button id="duplicateThingButton"
+					  toolTip="Duplicate"
+					  width="19"
+					  height="19"
+					  icon="{Icons.DUPLICATE}"
+					  click="duplicateThingButtonClickHandler(event)"/>
+			<s:Button id="newThingButton"
+					  toolTip="New"
+					  width="19"
+					  height="19"
+					  icon="{Icons.NEW}"
+					  click="newThingButtonClickHandler(event)"/>
+			<s:Button id="removeThingButton"
+					  toolTip="Remove"
+					  width="19"
+					  height="19"
+					  enabled="false"
+					  icon="{Icons.DELETE}"/>
+		</s:HGroup>
+		
+	</s:BorderContainer>
+	
+	<s:Group width="100%"
+			 height="100%">
+		<s:layout>
+			<s:VerticalLayout gap="-1"/>
+		</s:layout>
+		
+		<s:BorderContainer width="100%"
+						   height="100%"
+						   skinClass="nail.components.skins.BorderContainerSkin">
+			<otlib:ThingTypeEditor id="thingAtrributes"
+								   width="100%"
+								   height="100%"
+								   visible="false"
+								   thingChange="thingChangedHandler(event)"
+								   thingPropertyChange="thingPropertyChangedHandler(event)"
+								   spriteDoubleClick="thingSpriteDoubleClickHandler(event)"/>
+		</s:BorderContainer>
+		
+		<s:BorderContainer width="100%"
+						   backgroundColor="0x535353"
+						   borderColor="0x272727">
+			<s:layout>
+				<s:HorizontalLayout horizontalAlign="right"
+									verticalAlign="middle"
+									paddingLeft="10"
+									paddingRight="10"
+									paddingTop="3"
+									paddingBottom="3"/>
+			</s:layout>
+			<s:Button id="confirmButton"
+					  label="Save"
+					  fontSize="11"
+					  height="20"
+					  enabled="false"
+					  click="confirmButtonClickHandler(event)"/>
+			<s:Button id="cancelButton"
+					  label="Close" 
+					  fontSize="11"
+					  height="20"
+					  enabled="false"
+					  click="cancelButtonClickHandler(event)"/>
+		</s:BorderContainer>
+	</s:Group>
+	
+	<s:BorderContainer width="165"
+					   height="100%"
+					   skinClass="nail.components.skins.BorderContainerSkin">
+		<s:layout>
+			<s:VerticalLayout horizontalAlign="center"
+							  paddingRight="5"
+							  paddingLeft="5"
+							  paddingTop="10"
+							  paddingBottom="10"
+							  gap="10"/>
+		</s:layout>	
+		
+		<nail:GroupBox label="Sprites"
+					   width="100%"
+					   height="100%">
+			<nail:layout>
+				<s:VerticalLayout paddingRight="0"
+								  paddingLeft="0"
+								  paddingTop="10"
+								  paddingBottom="0"/>
+			</nail:layout>
+			<s:List id="spritesList" 
+					width="100%"
+					height="100%"
+					dataProvider="{_spritesCollection}"
+					dragEnabled="true"
+					fontSize="11"
+					borderAlpha="0"
+					itemRenderer="nail.otlib.components.renders.SpriteListRenderer"
+					change="spritesListChangeHandler(event)"
+					updateComplete="listUpdateCompleteHandler(event)"/>	
+		</nail:GroupBox>
+			
+		<nail:XNumericStepper id="spriteStepper"
+							  width="100%"
+							  fontSize="11"
+							  change="spriteStepperChangeHandler(event)"/>
+		
+		<s:HGroup width="100%"
+				  horizontalAlign="right"
+				  verticalAlign="middle"
+				  gap="3">
+			<s:Button id="replaceSpriteButton"
+					  toolTip="Replace"
+					  width="19"
+					  height="19"
+					  icon="{Icons.REPLACE}"
+					  click="replaceSpriteButtonClickHandler(event)"/>
+			<s:Button id="importSpriteButton"
+					  toolTip="Import"
+					  width="19"
+					  height="19"
+					  icon="{Icons.IMPORT}"
+					  click="importSpriteButtonClickHandler(event)"/>
+			<s:Button id="exportSpriteButton"
+					  toolTip="Export"
+					  width="19"
+					  height="19"
+					  enabled="false"
+					  icon="{Icons.EXPORT}"/>
+			<s:Button id="editSpriteButton"
+					  toolTip="Edit"
+					  width="19"
+					  height="19"
+					  enabled="false"
+					  icon="{Icons.EDIT}"/>
+			<s:Button id="duplicateSpriteButton"
+					  toolTip="Duplicate"
+					  width="19"
+					  height="19"
+					  enabled="false"
+					  icon="{Icons.DUPLICATE}"/>
+			<s:Button id="newSpriteButton"
+					  toolTip="New"
+					  width="19"
+					  height="19"
+					  enabled="false"
+					  icon="{Icons.NEW}"/>
+			<s:Button id="removeSpriteButton"
+					  toolTip="Remove"
+					  width="19"
+					  height="19"
+					  enabled="false"
+					  icon="{Icons.DELETE}"/>
+		</s:HGroup>	
+		
+	</s:BorderContainer>
+</nail:NailApplication>

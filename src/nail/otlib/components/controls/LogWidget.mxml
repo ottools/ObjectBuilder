@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+///////////////////////////////////////////////////////////////////////////////////
+// 
+//  Copyright (c) 2014 <nailsonnego@gmail.com>
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+// 
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+// 
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+//
+///////////////////////////////////////////////////////////////////////////////////
+-->
+
+<nail:Widget xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			 xmlns:s="library://ns.adobe.com/flex/spark" 
+			 xmlns:mx="library://ns.adobe.com/flex/mx"
+			 xmlns:nail="library://ns.nail.com/naillib" 
+			 width="400"
+			 height="300"
+			 resizable="false"
+			 title="Log">
+	
+	<nail:layout>
+		<s:VerticalLayout gap="0"
+						  horizontalAlign="right"/>
+	</nail:layout>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.core.UIComponent;
+			import mx.managers.PopUpManager;
+			
+			import nail.components.NailMain;
+			import nail.utils.StringUtil;
+			
+			//--------------------------------------------------------------------------
+			//
+			// PROPERTIES
+			//
+			//--------------------------------------------------------------------------
+			
+			[Bindable]
+			private var _text : String = "";
+			
+			private var _closed : Boolean = true;
+			
+			//--------------------------------------------------------------------------
+			//
+			// METHODS
+			//
+			//--------------------------------------------------------------------------
+			
+			//--------------------------------------
+			// Public
+			//--------------------------------------
+			
+			public function appendText(text:String) : void
+			{
+				if (text != null)
+				{
+					_text += StringUtil.substitute(">> {0}\n", text);
+				}
+			}
+			
+			public function clear() : void
+			{
+				_text = "";
+			}
+			
+			public function show() : void
+			{
+				if (_closed)
+				{
+					PopUpManager.addPopUp(this, UIComponent(NailMain.application), true);
+					PopUpManager.centerPopUp(this);
+					_closed = false;
+				}
+			}
+			
+			public function hide() : void
+			{
+				if (!_closed)
+				{
+					PopUpManager.removePopUp(this);
+					_closed = true;
+				}
+			}
+			
+			//--------------------------------------
+			// Event Handlers
+			//--------------------------------------
+			
+			override protected function closeButton_clickHandler(event:MouseEvent) : void
+			{
+				this.hide();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:TextArea id="textArea"
+				width="100%"
+				height="100%"
+				fontSize="11"
+				verticalScrollPolicy="on"
+				editable="false"
+				text="{_text}"
+				borderColor="0x272727"
+				paddingLeft="5"
+				paddingRight="10"
+				paddingTop="10"
+				paddingBottom="10"/>
+	
+	<s:HGroup width="100%"
+			  paddingRight="10"
+			  paddingTop="10"
+			  paddingBottom="10"
+			  horizontalAlign="right">
+		<s:Button label="Close"
+				  width="70"
+				  click="hide()"/>
+	</s:HGroup>
+</nail:Widget>

@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+///////////////////////////////////////////////////////////////////////////////////
+// 
+//  Copyright (c) 2014 <nailsonnego@gmail.com>
+// 
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+// 
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+// 
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+//
+///////////////////////////////////////////////////////////////////////////////////
+-->
+
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" 
+		  xmlns:nail="library://ns.nail.com/naillib"
+		  width="400"
+		  height="270"
+		  resizable="false"
+		  maximizable="false"
+		  minimizable="false"
+		  fontSize="11"
+		  backgroundColor="0x494949"
+		  showStatusBar="false"
+		  title="Compile Client Files"
+		  creationComplete="creationCompleteHandler(event)"
+		  closing="windowClosingHandler(event)">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import spark.events.IndexChangeEvent;
+			import spark.events.TextOperationEvent;
+			
+			import nail.otlib.assets.AssetsVersion;
+			import nail.utils.StringUtil;
+			
+			//--------------------------------------------------------------------------
+			//
+			// PROPERTIES
+			//
+			//--------------------------------------------------------------------------
+			
+			private var _directory : File;
+			
+			private var _directoryChanged : Boolean;
+			
+			private var _sprFile : File;
+			
+			private var _datFile : File;
+			
+			private var _version : AssetsVersion;
+			
+			private var _versionChanged : Boolean;
+			
+			private var _cancel : Boolean = true;
+			
+			//--------------------------------------------------------------------------
+			//
+			// METHODS
+			//
+			//--------------------------------------------------------------------------
+			
+			//--------------------------------------
+			// Override Protected
+			//--------------------------------------
+			
+			override protected function commitProperties():void
+			{
+				super.commitProperties();
+				
+				if (_directoryChanged || _versionChanged)
+				{
+					setDirectory(_directory);
+					_directoryChanged = false;
+					_versionChanged = false;
+				}
+			}
+			
+			//--------------------------------------
+			// Private
+			//--------------------------------------
+			
+			private function setDirectory(directory:File) : void
+			{
+				var name : String;
+				
+				_datFile = null;
+				_sprFile = null;
+				
+				directoryTextInput.text = _directory != null ? _directory.nativePath : "";
+				versionsDropDownList.selectedItem = _version;
+				
+				name = nameTextInput.text;
+				if (directory != null && !StringUtil.isEmptyOrNull(name))
+				{
+					_datFile = directory.resolvePath(name + ".dat");
+					_sprFile = directory.resolvePath(name + ".spr");
+				}
+				
+				confirmButton.enabled = (_datFile != null && _sprFile != null && _version != null);
+			}
+			
+			//--------------------------------------
+			// Event Handlers
+			//--------------------------------------
+			
+			protected function creationCompleteHandler(event:FlexEvent) : void
+			{
+				versionsDropDownList.dataProvider = new ArrayCollection( AssetsVersion.getList() );
+				versionsDropDownList.selectedItem = _version;
+			}
+			
+			protected function browseButtonClickHandler(event:MouseEvent) : void
+			{
+				var dir : File;
+				dir = new File();
+				dir.addEventListener(Event.SELECT, fileSelectHandler);
+				dir.browseForDirectory("Select output folder.");
+				
+				function fileSelectHandler(event:Event) : void
+				{
+					directory = dir;
+				}
+			}
+			
+			protected function directoryTextInputChangeHandler(event:TextOperationEvent) : void
+			{
+				var dir : File; 
+				
+				try
+				{
+					dir = new File(directoryTextInput.text);
+				} 
+				catch(error:Error) 
+				{
+					dir = null;
+				}
+				
+				this.directory = dir;
+			}
+			
+			protected function nameTextInputChangeHandler(event:TextOperationEvent) : void
+			{
+				setDirectory(_directory);
+			}
+			
+			protected function confirmButtonClickHandler(event:MouseEvent) : void
+			{
+				_cancel = false;
+				this.close();
+			}
+			
+			protected function windowClosingHandler(event:Event):void
+			{
+				if (_cancel)
+				{
+					_datFile = null;
+					_sprFile = null;
+					_version = null;
+				}
+			}
+			
+			protected function versionsDropDownListChangeHandler(event:IndexChangeEvent) : void
+			{
+				this.version = versionsDropDownList.selectedItem as AssetsVersion;
+			}
+			
+			//--------------------------------------
+			// Getters / Setters 
+			//--------------------------------------
+			
+			public function get sprFile() : File
+			{
+				return _sprFile;
+			}
+			
+			public function get datFile() : File
+			{
+				return _datFile;
+			}
+			
+			public function get version() : AssetsVersion
+			{
+				return _version;
+			}
+			
+			public function set version(value:AssetsVersion) : void
+			{
+				if (value != _version)
+				{
+					_version = value;
+					_versionChanged = true;
+					invalidateProperties();
+				}
+			}
+			
+			public function get directory() : File
+			{
+				return _directory;
+			}
+			
+			public function set directory(value:File) : void
+			{
+				if (_directory != value)
+				{
+					_directory = value;
+					_directoryChanged = true;
+					invalidateProperties();
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:Group width="100%" 
+			 height="100%">
+		<s:layout>
+			<s:VerticalLayout gap="10"
+							  paddingLeft="10"
+							  paddingRight="10"
+							  paddingTop="10"
+							  paddingBottom="10"
+							  horizontalAlign="right"/>
+		</s:layout>
+		
+		<nail:GroupBox width="100%" label="Name">
+			<nail:layout>
+				<s:HorizontalLayout gap="10"
+									verticalAlign="middle"
+									horizontalAlign="right"
+									paddingLeft="10" 
+									paddingRight="10"
+									paddingTop="10" 
+									paddingBottom="10"/>
+			</nail:layout>
+			<s:TextInput id="nameTextInput"
+						 text="Tibia"
+						 width="100%"
+						 change="nameTextInputChangeHandler(event)"/>
+		</nail:GroupBox>
+		
+		<nail:GroupBox width="100%" label="Output Folder">
+			<nail:layout>
+				<s:HorizontalLayout gap="10"
+									verticalAlign="middle"
+									horizontalAlign="right"
+									paddingLeft="10" 
+									paddingRight="10"
+									paddingTop="10" 
+									paddingBottom="10"/>
+			</nail:layout>
+			<s:TextInput id="directoryTextInput"
+						 left="0"
+						 width="100%"
+						 change="directoryTextInputChangeHandler(event)"/>
+			<s:Button id="browseButton"
+					  label="Browse"
+					  height="21"
+					  click="browseButtonClickHandler(event)"/>
+		</nail:GroupBox>
+		
+		<nail:GroupBox width="100%" label="Version">
+			<nail:layout>
+				<s:HorizontalLayout gap="10"
+									verticalAlign="middle"
+									horizontalAlign="right"
+									paddingLeft="10" 
+									paddingRight="10"
+									paddingTop="10" 
+									paddingBottom="10"/>
+			</nail:layout>
+			<s:DropDownList id="versionsDropDownList"	
+							height="21"
+							change="versionsDropDownListChangeHandler(event)"/>
+		</nail:GroupBox>
+		
+		<s:Spacer height="10"/>
+		
+		<s:Line width="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0x272727"/>
+			</s:stroke>
+		</s:Line>
+		
+		<s:HGroup width="100%"
+				  verticalAlign="middle"
+				  horizontalAlign="right">
+			<s:Button id="confirmButton"
+					  label="Confirm"
+					  width="70"
+					  enabled="false"
+					  click="confirmButtonClickHandler(event)"/>
+			<s:Button id="cancelButton"
+					  label="Cancel"
+					  width="70"
+					  click="close()"/>
+		</s:HGroup>
+	</s:Group>
+</s:Window>
