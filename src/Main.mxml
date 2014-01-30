@@ -37,6 +37,8 @@
 			import flash.net.registerClassAlias;
 			
 			import mx.core.UIComponent;
+			import mx.logging.ILogger;
+			import mx.logging.Log;
 			
 			import nail.components.controls.Alert;
 			import nail.core.INailApplication;
@@ -48,6 +50,7 @@
 			import nail.otlib.components.controls.CustomProgressBar;
 			import nail.otlib.things.ThingCategory;
 			import nail.otlib.things.ThingType;
+			import nail.utils.StringUtil;
 			import nail.workers.Command;
 			
 			//--------------------------------------------------------------------------
@@ -60,6 +63,8 @@
 			public var ObjectBuilderWorker : Class;
 			
 			private var _progressBar : CustomProgressBar;
+			
+			private var _logger : ILogger = Log.getLogger("nail.Main");
 			
 			//--------------------------------------------------------------------------
 			//
@@ -75,6 +80,7 @@
 			{
 				registerClassAlias("ThingType", ThingType);
 				registerClassAlias("AssetsInfo", AssetsInfo);
+				registerFunction(CommandType.ERROR, onError);
 				registerFunction(CommandType.SHOW_PROGRESS_BAR, onShowProgressBar);
 				registerFunction(CommandType.HIDE_PROGRESS_BAR, onHideProgressBar);
 				registerFunction(CommandType.SHOW_MESSAGE, onShowMessage);
@@ -87,6 +93,36 @@
 			//--------------------------------------
 			// Private
 			//--------------------------------------
+			
+			public function onError(args:Array) : void
+			{
+				var message : String;
+				var stack : String;
+				var id : uint;
+				
+				message = args[0];
+				stack = args[1];
+				id = args[2];
+				
+				// Close progress bar
+				if (_progressBar != null)
+				{
+					_progressBar.close();
+					_progressBar = null;
+				}
+				
+				// Show error
+				Alert.show(message, "Error", Alert.OK, UIComponent(application));
+				ObjectBuilder(application).appendLog(message);
+				
+				if (StringUtil.isEmptyOrNull(stack))
+				{
+					stack = message;
+				}
+				
+				// Save on log file.
+				_logger.error(stack);
+			}
 			
 			private function onShowProgressBar(args:Array) : void
 			{

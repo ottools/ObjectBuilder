@@ -31,10 +31,8 @@ package nail.objectbuilder.core
 	import flash.net.registerClassAlias;
 	import flash.utils.ByteArray;
 	
-	import mx.logging.ILogger;
-	import mx.logging.Log;
-	
 	import nail.objectbuilder.commands.CommandType;
+	import nail.objectbuilder.commands.ErrorCommand;
 	import nail.objectbuilder.commands.MessageCommand;
 	import nail.objectbuilder.commands.SetAssetsInfoCommand;
 	import nail.objectbuilder.commands.SetSpriteListCommand;
@@ -48,7 +46,6 @@ package nail.objectbuilder.core
 	import nail.otlib.utils.ThingUtils;
 	import nail.utils.StringUtil;
 	import nail.workers.Command;
-	import nail.workers.ErrorCommand;
 	import nail.workers.NailWorker;
 	
 	public class ObjectBuilderWorker extends NailWorker
@@ -63,9 +60,11 @@ package nail.objectbuilder.core
 		
 		private var _sprites : SpriteStorage;
 		
-		private var _version : AssetsVersion;
+		private var _datFile : File;
 		
-		private var _logger : ILogger;
+		private var _sprFile : File;
+		
+		private var _version : AssetsVersion;
 		
 		//--------------------------------------------------------------------------
 		//
@@ -75,8 +74,8 @@ package nail.objectbuilder.core
 		
 		public function ObjectBuilderWorker()
 		{
-			_logger = Log.getLogger("Worker");
-		}	
+			
+		}
 		
 		//--------------------------------------------------------------------------
 		//
@@ -123,11 +122,15 @@ package nail.objectbuilder.core
 			} 
 			catch(error:Error) 
 			{
-				_logger.error(error.getStackTrace());
+				sendError(error.message, error.getStackTrace(), error.errorID);
 				return;
 			}
 			
 			sendCommand(new Command(CommandType.SHOW_PROGRESS_BAR, "Loading"));
+			
+			_datFile = dat;
+			_sprFile = spr;
+			_version = version;
 			
 			if (_things != null)
 			{
@@ -147,8 +150,6 @@ package nail.objectbuilder.core
 				_sprites = null;
 			}
 			
-			_version = version;
-			
 			_things = new ThingTypeStorage();
 			_things.addEventListener(Event.COMPLETE, thingsCompleteHandler);
 			_things.addEventListener(Event.CHANGE, thingsChangeHandler);
@@ -163,8 +164,7 @@ package nail.objectbuilder.core
 			_sprites.addEventListener(ErrorEvent.ERROR, spritesErrorHandler);
 			
 			_things.sprites = _sprites;
-			_things.load(dat, version);
-			_sprites.load(spr, version);
+			_things.load(_datFile, version);
 		}
 		
 		private function onGetAssetsInfo(args:Array) : void
@@ -192,7 +192,7 @@ package nail.objectbuilder.core
 			} 
 			catch(error:Error) 
 			{
-				_logger.error(error.getStackTrace());
+				sendError(error.message, error.getStackTrace(), error.errorID);
 				return;
 			}
 			
@@ -232,28 +232,36 @@ package nail.objectbuilder.core
 			var i :uint;
 			var list : Array;
 			
+			list = [];
+			
 			id = args[0];
 			category = ThingCategory.getCategory(args[1]);
 			if (category == null)
 			{
-				trace("ObjectBuilderWorker.onGetThing: category == null");
+				sendError("Invalid thing category.");
 				return;
 			}
 			
 			thing = _things.getThingType(id,  category);
 			if (thing == null)
 			{
-				trace("ObjectBuilderWorker.onGetThing: thing == null");
+				sendError(StringUtil.substitute("{0} {1} not found.", StringUtil.capitaliseFirstLetter(category), id));
 				return;
 			}
 			
-			list = [];
-			spriteIndex = thing.spriteIndex;
-			length = spriteIndex.length;
-			
-			for (i = 0; i < length; i++)
+			try
 			{
-				list[i] = _sprites.getPixels(spriteIndex[i]);
+				spriteIndex = thing.spriteIndex;
+				length = spriteIndex.length;
+				for (i = 0; i < length; i++)
+				{
+					list[i] = _sprites.getPixels(spriteIndex[i]);
+				}
+			} 
+			catch(error:Error)
+			{
+				sendError(error.message, error.getStackTrace(), error.errorID);
+				return;
 			}
 			
 			sendCommand(new SetThingCommand(thing, list));
@@ -292,11 +300,11 @@ package nail.objectbuilder.core
 			} 
 			catch(error:Error) 
 			{
-				_logger.error(error.getStackTrace());
+				sendError(error.message, error.getStackTrace(), error.errorID);
 				return;
 			}
 			
-			trace(id, category, file.nativePath, version);
+			//trace(id, category, file.nativePath, version);
 			/*if (_things.exportThing(thing, version, file))
 			{
 				message = StringUtil.substitute("{0} {1} export complete.", StringUtil.capitaliseFirstLetter(thing.category), thing.id);
@@ -344,7 +352,7 @@ package nail.objectbuilder.core
 			} 
 			catch(error:Error) 
 			{
-				trace(error.getStackTrace());
+				sendError(error.message, error.getStackTrace(), error.errorID);
 				return;
 			}
 			
@@ -365,7 +373,7 @@ package nail.objectbuilder.core
 			} 
 			catch(error:Error) 
 			{
-				trace(error.getStackTrace());
+				sendError(error.message, error.getStackTrace(), error.errorID);
 				return;
 			}
 			
@@ -445,15 +453,23 @@ package nail.objectbuilder.core
 			sendCommand(new SetSpriteListCommand(target, min, max, list));
 		}
 		
+		private function sendError(message:String, stack:String = "", id:uint = 0) : void
+		{
+			if (!StringUtil.isEmptyOrNull(message))
+			{
+				sendCommand(new ErrorCommand(message, stack, id));
+			}
+		}
+		
 		//--------------------------------------
 		// Event Handlers
 		//--------------------------------------
 		
 		protected function thingsCompleteHandler(event:Event) : void
 		{
-			if (_sprites != null && _sprites.loaded)
+			if (_sprites != null && !_sprites.loaded)
 			{
-				this.assetsLoadComplete();
+				_sprites.load(_sprFile, _version);
 			}
 		}
 		
@@ -469,7 +485,7 @@ package nail.objectbuilder.core
 		
 		protected function thingsErrorHandler(event:ErrorEvent) : void
 		{
-			trace("ObjectBuilderWorker.thingsErrorHandler(event)", event.text);
+			sendError(event.text, "", event.errorID);
 		}	
 		
 		protected function spritesCompleteHandler(event:Event) : void
@@ -492,7 +508,7 @@ package nail.objectbuilder.core
 		
 		protected function spritesErrorHandler(event:ErrorEvent) : void
 		{
-			trace("ObjectBuilderWorker.spritesErrorHandler(event)");
+			sendError(event.text, "", event.errorID);
 		}
 	}
 }

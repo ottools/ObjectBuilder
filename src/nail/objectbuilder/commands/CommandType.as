@@ -90,5 +90,7 @@ package nail.objectbuilder.commands
 		static public const HIDE_PROGRESS_BAR : String = "hideProgressBar";	
 		
 		static public const SHOW_MESSAGE : String = "showMessage";	
+		
+		static public const ERROR : String = "error";
 	}
 }
