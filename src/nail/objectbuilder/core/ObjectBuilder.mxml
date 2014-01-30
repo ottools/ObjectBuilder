@@ -139,6 +139,8 @@
 			
 			public function setAssetsInfo(info:AssetsInfo) : void
 			{
+				var visible : Boolean;
+				
 				_info = info;
 				
 				if (_info != null)
@@ -154,7 +156,19 @@
 					thingStepper.minimum = _info.minItemId;
 					thingStepper.maximum = _info.maxItemId;
 					spriteStepper.minimum = _info.minSpriteId;
-					spriteStepper.maximum = _info.maxSpriteId
+					spriteStepper.maximum = _info.maxSpriteId;
+					
+					// Hide 'No Move Animation' CheckBox by version.
+					visible = _info.version >= 1010;
+					thingAtrributes.noMoveAnimationCheckBox.visible = visible;
+					thingAtrributes.noMoveAnimationCheckBox.includeInLayout = visible;
+					
+					// Hide 'Action' GroupCheckBox and 'Usable' CheckBox by version.
+					visible = _info.version >= 1021;
+					thingAtrributes.actionGroupCheckBox.visible = visible;
+					thingAtrributes.actionGroupCheckBox.includeInLayout = visible;
+					thingAtrributes.usableCheckBox.visible = visible;
+					thingAtrributes.usableCheckBox.includeInLayout = visible;
 				}
 			}
 			
