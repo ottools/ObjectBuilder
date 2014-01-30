@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <versions>
+	<version value="960" string="9.60" dat="4FFA74CC" spr="4FFA74F9"  otb="40"/>
+	<version value="961" string="9.61" dat="50226F9D" spr="50226FBD"  otb="41"/>
+	<version value="963" string="9.63" dat="503CB933" spr="503CB954"  otb="42"/>
+	<version value="970" string="9.70" dat="5072A490" spr="5072A567"  otb="43"/>
+	<version value="980" string="9.80" dat="50C70674" spr="50C70753"  otb="44"/>
+	<version value="981" string="9.81" dat="50D1C5B6" spr="50D1C685"  otb="45"/>
+	<version value="982" string="9.82" dat="512CAD09" spr="512CAD68"  otb="46"/>
+	<version value="983" string="9.83" dat="51407B67" spr="51407BC7"  otb="47"/>
+	<version value="985" string="9.85" dat="51641A1B" spr="51641A84"  otb="48"/>
+	<version value="986" string="9.86" dat="5170E904" spr="5170E96F"  otb="49"/>
+	<version value="1010" string="10.10" dat="51E3F8C3" spr="51E3F8E9" otb="50"/>
+	<version value="1020" string="10.20" dat="5236F129" spr="5236F14F" otb="51"/>
+	<version value="1021" string="10.21" dat="526A5068" spr="526A5090" otb="52"/>
 	<version value="1030" string="10.30" dat="52A59036" spr="52A5905F" otb="53"/>
 	<version value="1031" string="10.31" dat="52AED581" spr="52AED5A7" otb="54"/>
 	<version value="1032" string="10.32" dat="52D8D0A9" spr="52D8D0CE" otb="0"/>
