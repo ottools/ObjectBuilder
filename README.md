@@ -4,11 +4,11 @@ ObjectBuilder is a dat / spr files editor.
 
 ### Supported versions:
 
-10.32, 10.31, 10.30
+9.60 - 10.34
 
 ### Download
 
-[ObjectBuilder-0.1-Alpha1] (https://www.dropbox.com/s/jhs5k1gtugnphe0/ObjectBuilder-0.1-Alpha1.air)
+[ObjectBuilder 0.2] (https://www.dropbox.com/s/yo73u7ihziiyvxs/ObjectBuilder0.2.air)
 
 ### Install 
 
