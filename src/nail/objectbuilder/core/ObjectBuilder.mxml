@@ -665,10 +665,11 @@
 				
 				loader = new FileLoader();
 				loader.addEventListener(Event.COMPLETE, completeHandler);
-				loader.loadBitmapData();
+				loader.loadBitmapData(_settings.getLastImportExportDirectory());
 				
 				function completeHandler(event:Event) : void
 				{
+					var directory : File;
 					var bitmap : BitmapData;
 					var spriteData : SpriteData;
 					
@@ -677,6 +678,12 @@
 					{
 						Alert.show("Invalid size. Please, import bitmap with 32x32 pixels.");
 						return;
+					}
+					
+					directory = FileUtils.getDirectory(loader.file);
+					if (directory != null)
+					{
+						_settings.lastImportExportDirectory = directory.nativePath;
 					}
 					
 					// Transform bitmap 24 to 32 bits
@@ -707,15 +714,22 @@
 				
 				loader = new FileLoader();
 				loader.addEventListener(Event.COMPLETE, completeHandler);
-				loader.loadBitmapData();
+				loader.loadBitmapData(_settings.getLastImportExportDirectory());
 				
 				function completeHandler(event:Event) : void
 				{
+					var directory : File;
 					var bitmap : BitmapData = BitmapData(loader.data);
 					if (bitmap.width != 32 && bitmap.height != 32)
 					{
 						Alert.show("Invalid size. Please, import bitmap with 32x32 pixels.");
 						return;
+					}
+					
+					directory = FileUtils.getDirectory(loader.file);
+					if (directory != null)
+					{
+						_settings.lastImportExportDirectory = directory.nativePath;
 					}
 					
 					// Transform bitmap 24 to 32 bits
