@@ -39,6 +39,8 @@ package nail.objectbuilder.settings
 		
 		public var lastDirectory : String;
 		
+		public var lastImportExportDirectory : String;
+		
 		//--------------------------------------------------------------------------
 		//
 		// CONSTRUCTOR
@@ -79,5 +81,26 @@ package nail.objectbuilder.settings
 			}
 			return directory;
 		}
+		
+		public function getLastImportExportDirectory() : File
+		{
+			var directory : File;
+			
+			if (StringUtil.isEmptyOrNull(lastImportExportDirectory))
+			{
+				return null;
+			}
+			
+			try
+			{
+				directory = new File(lastImportExportDirectory);
+			} 
+			catch(error:Error) 
+			{
+				return null;
+			}
+			return directory;
+		}
 	}
 }
+
