@@ -1,6 +1,6 @@
-### What is ObjectBuilder?
+### What is Object Builder?
 
-ObjectBuilder is a dat / spr files editor.
+Object Builder is a dat / spr files editor.
 
 ### Supported versions:
 
@@ -8,10 +8,10 @@ ObjectBuilder is a dat / spr files editor.
 
 ### Download
 
-[ObjectBuilder 0.2] (https://www.dropbox.com/s/yo73u7ihziiyvxs/ObjectBuilder0.2.air)
+[Object Builder 0.2.1] (https://www.dropbox.com/s/sy3qp5lvsrmv1gh/ObjectBuilder0.2.1.air)
 
 ### Install 
 
-To install the ObjectBuilder, you need install Adobe AIR Runtime.
+To install the Object Builder, you need install Adobe AIR Runtime.
 
 [Adobe AIR] (http://get.adobe.com/br/air/)
