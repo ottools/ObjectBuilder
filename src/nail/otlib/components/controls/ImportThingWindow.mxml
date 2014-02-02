@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+///////////////////////////////////////////////////////////////////////////////////
+// 
+//  Copyright (c) 2014 <nailsonnego@gmail.com>
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+// 
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+// 
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+//
+///////////////////////////////////////////////////////////////////////////////////
+-->
+
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  xmlns:controls="nail.otlib.components.controls.*"
+		  xmlns:nail="library://ns.nail.com/naillib"
+		  width="400"
+		  height="300"
+		  showStatusBar="false"
+		  maximizable="false"
+		  minimizable="false"
+		  resizable="false"
+		  backgroundColor="0x494949"
+		  fontSize="11"
+		  title="Import Object"
+		  closing="windowClosingHandler(event)">
+	
+	<s:layout>
+		<s:VerticalLayout gap="10"
+						  paddingLeft="10"
+						  paddingRight="10"
+						  paddingTop="10"
+						  paddingBottom="10"
+						  horizontalAlign="right"/>
+	</s:layout>
+	
+	<fx:Script>
+		<![CDATA[
+			import nail.components.NailMain;
+			import nail.otlib.assets.AssetsVersion;
+			import nail.otlib.utils.ThingData;
+			import nail.utils.FileUtils;
+			import nail.utils.StringUtil;
+			
+			//--------------------------------------------------------------------------
+			//
+			// PROPERTIES
+			//
+			//--------------------------------------------------------------------------
+			
+			private var _directory : File;
+			
+			private var _thingData : ThingData;
+			
+			private var _cancel : Boolean = true;
+			
+			//--------------------------------------------------------------------------
+			//
+			// METHODS
+			//
+			//--------------------------------------------------------------------------
+			
+			private function setFile(file:File) : void
+			{
+				var bytes : ByteArray;
+				var stream : FileStream;
+				var data : ThingData;
+				
+				_thingData = null;
+				bytes = new ByteArray();
+				stream = new FileStream();
+				
+				try
+				{
+					stream.open(file, FileMode.READ);
+					stream.readBytes(bytes, 0, stream.bytesAvailable);
+					stream.close();
+					
+					data = ThingData.unserialize(bytes);
+				} 
+				catch(error:Error) 
+				{
+					Main(NailMain.instance).onError([error.message, error.getStackTrace(), error.errorID]);
+					return;
+				}
+				
+				_thingData = data;
+				_directory = FileUtils.getDirectory(file);
+				fileTextInput.text = file.nativePath;
+				
+				if (data != null)
+				{
+					typeLabel.text = StringUtil.capitaliseFirstLetter(data.category);
+				}
+				
+				bytes.position = 0;
+				versionLabel.text = AssetsVersion.getVersionByValue( bytes.readUnsignedShort() ).toString();
+				thingView.thingData = data;
+				confirmButton.enabled = (data != null);
+			}
+			
+			//--------------------------------------
+			// Event Handlers
+			//--------------------------------------
+			
+			protected function browseButtonClickHandler(event:MouseEvent) : void
+			{
+				var filter : FileFilter;
+				var file : File;
+				
+				filter = new FileFilter("Object Builder Data", "*.obd");
+				file = _directory != null ? _directory : File.documentsDirectory;
+				file.addEventListener(Event.SELECT, fileSelectHandler);
+				file.browseForOpen("Select File", [filter]);
+				
+				function fileSelectHandler(event:Event) : void
+				{
+					setFile(file);
+				}
+			}
+			
+			protected function confirmButtonClickHandler(event:MouseEvent) : void
+			{
+				_cancel = false;
+				this.close();
+			}
+			
+			protected function windowClosingHandler(event:Event):void
+			{
+				if (_cancel)
+				{
+					_thingData = null;
+				}
+			}
+			
+			//--------------------------------------
+			// Getters / Setters 
+			//--------------------------------------
+			
+			public function get thingData() : ThingData
+			{
+				return _thingData;
+			}
+			
+			public function get directory() : File
+			{
+				return _directory;
+			}
+			
+			public function set directory(value:File) : void
+			{
+				_directory = value;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:Group width="100%">
+		<s:Label text="File:"
+				 fontSize="10" 
+				 color="0xDFDFDF"/>
+		<s:TextInput id="fileTextInput"
+					 left="0"
+					 right="65"
+					 top="15"
+					 editable="false"/>
+		<s:Button id="browseButton"
+				  label="Browse"
+				  height="22"
+				  top="15"
+				  right="0"
+				  click="browseButtonClickHandler(event)"/>
+	</s:Group>
+	
+	<nail:GroupBox label="View"
+				   width="100%"
+				   height="100%">
+		<s:TileGroup requestedColumnCount="2"
+					 left="10"
+					 bottom="10">
+			<s:Label text="Type:"/>
+			<s:Label id="typeLabel"/>
+			<s:Label text="Version:"/>
+			<s:Label id="versionLabel"/>
+		</s:TileGroup>
+		
+		<controls:ThingView id="thingView"
+							horizontalCenter="0"
+							verticalCenter="0"/>
+	</nail:GroupBox>
+	
+	<s:HGroup width="100%"
+			  verticalAlign="middle"
+			  horizontalAlign="right">
+		<s:Button id="confirmButton"
+				  label="Confim"
+				  width="70"
+				  enabled="false"
+				  click="confirmButtonClickHandler(event)"/>
+		<s:Button id="cancelButton"
+				  label="Cancel"
+				  width="70"
+				  click="close()"/>
+	</s:HGroup>
+</s:Window>

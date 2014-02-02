@@ -50,6 +50,7 @@
 			import nail.otlib.components.controls.CustomProgressBar;
 			import nail.otlib.things.ThingCategory;
 			import nail.otlib.things.ThingType;
+			import nail.otlib.utils.SpriteData;
 			import nail.utils.StringUtil;
 			import nail.workers.Command;
 			
@@ -80,6 +81,7 @@
 			{
 				registerClassAlias("ThingType", ThingType);
 				registerClassAlias("AssetsInfo", AssetsInfo);
+				registerClassAlias("SpriteData", SpriteData);
 				registerFunction(CommandType.ERROR, onError);
 				registerFunction(CommandType.SHOW_PROGRESS_BAR, onShowProgressBar);
 				registerFunction(CommandType.HIDE_PROGRESS_BAR, onHideProgressBar);
@@ -91,7 +93,7 @@
 			}
 			
 			//--------------------------------------
-			// Private
+			// Public
 			//--------------------------------------
 			
 			public function onError(args:Array) : void
@@ -123,6 +125,10 @@
 				// Save on log file.
 				_logger.error(stack);
 			}
+			
+			//--------------------------------------
+			// Private
+			//--------------------------------------
 			
 			private function onShowProgressBar(args:Array) : void
 			{

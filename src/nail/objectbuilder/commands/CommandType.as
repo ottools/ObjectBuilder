@@ -61,8 +61,6 @@ package nail.objectbuilder.commands
 		
 		static public const IMPORT_THING : String = "importThing";
 		
-		static public const EXPORT_THING : String = "exportThing";
-		
 		static public const UPDATE_THING : String = "updateThing";
 		
 		static public const GET_THING : String = "getThing";

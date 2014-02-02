@@ -73,10 +73,10 @@
 			import nail.objectbuilder.commands.ChangeThingCommand;
 			import nail.objectbuilder.commands.CompileAssetsCommand;
 			import nail.objectbuilder.commands.DuplicateThingCommand;
-			import nail.objectbuilder.commands.ExportThingCommand;
 			import nail.objectbuilder.commands.GetSpriteListCommand;
 			import nail.objectbuilder.commands.GetThingCommand;
 			import nail.objectbuilder.commands.ImportSpriteCommand;
+			import nail.objectbuilder.commands.ImportThingCommand;
 			import nail.objectbuilder.commands.LoadAssetsCommand;
 			import nail.objectbuilder.commands.NewThingCommand;
 			import nail.objectbuilder.commands.ReplaceSpriteCommand;
@@ -85,6 +85,7 @@
 			import nail.otlib.assets.AssetsVersion;
 			import nail.otlib.components.controls.CompileAssetsWindow;
 			import nail.otlib.components.controls.ExportThingWindow;
+			import nail.otlib.components.controls.ImportThingWindow;
 			import nail.otlib.components.controls.LogWidget;
 			import nail.otlib.components.controls.OpenAssetsWindow;
 			import nail.otlib.events.ThingEditorEvent;
@@ -153,8 +154,8 @@
 					missilesCountLabel.text = _info.maxMissileId.toString();
 					sprSignatureLabel.text = _info.sprSignature.toString(16).toUpperCase();
 					spritesCountLabel.text = _info.maxSpriteId.toString();
-					thingStepper.minimum = _info.minItemId;
-					thingStepper.maximum = _info.maxItemId;
+					thingStepper.minimum = getMinThingId();
+					thingStepper.maximum = getMaxThingId();
 					spriteStepper.minimum = _info.minSpriteId;
 					spriteStepper.maximum = _info.maxSpriteId;
 					
@@ -174,8 +175,6 @@
 			
 			public function setThing(thing:ThingType, list:Array) : void
 			{
-				var rect : Rectangle;
-				var bitmap : BitmapData;
 				var pixels : ByteArray;
 				var sprite : SpriteData;
 				var sprites : Vector.<SpriteData>;
@@ -188,7 +187,6 @@
 					return;
 				}
 				
-				rect = new Rectangle(0, 0, 32, 32);
 				sprites = new Vector.<SpriteData>(length);
 				
 				for (i = 0; i < length; i++)
@@ -196,11 +194,9 @@
 					pixels = list[i];
 					if (pixels != null)
 					{
-						bitmap = new BitmapData(rect.width, rect.height, true, 0);
-						bitmap.setPixels(rect, pixels);
 						sprite = new SpriteData();
 						sprite.id = thing.spriteIndex[i];
-						sprite.bitmap = bitmap;	
+						sprite.pixels = pixels;
 						sprites[i] = sprite;
 					}
 				}
@@ -212,7 +208,6 @@
 			{
 				var length :uint;
 				var i : int;
-				var rect : Rectangle;
 				var pixels : ByteArray;
 				var bitmap : BitmapData;
 				var sprite : SpriteData;
@@ -221,7 +216,6 @@
 				_selectIndex = -1;
 				_spriteMin = min;
 				_spriteMax = max;
-				rect = new Rectangle(0, 0, 32, 32);
 				
 				length = list.length;
 				for (i = 0; i < length; i++)
@@ -229,12 +223,11 @@
 					pixels = list[i];
 					if (pixels != null)
 					{
-						bitmap = new BitmapData(rect.width, rect.height, true, 0);
-						bitmap.setPixels(rect, pixels);
 						sprite = new SpriteData();
 						sprite.id = i;
-						sprite.bitmap = bitmap;
+						sprite.pixels = pixels;
 						_spritesCollection.addItem(sprite);
+						
 						if (i == target)
 						{
 							_selectIndex = _spritesCollection.getItemIndex(sprite);
@@ -299,6 +292,11 @@
 				}
 			}
 			
+			override protected function createMenuDataProvider() : XMLList
+			{
+				return menuXML;
+			}
+			
 			//--------------------------------------
 			// Private
 			//--------------------------------------
@@ -329,11 +327,58 @@
 				
 				function windowCloseHandler(event:Event) : void
 				{
+					_settings.setLastDirectory(window.datFile);
+					
 					if (window.datFile != null && window.sprFile != null && window.version != null)
 					{
 						loadAssets(window.datFile, window.sprFile, window.version);
-						_settings.lastDirectory = FileUtils.getDirectory(window.datFile).nativePath;
 					}
+				}
+			}
+			
+			private function onImportThingData(replace:ThingData = null) : void
+			{
+				var window : ImportThingWindow;
+				
+				if (_info == null)
+				{
+					return;
+				}
+				
+				window = new ImportThingWindow();
+				window.directory = _settings.getLastImportExportDirectory();
+				window.addEventListener(Event.CLOSE, windowCloseHandler);
+				window.open();
+				
+				PopUpWindowManager.addWindow(window);
+				
+				function windowCloseHandler(event:Event) : void
+				{
+					_settings.setLastImportExportDirectory(window.directory);
+					
+					if (window.thingData != null)
+					{
+						sendCommand(new ImportThingCommand(window.thingData, replace));
+					}
+				}
+			}
+			
+			private function onExportThingData(file:File, data:ThingData, version:AssetsVersion) : void
+			{
+				var bytes : ByteArray;
+				var stream : FileStream;
+				
+				try
+				{
+					bytes = ThingData.serialize(data, version);
+					stream = new FileStream();
+					stream.open(file, FileMode.WRITE);
+					stream.writeBytes(bytes, 0, bytes.bytesAvailable);
+					stream.close();
+				} 
+				catch(error:Error)
+				{
+					Main(NailMain.instance).onError([error.message, error.getStackTrace(), error.errorID]);
 				}
 			}
 			
@@ -389,6 +434,8 @@
 				
 				function windowCloseHandler(event:Event) : void
 				{
+					_settings.setLastDirectory(window.directory);
+					
 					if (window.datFile != null && window.sprFile != null && window.version != null)
 					{
 						compileAssets(window.datFile, window.sprFile, window.version);
@@ -480,11 +527,6 @@
 			// Event Handlers
 			//--------------------------------------
 			
-			override protected function createMenuDataProvider() : XMLList
-			{
-				return menuXML;
-			}
-			
 			protected function confirmButtonClickHandler(event:MouseEvent) : void
 			{
 				if (thingAtrributes.changed)
@@ -571,25 +613,39 @@
 				}
 			}
 			
+			protected function replaceThingButtonClickHandler(event:MouseEvent) : void
+			{
+				this.onImportThingData(this.thingData);
+			}
+			
+			protected function importThingButtonClickHandler(event:MouseEvent) : void
+			{
+				this.onImportThingData();
+			}
+			
 			protected function exportThingButtonClickHandler(event:MouseEvent) : void
 			{
 				var window : ExportThingWindow;
 				
-				if (_info == null)
+				if (_info == null || this.thingData == null)
 				{
 					return;
 				}
 				
 				window = new ExportThingWindow();
+				window.thingName = thingData.category + "_" + thingData.id;
+				window.version = AssetsVersion.getVersionByValue(_info.version);
+				window.directory = _settings.getLastImportExportDirectory();
 				window.addEventListener(Event.CLOSE, windowCloseHandler);
 				window.open();
 				PopUpWindowManager.addWindow(window);
 				
 				function windowCloseHandler(event:Event) : void
 				{
-					if (window.file != null)
+					if (window.file != null && window.version != null)
 					{
-						sendCommand(new ExportThingCommand(thingData, window.version, window.file));
+						_settings.lastImportExportDirectory = window.directory.nativePath;
+						onExportThingData(window.file, thingData, window.version);
 					}
 				}
 			}
@@ -895,20 +951,19 @@
 					  toolTip="Replace"
 					  width="19"
 					  height="19"
-					  enabled="false"
-					  icon="{Icons.REPLACE}"/>
+					  icon="{Icons.REPLACE}"
+					  click="replaceThingButtonClickHandler(event)"/>
 			<s:Button id="importThingButton"
 					  toolTip="Import"
 					  width="19"
 					  height="19"
-					  enabled="false"
-					  icon="{Icons.IMPORT}"/>
+					  icon="{Icons.IMPORT}"
+					  click="importThingButtonClickHandler(event)"/>
 			<s:Button id="exportThingButton"
 					  toolTip="Export"
 					  width="19"
 					  height="19"
 					  icon="{Icons.EXPORT}"
-					  enabled="false"
 					  click="exportThingButtonClickHandler(event)"/>
 			<s:Button id="editThingButton"
 					  toolTip="Edit"

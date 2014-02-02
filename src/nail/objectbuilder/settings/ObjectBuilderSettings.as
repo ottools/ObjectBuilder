@@ -27,6 +27,7 @@ package nail.objectbuilder.settings
 	import flash.filesystem.File;
 	
 	import nail.settings.Settings;
+	import nail.utils.FileUtils;
 	import nail.utils.StringUtil;
 	
 	public class ObjectBuilderSettings extends Settings
@@ -82,6 +83,14 @@ package nail.objectbuilder.settings
 			return directory;
 		}
 		
+		public function setLastDirectory(file:File) : void
+		{
+			if (file != null)
+			{
+				this.lastDirectory = FileUtils.getDirectory(file).nativePath;
+			}
+		}
+		
 		public function getLastImportExportDirectory() : File
 		{
 			var directory : File;
@@ -101,6 +110,13 @@ package nail.objectbuilder.settings
 			}
 			return directory;
 		}
+		
+		public function setLastImportExportDirectory(file:File) : void
+		{
+			if (file != null)
+			{
+				this.lastImportExportDirectory = FileUtils.getDirectory(file).nativePath;
+			}
+		}
 	}
 }
-

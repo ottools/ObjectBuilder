@@ -43,6 +43,7 @@ package nail.objectbuilder.core
 	import nail.otlib.things.ThingCategory;
 	import nail.otlib.things.ThingType;
 	import nail.otlib.things.ThingTypeStorage;
+	import nail.otlib.utils.SpriteData;
 	import nail.otlib.utils.ThingUtils;
 	import nail.utils.StringUtil;
 	import nail.workers.Command;
@@ -91,13 +92,14 @@ package nail.objectbuilder.core
 		{
 			registerClassAlias("ThingType", ThingType);
 			registerClassAlias("AssetsInfo", AssetsInfo);
+			registerClassAlias("SpriteData", SpriteData);
 			registerCommand(CommandType.LOAD_ASSETS, onLoadAssets);
 			registerCommand(CommandType.GET_ASSETS_INFO, onGetAssetsInfo);
 			registerCommand(CommandType.COMPILE_ASSETS, onCompileAssets);
 			registerCommand(CommandType.NEW_THING, onNewThing);
 			registerCommand(CommandType.GET_THING, onGetThing);
 			registerCommand(CommandType.UPDATE_THING, onChangeThing);
-			registerCommand(CommandType.EXPORT_THING, onExportThing);
+			registerCommand(CommandType.IMPORT_THING, onImportThing);
 			registerCommand(CommandType.DUPLICATE_THING, onDuplicateThing);
 			registerCommand(CommandType.GET_SPRITE_LIST, onGetSpriteList);
 			registerCommand(CommandType.REPLACE_SPRITE, onReplaceSprite);
@@ -283,33 +285,66 @@ package nail.objectbuilder.core
 			}
 		}
 		
-		private function onExportThing(args:Array) : void
+		private function onImportThing(args:Array) : void
 		{
-			var id : uint;
-			var category : String;
-			var file : File;
-			var version : AssetsVersion;
+			var thing : ThingType;
+			var sprites : Vector.<SpriteData>;
+			var replaceId : uint;
+			var done : Boolean;
+			var length : uint;
+			var i :uint;
+			var spriteId : uint;
+			var pixels : ByteArray;
+			var spritesAdded : uint;
 			var message : String;
 			
 			try
 			{
-				id = args[0];
-				category = args[1];
-				version = AssetsVersion.getVersionByValue(args[2]);
-				file = new File(args[3]);
+				thing = args[0] as ThingType;
+				sprites = args[1] as Vector.<SpriteData>;
+				replaceId = args[2] as uint;
+				
+				if (thing != null)
+				{
+					if (replaceId != 0)
+					{
+						done = _things.replace(thing, thing.category, replaceId);
+						message = "Replaced"
+					}
+					else 
+					{
+						done = _things.addThing(thing, thing.category);
+						message = "Added"
+					}
+					
+					length = sprites.length;
+					for (i = 0; i < length; i++)
+					{
+						pixels = sprites[i].pixels;
+						spriteId = thing.spriteIndex[i];
+						
+						// Only add if sprite are not equal.
+						if (!_sprites.compare(spriteId, pixels))
+						{
+							if (_sprites.addSprite(pixels))
+							{
+								thing.spriteIndex[i] = _sprites.spritesCount;
+								spritesAdded++;
+							}
+						}
+					}
+				}
+				
+				if (done)
+				{
+					message += " {0} id {1}. Added {2} new sprites."
+					sendCommand(new MessageCommand(StringUtil.substitute(message, thing.category, thing.id, spritesAdded)));
+				}
 			} 
-			catch(error:Error) 
+			catch(error:Error)
 			{
 				sendError(error.message, error.getStackTrace(), error.errorID);
-				return;
 			}
-			
-			//trace(id, category, file.nativePath, version);
-			/*if (_things.exportThing(thing, version, file))
-			{
-				message = StringUtil.substitute("{0} {1} export complete.", StringUtil.capitaliseFirstLetter(thing.category), thing.id);
-				sendCommand(new ShowMessageCommand(message, "Info"));
-			}*/
 		}
 		
 		private function onDuplicateThing(args:Array) : void

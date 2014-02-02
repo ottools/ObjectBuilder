@@ -57,6 +57,7 @@
 	
 	<fx:Script>
 		<![CDATA[
+			
 			import mx.collections.ArrayCollection;
 			import mx.events.FlexEvent;
 			
@@ -71,9 +72,13 @@
 			//
 			//--------------------------------------------------------------------------
 			
+			private var _thingName : String;
+			
 			private var _version : AssetsVersion;
 			
 			private var _directory : File;
+			
+			private var _directoryChanged : Boolean;
 			
 			private var _file : File;
 			
@@ -86,10 +91,27 @@
 			//--------------------------------------------------------------------------
 			
 			//--------------------------------------
+			// Override Protected
+			//--------------------------------------
+			
+			override protected function commitProperties() : void
+			{
+				super.commitProperties();
+				
+				if (_directoryChanged)
+				{
+					
+					directoryTextInput.text = _directory == null ? "" : _directory.nativePath;
+					
+					_directoryChanged = false;
+				}
+			}
+			
+			//--------------------------------------
 			// Public
 			//--------------------------------------
 			
-			public function setDirectory(directory:File) : void
+			private function setDirectory(directory:File) : void
 			{
 				var path : String;
 				
@@ -103,7 +125,7 @@
 						path = PathUtil.combine(_directory.nativePath, nameTextInput.text + getFormat());
 						_file = new File(path);
 					} 
-					catch(error:Error) 
+					catch(error:Error)
 					{
 						
 					}
@@ -111,10 +133,6 @@
 				
 				confirmButton.enabled = (_file != null);
 			}
-			
-			//--------------------------------------
-			// Private
-			//--------------------------------------
 			
 			private function getFormat() : String
 			{
@@ -138,6 +156,9 @@
 				{
 					versionDropDownList.selectedItem = _version;
 				}
+				
+				nameTextInput.text = _thingName;
+				setDirectory(_directory);
 			}
 			
 			protected function nameTextInputChangeHandler(event:TextOperationEvent) : void
@@ -153,7 +174,7 @@
 				{
 					directory = new File(directoryTextInput.text);
 				} 
-				catch(error:Error) 
+				catch(error:Error)
 				{
 					directory = null;
 				}
@@ -220,13 +241,46 @@
 					}
 				}
 			}
+
+			public function get thingName() : String
+			{
+				return _thingName;
+			}
+
+			public function set thingName(value:String) : void
+			{
+				if (_thingName != value)
+				{
+					_thingName = value;
+					
+					if (nameTextInput != null)
+					{
+						nameTextInput.text = _thingName;
+					}
+				}
+			}
+
+			public function get directory() : File
+			{
+				return _directory;
+			}
+
+			public function set directory(value:File) : void
+			{
+				if (_directory != value)
+				{
+					_directory = value;
+					_directoryChanged = true;
+					invalidateProperties();
+				}
+			}
 			
 		]]>
 	</fx:Script>
 	
 	<s:Group width="100%">
 		<s:Label text="Name:"
-				 fontSize="10" 
+				 fontSize="10"
 				 color="0xDFDFDF"/>
 		<s:TextInput id="nameTextInput"
 					 left="0"
@@ -237,7 +291,7 @@
 	
 	<s:Group width="100%">
 		<s:Label text="Output Folder:"
-				 fontSize="10" 
+				 fontSize="10"
 				 color="0xDFDFDF"/>
 		<s:TextInput id="directoryTextInput"
 					 left="0"
@@ -255,7 +309,8 @@
 	<nail:GroupBox label="Format"
 				   width="100%">
 		<nail:layout>
-			<s:HorizontalLayout paddingLeft="10"
+			<s:HorizontalLayout gap="20"
+								paddingLeft="10"
 								paddingRight="10"
 								paddingTop="10"
 								paddingBottom="10"
@@ -263,13 +318,16 @@
 		</nail:layout>
 		<s:RadioButton label="PNG"
 					   groupName="formatRadioButtonGroup"
-					   selected="true"/>
+					   enabled="false"/>
 		<s:RadioButton label="BMP" 
-					   groupName="formatRadioButtonGroup"/>
+					   groupName="formatRadioButtonGroup"
+					   enabled="false"/>
 		<s:RadioButton label="JPG"
-					   groupName="formatRadioButtonGroup"/>
+					   groupName="formatRadioButtonGroup"
+					   enabled="false"/>
 		<s:RadioButton id="obdFormatRadioButton"
 					   label="OBD"
+					   selected="true"
 					   groupName="formatRadioButtonGroup"/>
 		<s:DropDownList id="versionDropDownList"
 						enabled="{obdFormatRadioButton.selected}"
@@ -297,5 +355,4 @@
 				  width="70"
 				  click="close()"/>
 	</s:HGroup>
-	
 </s:Window>

@@ -54,7 +54,7 @@
 				sprite = data as SpriteData;
 				if (sprite != null)
 				{
-					imageDisplay.source = sprite.bitmap;
+					imageDisplay.source = sprite.getBitmap();
 					labelDisplay.text = sprite.id.toString();
 				}
 			}
