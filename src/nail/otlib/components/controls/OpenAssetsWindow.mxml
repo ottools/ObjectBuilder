@@ -114,8 +114,9 @@
 				_loading = true;
 				resetInfo();
 				
-				if (directory == null)
+				if (directory == null || !directory.exists)
 				{
+					browseButton.enabled = true;
 					return;
 				}
 				
@@ -181,7 +182,6 @@
 				var effectsCount : uint;
 				var missilesCount : uint;
 				var version : AssetsVersion;
-				var supported : Boolean;
 				
 				if (spr == null)
 				{
@@ -218,10 +218,12 @@
 					stream.endian = Endian.LITTLE_ENDIAN;
 					sprSignature = stream.readUnsignedInt();
 					version = AssetsVersion.getVersionBySignatures(sprSignature, datSignature);
-					trace("dat=", datSignature.toString(16).toUpperCase(), "spr=", sprSignature.toString(16).toUpperCase());
+					
 					if (version == null)
 					{
 						unsupportedVersionLabel.text = "Unsupported Version.";
+						datSignatureLabel.text = datSignature.toString(16).toUpperCase();
+						sprSignatureLabel.text = sprSignature.toString(16).toUpperCase();
 						return;
 					}
 					
@@ -232,7 +234,6 @@
 					else 
 					{
 						spritesCount = stream.readUnsignedInt();
-						supported = true;
 					}
 					stream.close();
 				} 
@@ -242,8 +243,11 @@
 					return;
 				}
 				
+				_datFile = dat;
+				_sprFile = spr;
+				_version = version;
+				
 				assetsVersionLabel.text = version.value.toString();
-				unsupportedVersionLabel.text = supported ? "" : "Unsupported Version.";
 				sprSignatureLabel.text = sprSignature.toString(16).toUpperCase();
 				spritesCountLabel.text = spritesCount.toString();
 				datSignatureLabel.text = datSignature.toString(16).toUpperCase();
@@ -251,14 +255,7 @@
 				outfitsCountLabel.text = outfitsCount.toString();
 				effectsCountLabel.text = effectsCount.toString();
 				missilesCountLabel.text = missilesCount.toString();
-				
-				if (supported)
-				{
-					_datFile = dat;
-					_sprFile = spr;
-					_version = version;
-					loadButton.enabled = true;
-				}
+				loadButton.enabled = true;
 			}
 			
 			private function resetInfo() : void

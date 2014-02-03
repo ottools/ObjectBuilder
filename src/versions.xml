@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <versions>
+	<version value="860" string="8.60" dat="4C28B721" spr="4C220594" otb="19"/>
+	<version value="861" string="8.61" dat="4C6A4CBC" spr="4C63F145" otb="21"/>
+	<version value="862" string="8.62" dat="4C973450" spr="4C63F145" otb="22"/>
+	<version value="870" string="8.70" dat="4CFE22C5" spr="4CFD078A" otb="23"/>
+	<version value="871" string="8.71" dat="4D41979E" spr="4D3D65D0" otb="24"/>
+	<version value="872" string="8.72" dat="4DAD1A1A" spr="4DAD1A32" otb="25"/>
+	<version value="873" string="8.73" dat="4DBAA20B" spr="4DAD1A32" otb="26"/>
+	<version value="900" string="9.00" dat="4DBAA20B" spr="4DAD1A32" otb="27"/>
+	<version value="910" string="9.10" dat="4E12DAFF" spr="4E12DB27" otb="28"/>
+	<version value="920" string="9.20" dat="4E807C08" spr="4E807C23" otb="29"/>
+	<version value="940" string="9.40" dat="4EE71DE5" spr="4EE71E06" otb="30"/>
+	<version value="944" string="9.44" dat="4F3131CF" spr="4F3131F6" otb="34"/>
+	<version value="946" string="9.46" dat="4F6B341F" spr="4F5DCEF7" otb="35"/>
+	<version value="950" string="9.50" dat="4F75B7AB" spr="4F75B7CD" otb="36"/>
+	<version value="952" string="9.52" dat="4F857F6C" spr="4F857F8E" otb="37"/>
+	<version value="953" string="9.53" dat="4FA11252" spr="4FA11282" otb="38"/>
+	<version value="954" string="9.54" dat="4FD5956B" spr="4FD595B7" otb="39"/>
 	<version value="960" string="9.60" dat="4FFA74CC" spr="4FFA74F9"  otb="40"/>
 	<version value="961" string="9.61" dat="50226F9D" spr="50226FBD"  otb="41"/>
 	<version value="963" string="9.63" dat="503CB933" spr="503CB954"  otb="42"/>
