@@ -282,8 +282,11 @@
 			
 			protected function browseButtonClickHandler(event:MouseEvent) : void
 			{
+				var path : String;
 				var dir : File;
-				dir = new File();
+				
+				path = _directory != null ? _directory.nativePath : File.documentsDirectory.nativePath;
+				dir = new File(path);
 				dir.addEventListener(Event.SELECT, fileSelectHandler);
 				dir.browseForDirectory("Select client folder");
 				
