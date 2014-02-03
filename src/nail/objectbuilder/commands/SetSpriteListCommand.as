@@ -24,6 +24,7 @@
 
 package nail.objectbuilder.commands
 {
+	import nail.otlib.utils.SpriteData;
 	import nail.workers.Command;
 	
 	public class SetSpriteListCommand extends Command
@@ -34,7 +35,7 @@ package nail.objectbuilder.commands
 		//
 		//--------------------------------------------------------------------------
 		
-		public function SetSpriteListCommand(target:uint, min:uint, max:uint, sprites:Array)
+		public function SetSpriteListCommand(target:uint, min:uint, max:uint, sprites:Vector.<SpriteData>)
 		{
 			super(CommandType.SET_SPRITE_LIST, target, min, max, sprites);
 		}

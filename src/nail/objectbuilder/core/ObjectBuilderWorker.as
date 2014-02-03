@@ -110,29 +110,28 @@ package nail.objectbuilder.core
 		// Private
 		//--------------------------------------
 		
-		private function onLoadAssets(args:Array) : void
+		private function onLoadAssets(datPath:String, sprPath:String, versionValue:uint) : void
 		{
-			var dat : File;
-			var spr : File;
-			var version : AssetsVersion;
-			
-			try
+			if (StringUtil.isEmptyOrNull(datPath))
 			{
-				dat = new File(args[0]);
-				spr = new File(args[1]);
-				version = AssetsVersion.getVersionByValue(args[2]);
-			} 
-			catch(error:Error) 
-			{
-				sendError(error.message, error.getStackTrace(), error.errorID);
-				return;
+				throw new ArgumentError("Parameter datPath cannot be null or empty.");
 			}
 			
-			sendCommand(new Command(CommandType.SHOW_PROGRESS_BAR, "Loading"));
+			if (StringUtil.isEmptyOrNull(sprPath))
+			{
+				throw new ArgumentError("Parameter sprPath cannot be null or empty.");
+			}
 			
-			_datFile = dat;
-			_sprFile = spr;
-			_version = version;
+			if (versionValue == 0)
+			{
+				throw new ArgumentError("Invalid version value.");
+			}
+			
+			_datFile = new File(datPath);
+			_sprFile = new File(sprPath);
+			_version = AssetsVersion.getVersionByValue(versionValue);
+			
+			sendCommand(new Command(CommandType.SHOW_PROGRESS_BAR, "Loading"));
 			
 			if (_things != null)
 			{
@@ -166,37 +165,48 @@ package nail.objectbuilder.core
 			_sprites.addEventListener(ErrorEvent.ERROR, spritesErrorHandler);
 			
 			_things.sprites = _sprites;
-			_things.load(_datFile, version);
+			_things.load(_datFile, _version);
 		}
 		
-		private function onGetAssetsInfo(args:Array) : void
+		private function onGetAssetsInfo() : void
 		{
 			this.sendAssetsInfo();
 		}
 		
-		private function onCompileAssets(args:Array) : void
+		private function onCompileAssets(datPath:String, sprPath:String, versionValue:uint) : void
 		{
 			var dat : File;
 			var spr : File;
 			var version : AssetsVersion;
 			
-			if (_things == null || !_things.loaded || !_sprites.loaded)
+			if (StringUtil.isEmptyOrNull(datPath))
 			{
-				sendCommand(new ErrorCommand("Assets is not loaded."));
-				return;
+				throw new ArgumentError("Parameter datPath cannot be null or empty.");
 			}
 			
-			try
+			if (StringUtil.isEmptyOrNull(sprPath))
 			{
-				dat = new File(args[0]);
-				spr = new File(args[1]);
-				version = AssetsVersion.getVersionByValue(args[2]);
-			} 
-			catch(error:Error) 
-			{
-				sendError(error.message, error.getStackTrace(), error.errorID);
-				return;
+				throw new ArgumentError("Parameter sprPath cannot be null or empty.");
 			}
+			
+			if (versionValue == 0)
+			{
+				throw new ArgumentError("Invalid version value.");
+			}
+			
+			if (_things == null || !_things.loaded)
+			{
+				throw new Error("Metadata is not loaded.");
+			}
+			
+			if (_sprites == null || !_sprites.loaded)
+			{
+				throw new Error("Sprites are not loaded.");
+			}
+			
+			dat = new File(datPath);
+			spr = new File(sprPath);
+			version = AssetsVersion.getVersionByValue(versionValue);
 			
 			sendCommand(new Command(CommandType.SHOW_PROGRESS_BAR, "Compiling"));
 			
@@ -206,90 +216,80 @@ package nail.objectbuilder.core
 			}
 		}
 		
-		private function onNewThing(args:Array) : void
+		private function onNewThing(category:String) : void
 		{
-			var category : String;
 			var thing : ThingType;
 			var message : String;
 			
-			category = ThingCategory.getCategory(args[0]);
-			if (category != null)
+			if (ThingCategory.getCategory(category) == null)
 			{
-				thing = ThingUtils.createThing();
-				if (_things.addThing(thing, category))
-				{
-					message = StringUtil.substitute("Added {0} id {1}.", category, thing.id);
-					sendCommand(new MessageCommand(message, "Info"));
-				}
+				throw new Error("Invalid thing category.");
+			}
+			
+			thing = ThingUtils.createThing();
+			if (_things.addThing(thing, category))
+			{
+				message = StringUtil.substitute("Added {0} id {1}.", category, thing.id);
+				sendCommand(new MessageCommand(message, "Info"));
 			}
 		}
 		
-		private function onGetThing(args:Array) : void
+		private function onGetThing(id:uint, category:String) : void
 		{
-			var id : uint;
-			var category : String;
 			var thing : ThingType;
 			var spriteIndex : Vector.<uint>;
 			var length : uint;
 			var i :uint;
-			var list : Array;
+			var spriteId : uint;
+			var pixels : ByteArray;
+			var spriteData : SpriteData;
+			var list : Vector.<SpriteData>;
 			
-			list = [];
-			
-			id = args[0];
-			category = ThingCategory.getCategory(args[1]);
-			if (category == null)
+			if (ThingCategory.getCategory(category) == null)
 			{
-				sendError("Invalid thing category.");
-				return;
+				throw new Error("Invalid thing category.");
 			}
 			
 			thing = _things.getThingType(id,  category);
 			if (thing == null)
 			{
-				sendError(StringUtil.substitute("{0} {1} not found.", StringUtil.capitaliseFirstLetter(category), id));
-				return;
+				throw new Error(StringUtil.substitute("{0} id {1} not found.", StringUtil.capitaliseFirstLetter(category), id));
 			}
 			
-			try
+			list = new Vector.<SpriteData>();
+			spriteIndex = thing.spriteIndex;
+			length = spriteIndex.length;
+			for (i = 0; i < length; i++)
 			{
-				spriteIndex = thing.spriteIndex;
-				length = spriteIndex.length;
-				for (i = 0; i < length; i++)
+				spriteId = spriteIndex[i];
+				pixels = _sprites.getPixels(spriteId);
+				if (pixels == null)
 				{
-					list[i] = _sprites.getPixels(spriteIndex[i]);
+					throw new Error(StringUtil.substitute("Sprite id {0} not found.", spriteId));
 				}
-			} 
-			catch(error:Error)
-			{
-				sendError(error.message, error.getStackTrace(), error.errorID);
-				return;
+				
+				spriteData = new SpriteData();
+				spriteData.id = spriteId;
+				spriteData.pixels = pixels;
+				list.push(spriteData);
 			}
 			
 			sendCommand(new SetThingCommand(thing, list));
 		}
 		
-		private function onChangeThing(args:Array) : void
+		private function onChangeThing(thing:ThingType) : void
 		{
-			var thing : ThingType;
 			var message : String;
 			
-			thing = args[0] as ThingType;
-			if (thing != null)
+			if (_things.replace(thing, thing.category, thing.id))
 			{
-				if (_things.replace(thing, thing.category, thing.id))
-				{
-					message = StringUtil.substitute("{0} {1} changed.", StringUtil.capitaliseFirstLetter(thing.category), thing.id);
-					sendCommand(new MessageCommand(message, "Info"));
-				}
+				message = StringUtil.substitute("{0} {1} changed.", StringUtil.capitaliseFirstLetter(thing.category), thing.id);
+				sendCommand(new MessageCommand(message, "Info"));
 			}
 		}
 		
-		private function onImportThing(args:Array) : void
+		private function onImportThing(thing:ThingType, sprites:Vector.<SpriteData>, replaceId:uint) : void
 		{
-			var thing : ThingType;
-			var sprites : Vector.<SpriteData>;
-			var replaceId : uint;
 			var done : Boolean;
 			var length : uint;
 			var i :uint;
@@ -298,97 +298,92 @@ package nail.objectbuilder.core
 			var spritesAdded : uint;
 			var message : String;
 			
-			try
+			if (thing == null) 
 			{
-				thing = args[0] as ThingType;
-				sprites = args[1] as Vector.<SpriteData>;
-				replaceId = args[2] as uint;
+				throw new ArgumentError("Parameter thing cannot be null.");
+			}
+			
+			if (sprites == null) 
+			{
+				throw new ArgumentError("Parameter sprites cannot be null.");
+			}
+			
+			if (replaceId != 0)
+			{
+				done = _things.replace(thing, thing.category, replaceId);
+				message = "Replaced"
+			}
+			else 
+			{
+				done = _things.addThing(thing, thing.category);
+				message = "Added"
+			}
+			
+			// Add sprites
+			length = sprites.length;
+			for (i = 0; i < length; i++)
+			{
+				pixels = sprites[i].pixels;
+				spriteId = thing.spriteIndex[i];
 				
-				if (thing != null)
+				// Only add if sprite are not equal.
+				if (!_sprites.compare(spriteId, pixels))
 				{
-					if (replaceId != 0)
+					if (_sprites.addSprite(pixels))
 					{
-						done = _things.replace(thing, thing.category, replaceId);
-						message = "Replaced"
-					}
-					else 
-					{
-						done = _things.addThing(thing, thing.category);
-						message = "Added"
-					}
-					
-					length = sprites.length;
-					for (i = 0; i < length; i++)
-					{
-						pixels = sprites[i].pixels;
-						spriteId = thing.spriteIndex[i];
-						
-						// Only add if sprite are not equal.
-						if (!_sprites.compare(spriteId, pixels))
-						{
-							if (_sprites.addSprite(pixels))
-							{
-								thing.spriteIndex[i] = _sprites.spritesCount;
-								spritesAdded++;
-							}
-						}
+						thing.spriteIndex[i] = _sprites.spritesCount;
+						spritesAdded++;
 					}
 				}
-				
-				if (done)
-				{
-					message += " {0} id {1}. Added {2} new sprites."
-					sendCommand(new MessageCommand(StringUtil.substitute(message, thing.category, thing.id, spritesAdded)));
-				}
-			} 
-			catch(error:Error)
+			}
+			
+			if (done)
 			{
-				sendError(error.message, error.getStackTrace(), error.errorID);
+				message += " {0} id {1}. Added {2} new sprites."
+				sendCommand(new MessageCommand(StringUtil.substitute(message, thing.category, thing.id, spritesAdded)));
 			}
 		}
 		
-		private function onDuplicateThing(args:Array) : void
+		private function onDuplicateThing(id:uint, category:String) : void
 		{
-			var id : uint;
-			var category : String;
 			var thing : ThingType;
 			var copy : ThingType;
 			var message : String;
 			
-			id = args[0];
-			category = args[1];
-			thing = _things.getThingType(id, category);
-			
-			if (thing != null && ThingCategory.getCategory(category) != null)
+			if (ThingCategory.getCategory(category) == null)
 			{
-				copy = ThingUtils.copyThing(thing);
-				if (copy != null && _things.addThing(copy, category))
-				{
-					message = StringUtil.substitute("Duplicated {0} {1} to {2}.", category, id, copy.id);
-					sendCommand(new MessageCommand(message));
-				}
+				throw new Error("Invalid thing category.");
+			}
+			
+			thing = _things.getThingType(id, category);
+			if (thing == null)
+			{
+				throw new Error(StringUtil.substitute("Object not found. category: {1}, id: {0}", category, id));
+			}
+			
+			copy = ThingUtils.copyThing(thing);
+			if (_things.addThing(copy, category))
+			{
+				message = StringUtil.substitute("Duplicated {0} {1} to {2}.", category, id, copy.id);
+				sendCommand(new MessageCommand(message));
 			}
 		}
 		
-		private function onGetSpriteList(args:Array) : void
+		private function onGetSpriteList(target:uint) : void
 		{
-			this.sendSpriteList(args[0]);
+			this.sendSpriteList(target);
 		}
 		
-		private function onReplaceSprite(args:Array) : void
+		private function onReplaceSprite(id:uint, pixels:ByteArray) : void
 		{
-			var id : uint;
-			var pixels : ByteArray;
+			if (id == 0) 
+			{
+				throw new ArgumentError("Invalid sprite id 0.");
+			}
 			
-			try
+			if (pixels == null) 
 			{
-				id = args[0];
-				pixels = args[1];
-			} 
-			catch(error:Error) 
-			{
-				sendError(error.message, error.getStackTrace(), error.errorID);
-				return;
+				throw new ArgumentError("Parameter pixels cannot be null.");
 			}
 			
 			if (_sprites.replaceSprite(id, pixels))
@@ -398,18 +393,11 @@ package nail.objectbuilder.core
 			}
 		}
 		
-		private function onImportSprite(args:Array) : void
+		private function onImportSprite(pixels:ByteArray) : void
 		{
-			var pixels : ByteArray;
-			
-			try
+			if (pixels == null) 
 			{
-				pixels = args[0];
-			} 
-			catch(error:Error) 
-			{
-				sendError(error.message, error.getStackTrace(), error.errorID);
-				return;
+				throw new ArgumentError("Parameter pixels cannot be null.");
 			}
 			
 			if (_sprites.addSprite(pixels))
@@ -435,9 +423,14 @@ package nail.objectbuilder.core
 		{
 			var info : AssetsInfo;
 			
-			if (_things == null  || _sprites == null)
+			if (_sprites == null || !_sprites.loaded)
 			{
-				return;
+				throw new Error("Metadata is not loaded.");
+			}
+			
+			if (_sprites == null || !_sprites.loaded)
+			{
+				throw new Error("Sprites are not loaded.");
 			}
 			
 			info = new AssetsInfo();
@@ -462,27 +455,33 @@ package nail.objectbuilder.core
 		{
 			var min : uint;
 			var max : uint
-			var list : Array;
+			var list : Vector.<SpriteData>;
 			var i : int;
 			var pixels : ByteArray;
+			var spriteData : SpriteData;
 			
-			if (!_sprites.loaded)
+			if (_sprites == null || !_sprites.loaded)
 			{
-				return;
+				throw new Error("Sprites are not loaded.");
 			}
 			
 			min = Math.max(0, target - 50);
 			max = min == 0 ? Math.min(_sprites.spritesCount, target + 100) : Math.min(_sprites.spritesCount, target + 50);
 			min = max == _sprites.spritesCount ? Math.max(0, min - 50) : min;
-			list = [];
+			list = new Vector.<SpriteData>();
 			
 			for (i = min; i <= max; i++)
 			{
 				pixels = _sprites.getPixels(i);
-				if (pixels != null)
+				if (pixels == null)
 				{
-					list[i] = pixels;
+					throw new Error(StringUtil.substitute("Sprite id {0} not found.", i));
 				}
+				
+				spriteData = new SpriteData();
+				spriteData.id = i;
+				spriteData.pixels = pixels;
+				list.push(spriteData);
 			}
 			
 			sendCommand(new SetSpriteListCommand(target, min, max, list));

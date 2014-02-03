@@ -25,6 +25,7 @@
 package nail.objectbuilder.commands
 {
 	import nail.otlib.things.ThingType;
+	import nail.otlib.utils.SpriteData;
 	import nail.workers.Command;
 	
 	public class SetThingCommand extends Command
@@ -35,7 +36,7 @@ package nail.objectbuilder.commands
 		//
 		//--------------------------------------------------------------------------
 		
-		public function SetThingCommand(thing:ThingType, spriteList:Array)
+		public function SetThingCommand(thing:ThingType, spriteList:Vector.<SpriteData>)
 		{
 			super(CommandType.SET_THING, thing, spriteList);
 		}

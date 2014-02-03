@@ -173,65 +173,56 @@
 				}
 			}
 			
-			public function setThing(thing:ThingType, list:Array) : void
+			public function setThing(thing:ThingType, sprites:Vector.<SpriteData>) : void
 			{
 				var pixels : ByteArray;
 				var sprite : SpriteData;
-				var sprites : Vector.<SpriteData>;
 				var length : uint;
 				var i :uint;
 				
-				length = list.length;
-				if (length == 0)
+				if (thing == null) 
 				{
-					return;
+					throw new ArgumentError("Parameter thing cannot be null.");
 				}
 				
-				sprites = new Vector.<SpriteData>(length);
-				
-				for (i = 0; i < length; i++)
+				if (sprites == null) 
 				{
-					pixels = list[i];
-					if (pixels != null)
-					{
-						sprite = new SpriteData();
-						sprite.id = thing.spriteIndex[i];
-						sprite.pixels = pixels;
-						sprites[i] = sprite;
-					}
+					throw new ArgumentError("Parameter sprites cannot be null.");
 				}
 				
 				this.thingData = new ThingData(thing, sprites);
 			}
 			
-			public function setSpriteList(target:uint, min:uint, max:uint, list:Array) : void
+			public function setSpriteList(target:uint, min:uint, max:uint, sprites:Vector.<SpriteData>) : void
 			{
 				var length :uint;
 				var i : int;
-				var pixels : ByteArray;
-				var bitmap : BitmapData;
 				var sprite : SpriteData;
+				
+				if (sprites == null) 
+				{
+					throw new ArgumentError("Parameter sprites cannot be null.");
+				}
 				
 				_spritesCollection.removeAll();
 				_selectIndex = -1;
 				_spriteMin = min;
 				_spriteMax = max;
 				
-				length = list.length;
+				length = sprites.length;
 				for (i = 0; i < length; i++)
 				{
-					pixels = list[i];
-					if (pixels != null)
+					sprite = sprites[i];
+					if (sprite == null)
 					{
-						sprite = new SpriteData();
-						sprite.id = i;
-						sprite.pixels = pixels;
-						_spritesCollection.addItem(sprite);
-						
-						if (i == target)
-						{
-							_selectIndex = _spritesCollection.getItemIndex(sprite);
-						}
+						throw new Error("Invalid sprite.");
+					}
+					
+					_spritesCollection.addItem(sprite);
+					
+					if (sprite.id == target)
+					{
+						_selectIndex = _spritesCollection.getItemIndex(sprite);
 					}
 				}
 			}
@@ -378,7 +369,7 @@
 				} 
 				catch(error:Error)
 				{
-					Main(NailMain.instance).onError([error.message, error.getStackTrace(), error.errorID]);
+					NailMain.instance.onError(error.message, error.getStackTrace(), error.errorID);
 				}
 			}
 			

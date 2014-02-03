@@ -96,7 +96,7 @@
 				} 
 				catch(error:Error) 
 				{
-					Main(NailMain.instance).onError([error.message, error.getStackTrace(), error.errorID]);
+					Main(NailMain.instance).onError(error.message, error.getStackTrace(), error.errorID);
 					return;
 				}
 				

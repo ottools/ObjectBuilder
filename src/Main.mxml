@@ -96,16 +96,8 @@
 			// Public
 			//--------------------------------------
 			
-			public function onError(args:Array) : void
+			override public function onError(message:String, stack:String = "", id:uint = 0) : void
 			{
-				var message : String;
-				var stack : String;
-				var id : uint;
-				
-				message = args[0];
-				stack = args[1];
-				id = args[2];
-				
 				// Close progress bar
 				if (_progressBar != null)
 				{
@@ -130,17 +122,17 @@
 			// Private
 			//--------------------------------------
 			
-			private function onShowProgressBar(args:Array) : void
+			private function onShowProgressBar(title:String) : void
 			{
 				if (_progressBar == null)
 				{
 					_progressBar = new CustomProgressBar();
-					_progressBar.title = args[0];
+					_progressBar.title = title;
 				}
 				_progressBar.open();
 			}
 			
-			private function onHideProgressBar(args:Array) : void
+			private function onHideProgressBar() : void
 			{
 				if (_progressBar != null)
 				{
@@ -149,16 +141,13 @@
 				}
 			}
 			
-			private function onShowMessage(args:Array) : void
+			private function onShowMessage(text:String, title:String) : void
 			{
-				var text : String;
-				
-				text = args[0];
-				Alert.show(text, args[1], Alert.OK, UIComponent(application));
+				Alert.show(text, title, Alert.OK, UIComponent(application));
 				ObjectBuilder(application).appendLog(text);
 			}
 			
-			private function onLoadComplete(args:Array) : void
+			private function onLoadComplete() : void
 			{
 				ObjectBuilder(application).clear();
 				
@@ -167,32 +156,18 @@
 				sendCommand(new GetThingCommand(100, ThingCategory.ITEM));
 			}
 			
-			public function onSetAssetsInfo(args:Array) : void
+			public function onSetAssetsInfo(info:AssetsInfo) : void
 			{
-				ObjectBuilder(application).setAssetsInfo(args[0]);
+				ObjectBuilder(application).setAssetsInfo(info);
 			}
 			
-			private function onSetThing(args:Array) : void
+			private function onSetThing(thing:ThingType, list:Vector.<SpriteData>) : void
 			{
-				var thing : ThingType;
-				var list : Array;
-				
-				thing = args[0];
-				list = args[1];
 				ObjectBuilder(application).setThing(thing, list);
 			}
 			
-			private function onSetSpriteList(args:Array) : void
+			private function onSetSpriteList(target:uint, min:uint, max:uint, list:Vector.<SpriteData>) : void
 			{	
-				var target : uint;
-				var min : uint;
-				var max : uint;
-				var list : Array;
-				
-				target = args[0];
-				min = args[1];
-				max = args[2];
-				list = args[3];
 				ObjectBuilder(application).setSpriteList(target, min, max, list);
 			}
 			
