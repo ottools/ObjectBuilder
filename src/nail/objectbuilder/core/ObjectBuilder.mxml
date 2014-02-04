@@ -158,18 +158,6 @@
 					thingStepper.maximum = getMaxThingId();
 					spriteStepper.minimum = _info.minSpriteId;
 					spriteStepper.maximum = _info.maxSpriteId;
-					
-					// Hide 'No Move Animation' CheckBox by version.
-					visible = _info.version >= 1010;
-					thingAtrributes.noMoveAnimationCheckBox.visible = visible;
-					thingAtrributes.noMoveAnimationCheckBox.includeInLayout = visible;
-					
-					// Hide 'Action' GroupCheckBox and 'Usable' CheckBox by version.
-					visible = _info.version >= 1021;
-					thingAtrributes.actionGroupCheckBox.visible = visible;
-					thingAtrributes.actionGroupCheckBox.includeInLayout = visible;
-					thingAtrributes.usableCheckBox.visible = visible;
-					thingAtrributes.usableCheckBox.includeInLayout = visible;
 				}
 			}
 			
@@ -441,10 +429,79 @@
 			
 			private function editThing(data:ThingData) : void
 			{
+				var visible : Boolean;
+				
 				thingAtrributes.thingData = data;
 				thingAtrributes.visible = (data != null)
 				confirmButton.enabled = thingAtrributes.changed;
 				cancelButton.enabled = (data != null);
+				
+				if (_info != null)
+				{
+					// Hide unused controls to non-item objects.
+					if (data != null)
+					{
+						visible = (data.category == ThingCategory.ITEM);
+						
+						thingAtrributes.groundGroupCheckBox.visible = visible;
+						thingAtrributes.groundGroupCheckBox.includeInLayout = visible;
+						thingAtrributes.automapGroupCheckBox.visible = visible;
+						thingAtrributes.automapGroupCheckBox.includeInLayout = visible;
+						thingAtrributes.hasElevationGroupCheckBox.visible = visible;
+						thingAtrributes.hasElevationGroupCheckBox.includeInLayout = visible;
+						thingAtrributes.equipGroupCheckBox.visible = visible;
+						thingAtrributes.equipGroupCheckBox.includeInLayout = visible;
+						thingAtrributes.marketGroupCheckBox.visible = visible;
+						thingAtrributes.marketGroupCheckBox.includeInLayout = visible;
+						thingAtrributes.writeReadGroupCheckBox.visible = visible;
+						thingAtrributes.writeReadGroupCheckBox.includeInLayout = visible;
+						thingAtrributes.actionGroupCheckBox.visible = visible;
+						thingAtrributes.actionGroupCheckBox.includeInLayout = visible;
+						thingAtrributes.flagsLeftColumn.visible = visible;
+						thingAtrributes.flagsLeftColumn.includeInLayout = visible;
+						thingAtrributes.pickupableCheckBox.visible = visible;
+						thingAtrributes.pickupableCheckBox.includeInLayout = visible;
+						thingAtrributes.pickupableCheckBox.visible = visible;
+						thingAtrributes.pickupableCheckBox.includeInLayout = visible;
+						thingAtrributes.hangableCheckBox.visible = visible;
+						thingAtrributes.hangableCheckBox.includeInLayout = visible;
+						thingAtrributes.horizontalCheckBox.visible = visible;
+						thingAtrributes.horizontalCheckBox.includeInLayout = visible;
+						thingAtrributes.verticalCheckBox.visible = visible;
+						thingAtrributes.verticalCheckBox.includeInLayout = visible;
+						thingAtrributes.rotatableCheckBox.visible = visible;
+						thingAtrributes.rotatableCheckBox.includeInLayout = visible;
+						thingAtrributes.dontHideCheckBox.visible = visible;
+						thingAtrributes.dontHideCheckBox.includeInLayout = visible;
+						thingAtrributes.translucentCheckBox.visible = visible;
+						thingAtrributes.translucentCheckBox.includeInLayout = visible;
+						thingAtrributes.isLyingObjectCheckBox.visible = visible;
+						thingAtrributes.isLyingObjectCheckBox.includeInLayout = visible;
+						thingAtrributes.fullGroundCheckBox.visible = visible;
+						thingAtrributes.fullGroundCheckBox.includeInLayout = visible;
+						thingAtrributes.ignoreLookCheckBox.visible = visible;
+						thingAtrributes.ignoreLookCheckBox.includeInLayout = visible;
+						thingAtrributes.usableCheckBox.visible = visible;
+						thingAtrributes.usableCheckBox.includeInLayout = visible;
+					}
+					
+					// Hide 'Market' GroupCheckBox.
+					visible = _info.version >= 940;
+					thingAtrributes.marketGroupCheckBox.visible = visible;
+					thingAtrributes.marketGroupCheckBox.includeInLayout = visible;
+					
+					// Hide 'No Move Animation' CheckBox by version.
+					visible = _info.version >= 1010;
+					thingAtrributes.noMoveAnimationCheckBox.visible = visible;
+					thingAtrributes.noMoveAnimationCheckBox.includeInLayout = visible;
+					
+					// Hide 'Action' GroupCheckBox and 'Usable' CheckBox by version.
+					visible = _info.version >= 1021;
+					thingAtrributes.actionGroupCheckBox.visible = visible;
+					thingAtrributes.actionGroupCheckBox.includeInLayout = visible;
+					thingAtrributes.usableCheckBox.visible = visible;
+					thingAtrributes.usableCheckBox.includeInLayout = visible;
+				}
 			}
 			
 			private function getCurrentCategory() : String
