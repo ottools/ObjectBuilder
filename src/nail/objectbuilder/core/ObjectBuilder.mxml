@@ -379,8 +379,7 @@
 					bitmap = list[0];
 					if (bitmap.width < 32 || bitmap.height < 32)
 					{
-						Alert.show("O sprite importado tem o tamanho invalido." +
-							" O tamanho minimo de um sprite deve ser de 32x32 pixels.", "Import Sprite");
+						Alert.show("Invalid sprite size. The minimum size of a sprite must be 32x32 pixels.", "Import Sprite");
 						return;
 					}
 					else if (bitmap.width == 32 && bitmap.height == 32)
@@ -403,8 +402,7 @@
 						bitmap = list[i];
 						if (bitmap.width != 32 || bitmap.height != 32)
 						{
-							Alert.show("Um dos sprites importados tem o tamanho invalido." +
-								" Apenas sprites com 32x32 pixels são permitidos para importação multipla.", "Import Sprite");
+							Alert.show("Invalid sprite size. The minimum size of a sprite must be 32x32 pixels.", "Import Sprite");
 							return;
 						}
 						
