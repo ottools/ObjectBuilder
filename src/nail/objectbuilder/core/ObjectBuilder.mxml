@@ -80,6 +80,7 @@
 			import nail.objectbuilder.commands.ImportThingCommand;
 			import nail.objectbuilder.commands.LoadAssetsCommand;
 			import nail.objectbuilder.commands.NewThingCommand;
+			import nail.objectbuilder.commands.RemoveSpritesCommand;
 			import nail.objectbuilder.commands.ReplaceSpriteCommand;
 			import nail.objectbuilder.settings.ObjectBuilderSettings;
 			import nail.otlib.assets.AssetsInfo;
@@ -893,12 +894,43 @@
 				}
 			}
 			
+			protected function removeSpriteButtonClickHandler(event:MouseEvent) : void
+			{
+				var list : Vector.<uint>;
+				var length : uint;
+				var i : uint;
+				var spriteData : SpriteData;
+				
+				if (_info == null || spritesList.selectedItems == null)
+				{
+					return;
+				}
+				
+				length = spritesList.selectedItems.length;
+				if (length > 0)
+				{
+					list = new Vector.<uint>(length, true);
+					
+					for (i = 0; i < length; i++)
+					{
+						spriteData = spritesList.selectedItems[i] as SpriteData;
+						list[i] = spriteData.id;
+					}
+					
+					list.sort(Array.NUMERIC | Array.DESCENDING);
+					sendCommand(new RemoveSpritesCommand(list));
+				}
+			}
+			
 			protected function spritesListChangeHandler(event:IndexChangeEvent) : void
 			{
-				if (_info != null)
+				if (_info == null)
 				{
-					spriteStepper.value = this.selectedSpriteId;
+					return;
 				}
+				
+				spriteStepper.value = this.selectedSpriteId;
+				replaceSpriteButton.enabled = (spritesList.selectedItems != null && spritesList.selectedItems.length == 1);
 			}
 			
 			protected function spriteStepperChangeHandler(event:Event) : void
@@ -1154,6 +1186,7 @@
 					width="100%"
 					height="100%"
 					dataProvider="{_spritesCollection}"
+					allowMultipleSelection="true"
 					dragEnabled="true"
 					fontSize="11"
 					borderAlpha="0"
@@ -1211,8 +1244,8 @@
 					  toolTip="Remove"
 					  width="19"
 					  height="19"
-					  enabled="false"
-					  icon="{Icons.DELETE}"/>
+					  icon="{Icons.DELETE}"
+					  click="removeSpriteButtonClickHandler(event)"/>
 		</s:HGroup>	
 		
 	</s:BorderContainer>

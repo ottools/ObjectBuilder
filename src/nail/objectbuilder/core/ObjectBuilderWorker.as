@@ -105,6 +105,7 @@ package nail.objectbuilder.core
 			registerCommand(CommandType.GET_SPRITE_LIST, onGetSpriteList);
 			registerCommand(CommandType.REPLACE_SPRITE, onReplaceSprite);
 			registerCommand(CommandType.IMPORT_SPRITE, onImportSprite);
+			registerCommand(CommandType.REMOVE_SPRITES, onRemoveSprites);
 		}
 		
 		//--------------------------------------
@@ -424,6 +425,43 @@ package nail.objectbuilder.core
 			
 			this.sendSpriteList(_sprites.spritesCount);
 			sendCommand(new MessageCommand(message, "Info"));
+		}
+		
+		private function onRemoveSprites(list:Vector.<uint>) : void
+		{
+			var length : uint;
+			var i : uint;
+			var id : uint;
+			var message : String;
+			
+			if (list == null)
+			{
+				throw new ArgumentError("Parameter list cannot be null.");
+			}
+			
+			length = list.length;
+			for (i = 0; i < length; i++)
+			{
+				id = list[i];
+				if (id != 0)
+				{
+					_sprites.removeSprite(id);
+				}
+			}
+			
+			id = Math.max(0, list[length - 1] - 1);
+			sendSpriteList(id);
+			
+			message = "Removed ";
+			if (length > 1)
+			{
+				message += "sprites ids: {0}"
+			}
+			else 
+			{
+				message += "sprite id: {0}"
+			}
+			sendCommand(new MessageCommand(StringUtil.substitute(message, list), "Info"));
 		}
 		
 		private function assetsLoadComplete() : void
