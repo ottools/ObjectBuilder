@@ -24,7 +24,7 @@
 
 package nail.objectbuilder.commands
 {
-	import flash.display.BitmapData;
+	import flash.utils.ByteArray;
 	
 	import nail.workers.Command;
 	
@@ -36,9 +36,9 @@ package nail.objectbuilder.commands
 		//
 		//--------------------------------------------------------------------------
 		
-		public function ImportSpriteCommand(bitmap:BitmapData)
+		public function ImportSpriteCommand(list:Vector.<ByteArray>)
 		{
-			super(CommandType.IMPORT_SPRITE, bitmap.getPixels(bitmap.rect));
+			super(CommandType.IMPORT_SPRITE, list);
 		}
 	}
 }

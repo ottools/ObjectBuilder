@@ -69,6 +69,7 @@
 			
 			import nail.components.NailMain;
 			import nail.components.controls.Alert;
+			import nail.loaders.BitmapLoader;
 			import nail.managers.PopUpWindowManager;
 			import nail.objectbuilder.commands.ChangeThingCommand;
 			import nail.objectbuilder.commands.CompileAssetsCommand;
@@ -84,6 +85,7 @@
 			import nail.otlib.assets.AssetsInfo;
 			import nail.otlib.assets.AssetsVersion;
 			import nail.otlib.components.controls.CompileAssetsWindow;
+			import nail.otlib.components.controls.CropImageWindow;
 			import nail.otlib.components.controls.ExportThingWindow;
 			import nail.otlib.components.controls.ImportThingWindow;
 			import nail.otlib.components.controls.LogWidget;
@@ -92,11 +94,9 @@
 			import nail.otlib.things.ThingCategory;
 			import nail.otlib.things.ThingType;
 			import nail.otlib.utils.SpriteData;
+			import nail.otlib.utils.SpriteUtils;
 			import nail.otlib.utils.ThingData;
 			import nail.settings.Settings;
-			import nail.utils.BitmapUtils;
-			import nail.utils.FileLoader;
-			import nail.utils.FileUtils;
 			import nail.utils.StringUtil;
 			import nail.workers.Command;
 			
@@ -358,6 +358,85 @@
 				catch(error:Error)
 				{
 					NailMain.instance.onError(error.message, error.getStackTrace(), error.errorID);
+				}
+			}
+			
+			private function onImportSprites(list:Vector.<BitmapData>) : void
+			{
+				var bitmap : BitmapData;
+				var length : uint;
+				var i :uint;
+				var spritePixelsList : Vector.<ByteArray>;
+				
+				if (list == null || list.length == 0)
+				{
+					return;
+				}
+				
+				length = list.length;
+				if (length == 1)
+				{
+					bitmap = list[0];
+					if (bitmap.width < 32 || bitmap.height < 32)
+					{
+						Alert.show("O sprite importado tem o tamanho invalido." +
+							" O tamanho minimo de um sprite deve ser de 32x32 pixels.", "Import Sprite");
+						return;
+					}
+					else if (bitmap.width == 32 && bitmap.height == 32)
+					{
+						spritePixelsList = new Vector.<ByteArray>(length, true);
+						spritePixelsList[0] = bitmap.getPixels(bitmap.rect);
+						sendCommand(new ImportSpriteCommand(spritePixelsList));
+					}
+					else 
+					{
+						this.cropBitmap(bitmap);
+					}
+				}
+				else
+				{
+					spritePixelsList = new Vector.<ByteArray>(length, true);
+					
+					for (i = 0; i < length; i++)
+					{
+						bitmap = list[i];
+						if (bitmap.width != 32 || bitmap.height != 32)
+						{
+							Alert.show("Um dos sprites importados tem o tamanho invalido." +
+								" Apenas sprites com 32x32 pixels são permitidos para importação multipla.", "Import Sprite");
+							return;
+						}
+						
+						bitmap = SpriteUtils.removeMagenta(bitmap);
+						spritePixelsList[i] = bitmap.getPixels(bitmap.rect);
+					}
+					
+					sendCommand(new ImportSpriteCommand(spritePixelsList));
+				}
+			}
+			
+			private function cropBitmap(bitmap:BitmapData) : void
+			{
+				var window : CropImageWindow;
+				var bounds : Rectangle;
+				
+				window = new CropImageWindow();
+				window.bitmap = bitmap;
+				window.addEventListener(Event.CLOSE, windowCloseHandler);
+				window.open();
+				
+				// Centralize window.
+				bounds = Screen.mainScreen.bounds;
+				window.nativeWindow.x = (bounds.width - window.nativeWindow.width) * 0.5;
+				window.nativeWindow.y = (bounds.height - window.nativeWindow.height) * 0.5;
+				
+				function windowCloseHandler(event:Event) : void
+				{
+					if (window.bitmapList != null)
+					{
+						onImportSprites(window.bitmapList);
+					}
 				}
 			}
 			
@@ -760,44 +839,32 @@
 			
 			protected function replaceSpriteButtonClickHandler(event:MouseEvent) : void
 			{
-				var loader : FileLoader;
+				var loader : BitmapLoader;
 				
 				if (_info == null || this.selectedSpriteId == 0)
 				{
 					return;
 				}
 				
-				loader = new FileLoader();
+				loader = new BitmapLoader(_settings.getLastImportExportDirectory());
 				loader.addEventListener(Event.COMPLETE, completeHandler);
-				loader.loadBitmapData(_settings.getLastImportExportDirectory());
+				loader.browseForOpen("Select Image");
 				
 				function completeHandler(event:Event) : void
 				{
-					var directory : File;
 					var bitmap : BitmapData;
 					var spriteData : SpriteData;
 					
-					bitmap = BitmapData(loader.data);
+					bitmap = loader.bitmap;
 					if (bitmap.width != 32 && bitmap.height != 32)
 					{
-						Alert.show("Invalid size. Please, import bitmap with 32x32 pixels.");
+						Alert.show("Invalid size. Please, import bitmap with 32x32 pixels.", "Replace Sprite");
 						return;
 					}
 					
-					directory = FileUtils.getDirectory(loader.file);
-					if (directory != null)
-					{
-						_settings.lastImportExportDirectory = directory.nativePath;
-					}
+					_settings.setLastImportExportDirectory(loader.directory);
 					
-					// Transform bitmap 24 to 32 bits
-					if (!bitmap.transparent)
-					{
-						bitmap = BitmapUtils.to32bits(bitmap);
-					}
-					
-					// Replace magenta to transparent color
-					BitmapUtils.replaceColor(bitmap, 0xFFFF00FF, 0x00FF00FF);
+					bitmap = SpriteUtils.removeMagenta(bitmap);
 					
 					spriteData = spritesList.selectedItem as SpriteData;
 					if (spriteData != null)
@@ -809,43 +876,22 @@
 			
 			protected function importSpriteButtonClickHandler(event:MouseEvent) : void
 			{
-				var loader : FileLoader;
+				var loader : BitmapLoader;
 				
 				if (_info == null)
 				{
 					return;
 				}
 				
-				loader = new FileLoader();
+				loader = new BitmapLoader(_settings.getLastImportExportDirectory())
 				loader.addEventListener(Event.COMPLETE, completeHandler);
-				loader.loadBitmapData(_settings.getLastImportExportDirectory());
+				loader.browseForOpenMultiple("Select Images");
 				
 				function completeHandler(event:Event) : void
 				{
-					var directory : File;
-					var bitmap : BitmapData = BitmapData(loader.data);
-					if (bitmap.width != 32 && bitmap.height != 32)
-					{
-						Alert.show("Invalid size. Please, import bitmap with 32x32 pixels.");
-						return;
-					}
+					_settings.setLastImportExportDirectory(loader.directory);
 					
-					directory = FileUtils.getDirectory(loader.file);
-					if (directory != null)
-					{
-						_settings.lastImportExportDirectory = directory.nativePath;
-					}
-					
-					// Transform bitmap 24 to 32 bits
-					if (!bitmap.transparent)
-					{
-						bitmap = BitmapUtils.to32bits(bitmap);
-					}
-					
-					// Replace magenta to transparent color
-					BitmapUtils.replaceColor(bitmap, 0xFFFF00FF, 0x00FF00FF);
-					
-					sendCommand(new ImportSpriteCommand(bitmap));
+					onImportSprites(loader.bitmapList);
 				}
 			}
 			

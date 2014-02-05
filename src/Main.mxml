@@ -82,6 +82,7 @@
 				registerClassAlias("ThingType", ThingType);
 				registerClassAlias("AssetsInfo", AssetsInfo);
 				registerClassAlias("SpriteData", SpriteData);
+				registerClassAlias("ByteArray", ByteArray);
 				registerFunction(CommandType.ERROR, onError);
 				registerFunction(CommandType.SHOW_PROGRESS_BAR, onShowProgressBar);
 				registerFunction(CommandType.HIDE_PROGRESS_BAR, onHideProgressBar);

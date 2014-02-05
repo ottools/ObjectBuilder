@@ -93,6 +93,7 @@ package nail.objectbuilder.core
 			registerClassAlias("ThingType", ThingType);
 			registerClassAlias("AssetsInfo", AssetsInfo);
 			registerClassAlias("SpriteData", SpriteData);
+			registerClassAlias("ByteArray", ByteArray);
 			registerCommand(CommandType.LOAD_ASSETS, onLoadAssets);
 			registerCommand(CommandType.GET_ASSETS_INFO, onGetAssetsInfo);
 			registerCommand(CommandType.COMPILE_ASSETS, onCompileAssets);
@@ -393,17 +394,36 @@ package nail.objectbuilder.core
 			}
 		}
 		
-		private function onImportSprite(pixels:ByteArray) : void
+		private function onImportSprite(pixelsList:Vector.<ByteArray>) : void
 		{
-			if (pixels == null) 
+			var pixels : ByteArray;
+			var length : uint;
+			var i : uint;
+			var message : String;
+			
+			if (pixelsList == null) 
 			{
-				throw new ArgumentError("Parameter pixels cannot be null.");
+				throw new ArgumentError("Parameter pixelsList cannot be null.");
 			}
 			
-			if (_sprites.addSprite(pixels))
+			length = pixelsList.length;
+			for (i = 0; i < length; i++)
 			{
-				sendCommand(new MessageCommand(StringUtil.substitute("Added new sprite id {0}.", _sprites.spritesCount), "Info"));
+				pixels = pixelsList[i];
+				_sprites.addSprite(pixels);
 			}
+			
+			if (length == 1)
+			{
+				message = StringUtil.substitute("Added new sprite id {0}.", _sprites.spritesCount);
+			}
+			else
+			{
+				message = StringUtil.substitute("Added {0} new sprites.", length);
+			}
+			
+			this.sendSpriteList(_sprites.spritesCount);
+			sendCommand(new MessageCommand(message, "Info"));
 		}
 		
 		private function assetsLoadComplete() : void
