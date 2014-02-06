@@ -530,12 +530,8 @@
 						thingAtrributes.hasElevationGroupCheckBox.includeInLayout = visible;
 						thingAtrributes.equipGroupCheckBox.visible = visible;
 						thingAtrributes.equipGroupCheckBox.includeInLayout = visible;
-						thingAtrributes.marketGroupCheckBox.visible = visible;
-						thingAtrributes.marketGroupCheckBox.includeInLayout = visible;
 						thingAtrributes.writeReadGroupCheckBox.visible = visible;
 						thingAtrributes.writeReadGroupCheckBox.includeInLayout = visible;
-						thingAtrributes.actionGroupCheckBox.visible = visible;
-						thingAtrributes.actionGroupCheckBox.includeInLayout = visible;
 						thingAtrributes.flagsLeftColumn.visible = visible;
 						thingAtrributes.flagsLeftColumn.includeInLayout = visible;
 						thingAtrributes.pickupableCheckBox.visible = visible;
@@ -560,22 +556,20 @@
 						thingAtrributes.fullGroundCheckBox.includeInLayout = visible;
 						thingAtrributes.ignoreLookCheckBox.visible = visible;
 						thingAtrributes.ignoreLookCheckBox.includeInLayout = visible;
-						thingAtrributes.usableCheckBox.visible = visible;
-						thingAtrributes.usableCheckBox.includeInLayout = visible;
 					}
 					
 					// Hide 'Market' GroupCheckBox.
-					visible = _info.version >= 940;
+					visible = (_info.version >= 940 && data.category == ThingCategory.ITEM);
 					thingAtrributes.marketGroupCheckBox.visible = visible;
 					thingAtrributes.marketGroupCheckBox.includeInLayout = visible;
 					
 					// Hide 'No Move Animation' CheckBox by version.
-					visible = _info.version >= 1010;
+					visible = (_info.version >= 1010 && data.category == ThingCategory.ITEM);
 					thingAtrributes.noMoveAnimationCheckBox.visible = visible;
 					thingAtrributes.noMoveAnimationCheckBox.includeInLayout = visible;
 					
 					// Hide 'Action' GroupCheckBox and 'Usable' CheckBox by version.
-					visible = _info.version >= 1021;
+					visible = (_info.version >= 1021 && data.category == ThingCategory.ITEM);
 					thingAtrributes.actionGroupCheckBox.visible = visible;
 					thingAtrributes.actionGroupCheckBox.includeInLayout = visible;
 					thingAtrributes.usableCheckBox.visible = visible;
