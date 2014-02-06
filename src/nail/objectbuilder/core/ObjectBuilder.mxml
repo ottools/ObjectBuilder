@@ -81,6 +81,7 @@
 			import nail.objectbuilder.commands.LoadAssetsCommand;
 			import nail.objectbuilder.commands.NewThingCommand;
 			import nail.objectbuilder.commands.RemoveSpritesCommand;
+			import nail.objectbuilder.commands.RemoveThingCommand;
 			import nail.objectbuilder.commands.ReplaceSpriteCommand;
 			import nail.objectbuilder.settings.ObjectBuilderSettings;
 			import nail.otlib.assets.AssetsInfo;
@@ -836,6 +837,26 @@
 				}
 			}
 			
+			protected function removeThingButtonClickHandler(event:MouseEvent) : void
+			{
+				var message : String;
+				
+				if (_info != null && thingData != null)
+				{
+					message = StringUtil.substitute("Are you sure want to remove the {0} id {1}?",
+						thingData.category, thingData.id);
+					Alert.show(message, "Remove", Alert.YES |  Alert.NO, this, alertCloseHandler);
+				}
+				
+				function alertCloseHandler(event:CloseEvent) : void
+				{
+					if (event.detail == Alert.YES)
+					{
+						sendCommand(new RemoveThingCommand(thingData));
+					}
+				}
+			}
+			
 			protected function replaceSpriteButtonClickHandler(event:MouseEvent) : void
 			{
 				var loader : BitmapLoader;
@@ -1111,8 +1132,8 @@
 					  toolTip="Remove"
 					  width="19"
 					  height="19"
-					  enabled="false"
-					  icon="{Icons.DELETE}"/>
+					  icon="{Icons.DELETE}"
+					  click="removeThingButtonClickHandler(event)"/>
 		</s:HGroup>
 		
 	</s:BorderContainer>

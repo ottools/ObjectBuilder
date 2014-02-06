@@ -102,6 +102,7 @@ package nail.objectbuilder.core
 			registerCommand(CommandType.UPDATE_THING, onChangeThing);
 			registerCommand(CommandType.IMPORT_THING, onImportThing);
 			registerCommand(CommandType.DUPLICATE_THING, onDuplicateThing);
+			registerCommand(CommandType.REMOVE_THING, onRemoveThing);
 			registerCommand(CommandType.GET_SPRITE_LIST, onGetSpriteList);
 			registerCommand(CommandType.REPLACE_SPRITE, onReplaceSprite);
 			registerCommand(CommandType.IMPORT_SPRITE, onImportSprite);
@@ -367,6 +368,23 @@ package nail.objectbuilder.core
 			if (_things.addThing(copy, category))
 			{
 				message = StringUtil.substitute("Duplicated {0} {1} to {2}.", category, id, copy.id);
+				sendCommand(new MessageCommand(message));
+			}
+		}
+		
+		private function onRemoveThing(id:uint, category:String) : void
+		{
+			var message : String;
+			var count : uint;
+			var sendId : uint;
+			
+			if (_things.removeThing(id, category))
+			{
+				count = _things.getCategoryCount(category);
+				sendId = id > count ? count : id;
+				
+				onGetThing(sendId, category);
+				message = StringUtil.substitute("Removed {0} id {1}.", category, id);
 				sendCommand(new MessageCommand(message));
 			}
 		}

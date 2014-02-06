@@ -63,6 +63,8 @@ package nail.objectbuilder.commands
 		
 		static public const UPDATE_THING : String = "updateThing";
 		
+		static public const REMOVE_THING : String = "removeThing";
+		
 		static public const GET_THING : String = "getThing";
 		
 		static public const SET_THING : String = "setThing";
