@@ -67,6 +67,8 @@
 			import spark.components.List;
 			import spark.events.IndexChangeEvent;
 			
+			import nail.codecs.ImageCodec;
+			import nail.codecs.ImageFormat;
 			import nail.components.NailMain;
 			import nail.components.controls.Alert;
 			import nail.loaders.BitmapLoader;
@@ -88,7 +90,7 @@
 			import nail.otlib.assets.AssetsVersion;
 			import nail.otlib.components.controls.CompileAssetsWindow;
 			import nail.otlib.components.controls.CropImageWindow;
-			import nail.otlib.components.controls.ExportThingWindow;
+			import nail.otlib.components.controls.ExportWindow;
 			import nail.otlib.components.controls.ImportThingWindow;
 			import nail.otlib.components.controls.LogWidget;
 			import nail.otlib.components.controls.OpenAssetsWindow;
@@ -99,6 +101,7 @@
 			import nail.otlib.utils.SpriteUtils;
 			import nail.otlib.utils.ThingData;
 			import nail.settings.Settings;
+			import nail.utils.SaveHelper;
 			import nail.utils.StringUtil;
 			import nail.workers.Command;
 			
@@ -344,18 +347,28 @@
 				}
 			}
 			
-			private function onExportThingData(file:File, data:ThingData, version:AssetsVersion) : void
+			private function onExportThingData(fileName:String, format:String, directory:File, version:AssetsVersion, data:ThingData) : void
 			{
 				var bytes : ByteArray;
-				var stream : FileStream;
+				var bitmap : BitmapData;
+				var helper : SaveHelper;
 				
 				try
 				{
-					bytes = ThingData.serialize(data, version);
-					stream = new FileStream();
-					stream.open(file, FileMode.WRITE);
-					stream.writeBytes(bytes, 0, bytes.bytesAvailable);
-					stream.close();
+					if (ImageFormat.hasImageFormat(format))
+					{
+						bitmap = ThingData.getSpriteSheet(data);
+						bytes = ImageCodec.encode(bitmap, format);
+						
+					}
+					else if (format == "obd")
+					{
+						bytes = ThingData.serialize(data, version);
+					}
+					
+					helper = new SaveHelper();
+					helper.addFile(bytes, fileName, format, directory);
+					helper.save();
 				} 
 				catch(error:Error)
 				{
@@ -746,27 +759,35 @@
 			
 			protected function exportThingButtonClickHandler(event:MouseEvent) : void
 			{
-				var window : ExportThingWindow;
+				var window : ExportWindow;
 				
 				if (_info == null || this.thingData == null)
 				{
 					return;
 				}
 				
-				window = new ExportThingWindow();
-				window.thingName = thingData.category + "_" + thingData.id;
-				window.version = AssetsVersion.getVersionByValue(_info.version);
+				window = new ExportWindow();
+				window.enableObdFormat = true;
+				window.fileName = thingData.category + "_" + thingData.id;
 				window.directory = _settings.getLastImportExportDirectory();
+				window.format = _settings.getLastExportThingFormat();
+				window.version = _settings.getLastExportThingVersion() || AssetsVersion.getVersionByValue(_info.version);
 				window.addEventListener(Event.CLOSE, windowCloseHandler);
 				window.open();
+				
 				PopUpWindowManager.addWindow(window);
 				
 				function windowCloseHandler(event:Event) : void
 				{
-					if (window.file != null && window.version != null)
+					if (window.fileName != null &&
+						window.directory != null &&
+						window.format != null)
 					{
-						_settings.lastImportExportDirectory = window.directory.nativePath;
-						onExportThingData(window.file, thingData, window.version);
+						_settings.setLastImportExportDirectory(window.directory);
+						_settings.setLastExportThingFormat(window.format);
+						_settings.setLastExportThingVersion(window.version);
+						
+						onExportThingData(window.fileName, window.format, window.directory, window.version, thingData);
 					}
 				}
 			}

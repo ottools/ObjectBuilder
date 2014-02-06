@@ -26,6 +26,9 @@ package nail.objectbuilder.settings
 {
 	import flash.filesystem.File;
 	
+	import nail.codecs.ImageFormat;
+	import nail.otlib.assets.AssetsVersion;
+	import nail.otlib.utils.OTFormat;
 	import nail.settings.Settings;
 	import nail.utils.FileUtils;
 	import nail.utils.StringUtil;
@@ -41,6 +44,10 @@ package nail.objectbuilder.settings
 		public var lastDirectory : String;
 		
 		public var lastImportExportDirectory : String;
+		
+		public var lastExportThingFormat : String;
+		
+		public var lastExportThingVersion : int;
 		
 		//--------------------------------------------------------------------------
 		//
@@ -117,6 +124,34 @@ package nail.objectbuilder.settings
 			{
 				this.lastImportExportDirectory = FileUtils.getDirectory(file).nativePath;
 			}
+		}
+		
+		public function getLastExportThingFormat() : String
+		{
+			if (!StringUtil.isEmptyOrNull(lastExportThingFormat))
+			{
+				if (ImageFormat.hasImageFormat(lastExportThingFormat) || lastExportThingFormat == OTFormat.OBD)
+				{
+					return lastExportThingFormat;
+				}
+			}
+			return null;
+		}
+		
+		public function setLastExportThingFormat(format:String) : void
+		{
+			format = format == null ? "" : format.toLowerCase();
+			this.lastExportThingFormat = format;
+		}
+		
+		public function getLastExportThingVersion() : AssetsVersion
+		{
+			return AssetsVersion.getVersionByValue(lastExportThingVersion);
+		}
+		
+		public function setLastExportThingVersion(version:AssetsVersion) : void
+		{
+			this.lastExportThingVersion = version == null ? 0 : version.value;
 		}
 	}
 }
