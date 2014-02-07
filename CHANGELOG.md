@@ -1,3 +1,16 @@
+### 0.2.3
+
+Features:
+
+* Export objects as sprite sheet with PNG, BMP or JPG formats.
+* Remove objects.
+* Import multiple sprites.
+* Export selected sprites to PNG, BMP or JPG formats.
+* Create a new sprite.
+* Remove selected sprites.
+* New tool to crop images larger than 32x32 pixels.
+* Context menu to sprite list.
+
 ### 0.2.2
 
 Features:

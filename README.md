@@ -5,7 +5,7 @@ Object Builder is a dat and spr files editor.
 * Faster loading and compiling.
 * Export and import objects or sprites to formats PNG, BMP, JPG or OBD.
 * Support for versions 10.xx
-
+* Crop images.
 
 
 Do you like the project?
@@ -18,6 +18,7 @@ Do you like the project?
 
 ### Download
 
+[Object Builder 0.2.3] (https://www.dropbox.com/s/hqxsqok39n4o7zq/ObjectBuilder0.2.3.air)
 [Object Builder 0.2.2] (https://www.dropbox.com/s/9vgoaxa74qgqxp2/ObjectBuilder0.2.2.air)
 
 ### Install 
