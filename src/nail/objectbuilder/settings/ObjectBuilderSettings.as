@@ -49,6 +49,8 @@ package nail.objectbuilder.settings
 		
 		public var lastExportThingVersion : int;
 		
+		public var lastExportSpriteFormat : String;
+		
 		//--------------------------------------------------------------------------
 		//
 		// CONSTRUCTOR
@@ -152,6 +154,21 @@ package nail.objectbuilder.settings
 		public function setLastExportThingVersion(version:AssetsVersion) : void
 		{
 			this.lastExportThingVersion = version == null ? 0 : version.value;
+		}
+		
+		public function getLastExportSpriteFormat() : String
+		{
+			if (ImageFormat.hasImageFormat(lastExportSpriteFormat))
+			{
+				return lastExportSpriteFormat;
+			}
+			return null;
+		}
+		
+		public function setLastExportSpriteFormat(format:String) : void
+		{
+			format = format == null ? "" : format.toLowerCase();
+			this.lastExportSpriteFormat = format;
 		}
 	}
 }

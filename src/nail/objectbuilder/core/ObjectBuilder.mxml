@@ -428,6 +428,44 @@
 				}
 			}
 			
+			private function onExportSprites(fileName:String, format:String, directory:File, sprites:Vector.<SpriteData>) : void
+			{
+				var helper : SaveHelper;
+				var length : uint;
+				var i : uint;
+				var spriteData : SpriteData;
+				var bitmap : BitmapData;
+				var bytes : ByteArray;
+				var name : String;
+				
+				try
+				{
+					if (ImageFormat.hasImageFormat(format))
+					{
+						helper = new SaveHelper();
+						
+						length = sprites.length;
+						for (i = 0; i < length; i++)
+						{
+							spriteData = sprites[i];
+							bitmap = spriteData.getBitmap(0xFFFF00FF);
+							if (!SpriteUtils.isEmpty(bitmap))
+							{
+								bytes = ImageCodec.encode(bitmap, format);
+								name = fileName + "_" + spriteData.id;
+								helper.addFile(bytes, name, format, directory);
+							}
+						}
+						
+						helper.save();
+					}
+				} 
+				catch(error:Error)
+				{
+					NailMain.instance.onError(error.message, error.getStackTrace(), error.errorID);
+				}
+			}
+			
 			private function cropBitmap(bitmap:BitmapData) : void
 			{
 				var window : CropImageWindow;
@@ -929,6 +967,39 @@
 				}
 			}
 			
+			protected function exportSpriteHandler(event:Event) : void
+			{
+				var window : ExportWindow;
+				
+				if (!this.loaded || spritesList.selectedSprites.length == 0)
+				{
+					return;
+				}
+				
+				window = new ExportWindow();
+				window.fileName = "sprite";
+				window.format = _settings.getLastExportSpriteFormat();
+				window.directory = _settings.getLastImportExportDirectory();
+				window.enableObdFormat = false;
+				window.addEventListener(Event.CLOSE, windowCloseHandler);
+				window.open();
+				
+				PopUpWindowManager.addWindow(window);
+				
+				function windowCloseHandler(event:Event) : void
+				{
+					if (window.fileName != null &&
+						window.format != null &&
+						window.directory != null)
+					{
+						_settings.setLastImportExportDirectory(window.directory);
+						_settings.setLastExportSpriteFormat(window.format);
+						
+						onExportSprites(window.fileName, window.format, window.directory, spritesList.selectedSprites);
+					}
+				}
+			}
+			
 			protected function removeSpriteHandler(event:Event) : void
 			{
 				var sprites : Vector.<SpriteData>;
@@ -1224,6 +1295,7 @@
 							  change="spritesListChangeHandler(event)"
 							  updateComplete="listUpdateCompleteHandler(event)"
 							  replace="replaceSpriteHandler(event)"
+							  export="exportSpriteHandler(event)"
 							  remove="removeSpriteHandler(event)"/>
 		</nail:GroupBox>
 			
@@ -1252,8 +1324,8 @@
 					  toolTip="Export"
 					  width="19"
 					  height="19"
-					  enabled="false"
-					  icon="{Icons.EXPORT}"/>
+					  icon="{Icons.EXPORT}"
+					  click="exportSpriteHandler(event)"/>
 			<s:Button id="editSpriteButton"
 					  toolTip="Edit"
 					  width="19"
