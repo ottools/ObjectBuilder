@@ -24,6 +24,7 @@
 
 package nail.objectbuilder.core
 {
+	import flash.display.BitmapData;
 	import flash.events.ErrorEvent;
 	import flash.events.Event;
 	import flash.events.ProgressEvent;
@@ -39,6 +40,7 @@ package nail.objectbuilder.core
 	import nail.objectbuilder.commands.SetThingCommand;
 	import nail.otlib.assets.AssetsInfo;
 	import nail.otlib.assets.AssetsVersion;
+	import nail.otlib.sprites.Sprite;
 	import nail.otlib.sprites.SpriteStorage;
 	import nail.otlib.things.ThingCategory;
 	import nail.otlib.things.ThingType;
@@ -106,6 +108,7 @@ package nail.objectbuilder.core
 			registerCommand(CommandType.GET_SPRITE_LIST, onGetSpriteList);
 			registerCommand(CommandType.REPLACE_SPRITE, onReplaceSprite);
 			registerCommand(CommandType.IMPORT_SPRITE, onImportSprite);
+			registerCommand(CommandType.NEW_SPRITE, onNewSprite);
 			registerCommand(CommandType.REMOVE_SPRITES, onRemoveSprites);
 		}
 		
@@ -443,6 +446,21 @@ package nail.objectbuilder.core
 			
 			this.sendSpriteList(_sprites.spritesCount);
 			sendCommand(new MessageCommand(message, "Info"));
+		}
+		
+		private function onNewSprite() : void
+		{
+			var sprite : BitmapData;
+			var message : String;
+			
+			sprite = new BitmapData(Sprite.SPRITE_PIXELS, Sprite.SPRITE_PIXELS, true, 0x00000000);
+			
+			if (_sprites.addSprite(sprite.getPixels(sprite.rect)))
+			{
+				message = StringUtil.substitute("Added new sprite id {0}.", _sprites.spritesCount);
+				this.sendSpriteList(_sprites.spritesCount);
+				sendCommand(new MessageCommand(message, "Info"));
+			}
 		}
 		
 		private function onRemoveSprites(list:Vector.<uint>) : void

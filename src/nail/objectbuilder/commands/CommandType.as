@@ -75,6 +75,8 @@ package nail.objectbuilder.commands
 		
 		static public const DUPLICATE_SPRITE : String = "duplicateSprite";
 		
+		static public const NEW_SPRITE : String = "newSprite"
+		
 		static public const REMOVE_SPRITES : String = "removeSprites";
 		
 		static public const IMPORT_SPRITE : String = "importSprite";

@@ -73,6 +73,7 @@
 			import nail.loaders.BitmapLoader;
 			import nail.managers.PopUpWindowManager;
 			import nail.objectbuilder.commands.ChangeThingCommand;
+			import nail.objectbuilder.commands.CommandType;
 			import nail.objectbuilder.commands.CompileAssetsCommand;
 			import nail.objectbuilder.commands.DuplicateThingCommand;
 			import nail.objectbuilder.commands.GetSpriteListCommand;
@@ -1000,6 +1001,14 @@
 				}
 			}
 			
+			protected function newSpriteButtonClickHandler(event:MouseEvent) : void
+			{
+				if (this.loaded)
+				{
+					sendCommand(new Command(CommandType.NEW_SPRITE));
+				}
+			}
+			
 			protected function removeSpriteHandler(event:Event) : void
 			{
 				var sprites : Vector.<SpriteData>;
@@ -1342,8 +1351,8 @@
 					  toolTip="New"
 					  width="19"
 					  height="19"
-					  enabled="false"
-					  icon="{Icons.NEW}"/>
+					  icon="{Icons.NEW}"
+					  click="newSpriteButtonClickHandler(event)"/>
 			<s:Button id="removeSpriteButton"
 					  toolTip="Remove"
 					  width="19"
