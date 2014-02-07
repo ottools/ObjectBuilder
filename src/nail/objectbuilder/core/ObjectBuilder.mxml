@@ -64,7 +64,6 @@
 			import mx.events.FlexEvent;
 			import mx.events.MenuEvent;
 			
-			import spark.components.List;
 			import spark.events.IndexChangeEvent;
 			
 			import nail.codecs.ImageCodec;
@@ -460,7 +459,7 @@
 				var sprite : SpriteData;
 				
 				// Return if id is current selected.
-				if (_info == null || this.selectedSpriteId == id)
+				if (_info == null || this.spritesList.selectedSpriteId == id)
 				{
 					return;
 				}
@@ -683,7 +682,7 @@
 				{
 					spritesList.selectedIndex = _selectIndex;
 					spritesList.ensureIndexIsVisible(_selectIndex);
-					spriteStepper.value = this.selectedSpriteId;
+					spriteStepper.value = this.spritesList.selectedSpriteId;
 				}
 				_selectIndex = -1;
 			}
@@ -872,11 +871,11 @@
 				}
 			}
 			
-			protected function replaceSpriteButtonClickHandler(event:MouseEvent) : void
+			protected function replaceSpriteHandler(event:Event) : void
 			{
 				var loader : BitmapLoader;
 				
-				if (_info == null || this.selectedSpriteId == 0)
+				if (_info == null || this.spritesList.selectedSpriteId == 0)
 				{
 					return;
 				}
@@ -901,7 +900,7 @@
 					
 					bitmap = SpriteUtils.removeMagenta(bitmap);
 					
-					spriteData = spritesList.selectedItem as SpriteData;
+					spriteData = spritesList.selectedSprite;
 					if (spriteData != null)
 					{
 						sendCommand(new ReplaceSpriteCommand(spriteData.id, bitmap));
@@ -930,27 +929,27 @@
 				}
 			}
 			
-			protected function removeSpriteButtonClickHandler(event:MouseEvent) : void
+			protected function removeSpriteHandler(event:Event) : void
 			{
+				var sprites : Vector.<SpriteData>;
 				var list : Vector.<uint>;
 				var length : uint;
 				var i : uint;
-				var spriteData : SpriteData;
 				
-				if (_info == null || spritesList.selectedItems == null)
+				if (_info == null)
 				{
 					return;
 				}
 				
-				length = spritesList.selectedItems.length;
+				sprites = spritesList.selectedSprites;
+				length = sprites.length;
 				if (length > 0)
 				{
 					list = new Vector.<uint>(length, true);
 					
 					for (i = 0; i < length; i++)
 					{
-						spriteData = spritesList.selectedItems[i] as SpriteData;
-						list[i] = spriteData.id;
+						list[i] = sprites[i].id;
 					}
 					
 					list.sort(Array.NUMERIC | Array.DESCENDING);
@@ -965,8 +964,8 @@
 					return;
 				}
 				
-				spriteStepper.value = this.selectedSpriteId;
-				replaceSpriteButton.enabled = (spritesList.selectedItems != null && spritesList.selectedItems.length == 1);
+				spriteStepper.value = this.spritesList.selectedSpriteId;
+				replaceSpriteButton.enabled = (spritesList.selectedSprites.length == 1);
 			}
 			
 			protected function spriteStepperChangeHandler(event:Event) : void
@@ -994,15 +993,6 @@
 					_thingDataChanged = true;
 					invalidateProperties();
 				}
-			}
-			
-			public function get selectedSpriteId() : uint
-			{
-				if (spritesList != null && spritesList.selectedItem != null)
-				{
-					return SpriteData(spritesList.selectedItem).id;
-				}
-				return 0;
 			}
 			
 		]]>
@@ -1218,17 +1208,18 @@
 								  paddingTop="10"
 								  paddingBottom="0"/>
 			</nail:layout>
-			<s:List id="spritesList" 
-					width="100%"
-					height="100%"
-					dataProvider="{_spritesCollection}"
-					allowMultipleSelection="true"
-					dragEnabled="true"
-					fontSize="11"
-					borderAlpha="0"
-					itemRenderer="nail.otlib.components.renders.SpriteListRenderer"
-					change="spritesListChangeHandler(event)"
-					updateComplete="listUpdateCompleteHandler(event)"/>	
+			<otlib:SpriteList id="spritesList" 
+							  width="100%"
+							  height="100%"
+							  dataProvider="{_spritesCollection}"
+							  allowMultipleSelection="true"
+							  dragEnabled="true"
+							  fontSize="11"
+							  borderAlpha="0"
+							  change="spritesListChangeHandler(event)"
+							  updateComplete="listUpdateCompleteHandler(event)"
+							  replace="replaceSpriteHandler(event)"
+							  remove="removeSpriteHandler(event)"/>
 		</nail:GroupBox>
 			
 		<nail:XNumericStepper id="spriteStepper"
@@ -1245,7 +1236,7 @@
 					  width="19"
 					  height="19"
 					  icon="{Icons.REPLACE}"
-					  click="replaceSpriteButtonClickHandler(event)"/>
+					  click="replaceSpriteHandler(event)"/>
 			<s:Button id="importSpriteButton"
 					  toolTip="Import"
 					  width="19"
@@ -1281,7 +1272,7 @@
 					  width="19"
 					  height="19"
 					  icon="{Icons.DELETE}"
-					  click="removeSpriteButtonClickHandler(event)"/>
+					  click="removeSpriteHandler(event)"/>
 		</s:HGroup>	
 		
 	</s:BorderContainer>
