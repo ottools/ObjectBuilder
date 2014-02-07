@@ -323,7 +323,7 @@
 			{
 				var window : ImportThingWindow;
 				
-				if (_info == null)
+				if (!this.loaded)
 				{
 					return;
 				}
@@ -459,7 +459,7 @@
 				var sprite : SpriteData;
 				
 				// Return if id is current selected.
-				if (_info == null || this.spritesList.selectedSpriteId == id)
+				if (!this.loaded || this.spritesList.selectedSpriteId == id)
 				{
 					return;
 				}
@@ -491,7 +491,7 @@
 			{
 				var window : CompileAssetsWindow;
 				
-				if (_info == null)
+				if (!this.loaded)
 				{
 					return;
 				}
@@ -527,7 +527,7 @@
 				confirmButton.enabled = thingAtrributes.changed;
 				cancelButton.enabled = (data != null);
 				
-				if (_info != null)
+				if (this.loaded)
 				{
 					// Hide unused controls to non-item objects.
 					if (data != null)
@@ -608,7 +608,7 @@
 			private function getMinThingId() : uint
 			{
 				var category : String = getCurrentCategory();
-				if (_info != null && !StringUtil.isEmptyOrNull(category))
+				if (this.loaded && !StringUtil.isEmptyOrNull(category))
 				{
 					switch(category)
 					{
@@ -628,7 +628,7 @@
 			private function getMaxThingId() : uint
 			{
 				var category : String = getCurrentCategory();
-				if (_info != null && !StringUtil.isEmptyOrNull(category))
+				if (this.loaded && !StringUtil.isEmptyOrNull(category))
 				{
 					switch(category) 
 					{
@@ -713,7 +713,7 @@
 			
 			protected function categoryDropDownListChangeHandler(event:IndexChangeEvent) : void
 			{
-				if (_info != null)
+				if (this.loaded)
 				{
 					thingStepper.minimum = getMinThingId();
 					thingStepper.maximum = getMaxThingId();
@@ -740,7 +740,7 @@
 			
 			protected function thingStepperChangeHandler(event:Event) : void
 			{
-				if (_info != null && this.thingData != null)
+				if (this.loaded && this.thingData != null)
 				{
 					sendCommand(new GetThingCommand(thingStepper.value, getCurrentCategory()));
 				}
@@ -760,7 +760,7 @@
 			{
 				var window : ExportWindow;
 				
-				if (_info == null || this.thingData == null)
+				if (!this.loaded || this.thingData == null)
 				{
 					return;
 				}
@@ -793,7 +793,7 @@
 			
 			protected function duplicateThingButtonClickHandler(event:MouseEvent):void
 			{
-				if (_info != null && this.thingData != null)
+				if (this.loaded && this.thingData != null)
 				{
 					sendCommand(new DuplicateThingCommand(this.thingData));
 				}
@@ -803,7 +803,7 @@
 			{
 				var message : String;
 				
-				if (_info == null || thingAtrributes.thingData == this.thingData)
+				if (!this.loaded || thingAtrributes.thingData == this.thingData)
 				{
 					return;
 				}
@@ -841,7 +841,7 @@
 			{
 				var category : String;
 				
-				if (_info != null)
+				if (this.loaded)
 				{
 					category = getCurrentCategory();
 					if (category != null)
@@ -855,7 +855,7 @@
 			{
 				var message : String;
 				
-				if (_info != null && thingData != null)
+				if (this.loaded && thingData != null)
 				{
 					message = StringUtil.substitute("Are you sure want to remove the {0} id {1}?",
 						thingData.category, thingData.id);
@@ -875,7 +875,7 @@
 			{
 				var loader : BitmapLoader;
 				
-				if (_info == null || this.spritesList.selectedSpriteId == 0)
+				if (!this.loaded || this.spritesList.selectedSpriteId == 0)
 				{
 					return;
 				}
@@ -912,7 +912,7 @@
 			{
 				var loader : BitmapLoader;
 				
-				if (_info == null)
+				if (!this.loaded)
 				{
 					return;
 				}
@@ -936,7 +936,7 @@
 				var length : uint;
 				var i : uint;
 				
-				if (_info == null)
+				if (!this.loaded)
 				{
 					return;
 				}
@@ -959,7 +959,7 @@
 			
 			protected function spritesListChangeHandler(event:IndexChangeEvent) : void
 			{
-				if (_info == null)
+				if (!this.loaded)
 				{
 					return;
 				}
@@ -970,7 +970,7 @@
 			
 			protected function spriteStepperChangeHandler(event:Event) : void
 			{
-				if (_info != null)
+				if (this.loaded)
 				{
 					selectSprite(spriteStepper.value);
 				}
@@ -979,6 +979,11 @@
 			//--------------------------------------
 			// Getters / Setters 
 			//--------------------------------------
+			
+			public function get loaded() : Boolean
+			{
+				return (_info != null);
+			}
 			
 			public function get thingData() : ThingData
 			{
