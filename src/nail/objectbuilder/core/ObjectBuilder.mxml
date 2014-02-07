@@ -399,6 +399,8 @@
 					}
 					else if (bitmap.width == 32 && bitmap.height == 32)
 					{
+						bitmap = SpriteUtils.removeMagenta(bitmap);
+						
 						spritePixelsList = new Vector.<ByteArray>(length, true);
 						spritePixelsList[0] = bitmap.getPixels(bitmap.rect);
 						sendCommand(new ImportSpriteCommand(spritePixelsList));
