@@ -25,24 +25,24 @@
 ///////////////////////////////////////////////////////////////////////////////////
 -->
 
-<nail:Widget xmlns:fx="http://ns.adobe.com/mxml/2009" 
-			 xmlns:s="library://ns.adobe.com/flex/spark" 
-			 xmlns:mx="library://ns.adobe.com/flex/mx"
-			 xmlns:nail="library://ns.nail.com/naillib" 
-			 width="400"
-			 height="300"
-			 resizable="false"
-			 title="Log">
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  xmlns:nail="library://ns.nail.com/naillib" 
+		  minWidth="400"
+		  minHeight="300"
+		  backgroundColor="0x494949"
+		  showStatusBar="false"
+		  title="Log">
 	
-	<nail:layout>
+	<s:layout>
 		<s:VerticalLayout gap="0"
 						  horizontalAlign="right"/>
-	</nail:layout>
+	</s:layout>
 	
 	<fx:Script>
 		<![CDATA[
-			import mx.core.UIComponent;
-			import mx.managers.PopUpManager;
+			import flashx.textLayout.conversion.TextConverter;
 			
 			import nail.components.NailMain;
 			import nail.utils.StringUtil;
@@ -53,10 +53,9 @@
 			//
 			//--------------------------------------------------------------------------
 			
-			[Bindable]
 			private var _text : String = "";
 			
-			private var _closed : Boolean = true;
+			private var _textChanged : Boolean;
 			
 			//--------------------------------------------------------------------------
 			//
@@ -65,38 +64,45 @@
 			//--------------------------------------------------------------------------
 			
 			//--------------------------------------
-			// Public
+			// Override Protected
 			//--------------------------------------
 			
-			public function appendText(text:String) : void
+			override protected function commitProperties() : void
 			{
-				if (text != null)
+				super.commitProperties();
+				
+				if (_textChanged)
 				{
-					_text += StringUtil.substitute(">> {0}\n", text);
+					textArea.textFlow = TextConverter.importToFlow(_text,
+						TextConverter.TEXT_FIELD_HTML_FORMAT);
+					saveButton.enabled = !StringUtil.isEmptyOrNull(_text);
+					_textChanged = false;
 				}
 			}
 			
-			public function clear() : void
-			{
-				_text = "";
-			}
+			//--------------------------------------
+			// Private
+			//--------------------------------------
 			
-			public function show() : void
+			private function saveLog(file:File) : void
 			{
-				if (_closed)
+				var stream : FileStream;
+				
+				try
 				{
-					PopUpManager.addPopUp(this, UIComponent(NailMain.application), true);
-					PopUpManager.centerPopUp(this);
-					_closed = false;
-				}
-			}
-			
-			public function hide() : void
-			{
-				if (!_closed)
+					if (file.extension != "txt")
+					{
+						file.nativePath += ".txt";
+					}
+					
+					stream = new FileStream();
+					stream.open(file, FileMode.WRITE);
+					stream.writeMultiByte(textArea.text, "iso-8859-1");
+					stream.close();
+				} 
+				catch(error:Error) 
 				{
-					PopUpManager.removePopUp(this);
-					_closed = true;
+					NailMain.instance.onError(error.message, error.getStackTrace(), error.errorID);
 				}
 			}
 			
@@ -104,9 +110,40 @@
 			// Event Handlers
 			//--------------------------------------
 			
-			override protected function closeButton_clickHandler(event:MouseEvent) : void
+			protected function saveButtonClickHandler(event:MouseEvent) : void
 			{
-				this.hide();
+				var file : File;
+				
+				file = File.documentsDirectory.resolvePath("changes.log");
+				file.addEventListener(Event.SELECT, fileSelectHandler);
+				file.browseForSave("Save Log")
+				
+				function fileSelectHandler(event:Event) : void
+				{
+					saveLog(file);
+				}
+			}
+			
+			//--------------------------------------
+			// Getters / Setters 
+			//--------------------------------------
+			
+			[Bindable]
+			public function get text() : String
+			{
+				return _text;
+			}
+			
+			public function set text(value:String) : void
+			{
+				value = value == null ? "" : value;
+				
+				if (_text != value)
+				{
+					_text = value;
+					_textChanged = true;
+					invalidateProperties();
+				}
 			}
 			
 		]]>
@@ -118,7 +155,7 @@
 				fontSize="11"
 				verticalScrollPolicy="on"
 				editable="false"
-				text="{_text}"
+				text="{text}"
 				borderColor="0x272727"
 				paddingLeft="5"
 				paddingRight="10"
@@ -126,12 +163,18 @@
 				paddingBottom="10"/>
 	
 	<s:HGroup width="100%"
+			  paddingLeft="10"
 			  paddingRight="10"
 			  paddingTop="10"
-			  paddingBottom="10"
-			  horizontalAlign="right">
+			  paddingBottom="10">
+		<s:Button id="saveButton"
+				  label="Save"
+				  width="70"
+				  enabled="false"
+				  click="saveButtonClickHandler(event)"/>
+		<s:Spacer width="100%"/>
 		<s:Button label="Close"
 				  width="70"
-				  click="hide()"/>
+				  click="close()"/>
 	</s:HGroup>
-</nail:Widget>
+</s:Window>

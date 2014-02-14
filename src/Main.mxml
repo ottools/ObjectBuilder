@@ -144,7 +144,10 @@
 			
 			private function onShowMessage(text:String, title:String) : void
 			{
-				Alert.show(text, title, Alert.OK, UIComponent(application));
+				if (title != "log")
+				{
+					Alert.show(text, title, Alert.OK, UIComponent(application));
+				}
 				ObjectBuilder(application).appendLog(text);
 			}
 			

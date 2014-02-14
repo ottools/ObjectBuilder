@@ -36,7 +36,8 @@
 					  maximizable="false"
 					  resizable="false"
 					  backgroundColor="0x494949"
-					  showStatusBar="false">
+					  showStatusBar="false"
+					  closing="applicationClosingHandler(event)">
 	
 	<nail:layout>
 		<s:HorizontalLayout gap="3"/>
@@ -49,9 +50,10 @@
 				<menuitem label="Compile" data="fileCompile" icon="nail.objectbuilder.core.Icons_SAVE"/>
 			</menuitem>
 			<menuitem label="Edit">
-				<menuitem label="Show Log" data="editShowLog"/>
-				<menuitem type="separator"/>
 				<menuitem label="Autosave Changes" type="check" data="editAutosave"/>
+			</menuitem>
+			<menuitem label="Window">
+				<menuitem label="Open Log Window" data="windowOpenLog"/>
 			</menuitem>	
 			<menuitem label="Help">
 				<menuitem label="About Object Builder" data="helpAbout" icon="nail.objectbuilder.core.Icons_INFO"/>
@@ -94,7 +96,7 @@
 			import nail.otlib.components.controls.CropImageWindow;
 			import nail.otlib.components.controls.ExportWindow;
 			import nail.otlib.components.controls.ImportThingWindow;
-			import nail.otlib.components.controls.LogWidget;
+			import nail.otlib.components.controls.LogWindow;
 			import nail.otlib.components.controls.OpenAssetsWindow;
 			import nail.otlib.events.ThingEditorEvent;
 			import nail.otlib.things.ThingCategory;
@@ -133,7 +135,9 @@
 			
 			private var _spriteMax :uint;
 			
-			private var _logWidget : LogWidget = new LogWidget();
+			private var _logText : String = "";
+			
+			private var _logWindow : LogWindow;
 			
 			private var _autosave : Boolean;
 			
@@ -228,7 +232,15 @@
 			
 			public function appendLog(text:String) : void
 			{
-				_logWidget.appendText(text);
+				if (text != null)
+				{
+					_logText += "&gt;&gt; " + text + "<br/>";
+					
+					if (_logWindow != null)
+					{
+						_logWindow.text = _logText;
+					}
+				}
 			}
 			
 			public function saveThingChanges() : void
@@ -268,7 +280,7 @@
 				categoryDropDownList.selectedIndex = 0;
 				thingStepper.value = 0;
 				spriteStepper.value = 0;
-				_logWidget.clear();
+				_logText = "";
 			}
 			
 			//--------------------------------------
@@ -296,7 +308,7 @@
 				
 				if (_autosaveChanged)
 				{
-					menuXML[1].menuitem[2].@toggled = _autosave; // Edit > Autosave Changes
+					menuXML[1].menuitem[0].@toggled = _autosave; // Edit > Autosave Changes
 					_settings.autosaveThingChanges = _autosave;
 					_autosaveChanged = false;
 				}
@@ -580,9 +592,27 @@
 				}
 			}
 			
-			private function onShowLog() : void
+			private function openLogWindow() : void
 			{
-				_logWidget.show();
+				if (_logWindow == null)
+				{
+					_logWindow = new LogWindow();
+					_logWindow.text = _logText;
+					_logWindow.addEventListener(Event.CLOSE, logWindowCloseHandler);
+					_logWindow.open();
+				}
+				else 
+				{
+					_logWindow.activate();
+				}
+			}
+			
+			private function closeLogWindow() : void
+			{
+				if (_logWindow!= null && !_logWindow.closed)
+				{
+					_logWindow.close();
+				}
 			}
 			
 			private function editThing(data:ThingData) : void
@@ -775,12 +805,12 @@
 						this.onCompile();
 						break;
 					
-					case "editShowLog":
-						this.onShowLog();
-						break;
-					
 					case "editAutosave":
 						this.autosave = !this.autosave;
+						break;
+					
+					case "windowOpenLog":
+						this.openLogWindow();
 						break;
 					
 					case "helpAbout":
@@ -807,8 +837,21 @@
 			
 			protected function thingPropertyChangedHandler(event:ThingEditorEvent) : void
 			{
+				var message : String;
+				
 				this.updateTitle();
 				confirmButton.enabled = thingAtrributes.changed;
+				
+				if (event.property != null)
+				{
+					message = "{0} id <b>{1}</b> property <b>{2}</b> changed from <b>{3}</b> to <b>{4}</b>.";
+					this.appendLog(StringUtil.substitute(message,
+						StringUtil.capitaliseFirstLetter(event.data.category),
+						event.data.id,
+						event.property,
+						event.oldValue,
+						event.newValue));
+				}
 			}
 			
 			protected function thingSpriteDoubleClickHandler(event:ThingEditorEvent) : void
@@ -908,10 +951,16 @@
 					{
 						saveThingChanges();
 					}
+					else if (event.detail == Alert.NO)
+					{
+						appendLog(StringUtil.substitute("Unsaved changes to {0} id <b>{1}</b>.",
+							thingAtrributes.thingData.category,
+							thingAtrributes.thingData.id));
+					}
 					else if (event.detail == Alert.CANCEL)
 					{
-						return;
-					}	
+						return
+					}
 					
 					editThing(thingData);
 				}
@@ -1095,6 +1144,17 @@
 				{
 					selectSprite(spriteStepper.value);
 				}
+			}
+			
+			protected function logWindowCloseHandler(event:Event) : void
+			{
+				_logWindow.removeEventListener(Event.CLOSE, logWindowCloseHandler);
+				_logWindow = null;
+			}
+			
+			protected function applicationClosingHandler(event:Event) : void
+			{
+				this.closeLogWindow();
 			}
 			
 			//--------------------------------------
@@ -1363,7 +1423,7 @@
 							  export="exportSpriteHandler(event)"
 							  remove="removeSpriteHandler(event)"/>
 		</nail:GroupBox>
-		
+			
 		<nail:XNumericStepper id="spriteStepper"
 							  width="100%"
 							  fontSize="11"

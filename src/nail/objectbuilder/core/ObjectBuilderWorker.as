@@ -235,8 +235,8 @@ package nail.objectbuilder.core
 			thing = ThingUtils.createThing();
 			if (_things.addThing(thing, category))
 			{
-				message = StringUtil.substitute("Added {0} id {1}.", category, thing.id);
-				sendCommand(new MessageCommand(message, "Info"));
+				message = StringUtil.substitute("Added {0} id <b>{1}</b>.", category, thing.id);
+				sendCommand(new MessageCommand(message, "log"));
 			}
 		}
 		
@@ -289,8 +289,8 @@ package nail.objectbuilder.core
 			
 			if (_things.replace(thing, thing.category, thing.id))
 			{
-				message = StringUtil.substitute("{0} {1} updated.", StringUtil.capitaliseFirstLetter(thing.category), thing.id);
-				sendCommand(new MessageCommand(message, "Info"));
+				message = StringUtil.substitute("{0} id <b>{1}</b> updated.", StringUtil.capitaliseFirstLetter(thing.category), thing.id);
+				sendCommand(new MessageCommand(message, "log"));
 			}
 		}
 		
@@ -301,7 +301,7 @@ package nail.objectbuilder.core
 			var i :uint;
 			var spriteId : uint;
 			var pixels : ByteArray;
-			var spritesAdded : uint;
+			var spritesAdded : Array;
 			var message : String;
 			
 			if (thing == null) 
@@ -326,6 +326,7 @@ package nail.objectbuilder.core
 			}
 			
 			// Add sprites
+			spritesAdded = [];
 			length = sprites.length;
 			for (i = 0; i < length; i++)
 			{
@@ -338,15 +339,30 @@ package nail.objectbuilder.core
 					if (_sprites.addSprite(pixels))
 					{
 						thing.spriteIndex[i] = _sprites.spritesCount;
-						spritesAdded++;
+						spritesAdded.push(_sprites.spritesCount);
 					}
 				}
 			}
 			
 			if (done)
 			{
-				message += " {0} id {1}. Added {2} new sprites."
-				sendCommand(new MessageCommand(StringUtil.substitute(message, thing.category, thing.id, spritesAdded)));
+				message += " {0} id <b>{1}</b>."
+				sendCommand(new MessageCommand(StringUtil.substitute(message, thing.category, thing.id), "log"));
+				
+				if (spritesAdded.length > 0)
+				{
+					if (spritesAdded.length == 1)
+					{
+						message = StringUtil.substitute("Added new sprite id <b>{0}</b>.", _sprites.spritesCount);
+					}
+					else
+					{
+						message = StringUtil.substitute("Added new sprites ids: <b>{0}</b>.", spritesAdded);
+					}
+					
+					this.sendSpriteList(_sprites.spritesCount);
+					sendCommand(new MessageCommand(message, "log"));
+				}
 			}
 		}
 		
@@ -370,8 +386,8 @@ package nail.objectbuilder.core
 			copy = ThingUtils.copyThing(thing);
 			if (_things.addThing(copy, category))
 			{
-				message = StringUtil.substitute("Duplicated {0} {1} to {2}.", category, id, copy.id);
-				sendCommand(new MessageCommand(message));
+				message = StringUtil.substitute("Duplicated {0} id <b>{1}</b> to id <b>{2}</b>.", category, id, copy.id);
+				sendCommand(new MessageCommand(message, "log"));
 			}
 		}
 		
@@ -387,8 +403,8 @@ package nail.objectbuilder.core
 				sendId = id > count ? count : id;
 				
 				onGetThing(sendId, category);
-				message = StringUtil.substitute("Removed {0} id {1}.", category, id);
-				sendCommand(new MessageCommand(message));
+				message = StringUtil.substitute("Removed {0} id <b>{1}</b>.", category, id);
+				sendCommand(new MessageCommand(message, "log"));
 			}
 		}
 		
@@ -411,13 +427,14 @@ package nail.objectbuilder.core
 			
 			if (_sprites.replaceSprite(id, pixels))
 			{
-				sendCommand(new MessageCommand(StringUtil.substitute("Sprite id {0} replaced.", id), "Info"));
+				sendCommand(new MessageCommand(StringUtil.substitute("Sprite id <b>{0}</b> replaced.", id), "log"));
 				this.sendSpriteList(id);
 			}
 		}
 		
 		private function onImportSprite(pixelsList:Vector.<ByteArray>) : void
 		{
+			var ids : Array;
 			var pixels : ByteArray;
 			var length : uint;
 			var i : uint;
@@ -428,24 +445,28 @@ package nail.objectbuilder.core
 				throw new ArgumentError("Parameter pixelsList cannot be null.");
 			}
 			
+			ids = [];
 			length = pixelsList.length;
 			for (i = 0; i < length; i++)
 			{
 				pixels = pixelsList[i];
-				_sprites.addSprite(pixels);
+				if (_sprites.addSprite(pixels))
+				{
+					ids[i] = _sprites.spritesCount;
+				}
 			}
 			
 			if (length == 1)
 			{
-				message = StringUtil.substitute("Added new sprite id {0}.", _sprites.spritesCount);
+				message = StringUtil.substitute("Added new sprite id <b>{0}</b>.", _sprites.spritesCount);
 			}
 			else
 			{
-				message = StringUtil.substitute("Added {0} new sprites.", length);
+				message = StringUtil.substitute("Added new sprites ids <b>{0}</b>.", ids);
 			}
 			
 			this.sendSpriteList(_sprites.spritesCount);
-			sendCommand(new MessageCommand(message, "Info"));
+			sendCommand(new MessageCommand(message, "log"));
 		}
 		
 		private function onNewSprite() : void
@@ -457,9 +478,9 @@ package nail.objectbuilder.core
 			
 			if (_sprites.addSprite(sprite.getPixels(sprite.rect)))
 			{
-				message = StringUtil.substitute("Added new sprite id {0}.", _sprites.spritesCount);
+				message = StringUtil.substitute("Added new sprite id <b>{0}</b>.", _sprites.spritesCount);
 				this.sendSpriteList(_sprites.spritesCount);
-				sendCommand(new MessageCommand(message, "Info"));
+				sendCommand(new MessageCommand(message, "log"));
 			}
 		}
 		
@@ -488,16 +509,15 @@ package nail.objectbuilder.core
 			id = Math.max(0, list[length - 1] - 1);
 			sendSpriteList(id);
 			
-			message = "Removed ";
 			if (length > 1)
 			{
-				message += "sprites ids: {0}"
+				message = "Removed sprites ids <b>{0}</b>."
 			}
 			else 
 			{
-				message += "sprite id: {0}"
+				message = "Removed sprite id <b>{0}</b>."
 			}
-			sendCommand(new MessageCommand(StringUtil.substitute(message, list), "Info"));
+			sendCommand(new MessageCommand(StringUtil.substitute(message, list), "log"));
 		}
 		
 		private function assetsLoadComplete() : void
