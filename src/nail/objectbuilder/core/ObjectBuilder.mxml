@@ -327,16 +327,17 @@
 			
 			private function loadAssets(dat:File, spr:File, version:AssetsVersion) : void
 			{
-				var command : LoadAssetsCommand;
-				command = new LoadAssetsCommand(dat, spr, version);
-				sendCommand(command);
+				sendCommand(new LoadAssetsCommand(dat, spr, version));
 			}
 			
 			private function compileAssets(dat:File, spr:File, version:AssetsVersion) : void
 			{
-				var command : CompileAssetsCommand;
-				command = new CompileAssetsCommand(dat, spr, version);
-				sendCommand(command);
+				if (this.autosave)
+				{
+					this.saveThingChanges();
+				}
+				
+				sendCommand(new CompileAssetsCommand(dat, spr, version));
 			}
 			
 			private function onOpenFile() : void
