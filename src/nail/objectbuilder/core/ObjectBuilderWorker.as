@@ -289,7 +289,7 @@ package nail.objectbuilder.core
 			
 			if (_things.replace(thing, thing.category, thing.id))
 			{
-				message = StringUtil.substitute("{0} {1} changed.", StringUtil.capitaliseFirstLetter(thing.category), thing.id);
+				message = StringUtil.substitute("{0} {1} updated.", StringUtil.capitaliseFirstLetter(thing.category), thing.id);
 				sendCommand(new MessageCommand(message, "Info"));
 			}
 		}

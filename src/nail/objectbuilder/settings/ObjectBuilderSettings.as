@@ -51,6 +51,8 @@ package nail.objectbuilder.settings
 		
 		public var lastExportSpriteFormat : String;
 		
+		public var autosaveThingChanges : Boolean;
+		
 		//--------------------------------------------------------------------------
 		//
 		// CONSTRUCTOR

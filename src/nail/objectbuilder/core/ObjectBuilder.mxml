@@ -50,6 +50,8 @@
 			</menuitem>
 			<menuitem label="Edit">
 				<menuitem label="Show Log" data="editShowLog"/>
+				<menuitem type="separator"/>
+				<menuitem label="Autosave Changes" type="check" data="editAutosave"/>
 			</menuitem>	
 			<menuitem label="Help">
 				<menuitem label="About Object Builder" data="helpAbout" icon="nail.objectbuilder.core.Icons_INFO"/>
@@ -132,6 +134,10 @@
 			private var _spriteMax :uint;
 			
 			private var _logWidget : LogWidget = new LogWidget();
+			
+			private var _autosave : Boolean;
+			
+			private var _autosaveChanged : Boolean;
 			
 			//--------------------------------------------------------------------------
 			//
@@ -225,6 +231,19 @@
 				_logWidget.appendText(text);
 			}
 			
+			public function saveThingChanges() : void
+			{
+				if (this.loaded &&
+					this.thingData != null &&
+					this.thingAtrributes.changed)
+				{
+					if (this.thingAtrributes.saveChanges())
+					{
+						sendCommand(new ChangeThingCommand(thingAtrributes.thingData));
+					}
+				}
+			}
+			
 			public function clear() : void
 			{
 				_thingData = null;
@@ -273,6 +292,13 @@
 				{
 					setThingData(_nextThingData);
 					_thingDataChanged = false;
+				}
+				
+				if (_autosaveChanged)
+				{
+					menuXML[1].menuitem[2].@toggled = _autosave; // Edit > Autosave Changes
+					_settings.autosaveThingChanges = _autosave;
+					_autosaveChanged = false;
 				}
 			}
 			
@@ -728,6 +754,13 @@
 				_selectIndex = -1;
 			}
 			
+			override protected function creationCompleteHandler(event:FlexEvent) : void
+			{
+				super.creationCompleteHandler(event);
+				
+				this.autosave = _settings.autosaveThingChanges;
+			}
+			
 			override protected function menuItemClickHandler(event:MenuEvent) : void
 			{
 				var data : String = String(event.item.@data);
@@ -744,6 +777,10 @@
 					
 					case "editShowLog":
 						this.onShowLog();
+						break;
+					
+					case "editAutosave":
+						this.autosave = !this.autosave;
 						break;
 					
 					case "helpAbout":
@@ -849,6 +886,11 @@
 					return;
 				}
 				
+				if (this.autosave)
+				{
+					this.saveThingChanges();
+				}
+				
 				if (thingAtrributes.thingData != null && thingAtrributes.changed)
 				{
 					message = StringUtil.substitute("Save changes in the {0} {1}?",
@@ -864,10 +906,7 @@
 				{
 					if (event.detail == Alert.YES)
 					{
-						if (thingAtrributes.saveChanges())
-						{
-							sendCommand(new ChangeThingCommand(thingAtrributes.thingData));
-						}
+						saveThingChanges();
 					}
 					else if (event.detail == Alert.CANCEL)
 					{
@@ -1078,6 +1117,21 @@
 				{
 					_nextThingData = value;
 					_thingDataChanged = true;
+					invalidateProperties();
+				}
+			}
+			
+			public function get autosave() : Boolean
+			{
+				return _autosave;
+			}
+			
+			public function set autosave(value:Boolean) : void
+			{
+				if (_autosave != value)
+				{
+					_autosave = value;
+					_autosaveChanged = true;
 					invalidateProperties();
 				}
 			}
@@ -1309,7 +1363,7 @@
 							  export="exportSpriteHandler(event)"
 							  remove="removeSpriteHandler(event)"/>
 		</nail:GroupBox>
-			
+		
 		<nail:XNumericStepper id="spriteStepper"
 							  width="100%"
 							  fontSize="11"
