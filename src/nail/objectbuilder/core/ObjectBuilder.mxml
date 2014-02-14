@@ -53,7 +53,7 @@
 				<menuitem label="Autosave Changes" type="check" data="editAutosave"/>
 			</menuitem>
 			<menuitem label="Window">
-				<menuitem label="Open Log Window" data="windowOpenLog"/>
+				<menuitem label="Open Log Window" data="windowOpenLog" icon="nail.objectbuilder.core.Icons_LOG"/>
 			</menuitem>	
 			<menuitem label="Help">
 				<menuitem label="About Object Builder" data="helpAbout" icon="nail.objectbuilder.core.Icons_INFO"/>
@@ -63,6 +63,7 @@
 	
 	<fx:Script>
 		<![CDATA[
+			
 			import mx.collections.ArrayCollection;
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
@@ -107,6 +108,7 @@
 			import nail.settings.Settings;
 			import nail.utils.SaveHelper;
 			import nail.utils.StringUtil;
+			import nail.utils.WindowUtils;
 			import nail.workers.Command;
 			
 			//--------------------------------------------------------------------------
@@ -600,6 +602,8 @@
 					_logWindow.text = _logText;
 					_logWindow.addEventListener(Event.CLOSE, logWindowCloseHandler);
 					_logWindow.open();
+					
+					WindowUtils.centralizeWindowOnScreen(_logWindow);
 				}
 				else 
 				{
@@ -1198,6 +1202,30 @@
 			
 		]]>
 	</fx:Script>
+	
+	<nail:toolBar>
+		<s:HGroup width="100%"
+				  height="100%"
+				  verticalAlign="middle"
+				  paddingLeft="10"
+				  paddingRight="10">
+			<s:Button width="25"
+					  height="25"
+					  icon="{Icons.OPEN_WHITE}"
+					  click="onOpenFile()"
+					  skinClass="nail.components.skins.IconButtonSkin"/>
+			<s:Button width="25"
+					  height="25"
+					  icon="{Icons.SAVE_WHITE}"
+					  click="onCompile()"
+					  skinClass="nail.components.skins.IconButtonSkin"/>
+			<s:Button width="25"
+					  height="25"
+					  icon="{Icons.LOG_WHITE}"
+					  click="openLogWindow()"
+					  skinClass="nail.components.skins.IconButtonSkin"/>
+		</s:HGroup>
+	</nail:toolBar>
 	
 	<s:BorderContainer width="165"
 					   height="100%"

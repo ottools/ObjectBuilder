@@ -69,10 +69,22 @@ package nail.objectbuilder.core
 		[Embed(source="../assets/open.png", mimeType="image/png")]
 		static public const OPEN : Class;
 		
+		[Embed(source="../assets/open_white.png", mimeType="image/png")]
+		static public const OPEN_WHITE : Class;
+		
 		[Embed(source="../assets/save.png", mimeType="image/png")]
 		static public const SAVE : Class;
 		
+		[Embed(source="../assets/save_white.png", mimeType="image/png")]
+		static public const SAVE_WHITE : Class;
+		
 		[Embed(source="../assets/info.png", mimeType="image/png")]
 		static public const INFO : Class;
+		
+		[Embed(source="../assets/log.png", mimeType="image/png")]
+		static public const LOG : Class;
+		
+		[Embed(source="../assets/log_white.png", mimeType="image/png")]
+		static public const LOG_WHITE : Class;
 	}
 }
