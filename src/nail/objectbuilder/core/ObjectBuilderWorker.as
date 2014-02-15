@@ -232,7 +232,7 @@ package nail.objectbuilder.core
 				throw new Error("Invalid thing category.");
 			}
 			
-			thing = ThingUtils.createThing();
+			thing = ThingUtils.createThing(category);
 			if (_things.addThing(thing, category))
 			{
 				message = StringUtil.substitute("Added {0} id <b>{1}</b>.", category, thing.id);
