@@ -29,8 +29,8 @@
 		  xmlns:s="library://ns.adobe.com/flex/spark" 
 		  xmlns:mx="library://ns.adobe.com/flex/mx"
 		  xmlns:nail="library://ns.nail.com/naillib" 
-		  minWidth="400"
-		  minHeight="300"
+		  minWidth="500"
+		  minHeight="400"
 		  backgroundColor="0x494949"
 		  showStatusBar="false"
 		  title="Log">
