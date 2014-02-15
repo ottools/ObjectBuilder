@@ -753,6 +753,29 @@
 			{
 				_thingData = data;
 				thingView.thingData = data;
+				
+				if (data != null)
+				{
+					thingStepper.value = data.id;
+					
+					switch(data.category)
+					{
+						case ThingCategory.ITEM:
+							categoryDropDownList.selectedIndex = 0; 
+							break;
+							
+						case ThingCategory.OUTFIT:
+							categoryDropDownList.selectedIndex = 1; 
+							break;
+						case ThingCategory.EFFECT:
+							categoryDropDownList.selectedIndex = 2; 
+							break;
+						
+						case ThingCategory.MISSILE:
+							categoryDropDownList.selectedIndex = 3; 
+							break;
+					}
+				}
 			}
 			
 			private function sendCommand(command:Command) : void

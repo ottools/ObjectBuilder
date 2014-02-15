@@ -235,7 +235,11 @@ package nail.objectbuilder.core
 			thing = ThingUtils.createThing(category);
 			if (_things.addThing(thing, category))
 			{
-				message = StringUtil.substitute("Added {0} id <b>{1}</b>.", category, thing.id);
+				// Send added thing to view.
+				onGetThing(thing.id, category);
+				
+				// Send new thing message.
+				message = StringUtil.substitute("Added new {0} id <b>{1}</b>.", category, thing.id);
 				sendCommand(new MessageCommand(message, "log"));
 			}
 		}
@@ -289,7 +293,11 @@ package nail.objectbuilder.core
 			
 			if (_things.replace(thing, thing.category, thing.id))
 			{
-				message = StringUtil.substitute("{0} id <b>{1}</b> updated.", StringUtil.capitaliseFirstLetter(thing.category), thing.id);
+				// Send changed thing to view.
+				onGetThing(thing.id, thing.category);
+				
+				// Send change message
+				message = StringUtil.substitute("{0} id <b>{1}</b> changes saved.", StringUtil.capitaliseFirstLetter(thing.category), thing.id);
 				sendCommand(new MessageCommand(message, "log"));
 			}
 		}
@@ -346,6 +354,10 @@ package nail.objectbuilder.core
 			
 			if (done)
 			{
+				// Send imported thing to view.
+				onGetThing(thing.id, thing.category);
+				
+				// Send import message.
 				message += " {0} id <b>{1}</b>."
 				sendCommand(new MessageCommand(StringUtil.substitute(message, thing.category, thing.id), "log"));
 				
@@ -360,7 +372,10 @@ package nail.objectbuilder.core
 						message = StringUtil.substitute("Added new sprites ids: <b>{0}</b>.", spritesAdded);
 					}
 					
+					// Set sprite list to last sprite.
 					this.sendSpriteList(_sprites.spritesCount);
+					
+					// Send sprites added message.
 					sendCommand(new MessageCommand(message, "log"));
 				}
 			}
@@ -386,6 +401,10 @@ package nail.objectbuilder.core
 			copy = ThingUtils.copyThing(thing);
 			if (_things.addThing(copy, category))
 			{
+				// Send duplicated thing to view.
+				onGetThing(copy.id, category);
+				
+				// Send duplicated thing message.
 				message = StringUtil.substitute("Duplicated {0} id <b>{1}</b> to id <b>{2}</b>.", category, id, copy.id);
 				sendCommand(new MessageCommand(message, "log"));
 			}
