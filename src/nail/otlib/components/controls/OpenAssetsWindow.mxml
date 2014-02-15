@@ -38,6 +38,7 @@
 		  fontSize="11"
 		  backgroundColor="0x494949"
 		  title="Open Client Files"
+		  creationComplete="windowCreationCompleteHandler(event)"
 		  closing="windowClosingHandler(event)">
 	
 	<s:layout>
@@ -51,9 +52,11 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import mx.events.FlexEvent;
 			
 			import spark.events.TextOperationEvent;
 			
+			import nail.components.NailMain;
 			import nail.otlib.assets.AssetsVersion;
 			
 			//--------------------------------------------------------------------------
@@ -76,6 +79,10 @@
 			private var _version : AssetsVersion;
 			
 			private var _cancel : Boolean = true;
+			
+			private var _creationComplete : Boolean;
+			
+			private var _tmpDirectory : File;
 			
 			//--------------------------------------------------------------------------
 			//
@@ -207,7 +214,8 @@
 				} 
 				catch(error:Error) 
 				{
-					trace(error.getStackTrace());
+					NailMain.instance.onError(error.message, error.getStackTrace(), error.errorID);
+					this.close();
 					return;
 				}
 				
@@ -239,7 +247,8 @@
 				} 
 				catch(error:Error) 
 				{
-					trace(error.getStackTrace());
+					NailMain.instance.onError(error.message, error.getStackTrace(), error.errorID);
+					this.close();
 					return;
 				}
 				
@@ -279,6 +288,17 @@
 			//--------------------------------------
 			// Event Handlers
 			//--------------------------------------
+			
+			protected function windowCreationCompleteHandler(event:FlexEvent) : void
+			{
+				_creationComplete = true;
+				
+				if (_tmpDirectory != null)
+				{
+					this.directory = _tmpDirectory;
+					_tmpDirectory = null;
+				}
+			}
 			
 			protected function browseButtonClickHandler(event:MouseEvent) : void
 			{
@@ -364,7 +384,11 @@
 
 			public function set directory(value:File) : void
 			{
-				if (_directory != value)
+				if (!_creationComplete)
+				{
+					_tmpDirectory = value;
+				}
+				else if (_directory != value)
 				{
 					_directory = value;
 					_directoryChanged = true;
