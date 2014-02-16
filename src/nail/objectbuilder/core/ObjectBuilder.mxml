@@ -50,7 +50,7 @@
 				<menuitem label="Compile" data="fileCompile" icon="nail.objectbuilder.core.Icons_SAVE"/>
 			</menuitem>
 			<menuitem label="Edit">
-				<menuitem label="Autosave Changes" type="check" data="editAutosave"/>
+				<menuitem label="Auto Save Changes" type="check" data="editAutosave"/>
 			</menuitem>
 			<menuitem label="Window">
 				<menuitem label="Open Log Window" data="windowOpenLog" icon="nail.objectbuilder.core.Icons_LOG"/>

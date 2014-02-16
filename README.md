@@ -9,14 +9,15 @@ Object Builder is a dat and spr files editor.
 
 ### Supported versions:
 
-8.60 - 10.34
+* 8.60 - 10.34
 
 ### Download
 
+[Object Builder 0.2.4] (https://www.dropbox.com/s/9e0hefl5p78ourp/ObjectBuilder0.2.4.air)
+
+
 [Object Builder 0.2.3] (https://www.dropbox.com/s/hqxsqok39n4o7zq/ObjectBuilder0.2.3.air)
 
-
-[Object Builder 0.2.2] (https://www.dropbox.com/s/9vgoaxa74qgqxp2/ObjectBuilder0.2.2.air)
 
 ### Install 
 

@@ -1,3 +1,15 @@
+### 0.2.4
+
+Features:
+
+* Direction buttons for outfits and missiles.
+* Option auto save for objects.
+* Compiling very faster if nothing was changed in the sprite list.
+* New log window and messages for property changes.
+* New slider.
+* Buttons for tool bar.
+* Less pop-up windows.
+
 ### 0.2.3
 
 Features:
@@ -8,8 +20,12 @@ Features:
 * Export selected sprites to PNG, BMP or JPG formats.
 * Create a new sprite.
 * Remove selected sprites.
-* New tool to crop images larger than 32x32 pixels.
-* Context menu to sprite list.
+* New tool for crop images larger than 32x32 pixels.
+* Context menu for sprite list.
+
+Bugfixes:
+
+* Fix don't load in Windows 7 SP1.
 
 ### 0.2.2
 
