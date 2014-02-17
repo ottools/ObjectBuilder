@@ -170,7 +170,6 @@ package nail.objectbuilder.core
 			_sprites.addEventListener(ProgressEvent.PROGRESS, spritesProgressHandler);
 			_sprites.addEventListener(ErrorEvent.ERROR, spritesErrorHandler);
 			
-			_things.sprites = _sprites;
 			_things.load(_datFile, _version);
 		}
 		
