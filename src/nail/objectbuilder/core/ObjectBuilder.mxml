@@ -99,6 +99,7 @@
 			import nail.otlib.components.controls.ExportWindow;
 			import nail.otlib.components.controls.ImportThingWindow;
 			import nail.otlib.components.controls.LogWindow;
+			import nail.otlib.components.controls.NewAssetsWindow;
 			import nail.otlib.components.controls.OpenAssetsWindow;
 			import nail.otlib.events.ThingEditorEvent;
 			import nail.otlib.things.ThingCategory;
