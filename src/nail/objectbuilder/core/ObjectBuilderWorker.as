@@ -96,6 +96,7 @@ package nail.objectbuilder.core
 			registerClassAlias("AssetsInfo", AssetsInfo);
 			registerClassAlias("SpriteData", SpriteData);
 			registerClassAlias("ByteArray", ByteArray);
+			registerCommand(CommandType.CREATE_NEW_ASSETS, onCreateNewAssets);
 			registerCommand(CommandType.LOAD_ASSETS, onLoadAssets);
 			registerCommand(CommandType.GET_ASSETS_INFO, onGetAssetsInfo);
 			registerCommand(CommandType.COMPILE_ASSETS, onCompileAssets);
@@ -116,29 +117,49 @@ package nail.objectbuilder.core
 		// Private
 		//--------------------------------------
 		
-		private function onLoadAssets(datPath:String, sprPath:String, versionValue:uint) : void
+		private function onCreateNewAssets(versionValue:uint) : void
 		{
-			if (StringUtil.isEmptyOrNull(datPath))
-			{
-				throw new ArgumentError("Parameter datPath cannot be null or empty.");
-			}
-			
-			if (StringUtil.isEmptyOrNull(sprPath))
-			{
-				throw new ArgumentError("Parameter sprPath cannot be null or empty.");
-			}
+			var version : AssetsVersion;
+			var thing : ThingType;
 			
 			if (versionValue == 0)
 			{
 				throw new ArgumentError("Invalid version value.");
 			}
 			
-			_datFile = new File(datPath);
-			_sprFile = new File(sprPath);
-			_version = AssetsVersion.getVersionByValue(versionValue);
+			version = AssetsVersion.getVersionByValue(versionValue);
+			if (version == null)
+			{
+				throw new Error(StringUtil.substitute("Unsupported client version {0}", versionValue));
+			}
 			
-			sendCommand(new Command(CommandType.SHOW_PROGRESS_BAR, "Loading"));
+			_version = version;
 			
+			createStorage();
+			
+			if (_sprites.createNew(version) == false)
+			{
+				throw new Error("Could not create new spr.");
+			}
+			
+			// Create things.
+			if (_things.createNew(version) == false)
+			{
+				throw new Error("Could not create new dat.");
+			}
+			
+			assetsLoadComplete();
+			
+			// Send first item to view.
+			thing = _things.getItemType(ThingTypeStorage.MIN_ITEM_ID);
+			onGetThing(thing.id, thing.category);
+			
+			//Send sprites.
+			sendSpriteList(1);
+		}
+		
+		private function createStorage() : void
+		{
 			if (_things != null)
 			{
 				_things.removeEventListener(Event.COMPLETE, thingsCompleteHandler);
@@ -169,6 +190,32 @@ package nail.objectbuilder.core
 			_sprites.addEventListener(Event.CHANGE, spritesChangeHandler);
 			_sprites.addEventListener(ProgressEvent.PROGRESS, spritesProgressHandler);
 			_sprites.addEventListener(ErrorEvent.ERROR, spritesErrorHandler);
+		}
+		
+		private function onLoadAssets(datPath:String, sprPath:String, versionValue:uint) : void
+		{
+			if (StringUtil.isEmptyOrNull(datPath))
+			{
+				throw new ArgumentError("Parameter datPath cannot be null or empty.");
+			}
+			
+			if (StringUtil.isEmptyOrNull(sprPath))
+			{
+				throw new ArgumentError("Parameter sprPath cannot be null or empty.");
+			}
+			
+			if (versionValue == 0)
+			{
+				throw new ArgumentError("Invalid version value.");
+			}
+			
+			_datFile = new File(datPath);
+			_sprFile = new File(sprPath);
+			_version = AssetsVersion.getVersionByValue(versionValue);
+			
+			sendCommand(new Command(CommandType.SHOW_PROGRESS_BAR, "Loading"));
+			
+			createStorage();
 			
 			_things.load(_datFile, _version);
 		}
@@ -555,7 +602,7 @@ package nail.objectbuilder.core
 		{
 			var info : AssetsInfo;
 			
-			if (_sprites == null || !_sprites.loaded)
+			if (_things == null || !_things.loaded)
 			{
 				throw new Error("Metadata is not loaded.");
 			}

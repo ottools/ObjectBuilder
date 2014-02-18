@@ -46,6 +46,7 @@
 	<fx:Declarations>
 		<fx:XMLList id="menuXML">
 			<menuitem label="File">
+				<menuitem label="New" data="fileNew" icon="nail.objectbuilder.core.Icons_NEW_FILES"/>
 				<menuitem label="Open" data="fileOpen" icon="nail.objectbuilder.core.Icons_OPEN"/>
 				<menuitem label="Compile" data="fileCompile" icon="nail.objectbuilder.core.Icons_SAVE"/>
 			</menuitem>
@@ -63,7 +64,6 @@
 	
 	<fx:Script>
 		<![CDATA[
-			
 			import mx.collections.ArrayCollection;
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
@@ -80,6 +80,7 @@
 			import nail.objectbuilder.commands.ChangeThingCommand;
 			import nail.objectbuilder.commands.CommandType;
 			import nail.objectbuilder.commands.CompileAssetsCommand;
+			import nail.objectbuilder.commands.CreateNewFilesCommand;
 			import nail.objectbuilder.commands.DuplicateThingCommand;
 			import nail.objectbuilder.commands.GetSpriteListCommand;
 			import nail.objectbuilder.commands.GetThingCommand;
@@ -338,6 +339,11 @@
 				}
 				
 				sendCommand(new CompileAssetsCommand(dat, spr, version));
+			}
+			
+			private function onCreateNew() : void
+			{
+				sendCommand(new CreateNewFilesCommand(AssetsVersion.getVersionByValue(1034)));
 			}
 			
 			private function onOpenFile() : void
@@ -824,6 +830,10 @@
 				
 				switch(data) 
 				{
+					case "fileNew":
+						this.onCreateNew();
+						break;
+					
 					case "fileOpen":
 						this.onOpenFile();
 						break;
@@ -1234,6 +1244,12 @@
 				  paddingRight="10">
 			<s:Button width="25"
 					  height="25"
+					  toolTip="New"
+					  icon="{Icons.NEW_FILES_WHITE}"
+					  click="onCreateNew()"
+					  skinClass="nail.components.skins.IconButtonSkin"/>
+			<s:Button width="25"
+					  height="25"
 					  toolTip="Open"
 					  icon="{Icons.OPEN_WHITE}"
 					  click="onOpenFile()"
@@ -1244,6 +1260,11 @@
 					  icon="{Icons.SAVE_WHITE}"
 					  click="onCompile()"
 					  skinClass="nail.components.skins.IconButtonSkin"/>
+			<s:Line height="60%">
+				<s:stroke>
+					<s:SolidColorStroke color="0x353535"/>
+				</s:stroke>
+			</s:Line>
 			<s:Button width="25"
 					  height="25"
 					  toolTip="Log Window"

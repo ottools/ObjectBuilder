@@ -45,6 +45,8 @@ package nail.objectbuilder.commands
 		//
 		//--------------------------------------------------------------------------
 		
+		static public const CREATE_NEW_ASSETS : String = "createNewAssets";
+		
 		static public const LOAD_ASSETS : String = "loadAssets";
 		
 		static public const GET_ASSETS_INFO : String = "getAssetsInfo";

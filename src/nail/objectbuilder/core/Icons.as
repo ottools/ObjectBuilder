@@ -86,5 +86,11 @@ package nail.objectbuilder.core
 		
 		[Embed(source="../assets/log_white.png", mimeType="image/png")]
 		static public const LOG_WHITE : Class;
+		
+		[Embed(source="../assets/new_files.png", mimeType="image/png")]
+		static public const NEW_FILES : Class;
+		
+		[Embed(source="../assets/new_files_white.png", mimeType="image/png")]
+		static public const NEW_FILES_WHITE : Class;
 	}
 }
