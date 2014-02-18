@@ -343,7 +343,20 @@
 			
 			private function onCreateNew() : void
 			{
-				sendCommand(new CreateNewFilesCommand(AssetsVersion.getVersionByValue(1034)));
+				var window : NewAssetsWindow;
+				window = new NewAssetsWindow();
+				window.addEventListener(Event.CLOSE, windowCloseHandler);
+				window.open();
+				
+				PopUpWindowManager.addWindow(window);
+				
+				function windowCloseHandler (event:Event) : void
+				{
+					if (window.version != null)
+					{
+						sendCommand(new CreateNewFilesCommand(window.version));
+					}
+				}
 			}
 			
 			private function onOpenFile() : void
