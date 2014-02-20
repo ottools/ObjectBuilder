@@ -883,14 +883,29 @@
 			
 			protected function thingChangedHandler(event:ThingEditorEvent) : void
 			{
+				var title : String = "";
+				if (event.data != null)
+				{
+					title = event.data.category + " " + event.data.id;
+				}
+				
+				this.updateTitle(title);
+				
 				confirmButton.enabled = false;
 			}
 			
 			protected function thingPropertyChangedHandler(event:ThingEditorEvent) : void
 			{
+				var title : String = "";
 				var message : String;
 				
-				this.updateTitle();
+				if (event.data != null)
+				{
+					title = event.data.category + " " + event.data.id;
+				}
+				
+				this.updateTitle(title, !thingAtrributes.changed);
+				
 				confirmButton.enabled = thingAtrributes.changed;
 				
 				if (event.property != null)
