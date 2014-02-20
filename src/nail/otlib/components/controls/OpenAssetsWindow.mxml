@@ -256,7 +256,7 @@
 				_sprFile = spr;
 				_version = version;
 				
-				assetsVersionLabel.text = version.value.toString();
+				assetsVersionLabel.text = version.valueStr;
 				sprSignatureLabel.text = sprSignature.toString(16).toUpperCase();
 				spritesCountLabel.text = spritesCount.toString();
 				datSignatureLabel.text = datSignature.toString(16).toUpperCase();
