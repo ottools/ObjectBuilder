@@ -182,11 +182,6 @@
 			
 			public function setThing(thing:ThingType, sprites:Vector.<SpriteData>) : void
 			{
-				var pixels : ByteArray;
-				var sprite : SpriteData;
-				var length : uint;
-				var i :uint;
-				
 				if (thing == null) 
 				{
 					throw new ArgumentError("Parameter thing cannot be null.");
