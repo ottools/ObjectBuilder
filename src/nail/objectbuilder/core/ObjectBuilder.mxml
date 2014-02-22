@@ -103,6 +103,7 @@
 			import nail.otlib.components.controls.NewAssetsWindow;
 			import nail.otlib.components.controls.OpenAssetsWindow;
 			import nail.otlib.events.ThingEditorEvent;
+			import nail.otlib.loaders.ThingDataLoader;
 			import nail.otlib.things.ThingCategory;
 			import nail.otlib.things.ThingType;
 			import nail.otlib.utils.SpriteData;
@@ -400,6 +401,54 @@
 					if (window.thingData != null)
 					{
 						sendCommand(new ImportThingCommand(window.thingData, replace));
+					}
+				}
+			}
+			
+			private function onImportThingDataList(list:Vector.<ThingData>) : void
+			{
+				var length : uint;
+				var i : uint;
+				var data : ThingData;
+				var message : String;
+				
+				if (!this.loaded)
+				{
+					return;
+				}
+				
+				length = list.length;
+				if (length == 1)
+				{
+					data = list[0];
+					if (data.category == thingData.category)
+					{
+						message = StringUtil.substitute("Want to replace {0} id {1}?", data.category, data.id);
+						Alert.show(message, "Import Object", Alert.YES | Alert.NO | Alert.CANCEL, this, closeHandler);
+					}
+					else 
+					{
+						sendCommand(new ImportThingCommand(data));
+					}
+				}
+				else 
+				{
+					for (i = 0; i < length; i++)
+					{
+						data = list[i];
+						sendCommand(new ImportThingCommand(data));
+					}
+				}
+				
+				function closeHandler(event:CloseEvent) : void
+				{
+					if (event.detail == Alert.YES)
+					{
+						sendCommand(new ImportThingCommand(data, thingData));
+					}
+					else if (event.detail == Alert.NO)
+					{
+						sendCommand(new ImportThingCommand(data));
 					}
 				}
 			}
@@ -1104,6 +1153,56 @@
 				}
 			}
 			
+			protected function thingViewGroupNativeDragEnterHandler(event:NativeDragEvent) : void
+			{
+				if (loaded && event.target === thingViewGroup)
+				{
+					if (event.clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT))
+					{
+						NativeDragManager.dropAction = NativeDragActions.LINK;
+						DragManager.acceptDragDrop(thingViewGroup);
+					}
+				}
+			}
+			
+			protected function thingViewGroupNativeDragDropHandler(event:NativeDragEvent) : void
+			{
+				var clipboard : Clipboard;
+				var dropfiles : Array;
+				var length : uint;
+				var i : uint;
+				var files : Array;
+				var loader : ThingDataLoader;
+				
+				if (!loaded)
+				{
+					return;
+				}
+				
+				clipboard = event.clipboard;
+				
+				if (clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT))
+				{
+					dropfiles = clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
+					length = dropfiles.length;
+					files = [];
+					
+					for (i = 0; i < length; i++)
+					{
+						files.push(dropfiles[i]);
+					}
+				}
+				
+				loader = new ThingDataLoader();
+				loader.addEventListener(Event.COMPLETE, completeHandler);
+				loader.loadFiles(files);
+				
+				function completeHandler(event:Event) : void
+				{
+					onImportThingDataList(loader.thingDataList);
+				}
+			}
+			
 			protected function replaceSpriteHandler(event:Event) : void
 			{
 				var loader : BitmapLoader;
@@ -1469,9 +1568,12 @@
 			</s:dataProvider>
 		</s:DropDownList>	
 		
-		<nail:GroupBox label="View"
+		<nail:GroupBox id="thingViewGroup"
+					   label="View"
 					   width="100%"
-					   height="100%">
+					   height="100%"
+					   nativeDragEnter="thingViewGroupNativeDragEnterHandler(event)"
+					   nativeDragDrop="thingViewGroupNativeDragDropHandler(event)">
 			<controls:ThingView id="thingView"
 								horizontalCenter="0"
 								verticalCenter="0"/>
