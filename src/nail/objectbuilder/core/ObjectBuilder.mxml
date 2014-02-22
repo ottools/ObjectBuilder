@@ -696,10 +696,17 @@
 					bitmap = BitmapData(Clipboard.generalClipboard.getData(ClipboardFormats.BITMAP_FORMAT));
 					bitmap = SpriteUtils.removeMagenta(bitmap);
 					
-					data = spritesList.selectedSprite;
-					if (data != null)
+					if (bitmap.width == 32 && bitmap.height == 32)
 					{
-						sendCommand(new ReplaceSpriteCommand(data.id, bitmap));
+						data = spritesList.selectedSprite;
+						if (data != null && spritesList.selectedSpriteId != 0)
+						{
+							sendCommand(new ReplaceSpriteCommand(data.id, bitmap));
+						}
+					}
+					else 
+					{
+						this.cropBitmap(bitmap);
 					}
 				}
 			}
