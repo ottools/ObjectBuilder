@@ -423,7 +423,7 @@
 					data = list[0];
 					if (data.category == thingData.category)
 					{
-						message = StringUtil.substitute("Want to replace {0} id {1}?", data.category, data.id);
+						message = StringUtil.substitute("Want to replace {0} id {1}?", data.category, thingData.id);
 						Alert.show(message, "Import Object", Alert.YES | Alert.NO | Alert.CANCEL, this, closeHandler);
 					}
 					else 
