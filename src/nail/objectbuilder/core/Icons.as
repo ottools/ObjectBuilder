@@ -92,5 +92,11 @@ package nail.objectbuilder.core
 		
 		[Embed(source="../assets/new_files_white.png", mimeType="image/png")]
 		static public const NEW_FILES_WHITE : Class;
+		
+		[Embed(source="../assets/copy.png", mimeType="image/png")]
+		static public const COPY : Class;
+		
+		[Embed(source="../assets/paste.png", mimeType="image/png")]
+		static public const PASTE : Class;
 	}
 }

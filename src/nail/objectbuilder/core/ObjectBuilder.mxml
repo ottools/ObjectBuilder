@@ -612,6 +612,48 @@
 				}
 			}
 			
+			private function onCopySprite() : void
+			{
+				var data : SpriteData;
+				var bitmap : BitmapData;
+				
+				if (!loaded)
+				{
+					return;
+				}
+				
+				data = spritesList.selectedSprite;
+				if (data != null)
+				{
+					bitmap = data.getBitmap(0xFFFF00FF);
+					Clipboard.generalClipboard.clear();
+					Clipboard.generalClipboard.setData(ClipboardFormats.BITMAP_FORMAT, bitmap);
+				}
+			}
+			
+			private function onPasteSprite() : void
+			{
+				var bitmap : BitmapData;
+				var data : SpriteData;
+				
+				if (!loaded)
+				{
+					return;
+				}
+				
+				if (Clipboard.generalClipboard.hasFormat(ClipboardFormats.BITMAP_FORMAT))
+				{
+					bitmap = BitmapData(Clipboard.generalClipboard.getData(ClipboardFormats.BITMAP_FORMAT));
+					bitmap = SpriteUtils.removeMagenta(bitmap);
+					
+					data = spritesList.selectedSprite;
+					if (data != null)
+					{
+						sendCommand(new ReplaceSpriteCommand(data.id, bitmap));
+					}
+				}
+			}
+			
 			private function openLogWindow() : void
 			{
 				if (_logWindow == null)
@@ -1284,11 +1326,7 @@
 					  icon="{Icons.SAVE_WHITE}"
 					  click="onCompile()"
 					  skinClass="nail.components.skins.IconButtonSkin"/>
-			<s:Line height="60%">
-				<s:stroke>
-					<s:SolidColorStroke color="0x353535"/>
-				</s:stroke>
-			</s:Line>
+			<nail:ShadowLine height="20"/>
 			<s:Button width="25"
 					  height="25"
 					  toolTip="Log Window"
@@ -1518,6 +1556,8 @@
 							  borderAlpha="0"
 							  change="spritesListChangeHandler(event)"
 							  updateComplete="listUpdateCompleteHandler(event)"
+							  copy="onCopySprite()"
+							  paste="onPasteSprite()"
 							  replace="replaceSpriteHandler(event)"
 							  export="exportSpriteHandler(event)"
 							  remove="removeSpriteHandler(event)"/>
@@ -1550,18 +1590,18 @@
 					  height="19"
 					  icon="{Icons.EXPORT}"
 					  click="exportSpriteHandler(event)"/>
-			<s:Button id="editSpriteButton"
-					  toolTip="Edit"
+			<s:Button id="copySpriteButton"
+					  toolTip="Copy"
 					  width="19"
 					  height="19"
-					  enabled="false"
-					  icon="{Icons.EDIT}"/>
-			<s:Button id="duplicateSpriteButton"
-					  toolTip="Duplicate"
+					  icon="{Icons.COPY}"
+					  click="onCopySprite()"/>
+			<s:Button id="pasteSpriteButton"
+					  toolTip="Paste"
 					  width="19"
 					  height="19"
-					  enabled="false"
-					  icon="{Icons.DUPLICATE}"/>
+					  icon="{Icons.PASTE}"
+					  click="onPasteSprite()"/>
 			<s:Button id="newSpriteButton"
 					  toolTip="New"
 					  width="19"
