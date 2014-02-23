@@ -823,7 +823,7 @@
 			private function getMinThingId() : uint
 			{
 				var category : String = getCurrentCategory();
-				if (this.loaded && !StringUtil.isEmptyOrNull(category))
+				if (this.loaded && !isNullOrEmpty(category))
 				{
 					switch(category)
 					{
@@ -843,7 +843,7 @@
 			private function getMaxThingId() : uint
 			{
 				var category : String = getCurrentCategory();
-				if (this.loaded && !StringUtil.isEmptyOrNull(category))
+				if (this.loaded && !isNullOrEmpty(category))
 				{
 					switch(category) 
 					{

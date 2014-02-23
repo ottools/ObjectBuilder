@@ -194,12 +194,12 @@ package nail.objectbuilder.core
 		
 		private function onLoadAssets(datPath:String, sprPath:String, versionValue:uint) : void
 		{
-			if (StringUtil.isEmptyOrNull(datPath))
+			if (isNullOrEmpty(datPath))
 			{
 				throw new ArgumentError("Parameter datPath cannot be null or empty.");
 			}
 			
-			if (StringUtil.isEmptyOrNull(sprPath))
+			if (isNullOrEmpty(sprPath))
 			{
 				throw new ArgumentError("Parameter sprPath cannot be null or empty.");
 			}
@@ -231,12 +231,12 @@ package nail.objectbuilder.core
 			var spr : File;
 			var version : AssetsVersion;
 			
-			if (StringUtil.isEmptyOrNull(datPath))
+			if (isNullOrEmpty(datPath))
 			{
 				throw new ArgumentError("Parameter datPath cannot be null or empty.");
 			}
 			
-			if (StringUtil.isEmptyOrNull(sprPath))
+			if (isNullOrEmpty(sprPath))
 			{
 				throw new ArgumentError("Parameter sprPath cannot be null or empty.");
 			}
@@ -668,7 +668,7 @@ package nail.objectbuilder.core
 		
 		private function sendError(message:String, stack:String = "", id:uint = 0) : void
 		{
-			if (!StringUtil.isEmptyOrNull(message))
+			if (!isNullOrEmpty(message))
 			{
 				sendCommand(new ErrorCommand(message, stack, id));
 			}

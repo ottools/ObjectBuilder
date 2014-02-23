@@ -51,7 +51,6 @@
 			import nail.otlib.things.ThingCategory;
 			import nail.otlib.things.ThingType;
 			import nail.otlib.utils.SpriteData;
-			import nail.utils.StringUtil;
 			import nail.workers.Command;
 			
 			//--------------------------------------------------------------------------
@@ -110,7 +109,7 @@
 				Alert.show(message, "Error", Alert.OK, UIComponent(application));
 				ObjectBuilder(application).appendLog(message);
 				
-				if (StringUtil.isEmptyOrNull(stack))
+				if (isNullOrEmpty(stack))
 				{
 					stack = message;
 				}

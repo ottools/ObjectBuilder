@@ -48,7 +48,6 @@
 			import flashx.textLayout.conversion.TextConverter;
 			
 			import nail.components.NailMain;
-			import nail.utils.StringUtil;
 			
 			//--------------------------------------------------------------------------
 			//
@@ -78,7 +77,7 @@
 				{
 					textArea.textFlow = TextConverter.importToFlow(_text,
 						TextConverter.TEXT_FIELD_HTML_FORMAT);
-					saveButton.enabled = !StringUtil.isEmptyOrNull(_text);
+					saveButton.enabled = !isNullOrEmpty(_text);
 					_textChanged = false;
 				}
 			}

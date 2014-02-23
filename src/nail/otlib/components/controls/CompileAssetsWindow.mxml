@@ -50,7 +50,6 @@
 			import spark.events.TextOperationEvent;
 			
 			import nail.otlib.assets.AssetsVersion;
-			import nail.utils.StringUtil;
 			
 			//--------------------------------------------------------------------------
 			//
@@ -109,7 +108,7 @@
 				versionsDropDownList.selectedItem = _version;
 				
 				name = nameTextInput.text;
-				if (directory != null && !StringUtil.isEmptyOrNull(name))
+				if (directory != null && !isNullOrEmpty(name))
 				{
 					_datFile = directory.resolvePath(name + ".dat");
 					_sprFile = directory.resolvePath(name + ".spr");

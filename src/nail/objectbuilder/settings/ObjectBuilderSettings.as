@@ -31,7 +31,6 @@ package nail.objectbuilder.settings
 	import nail.otlib.utils.OTFormat;
 	import nail.settings.Settings;
 	import nail.utils.FileUtils;
-	import nail.utils.StringUtil;
 	
 	public class ObjectBuilderSettings extends Settings
 	{
@@ -78,7 +77,7 @@ package nail.objectbuilder.settings
 		{
 			var directory : File;
 			
-			if (StringUtil.isEmptyOrNull(lastDirectory))
+			if (isNullOrEmpty(lastDirectory))
 			{
 				return null;
 			}
@@ -106,7 +105,7 @@ package nail.objectbuilder.settings
 		{
 			var directory : File;
 			
-			if (StringUtil.isEmptyOrNull(lastImportExportDirectory))
+			if (isNullOrEmpty(lastImportExportDirectory))
 			{
 				return null;
 			}
@@ -132,7 +131,7 @@ package nail.objectbuilder.settings
 		
 		public function getLastExportThingFormat() : String
 		{
-			if (!StringUtil.isEmptyOrNull(lastExportThingFormat))
+			if (!isNullOrEmpty(lastExportThingFormat))
 			{
 				if (ImageFormat.hasImageFormat(lastExportThingFormat) || lastExportThingFormat == OTFormat.OBD)
 				{
