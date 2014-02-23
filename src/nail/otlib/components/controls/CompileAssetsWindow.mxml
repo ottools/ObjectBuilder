@@ -300,11 +300,7 @@
 		
 		<s:Spacer height="10"/>
 		
-		<s:Line width="100%">
-			<s:stroke>
-				<s:SolidColorStroke color="0x272727"/>
-			</s:stroke>
-		</s:Line>
+		<nail:ShadowLine width="100%"/>
 		
 		<s:HGroup width="100%"
 				  verticalAlign="middle"

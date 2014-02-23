@@ -1555,17 +1555,7 @@
 								height="15"/>
 		</nail:GroupBox>
 		
-		<s:Line width="100%">
-			<s:stroke>
-				<s:SolidColorStroke color="0x272727"/>
-			</s:stroke>
-			<s:filters>
-				<s:DropShadowFilter color="0x636363"
-									blurX="1"
-									blurY="1"
-									distance="1"/>
-			</s:filters>
-		</s:Line>
+		<nail:ShadowLine width="100%"/>
 		
 		<s:DropDownList id="categoryDropDownList"
 						selectedIndex="0"

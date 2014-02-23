@@ -30,7 +30,7 @@
 		  xmlns:mx="library://ns.adobe.com/flex/mx"
 		  xmlns:nail="library://ns.nail.com/naillib"
 		  width="250"
-		  height="140"
+		  height="125"
 		  minimizable="false"
 		  maximizable="false"
 		  resizable="false"
@@ -162,19 +162,7 @@
 						change="versionsDropDownListChangeHandler(event)"/>
 	</nail:GroupBox>
 	
-	<s:Spacer height="10"/>
-	
-	<s:Line width="100%">
-		<s:stroke>
-			<s:SolidColorStroke color="0x272727"/>
-		</s:stroke>
-		<s:filters>
-			<s:DropShadowFilter color="0x636363"
-								blurX="1"
-								blurY="1"
-								distance="1"/>
-		</s:filters>
-	</s:Line>
+	<nail:ShadowLine width="100%"/>
 	
 	<s:HGroup width="100%"
 			  verticalAlign="middle"
