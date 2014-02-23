@@ -126,6 +126,9 @@
 			{
 				versionsDropDownList.dataProvider = new ArrayCollection( AssetsVersion.getList() );
 				versionsDropDownList.selectedItem = _version;
+				
+				focusManager.setFocus(confirmButton);
+				focusManager.showFocus();
 			}
 			
 			protected function browseButtonClickHandler(event:MouseEvent) : void

@@ -39,6 +39,7 @@
 		  backgroundColor="0x494949"
 		  fontSize="11"
 		  title="Import Object"
+		  creationComplete="creationCompleteHandler(event)"
 		  closing="windowClosingHandler(event)">
 	
 	<s:layout>
@@ -52,6 +53,8 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import mx.events.FlexEvent;
+			
 			import nail.components.NailMain;
 			import nail.otlib.assets.AssetsVersion;
 			import nail.otlib.utils.ThingData;
@@ -118,6 +121,12 @@
 			//--------------------------------------
 			// Event Handlers
 			//--------------------------------------
+			
+			protected function creationCompleteHandler(event:FlexEvent) : void
+			{
+				focusManager.setFocus(browseButton);
+				focusManager.showFocus();
+			}
 			
 			protected function browseButtonClickHandler(event:MouseEvent) : void
 			{

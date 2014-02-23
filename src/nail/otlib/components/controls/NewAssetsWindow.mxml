@@ -101,6 +101,9 @@
 			{
 				versionsDropDownList.dataProvider = new ArrayCollection( AssetsVersion.getList() );
 				versionsDropDownList.setSelectedIndex(0, true);
+				
+				focusManager.setFocus(confirmButton);
+				focusManager.showFocus();
 			}
 			
 			protected function versionsDropDownListChangeHandler(event:IndexChangeEvent) : void

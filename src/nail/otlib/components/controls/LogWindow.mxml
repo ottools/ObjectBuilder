@@ -33,7 +33,8 @@
 		  minHeight="400"
 		  backgroundColor="0x494949"
 		  showStatusBar="false"
-		  title="Log">
+		  title="Log"
+		  creationComplete="windowCreationCompleteHandler(event)">
 	
 	<s:layout>
 		<s:VerticalLayout gap="0"
@@ -42,6 +43,8 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import mx.events.FlexEvent;
+			
 			import flashx.textLayout.conversion.TextConverter;
 			
 			import nail.components.NailMain;
@@ -110,6 +113,12 @@
 			// Event Handlers
 			//--------------------------------------
 			
+			protected function windowCreationCompleteHandler(event:FlexEvent) : void
+			{
+				focusManager.setFocus(closeButton);
+				focusManager.showFocus();
+			}
+			
 			protected function saveButtonClickHandler(event:MouseEvent) : void
 			{
 				var file : File;
@@ -155,6 +164,7 @@
 				fontSize="11"
 				verticalScrollPolicy="on"
 				editable="false"
+				focusEnabled="false"
 				text="{text}"
 				borderColor="0x272727"
 				paddingLeft="5"
@@ -173,7 +183,8 @@
 				  enabled="false"
 				  click="saveButtonClickHandler(event)"/>
 		<s:Spacer width="100%"/>
-		<s:Button label="Close"
+		<s:Button id="closeButton"
+				  label="Close"
 				  width="70"
 				  click="close()"/>
 	</s:HGroup>

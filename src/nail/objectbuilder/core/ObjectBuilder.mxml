@@ -1521,30 +1521,37 @@
 			<s:Label text="Dat:"/>
 			<s:RichEditableText id="datSignatureLabel"
 								editable="false"
+								focusEnabled="false"
 								height="15"/>
 			<s:Label text="Items:"/>
 			<s:RichEditableText id="itemsCountLabel"
 								editable="false"
+								focusEnabled="false"
 								height="15"/>
 			<s:Label text="Outfits:"/>
 			<s:RichEditableText id="outfitsCountLabel"
 								editable="false"
+								focusEnabled="false"
 								height="15"/>
 			<s:Label text="Effects:"/>
 			<s:RichEditableText id="effectsCountLabel"
 								editable="false"
+								focusEnabled="false"
 								height="15"/>
 			<s:Label text="Missiles:"/>
 			<s:RichEditableText id="missilesCountLabel"
 								editable="false"
+								focusEnabled="false"
 								height="15"/>
 			<s:Label text="Spr:"/>
 			<s:RichEditableText id="sprSignatureLabel"
 								editable="false"
+								focusEnabled="false"
 								height="15"/>
 			<s:Label text="Sprites:"/>
 			<s:RichEditableText id="spritesCountLabel"
 								editable="false"
+								focusEnabled="false"
 								height="15"/>
 		</nail:GroupBox>
 		
@@ -1714,6 +1721,7 @@
 							  dragEnabled="true"
 							  fontSize="11"
 							  borderAlpha="0"
+							  focusEnabled="false"
 							  change="spritesListChangeHandler(event)"
 							  updateComplete="listUpdateCompleteHandler(event)"
 							  copy="onCopySprite()"
