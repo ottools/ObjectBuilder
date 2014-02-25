@@ -37,7 +37,7 @@
 		  fontSize="11"
 		  backgroundColor="0x494949"
 		  showStatusBar="false"
-		  title="Compile Client Files"
+		  title="@Resource(key='caw.title', bundle='controls')"
 		  creationComplete="creationCompleteHandler(event)"
 		  closing="windowClosingHandler(event)">
 	
@@ -138,7 +138,7 @@
 				path = _directory != null ? _directory.nativePath : File.documentsDirectory.nativePath;
 				dir = new File(path);
 				dir.addEventListener(Event.SELECT, fileSelectHandler);
-				dir.browseForDirectory("Select output folder.");
+				dir.browseForDirectory(resourceManager.getString("controls", "caw.select-folder"));
 				
 				function fileSelectHandler(event:Event) : void
 				{
@@ -246,7 +246,8 @@
 							  horizontalAlign="right"/>
 		</s:layout>
 		
-		<nail:GroupBox width="100%" label="Name">
+		<nail:GroupBox width="100%"
+					   label="@Resource(key='label.name', bundle='controls')">
 			<nail:layout>
 				<s:HorizontalLayout gap="10"
 									verticalAlign="middle"
@@ -262,7 +263,7 @@
 						 change="nameTextInputChangeHandler(event)"/>
 		</nail:GroupBox>
 		
-		<nail:GroupBox width="100%" label="Output Folder">
+		<nail:GroupBox width="100%" label="@Resource(key='caw.output-folder', bundle='controls')">
 			<nail:layout>
 				<s:HorizontalLayout gap="10"
 									verticalAlign="middle"
@@ -277,12 +278,12 @@
 						 width="100%"
 						 change="directoryTextInputChangeHandler(event)"/>
 			<s:Button id="browseButton"
-					  label="Browse"
+					  label="@Resource(key='label.browse', bundle='controls')"
 					  height="21"
 					  click="browseButtonClickHandler(event)"/>
 		</nail:GroupBox>
 		
-		<nail:GroupBox width="100%" label="Version">
+		<nail:GroupBox width="100%" label="@Resource(key='label.version', bundle='controls')">
 			<nail:layout>
 				<s:HorizontalLayout gap="10"
 									verticalAlign="middle"
@@ -305,13 +306,13 @@
 				  verticalAlign="middle"
 				  horizontalAlign="right">
 			<s:Button id="confirmButton"
-					  label="Confirm"
-					  width="70"
+					  label="@Resource(key='label.confirm', bundle='controls')"
+					  minWidth="70"
 					  enabled="false"
 					  click="confirmButtonClickHandler(event)"/>
 			<s:Button id="cancelButton"
-					  label="Cancel"
-					  width="70"
+					  label="@Resource(key='label.cancel', bundle='controls')"
+					  minWidth="70"
 					  click="close()"/>
 		</s:HGroup>
 	</s:Group>

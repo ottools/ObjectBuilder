@@ -36,7 +36,7 @@
 		  resizable="false"
 		  showStatusBar="false"
 		  backgroundColor="0x494949"
-		  title="New"
+		  title="@Resource(key='naw.title', bundle='controls')"
 		  fontSize="11"
 		  creationComplete="creationCompleteHandler(event)"
 		  closing="closingHandler(event)">
@@ -49,6 +49,10 @@
 						  paddingBottom="10"
 						  horizontalAlign="right"/>
 	</s:layout>
+	
+	<fx:Metadata>
+		[ResourceBundle("controls")]
+	</fx:Metadata>
 	
 	<fx:Script>
 		<![CDATA[
@@ -147,7 +151,7 @@
 		]]>
 	</fx:Script>
 	
-	<nail:GroupBox width="100%" label="Version">
+	<nail:GroupBox width="100%" label="@Resource(key='label.version', bundle='controls')">
 		<nail:layout>
 			<s:HorizontalLayout gap="10"
 								verticalAlign="middle"
@@ -168,13 +172,13 @@
 			  verticalAlign="middle"
 			  horizontalAlign="right">
 		<s:Button id="confirmButton"
-				  label="Confirm"
-				  width="70"
+				  label="@Resource(key='label.confirm', bundle='controls')"
+				  minWidth="70"
 				  enabled="false"
 				  click="confirmButtonClickHandler(event)"/>
 		<s:Button id="cancelButton"
-				  label="Cancel"
-				  width="70"
+				  label="@Resource(key='label.cancel', bundle='controls')"
+				  minWidth="70"
 				  click="close()"/>
 	</s:HGroup>
 	

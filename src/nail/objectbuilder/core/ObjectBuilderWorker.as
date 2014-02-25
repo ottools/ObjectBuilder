@@ -32,12 +32,16 @@ package nail.objectbuilder.core
 	import flash.net.registerClassAlias;
 	import flash.utils.ByteArray;
 	
+	import mx.resources.IResourceManager;
+	import mx.resources.ResourceManager;
+	
 	import nail.objectbuilder.commands.CommandType;
 	import nail.objectbuilder.commands.ErrorCommand;
 	import nail.objectbuilder.commands.MessageCommand;
 	import nail.objectbuilder.commands.SetAssetsInfoCommand;
 	import nail.objectbuilder.commands.SetSpriteListCommand;
 	import nail.objectbuilder.commands.SetThingCommand;
+	import nail.objectbuilder.utils.ObUtils;
 	import nail.otlib.assets.AssetsInfo;
 	import nail.otlib.assets.AssetsVersion;
 	import nail.otlib.sprites.Sprite;
@@ -50,6 +54,8 @@ package nail.objectbuilder.core
 	import nail.utils.StringUtil;
 	import nail.workers.Command;
 	import nail.workers.NailWorker;
+	
+	[ResourceBundle("controls")]
 	
 	public class ObjectBuilderWorker extends NailWorker
 	{
@@ -69,6 +75,8 @@ package nail.objectbuilder.core
 		
 		private var _version : AssetsVersion;
 		
+		private var _resources : IResourceManager;
+		
 		//--------------------------------------------------------------------------
 		//
 		// CONSTRUCTOR
@@ -77,7 +85,7 @@ package nail.objectbuilder.core
 		
 		public function ObjectBuilderWorker()
 		{
-			
+			_resources = ResourceManager.getInstance();
 		}
 		
 		//--------------------------------------------------------------------------
@@ -124,13 +132,13 @@ package nail.objectbuilder.core
 			
 			if (versionValue == 0)
 			{
-				throw new ArgumentError("Invalid version value.");
+				throw new ArgumentError(_resources.getString("controls", "error.invalid-version"));
 			}
 			
 			version = AssetsVersion.getVersionByValue(versionValue);
 			if (version == null)
 			{
-				throw new Error(StringUtil.substitute("Unsupported client version {0}", versionValue));
+				throw new Error(StringUtil.substitute(_resources.getString("controls", "error.unsupported-version"), versionValue));
 			}
 			
 			_version = version;
@@ -139,13 +147,13 @@ package nail.objectbuilder.core
 			
 			if (_sprites.createNew(version) == false)
 			{
-				throw new Error("Could not create new spr.");
+				throw new Error(_resources.getString("controls", "error.not-create-spr"));
 			}
 			
 			// Create things.
 			if (_things.createNew(version) == false)
 			{
-				throw new Error("Could not create new dat.");
+				throw new Error(_resources.getString("controls", "error.not-create-dat"));
 			}
 			
 			assetsLoadComplete();
@@ -194,6 +202,8 @@ package nail.objectbuilder.core
 		
 		private function onLoadAssets(datPath:String, sprPath:String, versionValue:uint) : void
 		{
+			var title : String;
+			
 			if (isNullOrEmpty(datPath))
 			{
 				throw new ArgumentError("Parameter datPath cannot be null or empty.");
@@ -206,14 +216,15 @@ package nail.objectbuilder.core
 			
 			if (versionValue == 0)
 			{
-				throw new ArgumentError("Invalid version value.");
+				throw new ArgumentError(_resources.getString("controls", "error.invalid-version"));
 			}
 			
 			_datFile = new File(datPath);
 			_sprFile = new File(sprPath);
 			_version = AssetsVersion.getVersionByValue(versionValue);
 			
-			sendCommand(new Command(CommandType.SHOW_PROGRESS_BAR, "Loading"));
+			title = _resources.getString("controls", "log.loading");
+			sendCommand(new Command(CommandType.SHOW_PROGRESS_BAR, title));
 			
 			createStorage();
 			
@@ -230,6 +241,7 @@ package nail.objectbuilder.core
 			var dat : File;
 			var spr : File;
 			var version : AssetsVersion;
+			var title : String;
 			
 			if (isNullOrEmpty(datPath))
 			{
@@ -243,24 +255,25 @@ package nail.objectbuilder.core
 			
 			if (versionValue == 0)
 			{
-				throw new ArgumentError("Invalid version value.");
+				throw new ArgumentError(_resources.getString("controls", "error.invalid-version"));
 			}
 			
 			if (_things == null || !_things.loaded)
 			{
-				throw new Error("Metadata is not loaded.");
+				throw new Error(_resources.getString("controls", "error.metadata-not-loaded"));
 			}
 			
 			if (_sprites == null || !_sprites.loaded)
 			{
-				throw new Error("Sprites are not loaded.");
+				throw new Error(_resources.getString("controls", "error.sprites-not-loaded"));
 			}
 			
 			dat = new File(datPath);
 			spr = new File(sprPath);
 			version = AssetsVersion.getVersionByValue(versionValue);
 			
-			sendCommand(new Command(CommandType.SHOW_PROGRESS_BAR, "Compiling"));
+			title = _resources.getString("controls", "log.compiling");
+			sendCommand(new Command(CommandType.SHOW_PROGRESS_BAR, title));
 			
 			if (_things.compile(dat, version) && _sprites.compile(spr, version))
 			{
@@ -275,7 +288,7 @@ package nail.objectbuilder.core
 			
 			if (ThingCategory.getCategory(category) == null)
 			{
-				throw new Error("Invalid thing category.");
+				throw new Error(_resources.getString("controls", "error.invalid-category"));
 			}
 			
 			thing = ThingUtils.createThing(category);
@@ -285,7 +298,9 @@ package nail.objectbuilder.core
 				onGetThing(thing.id, category);
 				
 				// Send new thing message.
-				message = StringUtil.substitute("Added new {0} id <b>{1}</b>.", category, thing.id);
+				message = StringUtil.substitute(_resources.getString("controls", "log.added-new-thing"),
+					ObUtils.toLocale(category),
+					thing.id);
 				sendCommand(new MessageCommand(message, "log"));
 			}
 		}
@@ -303,13 +318,14 @@ package nail.objectbuilder.core
 			
 			if (ThingCategory.getCategory(category) == null)
 			{
-				throw new Error("Invalid thing category.");
+				throw new Error(_resources.getString("controls", "error.invalid-category"));
 			}
 			
 			thing = _things.getThingType(id,  category);
 			if (thing == null)
 			{
-				throw new Error(StringUtil.substitute("{0} id {1} not found.", StringUtil.capitaliseFirstLetter(category), id));
+				throw new Error(StringUtil.substitute(_resources.getString("controls", "error.thing-not-found"),
+					ObUtils.toLocale(category), id));
 			}
 			
 			list = new Vector.<SpriteData>();
@@ -321,7 +337,7 @@ package nail.objectbuilder.core
 				pixels = _sprites.getPixels(spriteId);
 				if (pixels == null)
 				{
-					throw new Error(StringUtil.substitute("Sprite id {0} not found.", spriteId));
+					throw new Error(StringUtil.substitute(_resources.getString("controls", "error.sprite-not-found"), spriteId));
 				}
 				
 				spriteData = new SpriteData();
@@ -343,7 +359,8 @@ package nail.objectbuilder.core
 				onGetThing(thing.id, thing.category);
 				
 				// Send change message
-				message = StringUtil.substitute("{0} id <b>{1}</b> changes saved.", StringUtil.capitaliseFirstLetter(thing.category), thing.id);
+				message = StringUtil.substitute(_resources.getString("controls", "log.saved-thing"),
+					ObUtils.toLocale(thing.category), thing.id);
 				sendCommand(new MessageCommand(message, "log"));
 			}
 		}
@@ -371,12 +388,12 @@ package nail.objectbuilder.core
 			if (replaceId != 0)
 			{
 				done = _things.replace(thing, thing.category, replaceId);
-				message = "Replaced"
+				message = _resources.getString("controls", "log.replaced-thing");
 			}
 			else 
 			{
 				done = _things.addThing(thing, thing.category);
-				message = "Added"
+				message = _resources.getString("controls", "log.added-new-thing");
 			}
 			
 			// Add sprites
@@ -404,18 +421,18 @@ package nail.objectbuilder.core
 				onGetThing(thing.id, thing.category);
 				
 				// Send import message.
-				message += " {0} id <b>{1}</b>."
-				sendCommand(new MessageCommand(StringUtil.substitute(message, thing.category, thing.id), "log"));
+				message = StringUtil.substitute(message, ObUtils.toLocale(thing.category), thing.id);
+				sendCommand(new MessageCommand(message, "log"));
 				
 				if (spritesAdded.length > 0)
 				{
 					if (spritesAdded.length == 1)
 					{
-						message = StringUtil.substitute("Added new sprite id <b>{0}</b>.", _sprites.spritesCount);
+						message = StringUtil.substitute(_resources.getString("controls", "log.added-sprite"), _sprites.spritesCount);
 					}
 					else
 					{
-						message = StringUtil.substitute("Added new sprites ids: <b>{0}</b>.", spritesAdded);
+						message = StringUtil.substitute(_resources.getString("controls", "log.added-sprites"), spritesAdded);
 					}
 					
 					// Set sprite list to last sprite.
@@ -435,13 +452,15 @@ package nail.objectbuilder.core
 			
 			if (ThingCategory.getCategory(category) == null)
 			{
-				throw new Error("Invalid thing category.");
+				throw new Error(_resources.getString("controls", "error.invalid-category"));
 			}
 			
 			thing = _things.getThingType(id, category);
 			if (thing == null)
 			{
-				throw new Error(StringUtil.substitute("Object not found. category: {1}, id: {0}", category, id));
+				throw new Error(StringUtil.substitute(_resources.getString("controls", "error.thing-not-found"),
+					ObUtils.toLocale(category),
+					id));
 			}
 			
 			copy = ThingUtils.copyThing(thing);
@@ -451,7 +470,10 @@ package nail.objectbuilder.core
 				onGetThing(copy.id, category);
 				
 				// Send duplicated thing message.
-				message = StringUtil.substitute("Duplicated {0} id <b>{1}</b> to id <b>{2}</b>.", category, id, copy.id);
+				message = StringUtil.substitute(_resources.getString("controls", "log.duplicated-thing"),
+					ObUtils.toLocale(category),
+					id,
+					copy.id);
 				sendCommand(new MessageCommand(message, "log"));
 			}
 		}
@@ -468,7 +490,9 @@ package nail.objectbuilder.core
 				sendId = id > count ? count : id;
 				
 				onGetThing(sendId, category);
-				message = StringUtil.substitute("Removed {0} id <b>{1}</b>.", category, id);
+				message = StringUtil.substitute(_resources.getString("controls", "log.removed-thing"),
+					ObUtils.toLocale(category),
+					id);
 				sendCommand(new MessageCommand(message, "log"));
 			}
 		}
@@ -480,9 +504,11 @@ package nail.objectbuilder.core
 		
 		private function onReplaceSprite(id:uint, pixels:ByteArray) : void
 		{
+			var message : String;
+			
 			if (id == 0) 
 			{
-				throw new ArgumentError("Invalid sprite id 0.");
+				throw new ArgumentError(StringUtil.substitute(_resources.getString("controls", "error.invalid-sprite-id"), id));
 			}
 			
 			if (pixels == null) 
@@ -492,7 +518,8 @@ package nail.objectbuilder.core
 			
 			if (_sprites.replaceSprite(id, pixels))
 			{
-				sendCommand(new MessageCommand(StringUtil.substitute("Sprite id <b>{0}</b> replaced.", id), "log"));
+				message = StringUtil.substitute(_resources.getString("controls", "log.replaced-sprite"), id);
+				sendCommand(new MessageCommand(message, "log"));
 				this.sendSpriteList(id);
 			}
 		}
@@ -523,11 +550,11 @@ package nail.objectbuilder.core
 			
 			if (length == 1)
 			{
-				message = StringUtil.substitute("Added new sprite id <b>{0}</b>.", _sprites.spritesCount);
+				message = StringUtil.substitute(_resources.getString("controls", "log.added-sprite"), _sprites.spritesCount);
 			}
 			else
 			{
-				message = StringUtil.substitute("Added new sprites ids <b>{0}</b>.", ids);
+				message = StringUtil.substitute(_resources.getString("controls", "log.added-sprites"), ids);
 			}
 			
 			this.sendSpriteList(_sprites.spritesCount);
@@ -543,7 +570,7 @@ package nail.objectbuilder.core
 			
 			if (_sprites.addSprite(sprite.getPixels(sprite.rect)))
 			{
-				message = StringUtil.substitute("Added new sprite id <b>{0}</b>.", _sprites.spritesCount);
+				message = StringUtil.substitute(_resources.getString("controls", "log.added-sprite"), _sprites.spritesCount);
 				this.sendSpriteList(_sprites.spritesCount);
 				sendCommand(new MessageCommand(message, "log"));
 			}
@@ -576,11 +603,11 @@ package nail.objectbuilder.core
 			
 			if (length > 1)
 			{
-				message = "Removed sprites ids <b>{0}</b>."
+				message = _resources.getString("controls", "log.remove-sprites");
 			}
 			else 
 			{
-				message = "Removed sprite id <b>{0}</b>."
+				message = _resources.getString("controls", "log.remove-sprite");
 			}
 			sendCommand(new MessageCommand(StringUtil.substitute(message, list), "log"));
 		}
@@ -589,13 +616,13 @@ package nail.objectbuilder.core
 		{
 			sendCommand(new Command(CommandType.HIDE_PROGRESS_BAR));
 			sendCommand(new Command(CommandType.LOAD_COMPLETE));
-			sendCommand(new MessageCommand("Load Complete.", "Info"));
+			sendCommand(new MessageCommand(_resources.getString("controls", "log.load-complete"), "Info"));
 		}
 		
 		private function assetsCompileComplete() : void
 		{
 			sendCommand(new Command(CommandType.HIDE_PROGRESS_BAR));
-			sendCommand(new MessageCommand("Compile Complete.", "Info"));
+			sendCommand(new MessageCommand(_resources.getString("controls", "log.compile-complete"), "Info"));
 		}
 		
 		public function sendAssetsInfo() : void
@@ -604,12 +631,12 @@ package nail.objectbuilder.core
 			
 			if (_things == null || !_things.loaded)
 			{
-				throw new Error("Metadata is not loaded.");
+				throw new Error(_resources.getString("controls", "error.metadata-not-loaded"));
 			}
 			
 			if (_sprites == null || !_sprites.loaded)
 			{
-				throw new Error("Sprites are not loaded.");
+				throw new Error(_resources.getString("controls", "error.sprites-not-loaded"));
 			}
 			
 			info = new AssetsInfo();
@@ -641,7 +668,7 @@ package nail.objectbuilder.core
 			
 			if (_sprites == null || !_sprites.loaded)
 			{
-				throw new Error("Sprites are not loaded.");
+				throw new Error(_resources.getString("controls", "error.sprites-not-loaded"));
 			}
 			
 			min = Math.max(0, target - 50);
@@ -654,7 +681,7 @@ package nail.objectbuilder.core
 				pixels = _sprites.getPixels(i);
 				if (pixels == null)
 				{
-					throw new Error(StringUtil.substitute("Sprite id {0} not found.", i));
+					throw new Error(StringUtil.substitute(_resources.getString("controls", "error.sprite-not-found"), i));
 				}
 				
 				spriteData = new SpriteData();

@@ -38,7 +38,7 @@
 		  resizable="false"
 		  backgroundColor="0x494949"
 		  fontSize="11"
-		  title="Import Object"
+		  title="@Resource(key='iow.title', bundle='controls')"
 		  creationComplete="creationCompleteHandler(event)"
 		  closing="windowClosingHandler(event)">
 	
@@ -136,7 +136,7 @@
 				filter = new FileFilter("Object Builder Data", "*.obd");
 				file = _directory != null ? _directory : File.documentsDirectory;
 				file.addEventListener(Event.SELECT, fileSelectHandler);
-				file.browseForOpen("Select File", [filter]);
+				file.browseForOpen(resourceManager.getString("controls", "iow.select-file"), [filter]);
 				
 				function fileSelectHandler(event:Event) : void
 				{
@@ -181,7 +181,7 @@
 	</fx:Script>
 	
 	<s:Group width="100%">
-		<s:Label text="File:"
+		<s:Label text="@Resource(key='label.file-', bundle='controls')"
 				 fontSize="10" 
 				 color="0xDFDFDF"/>
 		<s:TextInput id="fileTextInput"
@@ -190,22 +190,22 @@
 					 top="15"
 					 editable="false"/>
 		<s:Button id="browseButton"
-				  label="Browse"
+				  label="@Resource(key='label.browse', bundle='controls')"
 				  height="22"
 				  top="15"
 				  right="0"
 				  click="browseButtonClickHandler(event)"/>
 	</s:Group>
 	
-	<nail:GroupBox label="View"
+	<nail:GroupBox label="@Resource(key='label.view', bundle='controls')"
 				   width="100%"
 				   height="100%">
 		<s:TileGroup requestedColumnCount="2"
 					 left="10"
 					 bottom="10">
-			<s:Label text="Type:"/>
+			<s:Label text="@Resource(key='label.type-', bundle='controls')"/>
 			<s:Label id="typeLabel"/>
-			<s:Label text="Version:"/>
+			<s:Label text="@Resource(key='label.version-', bundle='controls')"/>
 			<s:Label id="versionLabel"/>
 		</s:TileGroup>
 		
@@ -218,13 +218,13 @@
 			  verticalAlign="middle"
 			  horizontalAlign="right">
 		<s:Button id="confirmButton"
-				  label="Confim"
-				  width="70"
+				  label="@Resource(key='label.confirm', bundle='controls')"
+				  minWidth="70"
 				  enabled="false"
 				  click="confirmButtonClickHandler(event)"/>
 		<s:Button id="cancelButton"
-				  label="Cancel"
-				  width="70"
+				  label="@Resource(key='label.cancel', bundle='controls')"
+				  minWidth="70"
 				  click="close()"/>
 	</s:HGroup>
 </s:Window>

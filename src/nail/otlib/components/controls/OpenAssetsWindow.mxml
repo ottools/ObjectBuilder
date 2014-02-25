@@ -30,14 +30,14 @@
 		  xmlns:mx="library://ns.adobe.com/flex/mx" 
 		  xmlns:nail="library://ns.nail.com/naillib"
 		  width="400"
-		  height="350"
+		  height="360"
 		  resizable="false"
 		  minimizable="false"
 		  maximizable="false"
 		  showStatusBar="false"
 		  fontSize="11"
 		  backgroundColor="0x494949"
-		  title="Open Client Files"
+		  title="@Resource(key='oaw.title', bundle='controls')"
 		  creationComplete="windowCreationCompleteHandler(event)"
 		  closing="windowClosingHandler(event)">
 	
@@ -49,6 +49,10 @@
 						  paddingBottom="10"
 						  horizontalAlign="right"/>
 	</s:layout>
+	
+	<fx:Metadata>
+		[ResourceBundle("controls")]
+	</fx:Metadata>
 	
 	<fx:Script>
 		<![CDATA[
@@ -172,7 +176,7 @@
 				}	
 				else 
 				{
-					unsupportedVersionLabel.text = "Client files not found.";
+					unsupportedVersionLabel.text = resourceManager.getString("controls", "oaw.files-not-found");
 				}
 				
 				_loading = false;
@@ -229,7 +233,7 @@
 					
 					if (version == null)
 					{
-						unsupportedVersionLabel.text = "Unsupported Version.";
+						unsupportedVersionLabel.text = resourceManager.getString("controls", "oaw.unsupported-version");
 						datSignatureLabel.text = datSignature.toString(16).toUpperCase();
 						sprSignatureLabel.text = sprSignature.toString(16).toUpperCase();
 						return;
@@ -311,7 +315,7 @@
 				path = _directory != null ? _directory.nativePath : File.documentsDirectory.nativePath;
 				dir = new File(path);
 				dir.addEventListener(Event.SELECT, fileSelectHandler);
-				dir.browseForDirectory("Select client folder");
+				dir.browseForDirectory(resourceManager.getString("controls", "oaw.select-folder"));
 				
 				function fileSelectHandler(event:Event) : void
 				{
@@ -403,7 +407,7 @@
 	</fx:Script>
 	
 	<s:Group width="100%">
-		<s:Label text="Source Folder:"
+		<s:Label text="@Resource(key='oaw.client-folder', bundle='controls')"
 				 fontSize="10" 
 				 color="0xDFDFDF"/>
 		<s:TextInput id="directoryTextInput"
@@ -412,7 +416,7 @@
 					 top="15"
 					 change="directoryTextInputChangeHandler(event)"/>
 		<s:Button id="browseButton"
-				  label="Browse"
+				  label="@Resource(key='label.browse', bundle='controls')"
 				  height="21"
 				  top="15"
 				  right="0"
@@ -421,7 +425,8 @@
 	</s:Group>
 	
 	<!-- Version -->
-	<nail:GroupBox width="100%" label="Version">
+	<nail:GroupBox width="100%"
+				   label="@Resource(key='label.version', bundle='controls')">
 		<nail:layout>
 			<s:HorizontalLayout gap="20"
 								verticalAlign="middle"
@@ -442,17 +447,21 @@
 						  paddingLeft="10"
 						  paddingRight="10"
 						  paddingTop="10"
-						  paddingBottom="10"/>
+						  paddingBottom="10"
+						  horizontalGap="10"/>
 		</nail:layout>
-		<s:Label text="Signature:"/>
-		<s:Label id="datSignatureLabel"/>
-		<s:Label text="Items:"/>
+		<s:Label text="@Resource(key='label.signature-', bundle='controls')"/>
+		<s:RichEditableText id="datSignatureLabel"
+							height="12"
+							editable="false"
+							focusEnabled="false"/>
+		<s:Label text="@Resource(key='label.items-', bundle='controls')"/>
 		<s:Label id="itemsCountLabel"/>
-		<s:Label text="Outfits:"/>
+		<s:Label text="@Resource(key='label.outfits-', bundle='controls')"/>
 		<s:Label id="outfitsCountLabel"/>
-		<s:Label text="Effects:"/>
+		<s:Label text="@Resource(key='label.effects-', bundle='controls')"/>
 		<s:Label id="effectsCountLabel"/>
-		<s:Label text="Missiles:"/>
+		<s:Label text="@Resource(key='label.missiles-', bundle='controls')"/>
 		<s:Label id="missilesCountLabel"/>
 	</nail:GroupBox>	
 	
@@ -465,9 +474,12 @@
 						  paddingTop="10"
 						  paddingBottom="10"/>
 		</nail:layout>
-		<s:Label text="Signature:"/>
-		<s:Label id="sprSignatureLabel"/>
-		<s:Label text="Sprites:"/>
+		<s:Label text="@Resource(key='label.signature-', bundle='controls')"/>
+		<s:RichEditableText id="sprSignatureLabel"
+							height="12"
+							editable="false"
+							focusEnabled="false"/>
+		<s:Label text="@Resource(key='label.sprites-', bundle='controls')"/>
 		<s:Label id="spritesCountLabel"/>
 	</nail:GroupBox>
 	
@@ -477,13 +489,13 @@
 			  verticalAlign="middle"
 			  horizontalAlign="right">
 		<s:Button id="loadButton"
-				  label="Load"
-				  width="70"
+				  label="@Resource(key='label.load', bundle='controls')"
+				  minWidth="70"
 				  enabled="false"
 				  click="loadButtonClickHandler(event)"/>
 		<s:Button id="cancelButton"
-				  label="Cancel"
-				  width="70"
+				  label="@Resource(key='label.cancel', bundle='controls')"
+				  minWidth="70"
 				  click="cancelButtonClickHandler(event)"/>
 	</s:HGroup>	
 </s:Window>

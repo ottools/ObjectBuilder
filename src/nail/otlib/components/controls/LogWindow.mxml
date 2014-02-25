@@ -33,7 +33,7 @@
 		  minHeight="400"
 		  backgroundColor="0x494949"
 		  showStatusBar="false"
-		  title="Log"
+		  title="@Resource(key='lw.title', bundle='controls')"
 		  creationComplete="windowCreationCompleteHandler(event)">
 	
 	<s:layout>
@@ -124,7 +124,7 @@
 				
 				file = File.documentsDirectory.resolvePath("changes.log");
 				file.addEventListener(Event.SELECT, fileSelectHandler);
-				file.browseForSave("Save Log")
+				file.browseForSave(resourceManager.getString("controls", "lw.save-log"))
 				
 				function fileSelectHandler(event:Event) : void
 				{
@@ -177,13 +177,13 @@
 			  paddingTop="10"
 			  paddingBottom="10">
 		<s:Button id="saveButton"
-				  label="Save"
+				  label="@Resource(key='menu.save', bundle='controls')"
 				  width="70"
 				  enabled="false"
 				  click="saveButtonClickHandler(event)"/>
 		<s:Spacer width="100%"/>
 		<s:Button id="closeButton"
-				  label="Close"
+				  label="@Resource(key='menu.close', bundle='controls')"
 				  width="70"
 				  click="close()"/>
 	</s:HGroup>
