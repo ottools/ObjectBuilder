@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <versions>
+	<version value="800" string="8.00" dat="467FD7E6" spr="467F9E74" otb="0"/>
+	<version value="810" string="8.10" dat="475D3747" spr="475D0B01" otb="0"/>
+	<version value="820" string="8.20" dat="486905AA" spr="4868ECC9" otb="0"/>
+	<version value="830" string="8.30" dat="48DA1FB6" spr="48C8E712" otb="0"/>
+	<version value="840" string="8.40" dat="493D607A" spr="493D4E7C" otb="0"/>
+	<version value="842" string="8.42" dat="49C233C9" spr="49B140EA" otb="0"/>
+	<version value="850" string="8.50" dat="4A49C5EB" spr="4A44FD4E" otb="0"/>
+	<version value="852" string="8.52" dat="4A4CC0DC" spr="4A44FD4E" otb="0"/>
+	<version value="853" string="8.53" dat="4AE97492" spr="4ACB5230" otb="0"/>
+	<version value="854" string="8.54" dat="4B1E2CAA" spr="4B1E2C87" otb="0"/>
 	<version value="860" string="8.60" dat="4C28B721" spr="4C220594" otb="19"/>
 	<version value="861" string="8.61" dat="4C6A4CBC" spr="4C63F145" otb="21"/>
 	<version value="862" string="8.62" dat="4C973450" spr="4C63F145" otb="22"/>
@@ -11,8 +21,8 @@
 	<version value="910" string="9.10" dat="4E12DAFF" spr="4E12DB27" otb="28"/>
 	<version value="920" string="9.20" dat="4E807C08" spr="4E807C23" otb="29"/>
 	<version value="940" string="9.40" dat="4EE71DE5" spr="4EE71E06" otb="30"/>
-	<version value="944" string="9.44" dat="4F3131CF" spr="4F3131F6" otb="34"/>
-	<version value="946" string="9.46" dat="4F6B341F" spr="4F5DCEF7" otb="35"/>
+	<version value="944" string="9.44" dat="4F0EEFBB" spr="4F0EEFEF" otb="34"/>
+	<version value="946" string="9.46" dat="4F75B7AB" spr="4F5DCEF7" otb="35"/>
 	<version value="950" string="9.50" dat="4F75B7AB" spr="4F75B7CD" otb="36"/>
 	<version value="952" string="9.52" dat="4F857F6C" spr="4F857F8E" otb="37"/>
 	<version value="953" string="9.53" dat="4FA11252" spr="4FA11282" otb="38"/>

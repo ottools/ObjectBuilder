@@ -801,6 +801,17 @@
 					thingAtrributes.actionGroupCheckBox.includeInLayout = visible;
 					thingAtrributes.usableCheckBox.visible = visible;
 					thingAtrributes.usableCheckBox.includeInLayout = visible;
+					
+					// Charges, Floor Change, Equip and Translucent.
+					visible = (_info.version <= 854 && data.category == ThingCategory.ITEM);
+					thingAtrributes.chargesCheckBox.visible = visible;
+					thingAtrributes.chargesCheckBox.includeInLayout = visible;
+					thingAtrributes.floorChangeCheckBox.visible = visible;
+					thingAtrributes.floorChangeCheckBox.includeInLayout = visible;
+					thingAtrributes.translucentCheckBox.visible = !visible;
+					thingAtrributes.translucentCheckBox.includeInLayout = !visible;
+					thingAtrributes.equipGroupCheckBox.visible = !visible;
+					thingAtrributes.equipGroupCheckBox.includeInLayout = !visible;
 				}
 			}
 			
