@@ -1,3 +1,15 @@
+### 0.2.5
+
+Features:
+
+* Support for versions 8.00 - 8.54
+* Support for version 10.35
+* Create empty client files.
+* Paste sprite from clipboard.
+* Copy sprite to clipboard.
+* Drag and drop sprites from files system.
+* Drag and drop objects from files system.
+
 ### 0.2.4
 
 Features:
