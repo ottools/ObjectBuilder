@@ -68,9 +68,7 @@
 			//--------------------------------------------------------------------------
 			
 			private var _directory : File;
-			
 			private var _thingData : ThingData;
-			
 			private var _cancel : Boolean = true;
 			
 			//--------------------------------------------------------------------------
@@ -94,7 +92,6 @@
 					stream.open(file, FileMode.READ);
 					stream.readBytes(bytes, 0, stream.bytesAvailable);
 					stream.close();
-					
 					data = ThingData.unserialize(bytes);
 				} 
 				catch(error:Error) 

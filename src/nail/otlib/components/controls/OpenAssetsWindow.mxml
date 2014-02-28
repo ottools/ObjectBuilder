@@ -71,21 +71,13 @@
 			
 			[Bindable]
 			private var _loading : Boolean;
-			
 			private var _directory : File;
-			
 			private var _directoryChanged : Boolean;
-			
 			private var _sprFile : File;
-			
 			private var _datFile : File;
-			
 			private var _version : AssetsVersion;
-			
 			private var _cancel : Boolean = true;
-			
 			private var _creationComplete : Boolean;
-			
 			private var _tmpDirectory : File;
 			
 			//--------------------------------------------------------------------------

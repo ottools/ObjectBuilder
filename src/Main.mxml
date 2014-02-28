@@ -61,9 +61,7 @@
 			
 			[Embed(source="../workerswfs/nail/objectbuilder/core/ObjectBuilderWorker.swf", mimeType="application/octet-stream")]
 			public var ObjectBuilderWorker : Class;
-			
 			private var _progressBar : CustomProgressBar;
-			
 			private var _logger : ILogger = Log.getLogger("nail.Main");
 			
 			//--------------------------------------------------------------------------

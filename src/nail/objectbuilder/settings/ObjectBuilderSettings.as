@@ -41,15 +41,10 @@ package nail.objectbuilder.settings
 		//--------------------------------------------------------------------------
 		
 		public var lastDirectory : String;
-		
 		public var lastImportExportDirectory : String;
-		
 		public var lastExportThingFormat : String;
-		
 		public var lastExportThingVersion : int;
-		
 		public var lastExportSpriteFormat : String;
-		
 		public var autosaveThingChanges : Boolean;
 		
 		//--------------------------------------------------------------------------

@@ -70,9 +70,7 @@
 			//--------------------------------------------------------------------------
 			
 			private var _version : AssetsVersion;
-			
 			private var _versionChanged : Boolean;
-			
 			private var _confirm : Boolean;
 			
 			//--------------------------------------------------------------------------
@@ -181,5 +179,4 @@
 				  minWidth="70"
 				  click="close()"/>
 	</s:HGroup>
-	
 </s:Window>

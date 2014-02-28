@@ -78,31 +78,12 @@
 			import nail.components.controls.Alert;
 			import nail.loaders.BitmapLoader;
 			import nail.managers.PopUpWindowManager;
-			import nail.objectbuilder.commands.ChangeThingCommand;
-			import nail.objectbuilder.commands.CommandType;
-			import nail.objectbuilder.commands.CompileAssetsCommand;
-			import nail.objectbuilder.commands.CreateNewFilesCommand;
-			import nail.objectbuilder.commands.DuplicateThingCommand;
-			import nail.objectbuilder.commands.GetSpriteListCommand;
-			import nail.objectbuilder.commands.GetThingCommand;
-			import nail.objectbuilder.commands.ImportSpriteCommand;
-			import nail.objectbuilder.commands.ImportThingCommand;
-			import nail.objectbuilder.commands.LoadAssetsCommand;
-			import nail.objectbuilder.commands.NewThingCommand;
-			import nail.objectbuilder.commands.RemoveSpritesCommand;
-			import nail.objectbuilder.commands.RemoveThingCommand;
-			import nail.objectbuilder.commands.ReplaceSpriteCommand;
+			import nail.objectbuilder.commands.*;
 			import nail.objectbuilder.settings.ObjectBuilderSettings;
 			import nail.objectbuilder.utils.ObUtils;
 			import nail.otlib.assets.AssetsInfo;
 			import nail.otlib.assets.AssetsVersion;
-			import nail.otlib.components.controls.CompileAssetsWindow;
-			import nail.otlib.components.controls.CropImageWindow;
-			import nail.otlib.components.controls.ExportWindow;
-			import nail.otlib.components.controls.ImportThingWindow;
-			import nail.otlib.components.controls.LogWindow;
-			import nail.otlib.components.controls.NewAssetsWindow;
-			import nail.otlib.components.controls.OpenAssetsWindow;
+			import nail.otlib.components.controls.*;
 			import nail.otlib.events.ThingEditorEvent;
 			import nail.otlib.loaders.ThingDataLoader;
 			import nail.otlib.things.ThingCategory;
@@ -126,28 +107,18 @@
 			
 			[Bindable]
 			private var _spritesCollection : ArrayCollection = new ArrayCollection(); 
-			
 			private var _thingData : ThingData;
-			
 			private var _nextThingData : ThingData;
-			
 			private var _thingDataChanged : Boolean;
 			
 			[Bindable]
 			private var _info : AssetsInfo;
-			
 			private var _selectIndex : int;
-			
 			private var _spriteMin : uint;
-			
 			private var _spriteMax :uint;
-			
 			private var _logText : String = "";
-			
 			private var _logWindow : LogWindow;
-			
 			private var _autosave : Boolean;
-			
 			private var _autosaveChanged : Boolean;
 			
 			//--------------------------------------------------------------------------
@@ -1807,7 +1778,6 @@
 					  height="19"
 					  icon="{Icons.DELETE}"
 					  click="removeSpriteHandler(event)"/>
-		</s:HGroup>	
-		
+		</s:HGroup>
 	</s:BorderContainer>
 </nail:NailApplication>

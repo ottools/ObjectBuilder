@@ -58,17 +58,11 @@
 			//--------------------------------------------------------------------------
 			
 			private var _directory : File;
-			
 			private var _directoryChanged : Boolean;
-			
 			private var _sprFile : File;
-			
 			private var _datFile : File;
-			
 			private var _version : AssetsVersion;
-			
 			private var _versionChanged : Boolean;
-			
 			private var _cancel : Boolean = true;
 			
 			//--------------------------------------------------------------------------

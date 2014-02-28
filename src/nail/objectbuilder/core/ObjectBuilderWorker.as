@@ -35,12 +35,7 @@ package nail.objectbuilder.core
 	import mx.resources.IResourceManager;
 	import mx.resources.ResourceManager;
 	
-	import nail.objectbuilder.commands.CommandType;
-	import nail.objectbuilder.commands.ErrorCommand;
-	import nail.objectbuilder.commands.MessageCommand;
-	import nail.objectbuilder.commands.SetAssetsInfoCommand;
-	import nail.objectbuilder.commands.SetSpriteListCommand;
-	import nail.objectbuilder.commands.SetThingCommand;
+	import nail.objectbuilder.commands.*;
 	import nail.objectbuilder.utils.ObUtils;
 	import nail.otlib.assets.AssetsInfo;
 	import nail.otlib.assets.AssetsVersion;
@@ -66,15 +61,10 @@ package nail.objectbuilder.core
 		//--------------------------------------------------------------------------
 		
 		private var _things : ThingTypeStorage;
-		
 		private var _sprites : SpriteStorage;
-		
 		private var _datFile : File;
-		
 		private var _sprFile : File;
-		
 		private var _version : AssetsVersion;
-		
 		private var _resources : IResourceManager;
 		
 		//--------------------------------------------------------------------------
