@@ -220,11 +220,11 @@
 			{
 				if (this.loaded &&
 					this.thingData != null &&
-					this.thingAtrributes.changed)
+					this.thingAttributes.changed)
 				{
-					if (this.thingAtrributes.saveChanges())
+					if (this.thingAttributes.saveChanges())
 					{
-						sendCommand(new ChangeThingCommand(thingAtrributes.thingData));
+						sendCommand(new ChangeThingCommand(thingAttributes.thingData));
 					}
 				}
 			}
@@ -721,9 +721,9 @@
 			{
 				var visible : Boolean;
 				
-				thingAtrributes.thingData = data;
-				thingAtrributes.visible = (data != null)
-				confirmButton.enabled = thingAtrributes.changed;
+				thingAttributes.thingData = data;
+				thingAttributes.visible = (data != null)
+				confirmButton.enabled = thingAttributes.changed;
 				cancelButton.enabled = (data != null);
 				
 				if (this.loaded && data != null)
@@ -731,68 +731,68 @@
 					// Hide unused controls to non-item objects.
 					visible = (data.category == ThingCategory.ITEM);
 					
-					thingAtrributes.groundGroupCheckBox.visible = visible;
-					thingAtrributes.groundGroupCheckBox.includeInLayout = visible;
-					thingAtrributes.automapGroupCheckBox.visible = visible;
-					thingAtrributes.automapGroupCheckBox.includeInLayout = visible;
-					thingAtrributes.hasElevationGroupCheckBox.visible = visible;
-					thingAtrributes.hasElevationGroupCheckBox.includeInLayout = visible;
-					thingAtrributes.equipGroupCheckBox.visible = visible;
-					thingAtrributes.equipGroupCheckBox.includeInLayout = visible;
-					thingAtrributes.writeReadGroupCheckBox.visible = visible;
-					thingAtrributes.writeReadGroupCheckBox.includeInLayout = visible;
-					thingAtrributes.flagsLeftColumn.visible = visible;
-					thingAtrributes.flagsLeftColumn.includeInLayout = visible;
-					thingAtrributes.pickupableCheckBox.visible = visible;
-					thingAtrributes.pickupableCheckBox.includeInLayout = visible;
-					thingAtrributes.pickupableCheckBox.visible = visible;
-					thingAtrributes.pickupableCheckBox.includeInLayout = visible;
-					thingAtrributes.hangableCheckBox.visible = visible;
-					thingAtrributes.hangableCheckBox.includeInLayout = visible;
-					thingAtrributes.horizontalCheckBox.visible = visible;
-					thingAtrributes.horizontalCheckBox.includeInLayout = visible;
-					thingAtrributes.verticalCheckBox.visible = visible;
-					thingAtrributes.verticalCheckBox.includeInLayout = visible;
-					thingAtrributes.rotatableCheckBox.visible = visible;
-					thingAtrributes.rotatableCheckBox.includeInLayout = visible;
-					thingAtrributes.dontHideCheckBox.visible = visible;
-					thingAtrributes.dontHideCheckBox.includeInLayout = visible;
-					thingAtrributes.translucentCheckBox.visible = visible;
-					thingAtrributes.translucentCheckBox.includeInLayout = visible;
-					thingAtrributes.isLyingObjectCheckBox.visible = visible;
-					thingAtrributes.isLyingObjectCheckBox.includeInLayout = visible;
-					thingAtrributes.fullGroundCheckBox.visible = visible;
-					thingAtrributes.fullGroundCheckBox.includeInLayout = visible;
-					thingAtrributes.ignoreLookCheckBox.visible = visible;
-					thingAtrributes.ignoreLookCheckBox.includeInLayout = visible;
+					thingAttributes.groundGroupCheckBox.visible = visible;
+					thingAttributes.groundGroupCheckBox.includeInLayout = visible;
+					thingAttributes.automapGroupCheckBox.visible = visible;
+					thingAttributes.automapGroupCheckBox.includeInLayout = visible;
+					thingAttributes.hasElevationGroupCheckBox.visible = visible;
+					thingAttributes.hasElevationGroupCheckBox.includeInLayout = visible;
+					thingAttributes.equipGroupCheckBox.visible = visible;
+					thingAttributes.equipGroupCheckBox.includeInLayout = visible;
+					thingAttributes.writeReadGroupCheckBox.visible = visible;
+					thingAttributes.writeReadGroupCheckBox.includeInLayout = visible;
+					thingAttributes.flagsLeftColumn.visible = visible;
+					thingAttributes.flagsLeftColumn.includeInLayout = visible;
+					thingAttributes.pickupableCheckBox.visible = visible;
+					thingAttributes.pickupableCheckBox.includeInLayout = visible;
+					thingAttributes.pickupableCheckBox.visible = visible;
+					thingAttributes.pickupableCheckBox.includeInLayout = visible;
+					thingAttributes.hangableCheckBox.visible = visible;
+					thingAttributes.hangableCheckBox.includeInLayout = visible;
+					thingAttributes.horizontalCheckBox.visible = visible;
+					thingAttributes.horizontalCheckBox.includeInLayout = visible;
+					thingAttributes.verticalCheckBox.visible = visible;
+					thingAttributes.verticalCheckBox.includeInLayout = visible;
+					thingAttributes.rotatableCheckBox.visible = visible;
+					thingAttributes.rotatableCheckBox.includeInLayout = visible;
+					thingAttributes.dontHideCheckBox.visible = visible;
+					thingAttributes.dontHideCheckBox.includeInLayout = visible;
+					thingAttributes.translucentCheckBox.visible = visible;
+					thingAttributes.translucentCheckBox.includeInLayout = visible;
+					thingAttributes.isLyingObjectCheckBox.visible = visible;
+					thingAttributes.isLyingObjectCheckBox.includeInLayout = visible;
+					thingAttributes.fullGroundCheckBox.visible = visible;
+					thingAttributes.fullGroundCheckBox.includeInLayout = visible;
+					thingAttributes.ignoreLookCheckBox.visible = visible;
+					thingAttributes.ignoreLookCheckBox.includeInLayout = visible;
 					
 					// Hide 'Market' GroupCheckBox.
 					visible = (_info.version >= 940 && data.category == ThingCategory.ITEM);
-					thingAtrributes.marketGroupCheckBox.visible = visible;
-					thingAtrributes.marketGroupCheckBox.includeInLayout = visible;
+					thingAttributes.marketGroupCheckBox.visible = visible;
+					thingAttributes.marketGroupCheckBox.includeInLayout = visible;
 					
 					// Hide 'No Move Animation' CheckBox by version.
 					visible = (_info.version >= 1010 && data.category == ThingCategory.ITEM);
-					thingAtrributes.noMoveAnimationCheckBox.visible = visible;
-					thingAtrributes.noMoveAnimationCheckBox.includeInLayout = visible;
+					thingAttributes.noMoveAnimationCheckBox.visible = visible;
+					thingAttributes.noMoveAnimationCheckBox.includeInLayout = visible;
 					
 					// Hide 'Action' GroupCheckBox and 'Usable' CheckBox by version.
 					visible = (_info.version >= 1021 && data.category == ThingCategory.ITEM);
-					thingAtrributes.actionGroupCheckBox.visible = visible;
-					thingAtrributes.actionGroupCheckBox.includeInLayout = visible;
-					thingAtrributes.usableCheckBox.visible = visible;
-					thingAtrributes.usableCheckBox.includeInLayout = visible;
+					thingAttributes.actionGroupCheckBox.visible = visible;
+					thingAttributes.actionGroupCheckBox.includeInLayout = visible;
+					thingAttributes.usableCheckBox.visible = visible;
+					thingAttributes.usableCheckBox.includeInLayout = visible;
 					
 					// Charges, Floor Change, Equip and Translucent.
 					visible = (_info.version <= 854 && data.category == ThingCategory.ITEM);
-					thingAtrributes.chargesCheckBox.visible = visible;
-					thingAtrributes.chargesCheckBox.includeInLayout = visible;
-					thingAtrributes.floorChangeCheckBox.visible = visible;
-					thingAtrributes.floorChangeCheckBox.includeInLayout = visible;
-					thingAtrributes.translucentCheckBox.visible = !visible;
-					thingAtrributes.translucentCheckBox.includeInLayout = !visible;
-					thingAtrributes.equipGroupCheckBox.visible = !visible;
-					thingAtrributes.equipGroupCheckBox.includeInLayout = !visible;
+					thingAttributes.chargesCheckBox.visible = visible;
+					thingAttributes.chargesCheckBox.includeInLayout = visible;
+					thingAttributes.floorChangeCheckBox.visible = visible;
+					thingAttributes.floorChangeCheckBox.includeInLayout = visible;
+					thingAttributes.translucentCheckBox.visible = !visible;
+					thingAttributes.translucentCheckBox.includeInLayout = !visible;
+					thingAttributes.equipGroupCheckBox.visible = !visible;
+					thingAttributes.equipGroupCheckBox.includeInLayout = !visible;
 				}
 			}
 			
@@ -892,11 +892,11 @@
 			
 			protected function confirmButtonClickHandler(event:MouseEvent) : void
 			{
-				if (thingAtrributes.changed)
+				if (thingAttributes.changed)
 				{
-					if (thingAtrributes.saveChanges())
+					if (thingAttributes.saveChanges())
 					{
-						sendCommand(new ChangeThingCommand(thingAtrributes.thingData));
+						sendCommand(new ChangeThingCommand(thingAttributes.thingData));
 					}
 				}
 			}
@@ -990,9 +990,9 @@
 					title = ObUtils.toLocale(event.data.category) + " " + event.data.id;
 				}
 				
-				this.updateTitle(title, !thingAtrributes.changed);
+				this.updateTitle(title, !thingAttributes.changed);
 				
-				confirmButton.enabled = thingAtrributes.changed;
+				confirmButton.enabled = thingAttributes.changed;
 				
 				if (event.property != null)
 				{
@@ -1076,7 +1076,7 @@
 			{
 				var message : String;
 				
-				if (!this.loaded || thingAtrributes.thingData == this.thingData)
+				if (!this.loaded || thingAttributes.thingData == this.thingData)
 				{
 					return;
 				}
@@ -1086,11 +1086,11 @@
 					this.saveThingChanges();
 				}
 				
-				if (thingAtrributes.thingData != null && thingAtrributes.changed)
+				if (thingAttributes.thingData != null && thingAttributes.changed)
 				{
 					message = StringUtil.substitute(resourceManager.getString("controls", "alert.save"),
-						ObUtils.toLocale(thingAtrributes.thingData.category),
-						thingAtrributes.thingData.id);
+						ObUtils.toLocale(thingAttributes.thingData.category),
+						thingAttributes.thingData.id);
 					
 					Alert.show(message,
 						resourceManager.getString("controls", "label.info"),
@@ -1111,8 +1111,8 @@
 					else if (event.detail == Alert.NO)
 					{
 						appendLog(StringUtil.substitute(resourceManager.getString("controls", "log.unsaved-changes"),
-							ObUtils.toLocale(thingAtrributes.thingData.category),
-							thingAtrributes.thingData.id));
+							ObUtils.toLocale(thingAttributes.thingData.category),
+							thingAttributes.thingData.id));
 					}
 					else if (event.detail == Alert.CANCEL)
 					{
@@ -1651,7 +1651,7 @@
 		<s:BorderContainer width="100%"
 						   height="100%"
 						   skinClass="nail.components.skins.BorderContainerSkin">
-			<otlib:ThingTypeEditor id="thingAtrributes"
+			<otlib:ThingTypeEditor id="thingAttributes"
 								   width="100%"
 								   height="100%"
 								   visible="false"
