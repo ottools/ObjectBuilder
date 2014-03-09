@@ -339,9 +339,60 @@ package nail.objectbuilder.core
 			sendCommand(new SetThingCommand(thing, list));
 		}
 		
-		private function onChangeThing(thing:ThingType) : void
+		private function onChangeThing(thing:ThingType, sprites:Vector.<SpriteData>) : void
 		{
+			var length : uint;
+			var i : uint;
+			var spriteData : SpriteData;
+			var spriteId : uint;
 			var message : String;
+			var ids : Array;
+			
+			ids = [];
+			length = sprites.length;
+			for (i = 0; i < length; i++)
+			{
+				spriteData = sprites[i];
+				spriteId = thing.spriteIndex[i];
+				if (spriteId != 0xFFFFFF)
+				{
+					if (!_sprites.hasSpriteId(spriteId))
+					{
+						message = StringUtil.substitute(_resources.getString("controls", "error.sprite-not-found"));
+						throw new Error(message, spriteId);
+					}
+				}
+				else 
+				{
+					if (spriteData.isEmpty())
+					{
+						thing.spriteIndex[i] = 0;
+					}
+					else if (_sprites.addSprite(spriteData.pixels))
+					{
+						ids[i] = _sprites.spritesCount;
+						thing.spriteIndex[i] = _sprites.spritesCount;
+					}
+				}
+			}
+			
+			if (ids.length > 0)
+			{
+				if (ids.length == 1)
+				{
+					message = StringUtil.substitute(_resources.getString("controls", "log.added-sprite"), _sprites.spritesCount);
+				}
+				else
+				{
+					message = StringUtil.substitute(_resources.getString("controls", "log.added-sprites"), ids);
+				}
+				
+				// Set sprite list to last sprite.
+				this.sendSpriteList(_sprites.spritesCount);
+				
+				// Send sprites added message.
+				sendCommand(new MessageCommand(message, "log"));
+			}
 			
 			if (_things.replace(thing, thing.category, thing.id))
 			{

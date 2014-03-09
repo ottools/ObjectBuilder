@@ -37,7 +37,7 @@ package nail.objectbuilder.commands
 		
 		public function ChangeThingCommand(data:ThingData)
 		{
-			super(CommandType.UPDATE_THING, data.thing);
+			super(CommandType.UPDATE_THING, data.thing, data.sprites);
 		}
 	}
 }

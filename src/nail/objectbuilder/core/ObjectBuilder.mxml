@@ -85,6 +85,7 @@
 			import nail.otlib.assets.AssetsVersion;
 			import nail.otlib.components.controls.*;
 			import nail.otlib.events.ThingEditorEvent;
+			import nail.otlib.geom.Rect;
 			import nail.otlib.loaders.ThingDataLoader;
 			import nail.otlib.things.ThingCategory;
 			import nail.otlib.things.ThingType;
@@ -92,6 +93,7 @@
 			import nail.otlib.utils.SpriteUtils;
 			import nail.otlib.utils.ThingData;
 			import nail.settings.Settings;
+			import nail.utils.FileUtils;
 			import nail.utils.SaveHelper;
 			import nail.utils.StringUtil;
 			import nail.utils.WindowUtils;
@@ -789,10 +791,14 @@
 					thingAttributes.chargesCheckBox.includeInLayout = visible;
 					thingAttributes.floorChangeCheckBox.visible = visible;
 					thingAttributes.floorChangeCheckBox.includeInLayout = visible;
-					thingAttributes.translucentCheckBox.visible = !visible;
-					thingAttributes.translucentCheckBox.includeInLayout = !visible;
-					thingAttributes.equipGroupCheckBox.visible = !visible;
-					thingAttributes.equipGroupCheckBox.includeInLayout = !visible;
+					
+					if (_info.version <= 854)
+					{
+						thingAttributes.translucentCheckBox.visible = false;
+						thingAttributes.translucentCheckBox.includeInLayout = false;
+						thingAttributes.equipGroupCheckBox.visible = false;
+						thingAttributes.equipGroupCheckBox.includeInLayout = false;
+					}
 				}
 			}
 			
@@ -1210,6 +1216,70 @@
 				function completeHandler(event:Event) : void
 				{
 					onImportThingDataList(loader.thingDataList);
+				}
+			}
+			
+			protected function thingEditorDragEnterHandler(event:NativeDragEvent) : void
+			{
+				if (loaded && event.target === thingAttributes.buttonsContainer)
+				{
+					if (event.clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT))
+					{
+						NativeDragManager.dropAction = NativeDragActions.LINK;
+						DragManager.acceptDragDrop(thingAttributes.buttonsContainer);
+					}
+				}
+			}
+			
+			protected function thingEditorDragDropHandler(event:NativeDragEvent) : void
+			{
+				var clipboard : Clipboard;
+				var file : File;
+				var loader : BitmapLoader;
+				
+				if (!loaded)
+				{
+					return;
+				}
+				
+				clipboard = event.clipboard;
+				if (clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT))
+				{
+					file = clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT)[0];
+					if (FileUtils.hasBitmapFormat(file))
+					{
+						loader = new BitmapLoader();
+						loader.addEventListener(Event.COMPLETE, loadCompleteHandler);
+						loader.load(file);
+					}
+				}
+				
+				function loadCompleteHandler(event:Event) : void
+				{
+					var thing : ThingType;
+					var bitmap : BitmapData = loader.bitmap;
+					var rect : nail.otlib.geom.Rect;
+					var data : ThingData;
+					var message : String;
+					
+					thing = thingAttributes.getThingTypeResult();
+					rect = SpriteUtils.getSpriteSheetSize(thing);
+					if (bitmap.width == rect.width && rect.height == bitmap.height)
+					{
+						data = ThingData.setSpriteSheet(bitmap, thing);
+						if (data != null)
+						{
+							thingAttributes.thingData = data;
+							confirmButton.enabled = true;
+							thingAttributes.invalidateThingData();
+						}
+					}
+					else 
+					{
+						message = resourceManager.getString("controls", "alert.invalidSpriteSheetSize");
+						Alert.show(StringUtil.substitute(message, rect.width, rect.height),
+							resourceManager.getString("controls", "alert.invalidSpriteSheetSizeTitle"));
+					}
 				}
 			}
 			
@@ -1657,7 +1727,9 @@
 								   visible="false"
 								   thingChange="thingChangedHandler(event)"
 								   thingPropertyChange="thingPropertyChangedHandler(event)"
-								   spriteDoubleClick="thingSpriteDoubleClickHandler(event)"/>
+								   spriteDoubleClick="thingSpriteDoubleClickHandler(event)"
+								   nativeDragEnter="thingEditorDragEnterHandler(event)"
+								   nativeDragDrop="thingEditorDragDropHandler(event)"/>
 		</s:BorderContainer>
 		
 		<s:BorderContainer width="100%"
