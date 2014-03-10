@@ -867,6 +867,11 @@
 				{
 					thingStepper.value = data.id;
 					
+					if (thingAttributes.thingData != null && thingAttributes.thingData.id == data.id)
+					{
+						thingAttributes.thingData = data;
+					}
+					
 					switch(data.category)
 					{
 						case ThingCategory.ITEM:
