@@ -358,8 +358,8 @@ package nail.objectbuilder.core
 				{
 					if (!_sprites.hasSpriteId(spriteId))
 					{
-						message = StringUtil.substitute(_resources.getString("controls", "error.sprite-not-found"));
-						throw new Error(message, spriteId);
+						message = _resources.getString("controls", "error.sprite-not-found");
+						throw new Error(StringUtil.substitute(message, spriteId));
 					}
 				}
 				else 
