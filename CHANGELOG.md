@@ -1,3 +1,14 @@
+### 0.2.6
+
+Features:
+
+* Support for version 10.36
+* Drag and drop sprite sheet from file system.
+
+Bugfixes:
+
+* Fix log messages.
+
 ### 0.2.5
 
 Features:
