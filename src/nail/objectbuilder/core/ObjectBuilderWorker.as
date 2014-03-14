@@ -46,6 +46,7 @@ package nail.objectbuilder.core
 	import nail.otlib.things.ThingTypeStorage;
 	import nail.otlib.utils.SpriteData;
 	import nail.otlib.utils.ThingUtils;
+	import nail.utils.FileUtils;
 	import nail.utils.StringUtil;
 	import nail.workers.Command;
 	import nail.workers.NailWorker;
@@ -65,6 +66,7 @@ package nail.objectbuilder.core
 		private var _datFile : File;
 		private var _sprFile : File;
 		private var _version : AssetsVersion;
+		private var _enableSpritesU32 : Boolean;
 		private var _resources : IResourceManager;
 		
 		//--------------------------------------------------------------------------
@@ -115,7 +117,7 @@ package nail.objectbuilder.core
 		// Private
 		//--------------------------------------
 		
-		private function onCreateNewAssets(versionValue:uint) : void
+		private function onCreateNewAssets(versionValue:uint, enableSpritesU32:Boolean) : void
 		{
 			var version : AssetsVersion;
 			var thing : ThingType;
@@ -132,16 +134,17 @@ package nail.objectbuilder.core
 			}
 			
 			_version = version;
+			_enableSpritesU32 = enableSpritesU32;
 			
 			createStorage();
 			
-			if (_sprites.createNew(version) == false)
+			if (!_sprites.createNew(version, enableSpritesU32))
 			{
 				throw new Error(_resources.getString("controls", "error.not-create-spr"));
 			}
 			
 			// Create things.
-			if (_things.createNew(version) == false)
+			if (!_things.createNew(version))
 			{
 				throw new Error(_resources.getString("controls", "error.not-create-dat"));
 			}
@@ -190,7 +193,7 @@ package nail.objectbuilder.core
 			_sprites.addEventListener(ErrorEvent.ERROR, spritesErrorHandler);
 		}
 		
-		private function onLoadAssets(datPath:String, sprPath:String, versionValue:uint) : void
+		private function onLoadAssets(datPath:String, sprPath:String, versionValue:uint, enableSpritesU32:Boolean) : void
 		{
 			var title : String;
 			
@@ -212,13 +215,14 @@ package nail.objectbuilder.core
 			_datFile = new File(datPath);
 			_sprFile = new File(sprPath);
 			_version = AssetsVersion.getVersionByValue(versionValue);
+			_enableSpritesU32 = enableSpritesU32;
 			
 			title = _resources.getString("controls", "log.loading");
 			sendCommand(new Command(CommandType.SHOW_PROGRESS_BAR, title));
 			
 			createStorage();
 			
-			_things.load(_datFile, _version);
+			_things.load(_datFile, _version, _enableSpritesU32);
 		}
 		
 		private function onGetAssetsInfo() : void
@@ -226,7 +230,7 @@ package nail.objectbuilder.core
 			this.sendAssetsInfo();
 		}
 		
-		private function onCompileAssets(datPath:String, sprPath:String, versionValue:uint) : void
+		private function onCompileAssets(datPath:String, sprPath:String, versionValue:uint, enableSpritesU32:Boolean) : void
 		{
 			var dat : File;
 			var spr : File;
@@ -265,9 +269,17 @@ package nail.objectbuilder.core
 			title = _resources.getString("controls", "log.compiling");
 			sendCommand(new Command(CommandType.SHOW_PROGRESS_BAR, title));
 			
-			if (_things.compile(dat, version) && _sprites.compile(spr, version))
+			if (_things.compile(dat, version, enableSpritesU32) &&
+				_sprites.compile(spr, version, enableSpritesU32, this._enableSpritesU32 != enableSpritesU32))
 			{
 				assetsCompileComplete();
+			}
+			
+			if (FileUtils.compare(dat, _datFile) && 
+				FileUtils.compare(spr, _sprFile))
+			{
+				_enableSpritesU32 = enableSpritesU32;
+				sendAssetsInfo();
 			}
 		}
 		
@@ -582,6 +594,11 @@ package nail.objectbuilder.core
 			length = pixelsList.length;
 			for (i = 0; i < length; i++)
 			{
+				if (!checkSpriteLimite())
+				{
+					break;
+				}
+				
 				pixels = pixelsList[i];
 				if (_sprites.addSprite(pixels))
 				{
@@ -589,17 +606,21 @@ package nail.objectbuilder.core
 				}
 			}
 			
-			if (length == 1)
+			length = ids.length;
+			(length > 0)
 			{
-				message = StringUtil.substitute(_resources.getString("controls", "log.added-sprite"), _sprites.spritesCount);
+				if (length == 1)
+				{
+					message = StringUtil.substitute(_resources.getString("controls", "log.added-sprite"), _sprites.spritesCount);
+				}
+				else
+				{
+					message = StringUtil.substitute(_resources.getString("controls", "log.added-sprites"), ids);
+				}
+				
+				this.sendSpriteList(_sprites.spritesCount);
+				sendCommand(new MessageCommand(message, "log"));
 			}
-			else
-			{
-				message = StringUtil.substitute(_resources.getString("controls", "log.added-sprites"), ids);
-			}
-			
-			this.sendSpriteList(_sprites.spritesCount);
-			sendCommand(new MessageCommand(message, "log"));
 		}
 		
 		private function onNewSprite() : void
@@ -607,8 +628,12 @@ package nail.objectbuilder.core
 			var sprite : BitmapData;
 			var message : String;
 			
-			sprite = new BitmapData(Sprite.SPRITE_PIXELS, Sprite.SPRITE_PIXELS, true, 0x00000000);
+			if (!checkSpriteLimite())
+			{
+				return;
+			}
 			
+			sprite = new BitmapData(Sprite.SPRITE_PIXELS, Sprite.SPRITE_PIXELS, true, 0x00000000);
 			if (_sprites.addSprite(sprite.getPixels(sprite.rect)))
 			{
 				message = StringUtil.substitute(_resources.getString("controls", "log.added-sprite"), _sprites.spritesCount);
@@ -694,6 +719,7 @@ package nail.objectbuilder.core
 			info.sprSignature = _sprites.signature;
 			info.minSpriteId = 0;
 			info.maxSpriteId = _sprites.spritesCount;
+			info.extended = _enableSpritesU32;
 			
 			sendCommand(new SetAssetsInfoCommand(info));
 		}
@@ -742,6 +768,17 @@ package nail.objectbuilder.core
 			}
 		}
 		
+		private function checkSpriteLimite() : Boolean
+		{
+			if (_sprites.isFull && !_enableSpritesU32)
+			{
+				sendCommand(new MessageCommand(_resources.getString("controls", "alert.sprites-limit-reached"),
+					_resources.getString("controls", "label.warning")));
+				return false;
+			}
+			return true;
+		}
+		
 		//--------------------------------------
 		// Event Handlers
 		//--------------------------------------
@@ -750,7 +787,7 @@ package nail.objectbuilder.core
 		{
 			if (_sprites != null && !_sprites.loaded)
 			{
-				_sprites.load(_sprFile, _version);
+				_sprites.load(_sprFile, _version, _enableSpritesU32);
 			}
 		}
 		

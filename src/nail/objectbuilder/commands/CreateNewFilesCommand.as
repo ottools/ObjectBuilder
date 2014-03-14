@@ -35,9 +35,9 @@ package nail.objectbuilder.commands
 		//
 		//--------------------------------------------------------------------------
 		
-		public function CreateNewFilesCommand(version:AssetsVersion)
+		public function CreateNewFilesCommand(version:AssetsVersion, enableSpritesU32:Boolean)
 		{
-			super(CommandType.CREATE_NEW_ASSETS, version.value);
+			super(CommandType.CREATE_NEW_ASSETS, version.value, enableSpritesU32);
 		}
 	}
 }

@@ -29,7 +29,7 @@
 		  xmlns:s="library://ns.adobe.com/flex/spark" 
 		  xmlns:mx="library://ns.adobe.com/flex/mx"
 		  xmlns:nail="library://ns.nail.com/naillib"
-		  width="250"
+		  width="300"
 		  height="125"
 		  minimizable="false"
 		  maximizable="false"
@@ -71,6 +71,8 @@
 			
 			private var _version : AssetsVersion;
 			private var _versionChanged : Boolean;
+			private var _enableSpritesU32 : Boolean;
+			private var _enableSpritesU32Changed : Boolean;
 			private var _confirm : Boolean;
 			
 			//--------------------------------------------------------------------------
@@ -91,7 +93,14 @@
 				{
 					versionsDropDownList.selectedItem = _version;
 					confirmButton.enabled = (_version != null);
+					enableU32CheckBox.enabled = (_version != null && _version.value < 960);
 					_versionChanged = false;
+				}
+				
+				if (_enableSpritesU32Changed)
+				{
+					enableU32CheckBox.selected = _enableSpritesU32;
+					_enableSpritesU32Changed = false;
 				}
 			}
 			
@@ -111,6 +120,11 @@
 			protected function versionsDropDownListChangeHandler(event:IndexChangeEvent) : void
 			{
 				this.version = versionsDropDownList.selectedItem as AssetsVersion;
+			}
+			
+			protected function enableU32CheckBoxChangeHandler(event:Event) : void
+			{
+				this.enableSpritesU32 = enableU32CheckBox.selected;
 			}
 			
 			protected function confirmButtonClickHandler(event:MouseEvent) : void
@@ -146,14 +160,27 @@
 				}
 			}
 			
+			public function get enableSpritesU32() : Boolean
+			{
+				return _enableSpritesU32;
+			}
+			
+			public function set enableSpritesU32(value:Boolean) : void
+			{
+				if (value != _enableSpritesU32)
+				{
+					_enableSpritesU32 = value;
+					_enableSpritesU32Changed = true;
+					invalidateProperties();
+				}
+			}
+			
 		]]>
 	</fx:Script>
 	
 	<nail:GroupBox width="100%" label="@Resource(key='label.version', bundle='controls')">
 		<nail:layout>
-			<s:HorizontalLayout gap="10"
-								verticalAlign="middle"
-								horizontalAlign="right"
+			<s:HorizontalLayout verticalAlign="middle"
 								paddingLeft="10" 
 								paddingRight="10"
 								paddingTop="10" 
@@ -162,6 +189,9 @@
 		<s:DropDownList id="versionsDropDownList"	
 						height="21"
 						change="versionsDropDownListChangeHandler(event)"/>
+		<s:CheckBox id="enableU32CheckBox"
+					label="@Resource(key='label.extended', bundle='controls')"
+					change="enableU32CheckBoxChangeHandler(event)"/>
 	</nail:GroupBox>
 	
 	<nail:ShadowLine width="100%"/>

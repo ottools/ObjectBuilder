@@ -112,6 +112,7 @@
 			private var _thingData : ThingData;
 			private var _nextThingData : ThingData;
 			private var _thingDataChanged : Boolean;
+			private var _filesName : String;
 			
 			[Bindable]
 			private var _info : AssetsInfo;
@@ -153,6 +154,9 @@
 					thingStepper.maximum = getMaxThingId();
 					spriteStepper.minimum = _info.minSpriteId;
 					spriteStepper.maximum = _info.maxSpriteId;
+					extendedLabel.visible = _info.version < 960;
+					extendedValueLabel.visible = _info.version < 960;
+					extendedValueLabel.text = StringUtil.capitaliseFirstLetter(_info.extended.toString());
 				}
 			}
 			
@@ -298,19 +302,19 @@
 			// Private
 			//--------------------------------------
 			
-			private function loadAssets(dat:File, spr:File, version:AssetsVersion) : void
+			private function loadAssets(dat:File, spr:File, version:AssetsVersion, enableSpritesU32:Boolean) : void
 			{
-				sendCommand(new LoadAssetsCommand(dat, spr, version));
+				sendCommand(new LoadAssetsCommand(dat, spr, version, enableSpritesU32));
 			}
 			
-			private function compileAssets(dat:File, spr:File, version:AssetsVersion) : void
+			private function compileAssets(dat:File, spr:File, version:AssetsVersion, enableSpritesU32:Boolean) : void
 			{
 				if (this.autosave)
 				{
 					this.saveThingChanges();
 				}
 				
-				sendCommand(new CompileAssetsCommand(dat, spr, version));
+				sendCommand(new CompileAssetsCommand(dat, spr, version, enableSpritesU32));
 			}
 			
 			private function onCreateNew() : void
@@ -326,7 +330,7 @@
 				{
 					if (window.version != null)
 					{
-						sendCommand(new CreateNewFilesCommand(window.version));
+						sendCommand(new CreateNewFilesCommand(window.version, window.enableSpritesU32));
 					}
 				}
 			}
@@ -347,7 +351,8 @@
 					
 					if (window.datFile != null && window.sprFile != null && window.version != null)
 					{
-						loadAssets(window.datFile, window.sprFile, window.version);
+						_filesName = FileUtils.getName(window.datFile);
+						loadAssets(window.datFile, window.sprFile, window.version, window.enableSpritesU32);
 					}
 				}
 			}
@@ -629,6 +634,8 @@
 				window = new CompileAssetsWindow();
 				window.directory = _settings.getLastDirectory();
 				window.version = AssetsVersion.getVersionByValue(_info.version);
+				window.enableSpritesU32 = _info.extended;
+				window.filesName = _filesName;
 				window.addEventListener(Event.CLOSE, windowCloseHandler);
 				window.open();
 				
@@ -640,7 +647,7 @@
 					
 					if (window.datFile != null && window.sprFile != null && window.version != null)
 					{
-						compileAssets(window.datFile, window.sprFile, window.version);
+						compileAssets(window.datFile, window.sprFile, window.version, window.enableSpritesU32);
 					}
 				}
 			}
@@ -1589,7 +1596,8 @@
 					   width="100%"
 					   fontSize="10">
 			<nail:layout>
-				<s:TileLayout requestedColumnCount="2"
+				<s:TileLayout verticalGap="3"
+							  requestedColumnCount="2"
 							  paddingLeft="5"
 							  paddingRight="5"
 							  paddingTop="10"
@@ -1601,37 +1609,45 @@
 			<s:RichEditableText id="datSignatureLabel"
 								editable="false"
 								focusEnabled="false"
-								height="15"/>
+								height="13"/>
 			<s:Label text="@Resource(key='label.items-', bundle='controls')"/>
 			<s:RichEditableText id="itemsCountLabel"
 								editable="false"
 								focusEnabled="false"
-								height="15"/>
+								height="13"/>
 			<s:Label text="@Resource(key='label.outfits-', bundle='controls')"/>
 			<s:RichEditableText id="outfitsCountLabel"
 								editable="false"
 								focusEnabled="false"
-								height="15"/>
+								height="13"/>
 			<s:Label text="@Resource(key='label.effects-', bundle='controls')"/>
 			<s:RichEditableText id="effectsCountLabel"
 								editable="false"
 								focusEnabled="false"
-								height="15"/>
+								height="13"/>
 			<s:Label text="@Resource(key='label.missiles-', bundle='controls')"/>
 			<s:RichEditableText id="missilesCountLabel"
 								editable="false"
 								focusEnabled="false"
-								height="15"/>
+								height="13"/>
 			<s:Label text="Spr:"/>
 			<s:RichEditableText id="sprSignatureLabel"
 								editable="false"
 								focusEnabled="false"
-								height="15"/>
+								height="13"/>
 			<s:Label text="@Resource(key='label.sprites-', bundle='controls')"/>
 			<s:RichEditableText id="spritesCountLabel"
 								editable="false"
 								focusEnabled="false"
-								height="15"/>
+								height="13"/>
+			<s:Label id="extendedLabel"
+					 text="@Resource(key='label.extended-', bundle='controls')"
+					 visible="false"/>
+			<s:RichEditableText id="extendedValueLabel"
+								editable="false"
+								focusEnabled="false"
+								visible="false"
+								height="13"/>
 		</nail:GroupBox>
 		
 		<nail:ShadowLine width="100%"/>

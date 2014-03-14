@@ -57,12 +57,16 @@
 			//
 			//--------------------------------------------------------------------------
 			
+			private var _filesName : String;
+			private var _filesNameChanged : Boolean;
 			private var _directory : File;
 			private var _directoryChanged : Boolean;
 			private var _sprFile : File;
 			private var _datFile : File;
 			private var _version : AssetsVersion;
 			private var _versionChanged : Boolean;
+			private var _enableSpritesU32 : Boolean;
+			private var _enableSpritesU32Changed : Boolean;
 			private var _cancel : Boolean = true;
 			
 			//--------------------------------------------------------------------------
@@ -79,11 +83,24 @@
 			{
 				super.commitProperties();
 				
+				if (_filesNameChanged)
+				{
+					setDirectory(_directory);
+					nameTextInput.text = _filesName;
+					_filesNameChanged = false;
+				}
+				
 				if (_directoryChanged || _versionChanged)
 				{
 					setDirectory(_directory);
 					_directoryChanged = false;
 					_versionChanged = false;
+				}
+				
+				if (_enableSpritesU32Changed)
+				{
+					enableU32CheckBox.selected = _enableSpritesU32;
+					_enableSpritesU32Changed = true;
 				}
 			}
 			
@@ -93,22 +110,20 @@
 			
 			private function setDirectory(directory:File) : void
 			{
-				var name : String;
-				
 				_datFile = null;
 				_sprFile = null;
 				
 				directoryTextInput.text = _directory != null ? _directory.nativePath : "";
 				versionsDropDownList.selectedItem = _version;
 				
-				name = nameTextInput.text;
-				if (directory != null && !isNullOrEmpty(name))
+				if (directory != null && !isNullOrEmpty(_filesName))
 				{
-					_datFile = directory.resolvePath(name + ".dat");
-					_sprFile = directory.resolvePath(name + ".spr");
+					_datFile = directory.resolvePath(_filesName + ".dat");
+					_sprFile = directory.resolvePath(_filesName + ".spr");
 				}
 				
 				confirmButton.enabled = (_datFile != null && _sprFile != null && _version != null);
+				enableU32CheckBox.enabled = (_version != null && _version.value < 960);
 			}
 			
 			//--------------------------------------
@@ -158,7 +173,7 @@
 			
 			protected function nameTextInputChangeHandler(event:TextOperationEvent) : void
 			{
-				setDirectory(_directory);
+				this.filesName = nameTextInput.text;
 			}
 			
 			protected function confirmButtonClickHandler(event:MouseEvent) : void
@@ -180,6 +195,11 @@
 			protected function versionsDropDownListChangeHandler(event:IndexChangeEvent) : void
 			{
 				this.version = versionsDropDownList.selectedItem as AssetsVersion;
+			}
+			
+			protected function enableU32CheckBoxChangeHandler(event:Event) : void
+			{
+				this.enableSpritesU32 = enableU32CheckBox.selected;
 			}
 			
 			//--------------------------------------
@@ -211,6 +231,21 @@
 				}
 			}
 			
+			public function get filesName() : String
+			{
+				return _filesName;
+			}
+			
+			public function set filesName(value:String) : void
+			{
+				if (_filesName != value)
+				{
+					_filesName = value;
+					_filesNameChanged = true;
+					invalidateProperties();
+				}
+			}
+			
 			public function get directory() : File
 			{
 				return _directory;
@@ -222,6 +257,21 @@
 				{
 					_directory = value;
 					_directoryChanged = true;
+					invalidateProperties();
+				}
+			}
+			
+			public function get enableSpritesU32() : Boolean
+			{
+				return _enableSpritesU32;
+			}
+			
+			public function set enableSpritesU32(value:Boolean) : void
+			{
+				if (value != _enableSpritesU32)
+				{
+					_enableSpritesU32 = value;
+					_enableSpritesU32Changed = true;
 					invalidateProperties();
 				}
 			}
@@ -281,7 +331,6 @@
 			<nail:layout>
 				<s:HorizontalLayout gap="10"
 									verticalAlign="middle"
-									horizontalAlign="right"
 									paddingLeft="10" 
 									paddingRight="10"
 									paddingTop="10" 
@@ -290,6 +339,9 @@
 			<s:DropDownList id="versionsDropDownList"	
 							height="21"
 							change="versionsDropDownListChangeHandler(event)"/>
+			<s:CheckBox id="enableU32CheckBox"
+						label="@Resource(key='label.extended', bundle='controls')"
+						change="enableU32CheckBoxChangeHandler(event)"/>
 		</nail:GroupBox>
 		
 		<s:Spacer height="10"/>

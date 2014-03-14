@@ -37,9 +37,9 @@ package nail.objectbuilder.commands
 		//
 		//--------------------------------------------------------------------------
 		
-		public function CompileAssetsCommand(datFile:File, sprFile:File, version:AssetsVersion)
+		public function CompileAssetsCommand(datFile:File, sprFile:File, version:AssetsVersion, enableSpritesU32:Boolean)
 		{
-			super(CommandType.COMPILE_ASSETS, datFile.nativePath, sprFile.nativePath, version.value);
+			super(CommandType.COMPILE_ASSETS, datFile.nativePath, sprFile.nativePath, version.value, enableSpritesU32);
 		}
 	}
 }
