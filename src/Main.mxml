@@ -28,7 +28,8 @@
 <nail:NailMain xmlns:fx="http://ns.adobe.com/mxml/2009" 
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
-			   xmlns:nail="library://ns.nail.com/naillib">
+			   xmlns:nail="library://ns.nail.com/naillib"
+			   invoke="invokeHandler(event)">
 	
 	<fx:Style source="css/style.css"/>
 	
@@ -37,6 +38,7 @@
 			import flash.net.registerClassAlias;
 			
 			import mx.core.UIComponent;
+			import mx.events.FlexEvent;
 			import mx.logging.ILogger;
 			import mx.logging.Log;
 			
@@ -51,6 +53,7 @@
 			import nail.otlib.things.ThingCategory;
 			import nail.otlib.things.ThingType;
 			import nail.otlib.utils.SpriteData;
+			import nail.utils.FileUtils;
 			import nail.workers.Command;
 			
 			//--------------------------------------------------------------------------
@@ -63,6 +66,7 @@
 			public var ObjectBuilderWorker : Class;
 			private var _progressBar : CustomProgressBar;
 			private var _logger : ILogger = Log.getLogger("nail.Main");
+			private var _directory : File;
 			
 			//--------------------------------------------------------------------------
 			//
@@ -176,9 +180,39 @@
 			// Override Protected
 			//--------------------------------------
 			
+			protected function invokeHandler(event:InvokeEvent) : void
+			{
+				var path : String;
+				
+				if (event.arguments != null && event.arguments.length > 0)
+				{
+					path = event.arguments[0];
+					if (!isNullOrEmpty(path))
+					{
+						_directory = FileUtils.getDirectory(new File(path));
+					}
+				}
+				
+				if (application != null && UIComponent(application).initialized)
+				{
+					ObjectBuilder(application).onOpenFile(_directory);
+				}
+			}
+			
+			protected function applicationCreationCompleteHandler(event:FlexEvent) : void
+			{
+				if (_directory != null)
+				{
+					ObjectBuilder(application).onOpenFile(_directory);
+				}
+			}
+			
 			override protected function createApplicationInstance() : INailApplication
 			{
-				return new ObjectBuilder();
+				var app : ObjectBuilder;
+				app = new ObjectBuilder();
+				app.addEventListener(FlexEvent.CREATION_COMPLETE, applicationCreationCompleteHandler);
+				return app;
 			}
 			
 			override protected function createWorkerByteClass() : ByteArray

@@ -25,5 +25,31 @@
 		<image128x128>icon/app/icon128.png</image128x128>
 		<image144x144>icon/app/icon144.png</image144x144>
 	</icon>
-	
+
+	<fileTypes>
+		<fileType>
+			<name>Metadata</name>
+			<extension>dat</extension>
+			<description>Metadata File</description>
+			<contentType>binary</contentType>
+			<icon>
+				<image16x16>icon/system/file_icon_dat16.png</image16x16>
+				<image32x32>icon/system/file_icon_dat32.png</image32x32>
+				<image48x48>icon/system/file_icon_dat48.png</image48x48>
+				<image128x128>icon/system/file_icon_dat128.png</image128x128>
+			</icon>
+		</fileType>
+		<fileType>
+			<name>Sprites</name>
+			<extension>spr</extension>
+			<description>Sprites File</description>
+			<contentType>binary</contentType>
+			<icon>
+				<image16x16>icon/system/file_icon_spr16.png</image16x16>
+				<image32x32>icon/system/file_icon_spr32.png</image32x32>
+				<image48x48>icon/system/file_icon_spr48.png</image48x48>
+				<image128x128>icon/system/file_icon_spr128.png</image128x128>
+			</icon>
+		</fileType>
+	</fileTypes>
 </application>

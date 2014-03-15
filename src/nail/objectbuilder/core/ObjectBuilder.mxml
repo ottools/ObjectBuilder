@@ -235,6 +235,37 @@
 				}
 			}
 			
+			public function onOpenFile(defaultDirectory:File = null) : void
+			{
+				var window : OpenAssetsWindow;
+				
+				if (PopUpWindowManager.currentWindow is OpenAssetsWindow)
+				{
+					window = OpenAssetsWindow(PopUpWindowManager.currentWindow);
+					window.directory = defaultDirectory || _settings.getLastDirectory();
+				}
+				else 
+				{
+					window = new OpenAssetsWindow();
+					window.directory = defaultDirectory || _settings.getLastDirectory();
+					window.addEventListener(Event.CLOSE, windowCloseHandler);
+					window.open();
+					
+					PopUpWindowManager.addWindow(window);
+				}
+				
+				function windowCloseHandler(event:Event) : void
+				{
+					_settings.setLastDirectory(window.datFile);
+					
+					if (window.datFile != null && window.sprFile != null && window.version != null)
+					{
+						_filesName = FileUtils.getName(window.datFile);
+						loadAssets(window.datFile, window.sprFile, window.version, window.enableSpritesU32);
+					}
+				}
+			}
+			
 			public function clear() : void
 			{
 				_thingData = null;
@@ -331,28 +362,6 @@
 					if (window.version != null)
 					{
 						sendCommand(new CreateNewFilesCommand(window.version, window.enableSpritesU32));
-					}
-				}
-			}
-			
-			private function onOpenFile() : void
-			{
-				var window : OpenAssetsWindow;
-				window = new OpenAssetsWindow();
-				window.directory = _settings.getLastDirectory();
-				window.addEventListener(Event.CLOSE, windowCloseHandler);
-				window.open();
-				
-				PopUpWindowManager.addWindow(window);
-				
-				function windowCloseHandler(event:Event) : void
-				{
-					_settings.setLastDirectory(window.datFile);
-					
-					if (window.datFile != null && window.sprFile != null && window.version != null)
-					{
-						_filesName = FileUtils.getName(window.datFile);
-						loadAssets(window.datFile, window.sprFile, window.version, window.enableSpritesU32);
 					}
 				}
 			}
