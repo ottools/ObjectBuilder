@@ -361,7 +361,7 @@ package nail.objectbuilder.core
 			var ids : Array;
 			
 			ids = [];
-			length = sprites.length;
+			length = thing.spriteIndex.length;
 			for (i = 0; i < length; i++)
 			{
 				spriteData = sprites[i];
