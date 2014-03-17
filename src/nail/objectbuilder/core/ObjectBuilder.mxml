@@ -30,11 +30,8 @@
 					  xmlns:mx="library://ns.adobe.com/flex/mx"
 					  xmlns:nail="library://ns.nail.com/naillib"
 					  xmlns:otlib="library://ns.nail.com/otlib"
-					  xmlns:controls="nail.otlib.components.controls.*"
-					  width="800"
-					  height="600"
-					  maximizable="false"
-					  resizable="false"
+					  minWidth="800"
+					  minHeight="600"
 					  backgroundColor="0x494949"
 					  showStatusBar="false"
 					  closing="applicationClosingHandler(event)">
@@ -1588,298 +1585,323 @@
 		</s:HGroup>
 	</nail:toolBar>
 	
-	<s:BorderContainer width="165"
-					   height="100%"
-					   fontSize="11"
-					   skinClass="nail.components.skins.BorderContainerSkin">
-		<s:layout>
-			<s:VerticalLayout horizontalAlign="center"
-							  paddingRight="5"
-							  paddingLeft="5"
-							  paddingTop="10"
-							  paddingBottom="10"
-							  gap="10"/>
-		</s:layout>
+	<mx:HDividedBox width="100%"
+					height="100%">
 		
-		<nail:GroupBox label="Info"
-					   width="100%"
-					   fontSize="10">
-			<nail:layout>
-				<s:TileLayout verticalGap="3"
-							  requestedColumnCount="2"
-							  paddingLeft="5"
-							  paddingRight="5"
-							  paddingTop="10"
-							  paddingBottom="10"/>
-			</nail:layout>
-			<s:Label text="@Resource(key='label.version-', bundle='controls')"/>
-			<s:Label id="assetsVersionLabel"/>
-			<s:Label text="Dat:"/>
-			<s:RichEditableText id="datSignatureLabel"
-								editable="false"
-								focusEnabled="false"
-								height="13"/>
-			<s:Label text="@Resource(key='label.items-', bundle='controls')"/>
-			<s:RichEditableText id="itemsCountLabel"
-								editable="false"
-								focusEnabled="false"
-								height="13"/>
-			<s:Label text="@Resource(key='label.outfits-', bundle='controls')"/>
-			<s:RichEditableText id="outfitsCountLabel"
-								editable="false"
-								focusEnabled="false"
-								height="13"/>
-			<s:Label text="@Resource(key='label.effects-', bundle='controls')"/>
-			<s:RichEditableText id="effectsCountLabel"
-								editable="false"
-								focusEnabled="false"
-								height="13"/>
-			<s:Label text="@Resource(key='label.missiles-', bundle='controls')"/>
-			<s:RichEditableText id="missilesCountLabel"
-								editable="false"
-								focusEnabled="false"
-								height="13"/>
-			<s:Label text="Spr:"/>
-			<s:RichEditableText id="sprSignatureLabel"
-								editable="false"
-								focusEnabled="false"
-								height="13"/>
-			<s:Label text="@Resource(key='label.sprites-', bundle='controls')"/>
-			<s:RichEditableText id="spritesCountLabel"
-								editable="false"
-								focusEnabled="false"
-								height="13"/>
-			<s:Label id="extendedLabel"
-					 text="@Resource(key='label.extended-', bundle='controls')"
-					 visible="false"/>
-			<s:RichEditableText id="extendedValueLabel"
-								editable="false"
-								focusEnabled="false"
-								visible="false"
-								height="13"/>
-		</nail:GroupBox>
+		<!-- Info/View Container -->
+		<s:BorderContainer minWidth="165"
+						   maxWidth="250"
+						   width="165"
+						   height="100%"
+						   fontSize="11"
+						   skinClass="nail.components.skins.BorderContainerSkin">
+			<s:layout>
+				<s:VerticalLayout horizontalAlign="center"
+								  paddingRight="5"
+								  paddingLeft="5"
+								  paddingTop="10"
+								  paddingBottom="10"
+								  gap="10"/>
+			</s:layout>
+			
+			<nail:GroupBox label="Info"
+						   width="100%"
+						   fontSize="10">
+				<nail:layout>
+					<s:TileLayout verticalGap="3"
+								  requestedColumnCount="2"
+								  paddingLeft="5"
+								  paddingRight="5"
+								  paddingTop="10"
+								  paddingBottom="10"/>
+				</nail:layout>
+				<s:Label text="@Resource(key='label.version-', bundle='controls')"/>
+				<s:Label id="assetsVersionLabel"/>
+				<s:Label text="Dat:"/>
+				<s:RichEditableText id="datSignatureLabel"
+									editable="false"
+									focusEnabled="false"
+									height="13"/>
+				<s:Label text="@Resource(key='label.items-', bundle='controls')"/>
+				<s:RichEditableText id="itemsCountLabel"
+									editable="false"
+									focusEnabled="false"
+									height="13"/>
+				<s:Label text="@Resource(key='label.outfits-', bundle='controls')"/>
+				<s:RichEditableText id="outfitsCountLabel"
+									editable="false"
+									focusEnabled="false"
+									height="13"/>
+				<s:Label text="@Resource(key='label.effects-', bundle='controls')"/>
+				<s:RichEditableText id="effectsCountLabel"
+									editable="false"
+									focusEnabled="false"
+									height="13"/>
+				<s:Label text="@Resource(key='label.missiles-', bundle='controls')"/>
+				<s:RichEditableText id="missilesCountLabel"
+									editable="false"
+									focusEnabled="false"
+									height="13"/>
+				<s:Label text="Spr:"/>
+				<s:RichEditableText id="sprSignatureLabel"
+									editable="false"
+									focusEnabled="false"
+									height="13"/>
+				<s:Label text="@Resource(key='label.sprites-', bundle='controls')"/>
+				<s:RichEditableText id="spritesCountLabel"
+									editable="false"
+									focusEnabled="false"
+									height="13"/>
+				<s:Label id="extendedLabel"
+						 text="@Resource(key='label.extended-', bundle='controls')"
+						 visible="false"/>
+				<s:RichEditableText id="extendedValueLabel"
+									editable="false"
+									focusEnabled="false"
+									visible="false"
+									height="13"/>
+			</nail:GroupBox>
+			
+			<nail:ShadowLine width="100%"/>
+			
+			<s:DropDownList id="categoryDropDownList"
+							selectedIndex="0"
+							width="100%"
+							height="20"
+							change="categoryDropDownListChangeHandler(event)">
+				<s:dataProvider>
+					<s:ArrayList>
+						<fx:String>{resourceManager.getString('controls', 'label.item')}</fx:String>
+						<fx:String>{resourceManager.getString('controls', 'label.outfit')}</fx:String>
+						<fx:String>{resourceManager.getString('controls', 'label.effect')}</fx:String>
+						<fx:String>{resourceManager.getString('controls', 'label.missile')}</fx:String>
+					</s:ArrayList>
+				</s:dataProvider>
+			</s:DropDownList>	
+			
+			<nail:GroupBox id="thingViewGroup"
+						   label="@Resource(key='label.view', bundle='controls')"
+						   width="100%"
+						   height="100%"
+						   nativeDragEnter="thingViewGroupNativeDragEnterHandler(event)"
+						   nativeDragDrop="thingViewGroupNativeDragDropHandler(event)">
+				<otlib:ThingView id="thingView"
+								 horizontalCenter="0"
+								 verticalCenter="0"/>
+			</nail:GroupBox>
+			
+			<nail:XNumericStepper id="thingStepper"
+								  width="100%"
+								  fontSize="11"
+								  change="thingStepperChangeHandler(event)"/>
+			
+			<s:HGroup width="100%"
+					  horizontalAlign="center"
+					  verticalAlign="middle"
+					  gap="3">
+				<s:Button id="replaceThingButton"
+						  toolTip="@Resource(key='menu.replace', bundle='controls')"
+						  minWidth="19"
+						  width="100%"
+						  height="19"
+						  icon="{Icons.REPLACE}"
+						  click="replaceThingButtonClickHandler(event)"/>
+				<s:Button id="importThingButton"
+						  toolTip="@Resource(key='menu.import', bundle='controls')"
+						  minWidth="19"
+						  width="100%"
+						  height="19"
+						  icon="{Icons.IMPORT}"
+						  click="importThingButtonClickHandler(event)"/>
+				<s:Button id="exportThingButton"
+						  toolTip="@Resource(key='menu.export', bundle='controls')"
+						  minWidth="19"
+						  width="100%"
+						  height="19"
+						  icon="{Icons.EXPORT}"
+						  click="exportThingButtonClickHandler(event)"/>
+				<s:Button id="editThingButton"
+						  toolTip="@Resource(key='menu.edit', bundle='controls')"
+						  minWidth="19"
+						  width="100%"
+						  height="19"
+						  icon="{Icons.EDIT}"
+						  click="editThingButtonClickHandler(event)"/>
+				<s:Button id="duplicateThingButton"
+						  toolTip="@Resource(key='menu.duplicate', bundle='controls')"
+						  minWidth="19"
+						  width="100%"
+						  height="19"
+						  icon="{Icons.DUPLICATE}"
+						  click="duplicateThingButtonClickHandler(event)"/>
+				<s:Button id="newThingButton"
+						  toolTip="@Resource(key='menu.new', bundle='controls')"
+						  minWidth="19"
+						  width="100%"
+						  height="19"
+						  icon="{Icons.NEW}"
+						  click="newThingButtonClickHandler(event)"/>
+				<s:Button id="removeThingButton"
+						  toolTip="@Resource(key='menu.remove', bundle='controls')"
+						  minWidth="19"
+						  width="100%"
+						  height="19"
+						  icon="{Icons.DELETE}"
+						  click="removeThingButtonClickHandler(event)"/>
+			</s:HGroup>
+		</s:BorderContainer>
 		
-		<nail:ShadowLine width="100%"/>
+		<!-- ThingType Editor Group -->
+		<s:Group minWidth="310"
+				 width="100%"
+				 height="100%">
+			<s:layout>
+				<s:VerticalLayout gap="-1"/>
+			</s:layout>
+			
+			<s:BorderContainer width="100%"
+							   height="100%"
+							   skinClass="nail.components.skins.BorderContainerSkin">
+				<otlib:ThingTypeEditor id="thingAttributes"
+									   width="100%"
+									   height="100%"
+									   visible="false"
+									   thingChange="thingChangedHandler(event)"
+									   thingPropertyChange="thingPropertyChangedHandler(event)"
+									   spriteDoubleClick="thingSpriteDoubleClickHandler(event)"
+									   nativeDragEnter="thingEditorDragEnterHandler(event)"
+									   nativeDragDrop="thingEditorDragDropHandler(event)"/>
+			</s:BorderContainer>
+			
+			<s:BorderContainer width="100%"
+							   backgroundColor="0x535353"
+							   borderColor="0x272727">
+				<s:layout>
+					<s:HorizontalLayout horizontalAlign="right"
+										verticalAlign="middle"
+										paddingLeft="10"
+										paddingRight="10"
+										paddingTop="3"
+										paddingBottom="3"/>
+				</s:layout>
+				<s:Button id="confirmButton"
+						  label="@Resource(key='menu.save', bundle='controls')"
+						  fontSize="11"
+						  height="20"
+						  enabled="false"
+						  click="confirmButtonClickHandler(event)"/>
+				<s:Button id="cancelButton"
+						  label="@Resource(key='menu.close', bundle='controls')" 
+						  fontSize="11"
+						  height="20"
+						  enabled="false"
+						  click="cancelButtonClickHandler(event)"/>
+			</s:BorderContainer>
+		</s:Group>
 		
-		<s:DropDownList id="categoryDropDownList"
-						selectedIndex="0"
-						width="100%"
-						height="20"
-						change="categoryDropDownListChangeHandler(event)">
-			<s:dataProvider>
-				<s:ArrayList>
-					<fx:String>{resourceManager.getString('controls', 'label.item')}</fx:String>
-					<fx:String>{resourceManager.getString('controls', 'label.outfit')}</fx:String>
-					<fx:String>{resourceManager.getString('controls', 'label.effect')}</fx:String>
-					<fx:String>{resourceManager.getString('controls', 'label.missile')}</fx:String>
-				</s:ArrayList>
-			</s:dataProvider>
-		</s:DropDownList>	
-		
-		<nail:GroupBox id="thingViewGroup"
-					   label="@Resource(key='label.view', bundle='controls')"
-					   width="100%"
-					   height="100%"
-					   nativeDragEnter="thingViewGroupNativeDragEnterHandler(event)"
-					   nativeDragDrop="thingViewGroupNativeDragDropHandler(event)">
-			<controls:ThingView id="thingView"
-								horizontalCenter="0"
-								verticalCenter="0"/>
-		</nail:GroupBox>
-		
-		<nail:XNumericStepper id="thingStepper"
-							  width="100%"
-							  fontSize="11"
-							  change="thingStepperChangeHandler(event)"/>
-		
-		<s:HGroup width="100%"
-				  horizontalAlign="right"
-				  verticalAlign="middle"
-				  gap="3">
-			<s:Button id="replaceThingButton"
-					  toolTip="@Resource(key='menu.replace', bundle='controls')"
-					  width="19"
-					  height="19"
-					  icon="{Icons.REPLACE}"
-					  click="replaceThingButtonClickHandler(event)"/>
-			<s:Button id="importThingButton"
-					  toolTip="@Resource(key='menu.import', bundle='controls')"
-					  width="19"
-					  height="19"
-					  icon="{Icons.IMPORT}"
-					  click="importThingButtonClickHandler(event)"/>
-			<s:Button id="exportThingButton"
-					  toolTip="@Resource(key='menu.export', bundle='controls')"
-					  width="19"
-					  height="19"
-					  icon="{Icons.EXPORT}"
-					  click="exportThingButtonClickHandler(event)"/>
-			<s:Button id="editThingButton"
-					  toolTip="@Resource(key='menu.edit', bundle='controls')"
-					  width="19"
-					  height="19"
-					  icon="{Icons.EDIT}"
-					  click="editThingButtonClickHandler(event)"/>
-			<s:Button id="duplicateThingButton"
-					  toolTip="@Resource(key='menu.duplicate', bundle='controls')"
-					  width="19"
-					  height="19"
-					  icon="{Icons.DUPLICATE}"
-					  click="duplicateThingButtonClickHandler(event)"/>
-			<s:Button id="newThingButton"
-					  toolTip="@Resource(key='menu.new', bundle='controls')"
-					  width="19"
-					  height="19"
-					  icon="{Icons.NEW}"
-					  click="newThingButtonClickHandler(event)"/>
-			<s:Button id="removeThingButton"
-					  toolTip="@Resource(key='menu.remove', bundle='controls')"
-					  width="19"
-					  height="19"
-					  icon="{Icons.DELETE}"
-					  click="removeThingButtonClickHandler(event)"/>
-		</s:HGroup>
-		
-	</s:BorderContainer>
-	
-	<s:Group width="100%"
-			 height="100%">
-		<s:layout>
-			<s:VerticalLayout gap="-1"/>
-		</s:layout>
-		
-		<s:BorderContainer width="100%"
+		<!-- Sprites Container -->
+		<s:BorderContainer minWidth="165"
+						   maxWidth="250"
+						   width="165"
 						   height="100%"
 						   skinClass="nail.components.skins.BorderContainerSkin">
-			<otlib:ThingTypeEditor id="thingAttributes"
-								   width="100%"
-								   height="100%"
-								   visible="false"
-								   thingChange="thingChangedHandler(event)"
-								   thingPropertyChange="thingPropertyChangedHandler(event)"
-								   spriteDoubleClick="thingSpriteDoubleClickHandler(event)"
-								   nativeDragEnter="thingEditorDragEnterHandler(event)"
-								   nativeDragDrop="thingEditorDragDropHandler(event)"/>
-		</s:BorderContainer>
-		
-		<s:BorderContainer width="100%"
-						   backgroundColor="0x535353"
-						   borderColor="0x272727">
 			<s:layout>
-				<s:HorizontalLayout horizontalAlign="right"
-									verticalAlign="middle"
-									paddingLeft="10"
-									paddingRight="10"
-									paddingTop="3"
-									paddingBottom="3"/>
-			</s:layout>
-			<s:Button id="confirmButton"
-					  label="@Resource(key='menu.save', bundle='controls')"
-					  fontSize="11"
-					  height="20"
-					  enabled="false"
-					  click="confirmButtonClickHandler(event)"/>
-			<s:Button id="cancelButton"
-					  label="@Resource(key='menu.close', bundle='controls')" 
-					  fontSize="11"
-					  height="20"
-					  enabled="false"
-					  click="cancelButtonClickHandler(event)"/>
-		</s:BorderContainer>
-	</s:Group>
-	
-	<s:BorderContainer width="165"
-					   height="100%"
-					   skinClass="nail.components.skins.BorderContainerSkin">
-		<s:layout>
-			<s:VerticalLayout horizontalAlign="center"
-							  paddingRight="5"
-							  paddingLeft="5"
-							  paddingTop="10"
-							  paddingBottom="10"
-							  gap="10"/>
-		</s:layout>	
-		
-		<nail:GroupBox label="Sprites"
-					   width="100%"
-					   height="100%">
-			<nail:layout>
-				<s:VerticalLayout paddingRight="0"
-								  paddingLeft="0"
+				<s:VerticalLayout horizontalAlign="center"
+								  paddingRight="5"
+								  paddingLeft="5"
 								  paddingTop="10"
-								  paddingBottom="0"/>
-			</nail:layout>
-			<otlib:SpriteList id="spritesList" 
-							  width="100%"
-							  height="100%"
-							  dataProvider="{_spritesCollection}"
-							  allowMultipleSelection="true"
-							  dragEnabled="true"
-							  fontSize="11"
-							  borderAlpha="0"
-							  focusEnabled="false"
-							  change="spritesListChangeHandler(event)"
-							  updateComplete="listUpdateCompleteHandler(event)"
-							  copy="onCopySprite()"
-							  paste="onPasteSprite()"
-							  replace="replaceSpriteHandler(event)"
-							  export="exportSpriteHandler(event)"
-							  remove="removeSpriteHandler(event)"
-							  nativeDragEnter="spritesListNativeDragEnterHandler(event)"
-							  nativeDragDrop="spritesListNativeDragDropHandler(event)"/>
-		</nail:GroupBox>
+								  paddingBottom="10"
+								  gap="10"/>
+			</s:layout>	
 			
-		<nail:XNumericStepper id="spriteStepper"
-							  width="100%"
-							  fontSize="11"
-							  change="spriteStepperChangeHandler(event)"/>
-		
-		<s:HGroup width="100%"
-				  horizontalAlign="right"
-				  verticalAlign="middle"
-				  gap="3">
-			<s:Button id="replaceSpriteButton"
-					  toolTip="@Resource(key='menu.replace', bundle='controls')"
-					  width="19"
-					  height="19"
-					  icon="{Icons.REPLACE}"
-					  click="replaceSpriteHandler(event)"/>
-			<s:Button id="importSpriteButton"
-					  toolTip="@Resource(key='menu.import', bundle='controls')"
-					  width="19"
-					  height="19"
-					  icon="{Icons.IMPORT}"
-					  click="importSpriteButtonClickHandler(event)"/>
-			<s:Button id="exportSpriteButton"
-					  toolTip="@Resource(key='menu.export', bundle='controls')"
-					  width="19"
-					  height="19"
-					  icon="{Icons.EXPORT}"
-					  click="exportSpriteHandler(event)"/>
-			<s:Button id="copySpriteButton"
-					  toolTip="@Resource(key='menu.copy', bundle='controls')"
-					  width="19"
-					  height="19"
-					  icon="{Icons.COPY}"
-					  click="onCopySprite()"/>
-			<s:Button id="pasteSpriteButton"
-					  toolTip="@Resource(key='menu.paste', bundle='controls')"
-					  width="19"
-					  height="19"
-					  icon="{Icons.PASTE}"
-					  click="onPasteSprite()"/>
-			<s:Button id="newSpriteButton"
-					  toolTip="@Resource(key='menu.new', bundle='controls')"
-					  width="19"
-					  height="19"
-					  icon="{Icons.NEW}"
-					  click="newSpriteButtonClickHandler(event)"/>
-			<s:Button id="removeSpriteButton"
-					  toolTip="@Resource(key='menu.remove', bundle='controls')"
-					  width="19"
-					  height="19"
-					  icon="{Icons.DELETE}"
-					  click="removeSpriteHandler(event)"/>
-		</s:HGroup>
-	</s:BorderContainer>
+			<nail:GroupBox label="Sprites"
+						   width="100%"
+						   height="100%">
+				<nail:layout>
+					<s:VerticalLayout paddingRight="0"
+									  paddingLeft="0"
+									  paddingTop="10"
+									  paddingBottom="0"/>
+				</nail:layout>
+				<otlib:SpriteList id="spritesList" 
+								  width="100%"
+								  height="100%"
+								  dataProvider="{_spritesCollection}"
+								  allowMultipleSelection="true"
+								  dragEnabled="true"
+								  fontSize="11"
+								  borderAlpha="0"
+								  focusEnabled="false"
+								  change="spritesListChangeHandler(event)"
+								  updateComplete="listUpdateCompleteHandler(event)"
+								  copy="onCopySprite()"
+								  paste="onPasteSprite()"
+								  replace="replaceSpriteHandler(event)"
+								  export="exportSpriteHandler(event)"
+								  remove="removeSpriteHandler(event)"
+								  nativeDragEnter="spritesListNativeDragEnterHandler(event)"
+								  nativeDragDrop="spritesListNativeDragDropHandler(event)"/>
+			</nail:GroupBox>
+			
+			<nail:XNumericStepper id="spriteStepper"
+								  width="100%"
+								  fontSize="11"
+								  change="spriteStepperChangeHandler(event)"/>
+			
+			<s:HGroup width="100%"
+					  horizontalAlign="right"
+					  verticalAlign="middle"
+					  gap="3">
+				<s:Button id="replaceSpriteButton"
+						  toolTip="@Resource(key='menu.replace', bundle='controls')"
+						  minWidth="19"
+						  width="100%"
+						  height="19"
+						  icon="{Icons.REPLACE}"
+						  click="replaceSpriteHandler(event)"/>
+				<s:Button id="importSpriteButton"
+						  toolTip="@Resource(key='menu.import', bundle='controls')"
+						  minWidth="19"
+						  width="100%"
+						  height="19"
+						  icon="{Icons.IMPORT}"
+						  click="importSpriteButtonClickHandler(event)"/>
+				<s:Button id="exportSpriteButton"
+						  toolTip="@Resource(key='menu.export', bundle='controls')"
+						  minWidth="19"
+						  width="100%"
+						  height="19"
+						  icon="{Icons.EXPORT}"
+						  click="exportSpriteHandler(event)"/>
+				<s:Button id="copySpriteButton"
+						  toolTip="@Resource(key='menu.copy', bundle='controls')"
+						  minWidth="19"
+						  width="100%"
+						  height="19"
+						  icon="{Icons.COPY}"
+						  click="onCopySprite()"/>
+				<s:Button id="pasteSpriteButton"
+						  toolTip="@Resource(key='menu.paste', bundle='controls')"
+						  minWidth="19"
+						  width="100%"
+						  height="19"
+						  icon="{Icons.PASTE}"
+						  click="onPasteSprite()"/>
+				<s:Button id="newSpriteButton"
+						  toolTip="@Resource(key='menu.new', bundle='controls')"
+						  minWidth="19"
+						  width="100%"
+						  height="19"
+						  icon="{Icons.NEW}"
+						  click="newSpriteButtonClickHandler(event)"/>
+				<s:Button id="removeSpriteButton"
+						  toolTip="@Resource(key='menu.remove', bundle='controls')"
+						  minWidth="19"
+						  width="100%"
+						  height="19"
+						  icon="{Icons.DELETE}"
+						  click="removeSpriteHandler(event)"/>
+			</s:HGroup>
+		</s:BorderContainer>
+	</mx:HDividedBox>
 </nail:NailApplication>
