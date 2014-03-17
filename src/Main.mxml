@@ -38,6 +38,7 @@
 			import flash.net.registerClassAlias;
 			
 			import mx.core.UIComponent;
+			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 			import mx.logging.ILogger;
 			import mx.logging.Log;
@@ -67,6 +68,7 @@
 			private var _progressBar : CustomProgressBar;
 			private var _logger : ILogger = Log.getLogger("nail.Main");
 			private var _directory : File;
+			private var _errorAlert : Alert;
 			
 			//--------------------------------------------------------------------------
 			//
@@ -108,7 +110,15 @@
 				}
 				
 				// Show error
-				Alert.show(message, "Error", Alert.OK, UIComponent(application));
+				if (_errorAlert == null)
+				{
+					_errorAlert = Alert.show(message, "Error", Alert.OK, UIComponent(application), errorAlertCloseHandler);
+				}
+				else 
+				{
+					_errorAlert.text += "\n" + message;
+				}
+				
 				ObjectBuilder(application).appendLog(message);
 				
 				if (isNullOrEmpty(stack))
@@ -205,6 +215,11 @@
 				{
 					ObjectBuilder(application).onOpenFile(_directory);
 				}
+			}
+			
+			protected function errorAlertCloseHandler(event:CloseEvent) : void
+			{
+				_errorAlert = null;
 			}
 			
 			override protected function createApplicationInstance() : INailApplication
