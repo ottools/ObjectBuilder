@@ -151,9 +151,15 @@
 					thingStepper.maximum = getMaxThingId();
 					spriteStepper.minimum = _info.minSpriteId;
 					spriteStepper.maximum = _info.maxSpriteId;
-					extendedLabel.visible = _info.version < 960;
-					extendedValueLabel.visible = _info.version < 960;
-					extendedValueLabel.text = StringUtil.capitaliseFirstLetter(_info.extended.toString());
+					
+					if (_info.extended)
+					{
+						extendedValueLabel.text = resourceManager.getString("controls", "label.yes");
+					}
+					else 
+					{
+						extendedValueLabel.text = resourceManager.getString("controls", "label.no");
+					}
 				}
 			}
 			
@@ -1652,13 +1658,10 @@
 									editable="false"
 									focusEnabled="false"
 									height="13"/>
-				<s:Label id="extendedLabel"
-						 text="@Resource(key='label.extended-', bundle='controls')"
-						 visible="false"/>
+				<s:Label text="@Resource(key='label.extended-', bundle='controls')"/>
 				<s:RichEditableText id="extendedValueLabel"
 									editable="false"
 									focusEnabled="false"
-									visible="false"
 									height="13"/>
 			</nail:GroupBox>
 			

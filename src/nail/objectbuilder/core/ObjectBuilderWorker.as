@@ -719,7 +719,7 @@ package nail.objectbuilder.core
 			info.sprSignature = _sprites.signature;
 			info.minSpriteId = 0;
 			info.maxSpriteId = _sprites.spritesCount;
-			info.extended = _enableSpritesU32;
+			info.extended = (_enableSpritesU32 || _version.value >= 960);
 			
 			sendCommand(new SetAssetsInfoCommand(info));
 		}
