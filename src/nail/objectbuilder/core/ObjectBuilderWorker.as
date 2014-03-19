@@ -45,6 +45,7 @@ package nail.objectbuilder.core
 	import nail.otlib.things.ThingType;
 	import nail.otlib.things.ThingTypeStorage;
 	import nail.otlib.utils.SpriteData;
+	import nail.otlib.utils.ThingProperty;
 	import nail.otlib.utils.ThingUtils;
 	import nail.utils.FileUtils;
 	import nail.utils.StringUtil;
@@ -96,6 +97,7 @@ package nail.objectbuilder.core
 			registerClassAlias("AssetsInfo", AssetsInfo);
 			registerClassAlias("SpriteData", SpriteData);
 			registerClassAlias("ByteArray", ByteArray);
+			registerClassAlias("ThingProperty", ThingProperty);
 			registerCommand(CommandType.CREATE_NEW_ASSETS, onCreateNewAssets);
 			registerCommand(CommandType.LOAD_ASSETS, onLoadAssets);
 			registerCommand(CommandType.GET_ASSETS_INFO, onGetAssetsInfo);
@@ -106,6 +108,7 @@ package nail.objectbuilder.core
 			registerCommand(CommandType.IMPORT_THING, onImportThing);
 			registerCommand(CommandType.DUPLICATE_THING, onDuplicateThing);
 			registerCommand(CommandType.REMOVE_THING, onRemoveThing);
+			registerCommand(CommandType.FIND_THING, onFindThing);
 			registerCommand(CommandType.GET_SPRITE_LIST, onGetSpriteList);
 			registerCommand(CommandType.REPLACE_SPRITE, onReplaceSprite);
 			registerCommand(CommandType.IMPORT_SPRITE, onImportSprite);
@@ -548,6 +551,13 @@ package nail.objectbuilder.core
 					id);
 				sendCommand(new MessageCommand(message, "log"));
 			}
+		}
+		
+		private function onFindThing(category:String, properties:Vector.<ThingProperty>) : void
+		{
+			var list : Array;
+			list = _things.findThingTypeByProperties(category, properties);
+			sendCommand(new FindResultCommand(list));
 		}
 		
 		private function onGetSpriteList(target:uint) : void

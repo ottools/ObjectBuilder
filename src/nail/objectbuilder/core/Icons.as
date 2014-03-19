@@ -98,5 +98,11 @@ package nail.objectbuilder.core
 		
 		[Embed(source="../assets/paste.png", mimeType="image/png")]
 		static public const PASTE : Class;
+		
+		[Embed(source="../assets/binoculars.png", mimeType="image/png")]
+		static public const BINOCULARS : Class;
+		
+		[Embed(source="../assets/binoculars_white.png", mimeType="image/png")]
+		static public const BINOCULARS_WHITE : Class;
 	}
 }

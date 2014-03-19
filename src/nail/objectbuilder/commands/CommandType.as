@@ -46,57 +46,33 @@ package nail.objectbuilder.commands
 		//--------------------------------------------------------------------------
 		
 		static public const CREATE_NEW_ASSETS : String = "createNewAssets";
-		
 		static public const LOAD_ASSETS : String = "loadAssets";
-		
 		static public const GET_ASSETS_INFO : String = "getAssetsInfo";
-		
 		static public const SET_ASSETS_INFO : String = "getAssetsInfo";
-		
 		static public var LOAD_COMPLETE : String = "loadComplete";
-		
 		static public const NEW_THING : String = "newThing";
-		
 		static public const REPLACE_THING : String = "replaceThing";
-		
 		static public const DUPLICATE_THING : String = "duplicateThing";
-		
 		static public const IMPORT_THING : String = "importThing";
-		
 		static public const UPDATE_THING : String = "updateThing";
-		
 		static public const REMOVE_THING : String = "removeThing";
-		
 		static public const GET_THING : String = "getThing";
-		
 		static public const SET_THING : String = "setThing";
-		
+		static public const FIND_THING : String = "findThing";
+		static public const FIND_RESULT : String = "findResult";
 		static public const ADD_SPRITE : String = "addSprite";
-		
 		static public const REPLACE_SPRITE : String = "replaceSprite";
-		
 		static public const DUPLICATE_SPRITE : String = "duplicateSprite";
-		
 		static public const NEW_SPRITE : String = "newSprite"
-		
 		static public const REMOVE_SPRITES : String = "removeSprites";
-		
 		static public const IMPORT_SPRITE : String = "importSprite";
-		
 		static public const EXPORT_SPRITE : String = "exportSprite";
-		
 		static public const GET_SPRITE_LIST : String = "getSpriteList";
-		
 		static public const SET_SPRITE_LIST : String = "setSpriteList";
-		
 		static public const COMPILE_ASSETS : String = "compileAssets";
-		
 		static public const SHOW_PROGRESS_BAR : String = "showProgressBar";	
-		
 		static public const HIDE_PROGRESS_BAR : String = "hideProgressBar";	
-		
 		static public const SHOW_MESSAGE : String = "showMessage";	
-		
 		static public const ERROR : String = "error";
 	}
 }
