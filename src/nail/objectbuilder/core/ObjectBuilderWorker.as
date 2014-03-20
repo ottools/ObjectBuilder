@@ -152,6 +152,7 @@ package nail.objectbuilder.core
 				throw new Error(_resources.getString("controls", "error.not-create-dat"));
 			}
 			
+			setSharedProperty("compiled", false);
 			assetsLoadComplete();
 			
 			// Send first item to view.
@@ -224,6 +225,7 @@ package nail.objectbuilder.core
 			sendCommand(new Command(CommandType.SHOW_PROGRESS_BAR, title));
 			
 			createStorage();
+			setSharedProperty("compiled", true);
 			
 			_things.load(_datFile, _version, _enableSpritesU32);
 		}
@@ -697,6 +699,7 @@ package nail.objectbuilder.core
 		
 		private function assetsCompileComplete() : void
 		{
+			setSharedProperty("compiled", true);
 			sendCommand(new Command(CommandType.HIDE_PROGRESS_BAR));
 			sendCommand(new MessageCommand(_resources.getString("controls", "log.compile-complete"), "Info"));
 		}
@@ -803,6 +806,7 @@ package nail.objectbuilder.core
 		
 		protected function thingsChangeHandler(event:Event) : void
 		{
+			setSharedProperty("compiled", false);
 			sendAssetsInfo();
 		}
 		
@@ -826,6 +830,7 @@ package nail.objectbuilder.core
 		
 		protected function spritesChangeHandler(event:Event) : void
 		{
+			setSharedProperty("compiled", false);
 			sendAssetsInfo();
 		}
 		

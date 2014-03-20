@@ -104,5 +104,8 @@ package nail.objectbuilder.core
 		
 		[Embed(source="../assets/binoculars_white.png", mimeType="image/png")]
 		static public const BINOCULARS_WHITE : Class;
+		
+		[Embed(source="../assets/outfit.png", mimeType="image/png")]
+		static public const OUTFIT : Class;
 	}
 }

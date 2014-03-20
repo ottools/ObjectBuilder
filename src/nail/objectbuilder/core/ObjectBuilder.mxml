@@ -52,7 +52,8 @@
 			</menuitem>
 			<menuitem label="{resourceManager.getString('controls', 'menu.tools')}">
 				<menuitem label="{resourceManager.getString('controls', 'menu.tools-find')}" data="toolsFind" icon="nail.objectbuilder.core.Icons_BINOCULARS"/>
-			</menuitem>	
+				<menuitem label="{resourceManager.getString('controls', 'menu.tools-look-generator')}" data="toolsLookGenerator" icon="nail.objectbuilder.core.Icons_OUTFIT"/>
+			</menuitem>
 			<menuitem label="{resourceManager.getString('controls', 'menu.window')}">
 				<menuitem label="{resourceManager.getString('controls', 'menu.log-window')}" data="windowOpenLog" icon="nail.objectbuilder.core.Icons_LOG"/>
 			</menuitem>	
@@ -122,6 +123,7 @@
 			private var _logText : String = "";
 			private var _logWindow : LogWindow;
 			private var _findThingWindow : FindThingWindow;
+			private var _lookGenerator : LookGenerator;
 			private var _autosave : Boolean;
 			private var _autosaveChanged : Boolean;
 			
@@ -725,6 +727,30 @@
 				}
 			}
 			
+			private function openLookGenerator() : void
+			{
+				if (_lookGenerator == null)
+				{
+					_lookGenerator = new LookGenerator();
+					_lookGenerator.addEventListener(Event.CLOSE, lookGeneratorCloseHandler);
+					_lookGenerator.open();
+					
+					WindowUtils.centralizeWindowOnScreen(_lookGenerator);
+				}
+				else 
+				{
+					_lookGenerator.activate();
+				}
+			}
+			
+			private function closeLookGenerator() : void
+			{
+				if (_lookGenerator!= null && !_lookGenerator.closed)
+				{
+					_lookGenerator.close();
+				}
+			}
+			
 			private function openLogWindow() : void
 			{
 				if (_logWindow == null)
@@ -1019,6 +1045,10 @@
 					
 					case "toolsFind":
 						this.openFindThingWindow();
+						break;
+					
+					case "toolsLookGenerator":
+						this.openLookGenerator();
 						break;
 					
 					case "windowOpenLog":
@@ -1549,6 +1579,12 @@
 				}
 			}
 			
+			protected function lookGeneratorCloseHandler(event:Event) : void
+			{
+				_lookGenerator.removeEventListener(Event.CLOSE, logWindowCloseHandler);
+				_lookGenerator = null;
+			}
+			
 			protected function logWindowCloseHandler(event:Event) : void
 			{
 				_logWindow.removeEventListener(Event.CLOSE, logWindowCloseHandler);
@@ -1564,6 +1600,26 @@
 			protected function applicationClosingHandler(event:Event) : void
 			{
 				this.closeLogWindow();
+				this.closeFindThingWindow();
+				this.closeLookGenerator();
+				
+				if (!NailMain.instance.getSharedProperty("compiled"))
+				{
+					event.preventDefault();
+					Alert.show(resourceManager.getString("controls", "alert.want-to-compile"), "", Alert.YES | Alert.NO | Alert.CANCEL, this, alertCloseHandler);
+				}
+				
+				function alertCloseHandler(event:CloseEvent) : void
+				{
+					if (event.detail == Alert.YES)
+					{
+						onCompile();
+					}
+					else if (event.detail == Alert.NO)
+					{
+						NailMain.instance.exit();
+					}
+				}
 			}
 			
 			//--------------------------------------
