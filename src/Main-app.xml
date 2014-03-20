@@ -4,8 +4,10 @@
 	<id>ObjectBuilder</id>
 	<filename>ObjectBuilder</filename>
 	<name>Object Builder</name>
-	<versionNumber>0.2.6</versionNumber>
-	<copyright>Copyright (c) 2014 edmignari@gmail.com</copyright>
+	<versionNumber>0.2.7</versionNumber>
+	<copyright>
+		<![CDATA[Copyright (c) 2014 <a href="https://github.com/Mignari/ObjectBuilder/graphs/contributors">Contributors</a>]]>
+	</copyright>
 	
 	<initialWindow>
 		<content>[This value will be overwritten by Flash Builder in the output app.xml]</content>

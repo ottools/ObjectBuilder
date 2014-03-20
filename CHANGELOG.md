@@ -1,3 +1,18 @@
+### 0.2.7
+
+Features:
+
+* Support for version 10.37
+* Support for extended clients.
+* Find Objects
+* Look Generator
+* Allow maximize the application.
+* Checks if is compiled at closing.
+
+Bugfixes:
+
+* Fixed the bug when texture values is modified.
+
 ### 0.2.6
 
 Features:
