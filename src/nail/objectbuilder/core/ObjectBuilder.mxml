@@ -1603,7 +1603,7 @@
 				this.closeFindThingWindow();
 				this.closeLookGenerator();
 				
-				if (!NailMain.instance.getSharedProperty("compiled"))
+				if (loaded && !NailMain.instance.getSharedProperty("compiled"))
 				{
 					event.preventDefault();
 					Alert.show(resourceManager.getString("controls", "alert.want-to-compile"), "", Alert.YES | Alert.NO | Alert.CANCEL, this, alertCloseHandler);
