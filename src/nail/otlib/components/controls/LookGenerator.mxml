@@ -202,7 +202,7 @@
 					  verticalAlign="middle"
 					  enabled="true">
 				<s:Label text="@Resource(key='lg.type', bundle='controls')"
-						 width="50"
+						 minWidth="70"
 						 textAlign="right"/>
 				<s:NumericStepper id="lookTypeNumericStepper"
 								  width="100"
@@ -220,7 +220,7 @@
 					  verticalAlign="middle"
 					  enabled="true">
 				<s:Label text="@Resource(key='lg.head', bundle='controls')"
-						 width="50"
+						 minWidth="70"
 						 textAlign="right"/>
 				<s:NumericStepper id="lookHeadNumericStepper"
 								  width="100"
@@ -238,7 +238,7 @@
 					  verticalAlign="middle"
 					  enabled="true">
 				<s:Label text="@Resource(key='lg.body', bundle='controls')"
-						 width="50"
+						 minWidth="70"
 						 textAlign="right"/>
 				<s:NumericStepper id="lookBodyNumericStepper"
 								  width="100"
@@ -256,7 +256,7 @@
 					  verticalAlign="middle"
 					  enabled="true">
 				<s:Label text="@Resource(key='lg.legs', bundle='controls')"
-						 width="50"
+						 minWidth="70"
 						 textAlign="right"/>
 				<s:NumericStepper id="lookLegsNumericStepper"
 								  width="100"
@@ -274,7 +274,7 @@
 					  verticalAlign="middle"
 					  enabled="true">
 				<s:Label text="@Resource(key='lg.feet', bundle='controls')"
-						 width="50"
+						 minWidth="70"
 						 textAlign="right"/>
 				<s:NumericStepper id="lookFeetNumericStepper"
 								  width="100"
@@ -295,7 +295,7 @@
 					  verticalAlign="middle"
 					  enabled="true">
 				<s:Label text="@Resource(key='lg.addons', bundle='controls')"
-						 width="50"
+						 minWidth="70"
 						 textAlign="right"/>
 				<s:NumericStepper id="lookAddonsNumericStepper"
 								  width="100"
@@ -310,7 +310,7 @@
 					  verticalAlign="middle"
 					  enabled="true">
 				<s:Label text="@Resource(key='lg.mount', bundle='controls')"
-						 width="50"
+						 minWidth="70"
 						 textAlign="right"/>
 				<s:NumericStepper id="lookMountNumericStepper"
 								  width="100"
@@ -325,7 +325,7 @@
 					  verticalAlign="middle"
 					  enabled="true">
 				<s:Label text="@Resource(key='lg.corpse', bundle='controls')"
-						 width="50"
+						 minWidth="70"
 						 textAlign="right"/>
 				<s:NumericStepper id="lookCorpseNumericStepper"
 								  width="100"
