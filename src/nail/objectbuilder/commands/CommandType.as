@@ -58,6 +58,8 @@ package nail.objectbuilder.commands
 		static public const REMOVE_THING : String = "removeThing";
 		static public const GET_THING : String = "getThing";
 		static public const SET_THING : String = "setThing";
+		static public const GET_THING_LIST : String = "getThingList";
+		static public const SET_THING_LIST : String = "setThingList";
 		static public const FIND_THING : String = "findThing";
 		static public const FIND_RESULT : String = "findResult";
 		static public const ADD_SPRITE : String = "addSprite";

@@ -55,9 +55,9 @@
 			import nail.components.NailMain;
 			import nail.objectbuilder.commands.FindThingCommand;
 			import nail.objectbuilder.commands.GetThingCommand;
-			import nail.objectbuilder.utils.ListObject;
 			import nail.otlib.things.BindableThingType;
 			import nail.otlib.things.ThingCategory;
+			import nail.otlib.utils.ThingListItem;
 			import nail.otlib.utils.ThingProperty;
 			
 			//--------------------------------------------------------------------------
@@ -149,11 +149,11 @@
 			
 			protected function selectButtonClickHandler(event:MouseEvent) : void
 			{
-				var object : ListObject;
-				object = resultList.selectedItem as ListObject;
-				if (object != null && object.thing != null)
+				var listItem : ThingListItem;
+				listItem = resultList.selectedItem as ThingListItem;
+				if (listItem != null && listItem.thing != null)
 				{
-					NailMain.instance.sendCommand(new GetThingCommand(object.thing.id, object.thing.category));
+					NailMain.instance.sendCommand(new GetThingCommand(listItem.thing.id, listItem.thing.category));
 				}
 			}
 			

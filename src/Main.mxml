@@ -49,12 +49,12 @@
 			import nail.objectbuilder.commands.GetSpriteListCommand;
 			import nail.objectbuilder.commands.GetThingCommand;
 			import nail.objectbuilder.core.ObjectBuilder;
-			import nail.objectbuilder.utils.ListObject;
 			import nail.otlib.assets.AssetsInfo;
 			import nail.otlib.components.controls.CustomProgressBar;
 			import nail.otlib.things.ThingCategory;
 			import nail.otlib.things.ThingType;
 			import nail.otlib.utils.SpriteData;
+			import nail.otlib.utils.ThingListItem;
 			import nail.otlib.utils.ThingProperty;
 			import nail.utils.FileUtils;
 			import nail.workers.Command;
@@ -89,7 +89,7 @@
 				registerClassAlias("SpriteData", SpriteData);
 				registerClassAlias("ByteArray", ByteArray);
 				registerClassAlias("ThingProperty", ThingProperty);
-				registerClassAlias("ListObject", ListObject);
+				registerClassAlias("ThingListItem", ThingListItem);
 				registerFunction(CommandType.ERROR, onError);
 				registerFunction(CommandType.SHOW_PROGRESS_BAR, onShowProgressBar);
 				registerFunction(CommandType.HIDE_PROGRESS_BAR, onHideProgressBar);
@@ -97,6 +97,7 @@
 				registerFunction(CommandType.LOAD_COMPLETE, onLoadComplete);
 				registerFunction(CommandType.SET_ASSETS_INFO, onSetAssetsInfo);
 				registerFunction(CommandType.SET_THING, onSetThing);
+				registerFunction(CommandType.SET_THING_LIST, onSetThingList);
 				registerFunction(CommandType.FIND_RESULT, onFindResult);
 				registerFunction(CommandType.SET_SPRITE_LIST, onSetSpriteList);
 			}
@@ -184,6 +185,11 @@
 			private function onSetThing(thing:ThingType, list:Vector.<SpriteData>) : void
 			{
 				ObjectBuilder(application).setThing(thing, list);
+			}
+			
+			private function onSetThingList(target:uint, min:uint, max:uint, list:Vector.<ThingListItem>) : void
+			{	
+				ObjectBuilder(application).setThingList(target, min, max, list);
 			}
 			
 			private function onFindResult(list:Array) : void

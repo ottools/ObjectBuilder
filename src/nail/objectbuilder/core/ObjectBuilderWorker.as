@@ -42,7 +42,7 @@ package nail.objectbuilder.core
 	import nail.objectbuilder.commands.SetAssetsInfoCommand;
 	import nail.objectbuilder.commands.SetSpriteListCommand;
 	import nail.objectbuilder.commands.SetThingCommand;
-	import nail.objectbuilder.utils.ListObject;
+	import nail.objectbuilder.commands.SetThingListCommand;
 	import nail.objectbuilder.utils.ObUtils;
 	import nail.otlib.assets.AssetsInfo;
 	import nail.otlib.assets.AssetsVersion;
@@ -53,6 +53,7 @@ package nail.objectbuilder.core
 	import nail.otlib.things.ThingTypeStorage;
 	import nail.otlib.utils.SpriteData;
 	import nail.otlib.utils.ThingData;
+	import nail.otlib.utils.ThingListItem;
 	import nail.otlib.utils.ThingProperty;
 	import nail.otlib.utils.ThingUtils;
 	import nail.utils.FileUtils;
@@ -106,7 +107,7 @@ package nail.objectbuilder.core
 			registerClassAlias("SpriteData", SpriteData);
 			registerClassAlias("ByteArray", ByteArray);
 			registerClassAlias("ThingProperty", ThingProperty);
-			registerClassAlias("ListObject", ListObject);
+			registerClassAlias("ThingListItem", ThingListItem);
 			registerCommand(CommandType.CREATE_NEW_ASSETS, onCreateNewAssets);
 			registerCommand(CommandType.LOAD_ASSETS, onLoadAssets);
 			registerCommand(CommandType.GET_ASSETS_INFO, onGetAssetsInfo);
@@ -118,6 +119,7 @@ package nail.objectbuilder.core
 			registerCommand(CommandType.DUPLICATE_THING, onDuplicateThing);
 			registerCommand(CommandType.REMOVE_THING, onRemoveThing);
 			registerCommand(CommandType.FIND_THING, onFindThing);
+			registerCommand(CommandType.GET_THING_LIST, onGetThingList);
 			registerCommand(CommandType.GET_SPRITE_LIST, onGetSpriteList);
 			registerCommand(CommandType.REPLACE_SPRITE, onReplaceSprite);
 			registerCommand(CommandType.IMPORT_SPRITE, onImportSprite);
@@ -164,7 +166,7 @@ package nail.objectbuilder.core
 			setSharedProperty("compiled", false);
 			assetsLoadComplete();
 			
-			// Send first item to view.
+			// Update preview.
 			thing = _things.getItemType(ThingTypeStorage.MIN_ITEM_ID);
 			onGetThing(thing.id, thing.category);
 			
@@ -310,7 +312,7 @@ package nail.objectbuilder.core
 			thing = ThingUtils.createThing(category);
 			if (_things.addThing(thing, category))
 			{
-				// Send added thing to view.
+				// Update preview and list.
 				onGetThing(thing.id, category);
 				
 				// Send new thing message.
@@ -422,8 +424,9 @@ package nail.objectbuilder.core
 			
 			if (_things.replace(thing, thing.category, thing.id))
 			{
-				// Send changed thing to view.
+				// Update preview and list.
 				onGetThing(thing.id, thing.category);
+				onGetThingList(thing.id, thing.category);
 				
 				// Send change message
 				message = StringUtil.substitute(_resources.getString("controls", "log.saved-thing"),
@@ -484,7 +487,7 @@ package nail.objectbuilder.core
 			
 			if (done)
 			{
-				// Send imported thing to view.
+				// Update preview.
 				onGetThing(thing.id, thing.category);
 				
 				// Send import message.
@@ -533,7 +536,7 @@ package nail.objectbuilder.core
 			copy = ThingUtils.copyThing(thing);
 			if (_things.addThing(copy, category))
 			{
-				// Send duplicated thing to view.
+				// Update preview.
 				onGetThing(copy.id, category);
 				
 				// Send duplicated thing message.
@@ -556,7 +559,10 @@ package nail.objectbuilder.core
 				count = _things.getCategoryCount(category);
 				sendId = id > count ? count : id;
 				
+				// Update preview and list.
 				onGetThing(sendId, category);
+				onGetThingList(sendId, category);
+				
 				message = StringUtil.substitute(_resources.getString("controls", "log.removed-thing"),
 					ObUtils.toLocale(category),
 					id);
@@ -570,19 +576,24 @@ package nail.objectbuilder.core
 			var things : Array;
 			var length : uint;
 			var i : uint;
-			var obj : ListObject;
+			var listItem : ThingListItem;
 			
 			list = [];
 			things = _things.findThingTypeByProperties(category, properties);
 			length = things.length;
 			for (i = 0; i < length; i++)
 			{
-				obj = new ListObject();
-				obj.thing = things[i];
-				obj.pixels = getBitmapPixels(obj.thing);
-				list[i] = obj;
+				listItem = new ThingListItem();
+				listItem.thing = things[i];
+				listItem.pixels = getBitmapPixels(listItem.thing);
+				list[i] = listItem;
 			}
 			sendCommand(new FindResultCommand(list));
+		}
+		
+		private function onGetThingList(target:uint, category:String) : void
+		{
+			this.sendThingList(target, category);
 		}
 		
 		private function onGetSpriteList(target:uint) : void
@@ -760,6 +771,46 @@ package nail.objectbuilder.core
 			sendCommand(new SetAssetsInfoCommand(info));
 		}
 		
+		private function sendThingList(target:uint, category:String) : void
+		{
+			var first : uint;
+			var last : uint;
+			var min : uint;
+			var max : uint;
+			var list : Vector.<ThingListItem>;
+			var i : uint;
+			var thing : ThingType;
+			var listItem : ThingListItem;
+			
+			if (_things == null || !_things.loaded)
+			{
+				throw new Error(_resources.getString("controls", "error.metadata-not-loaded"));
+			}
+			
+			first = _things.getCategoryMinId(category);
+			last = _things.getCategoryCount(category);
+			min = Math.max(first, target - 50);
+			max = min == first ? Math.min(last, target + 100) : Math.min(last, target + 50);
+			min = max == last ? Math.max(first, min - 50) : min;
+			list = new Vector.<ThingListItem>();
+			
+			for (i = min; i <= max; i++)
+			{
+				thing = _things.getThingType(i, category);
+				if (thing == null)
+				{
+					throw new Error("thing not found");
+				}
+				
+				listItem = new ThingListItem();
+				listItem.thing = thing;
+				listItem.pixels = getBitmapPixels(thing);
+				list.push(listItem);
+			}
+			
+			sendCommand(new SetThingListCommand(target, min, max, list));
+		}
+		
 		private function sendSpriteList(target:uint) : void
 		{
 			var min : uint;
@@ -837,8 +888,8 @@ package nail.objectbuilder.core
 				for (h = 0; h < height; h++)
 				{
 					index = ThingData.getSpriteIndex(thing, w, h, 0, 0, 0, 0, 0);
-					px = (width - x - 1) * size;
-					py = (height - y - 1) * size;
+					px = (width - w - 1) * size;
+					py = (height - h - 1) * size;
 					_sprites.copyPixels(thing.spriteIndex[index], bitmap, px, py);
 				}
 			}

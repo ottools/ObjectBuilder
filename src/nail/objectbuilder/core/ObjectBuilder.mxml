@@ -36,10 +36,6 @@
 					  showStatusBar="false"
 					  closing="applicationClosingHandler(event)">
 	
-	<nail:layout>
-		<s:HorizontalLayout gap="3"/>
-	</nail:layout>
-	
 	<fx:Declarations>
 		<fx:XMLList id="menuXML">
 			<menuitem label="{resourceManager.getString('controls', 'menu.file')}">
@@ -49,6 +45,9 @@
 			</menuitem>
 			<menuitem label="{resourceManager.getString('controls', 'menu.edit')}">
 				<menuitem label="{resourceManager.getString('controls', 'menu.autosave')}" type="check" data="editAutosave"/>
+			</menuitem>
+			<menuitem label="{resourceManager.getString('controls', 'menu.view')}">
+				<menuitem label="{resourceManager.getString('controls', 'menu.show-object-list')}" type="check" data="viewShowObjectList"/>
 			</menuitem>
 			<menuitem label="{resourceManager.getString('controls', 'menu.tools')}">
 				<menuitem label="{resourceManager.getString('controls', 'menu.tools-find')}" data="toolsFind" icon="nail.objectbuilder.core.Icons_BINOCULARS"/>
@@ -79,12 +78,34 @@
 			import nail.components.controls.Alert;
 			import nail.loaders.BitmapLoader;
 			import nail.managers.PopUpWindowManager;
-			import nail.objectbuilder.commands.*;
+			import nail.objectbuilder.commands.ChangeThingCommand;
+			import nail.objectbuilder.commands.CommandType;
+			import nail.objectbuilder.commands.CompileAssetsCommand;
+			import nail.objectbuilder.commands.CreateNewFilesCommand;
+			import nail.objectbuilder.commands.DuplicateThingCommand;
+			import nail.objectbuilder.commands.GetSpriteListCommand;
+			import nail.objectbuilder.commands.GetThingCommand;
+			import nail.objectbuilder.commands.GetThingListCommand;
+			import nail.objectbuilder.commands.ImportSpriteCommand;
+			import nail.objectbuilder.commands.ImportThingCommand;
+			import nail.objectbuilder.commands.LoadAssetsCommand;
+			import nail.objectbuilder.commands.NewThingCommand;
+			import nail.objectbuilder.commands.RemoveSpritesCommand;
+			import nail.objectbuilder.commands.RemoveThingCommand;
+			import nail.objectbuilder.commands.ReplaceSpriteCommand;
 			import nail.objectbuilder.settings.ObjectBuilderSettings;
 			import nail.objectbuilder.utils.ObUtils;
 			import nail.otlib.assets.AssetsInfo;
 			import nail.otlib.assets.AssetsVersion;
-			import nail.otlib.components.controls.*;
+			import nail.otlib.components.controls.CompileAssetsWindow;
+			import nail.otlib.components.controls.CropImageWindow;
+			import nail.otlib.components.controls.ExportWindow;
+			import nail.otlib.components.controls.FindThingWindow;
+			import nail.otlib.components.controls.ImportThingWindow;
+			import nail.otlib.components.controls.LogWindow;
+			import nail.otlib.components.controls.LookGenerator;
+			import nail.otlib.components.controls.NewAssetsWindow;
+			import nail.otlib.components.controls.OpenAssetsWindow;
 			import nail.otlib.events.ThingEditorEvent;
 			import nail.otlib.geom.Rect;
 			import nail.otlib.loaders.ThingDataLoader;
@@ -93,6 +114,7 @@
 			import nail.otlib.utils.SpriteData;
 			import nail.otlib.utils.SpriteUtils;
 			import nail.otlib.utils.ThingData;
+			import nail.otlib.utils.ThingListItem;
 			import nail.settings.Settings;
 			import nail.utils.FileUtils;
 			import nail.utils.SaveHelper;
@@ -109,6 +131,9 @@
 			private var _settings : ObjectBuilderSettings = new ObjectBuilderSettings();
 			
 			[Bindable]
+			private var _thingsCollection : ArrayCollection = new ArrayCollection(); 
+			
+			[Bindable]
 			private var _spritesCollection : ArrayCollection = new ArrayCollection(); 
 			private var _thingData : ThingData;
 			private var _nextThingData : ThingData;
@@ -117,7 +142,10 @@
 			
 			[Bindable]
 			private var _info : AssetsInfo;
-			private var _selectIndex : int;
+			private var _selectThingIndex : int; 
+			private var _thingMin : uint;
+			private var _thingMax :uint;
+			private var _selectSpriteIndex : int;
 			private var _spriteMin : uint;
 			private var _spriteMax :uint;
 			private var _logText : String = "";
@@ -192,6 +220,40 @@
 				}
 			}
 			
+			public function setThingList(target:uint, min:uint, max:uint, things:Vector.<ThingListItem>) : void
+			{
+				var length :uint;
+				var i : int;
+				var listItem : ThingListItem
+				
+				if (things == null)
+				{
+					throw new ArgumentError("Parameter things cannot be null.");
+				}
+				
+				_thingsCollection.removeAll();
+				_selectThingIndex = -1;
+				_thingMin = min;
+				_thingMax = max;
+				
+				length = things.length;
+				for (i = 0; i < length; i++)
+				{
+					listItem = things[i];
+					if (listItem == null)
+					{
+						throw new Error("Invalid Thing.");
+					}
+					
+					_thingsCollection.addItem(listItem);
+					
+					if (listItem.thing.id == target)
+					{
+						_selectThingIndex = _thingsCollection.getItemIndex(listItem);
+					}
+				}
+			}
+			
 			public function setSpriteList(target:uint, min:uint, max:uint, sprites:Vector.<SpriteData>) : void
 			{
 				var length :uint;
@@ -204,7 +266,7 @@
 				}
 				
 				_spritesCollection.removeAll();
-				_selectIndex = -1;
+				_selectSpriteIndex = -1;
 				_spriteMin = min;
 				_spriteMax = max;
 				
@@ -221,7 +283,7 @@
 					
 					if (sprite.id == target)
 					{
-						_selectIndex = _spritesCollection.getItemIndex(sprite);
+						_selectSpriteIndex = _spritesCollection.getItemIndex(sprite);
 					}
 				}
 			}
@@ -289,7 +351,11 @@
 				_thingDataChanged = false
 				_info = null;
 				_nextThingData = null;
-				_selectIndex = -1;
+				_selectThingIndex = -1;
+				_thingMax = 0;
+				_thingMin = 0;
+				_thingsCollection.removeAll();
+				_selectSpriteIndex = -1;
 				_spriteMax 0;
 				_spriteMin 0;
 				_spritesCollection.removeAll();
@@ -946,14 +1012,20 @@
 			
 			private function setThingData(data:ThingData) : void
 			{
+				var id : uint;
+				var length : uint;
+				var i : uint;
+				var listItem : ThingListItem;
+				
 				_thingData = data;
 				thingView.thingData = data;
 				
 				if (data != null)
 				{
-					thingStepper.value = data.id;
+					id = data.id;
+					thingStepper.value = id;
 					
-					if (thingAttributes.thingData != null && thingAttributes.thingData.id == data.id)
+					if (thingAttributes.thingData != null && thingAttributes.thingData.id == id)
 					{
 						thingAttributes.thingData = data;
 					}
@@ -961,19 +1033,40 @@
 					switch(data.category)
 					{
 						case ThingCategory.ITEM:
-							categoryDropDownList.selectedIndex = 0; 
+							categoryDropDownList.selectedIndex = 0;
 							break;
 							
 						case ThingCategory.OUTFIT:
-							categoryDropDownList.selectedIndex = 1; 
+							categoryDropDownList.selectedIndex = 1;
 							break;
 						case ThingCategory.EFFECT:
-							categoryDropDownList.selectedIndex = 2; 
+							categoryDropDownList.selectedIndex = 2;
 							break;
 						
 						case ThingCategory.MISSILE:
-							categoryDropDownList.selectedIndex = 3; 
+							categoryDropDownList.selectedIndex = 3;
 							break;
+					}
+					
+					// Search index if id is in range of loaded thing list.
+					if (id >= _thingMin && id <= _thingMax)
+					{
+						length = _thingsCollection.length;
+						for (i = 0; i < length; i++)
+						{
+							listItem = _thingsCollection.getItemAt(i) as ThingListItem;
+							if (listItem.thing.id == id)
+							{
+								thingList.selectedIndex = i;
+								thingList.ensureIndexIsVisible(i);
+								break;
+							}
+						}
+					}
+					else 
+					{
+						// Request new thing list by target id.
+						sendCommand(new GetThingListCommand(id, data.category));
 					}
 				}
 			}
@@ -1003,15 +1096,34 @@
 				editThing(null);
 			}
 			
-			protected function listUpdateCompleteHandler(event:FlexEvent) : void
+			protected function thingListUpdateCompleteHandler(event:FlexEvent) : void
 			{
-				if (_selectIndex != -1)
+				if (_selectThingIndex != -1)
 				{
-					spritesList.selectedIndex = _selectIndex;
-					spritesList.ensureIndexIsVisible(_selectIndex);
+					thingList.selectedIndex = _selectThingIndex;
+					thingList.ensureIndexIsVisible(_selectThingIndex);
+					thingStepper.value = this.thingList.selectedThingId;
+				}
+				_selectThingIndex = -1;
+			}
+			
+			protected function thingListChangeHandler(event:IndexChangeEvent) : void
+			{
+				if (this.loaded && this.thingData != null)
+				{
+					sendCommand(new GetThingCommand(thingList.selectedThingId, getCurrentCategory()));
+				}
+			}
+			
+			protected function spriteListUpdateCompleteHandler(event:FlexEvent) : void
+			{
+				if (_selectSpriteIndex != -1)
+				{
+					spritesList.selectedIndex = _selectSpriteIndex;
+					spritesList.ensureIndexIsVisible(_selectSpriteIndex);
 					spriteStepper.value = this.spritesList.selectedSpriteId;
 				}
-				_selectIndex = -1;
+				_selectSpriteIndex = -1;
 			}
 			
 			override protected function creationCompleteHandler(event:FlexEvent) : void
@@ -1037,6 +1149,11 @@
 					
 					case "fileCompile":
 						this.onCompile();
+						break;
+					
+					case "viewShowObjectList":
+						showThingListButton.selected = !showThingListButton.selected;
+						thingListContainer.includeInLayout = showThingListButton.selected;
 						break;
 					
 					case "editAutosave":
@@ -1069,6 +1186,7 @@
 					thingStepper.maximum = getMaxThingId();
 					thingStepper.value = thingStepper.minimum;
 					sendCommand(new GetThingCommand(thingStepper.minimum, getCurrentCategory()));
+					sendCommand(new GetThingListCommand(thingStepper.minimum, getCurrentCategory()));
 				}
 			}
 			
@@ -1124,17 +1242,17 @@
 				}
 			}
 			
-			protected function replaceThingButtonClickHandler(event:MouseEvent) : void
+			protected function replaceThingHandler(event:Event) : void
 			{
 				this.onImportThingData(this.thingData);
 			}
 			
-			protected function importThingButtonClickHandler(event:MouseEvent) : void
+			protected function importThingHandler(event:Event) : void
 			{
 				this.onImportThingData();
 			}
 			
-			protected function exportThingButtonClickHandler(event:MouseEvent) : void
+			protected function exportThingHandler(event:Event) : void
 			{
 				var window : ExportWindow;
 				
@@ -1169,7 +1287,7 @@
 				}
 			}
 			
-			protected function duplicateThingButtonClickHandler(event:MouseEvent):void
+			protected function duplicateThingHandler(event:Event):void
 			{
 				if (this.loaded && this.thingData != null)
 				{
@@ -1177,7 +1295,7 @@
 				}
 			}
 			
-			protected function editThingButtonClickHandler(event:MouseEvent) : void
+			protected function editThingHandler(event:Event) : void
 			{
 				var message : String;
 				
@@ -1228,7 +1346,7 @@
 				}
 			}
 			
-			protected function newThingButtonClickHandler(event:MouseEvent) : void
+			protected function newThingHandler(event:Event) : void
 			{
 				var category : String;
 				
@@ -1242,7 +1360,7 @@
 				}
 			}
 			
-			protected function removeThingButtonClickHandler(event:MouseEvent) : void
+			protected function removeThingHandler(event:Event) : void
 			{
 				var message : String;
 				
@@ -1710,7 +1828,7 @@
 		
 		<!-- Info/View Container -->
 		<s:BorderContainer minWidth="165"
-						   maxWidth="250"
+						   maxWidth="280"
 						   width="165"
 						   height="100%"
 						   fontSize="11"
@@ -1781,20 +1899,29 @@
 			
 			<nail:ShadowLine width="100%"/>
 			
-			<s:DropDownList id="categoryDropDownList"
-							selectedIndex="0"
-							width="100%"
-							height="20"
-							change="categoryDropDownListChangeHandler(event)">
-				<s:dataProvider>
-					<s:ArrayList>
-						<fx:String>{resourceManager.getString('controls', 'label.item')}</fx:String>
-						<fx:String>{resourceManager.getString('controls', 'label.outfit')}</fx:String>
-						<fx:String>{resourceManager.getString('controls', 'label.effect')}</fx:String>
-						<fx:String>{resourceManager.getString('controls', 'label.missile')}</fx:String>
-					</s:ArrayList>
-				</s:dataProvider>
-			</s:DropDownList>	
+			<s:HGroup width="100%"
+					  height="22">
+				<s:DropDownList id="categoryDropDownList"
+								selectedIndex="0"
+								width="100%"
+								height="20"
+								change="categoryDropDownListChangeHandler(event)">
+					<s:dataProvider>
+						<s:ArrayList>
+							<fx:String>{resourceManager.getString('controls', 'label.item')}</fx:String>
+							<fx:String>{resourceManager.getString('controls', 'label.outfit')}</fx:String>
+							<fx:String>{resourceManager.getString('controls', 'label.effect')}</fx:String>
+							<fx:String>{resourceManager.getString('controls', 'label.missile')}</fx:String>
+						</s:ArrayList>
+					</s:dataProvider>
+				</s:DropDownList>
+				<s:ToggleButton id="showThingListButton"
+								toolTip="@Resource(key='menu.view.showObjectList', bundle='controls')"
+								width="20"
+								height="20"
+								icon="{Icons.SHOW_LIST_ICON}"
+								change="{thingListContainer.includeInLayout = showThingListButton.selected}"/>
+			</s:HGroup>
 			
 			<nail:GroupBox id="thingViewGroup"
 						   label="@Resource(key='label.view', bundle='controls')"
@@ -1822,50 +1949,76 @@
 						  width="100%"
 						  height="19"
 						  icon="{Icons.REPLACE}"
-						  click="replaceThingButtonClickHandler(event)"/>
+						  click="replaceThingHandler(event)"/>
 				<s:Button id="importThingButton"
 						  toolTip="@Resource(key='menu.import', bundle='controls')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
 						  icon="{Icons.IMPORT}"
-						  click="importThingButtonClickHandler(event)"/>
+						  click="importThingHandler(event)"/>
 				<s:Button id="exportThingButton"
 						  toolTip="@Resource(key='menu.export', bundle='controls')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
 						  icon="{Icons.EXPORT}"
-						  click="exportThingButtonClickHandler(event)"/>
+						  click="exportThingHandler(event)"/>
 				<s:Button id="editThingButton"
 						  toolTip="@Resource(key='menu.edit', bundle='controls')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
 						  icon="{Icons.EDIT}"
-						  click="editThingButtonClickHandler(event)"/>
+						  click="editThingHandler(event)"/>
 				<s:Button id="duplicateThingButton"
 						  toolTip="@Resource(key='menu.duplicate', bundle='controls')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
 						  icon="{Icons.DUPLICATE}"
-						  click="duplicateThingButtonClickHandler(event)"/>
+						  click="duplicateThingHandler(event)"/>
 				<s:Button id="newThingButton"
 						  toolTip="@Resource(key='menu.new', bundle='controls')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
 						  icon="{Icons.NEW}"
-						  click="newThingButtonClickHandler(event)"/>
+						  click="newThingHandler(event)"/>
 				<s:Button id="removeThingButton"
 						  toolTip="@Resource(key='menu.remove', bundle='controls')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
 						  icon="{Icons.DELETE}"
-						  click="removeThingButtonClickHandler(event)"/>
+						  click="removeThingHandler(event)"/>
 			</s:HGroup>
+		</s:BorderContainer>
+		
+		<!-- Thing List Container -->
+		<s:BorderContainer id="thingListContainer"
+						   minWidth="165"
+						   maxWidth="280"
+						   width="165"
+						   height="100%"
+						   fontSize="11"
+						   includeInLayout="false"
+						   skinClass="nail.components.skins.BorderContainerSkin">
+			<otlib:ThingList id="thingList"
+							 width="100%"
+							 height="100%"
+							 dataProvider="{_thingsCollection}"
+							 allowMultipleSelection="true"
+							 dragEnabled="true"
+							 fontSize="11"
+							 borderAlpha="0"
+							 replace="replaceThingHandler(event)"
+							 export="exportThingHandler(event)"
+							 duplicate="duplicateThingHandler(event)"
+							 edit="editThingHandler(event)"
+							 remove="removeThingHandler(event)"
+							 change="thingListChangeHandler(event)"
+							 updateComplete="thingListUpdateCompleteHandler(event)"/>
 		</s:BorderContainer>
 		
 		<!-- ThingType Editor Group -->
@@ -1950,7 +2103,7 @@
 								  borderAlpha="0"
 								  focusEnabled="false"
 								  change="spritesListChangeHandler(event)"
-								  updateComplete="listUpdateCompleteHandler(event)"
+								  updateComplete="spriteListUpdateCompleteHandler(event)"
 								  copy="onCopySprite()"
 								  paste="onPasteSprite()"
 								  replace="replaceSpriteHandler(event)"

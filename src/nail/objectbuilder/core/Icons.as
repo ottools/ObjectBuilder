@@ -107,5 +107,8 @@ package nail.objectbuilder.core
 		
 		[Embed(source="../assets/outfit.png", mimeType="image/png")]
 		static public const OUTFIT : Class;
+		
+		[Embed(source="../assets/show_list_icon.png", mimeType="image/png")]
+		static public const SHOW_LIST_ICON : Class;
 	}
 }

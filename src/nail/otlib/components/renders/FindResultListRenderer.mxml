@@ -35,8 +35,8 @@
 		<![CDATA[
 			import mx.events.FlexEvent;
 			
-			import nail.objectbuilder.utils.ListObject;
 			import nail.otlib.things.ThingType;
+			import nail.otlib.utils.ThingListItem;
 			
 			//--------------------------------------------------------------------------
 			//
@@ -50,14 +50,14 @@
 			
 			protected function dataChangeHandler(event:FlexEvent) : void
 			{
-				var obj : ListObject;
+				var listItem : ThingListItem;
 				var thing : ThingType;
 				var bitmap : BitmapData;
 				
-				obj = data as ListObject;
-				if (obj != null)
+				listItem = data as ThingListItem;
+				if (listItem != null)
 				{
-					thing = obj.thing;
+					thing = listItem.thing;
 					if (!isNullOrEmpty(thing.marketName))
 					{
 						displayLabel.text = thing.id + " - " + thing.marketName;
@@ -69,7 +69,7 @@
 					
 					try
 					{
-						bitmap = obj.getBitmap();
+						bitmap = listItem.getBitmap();
 					} 
 					catch(error:Error)
 					{
@@ -91,10 +91,10 @@
 	
 	<s:HGroup width="100%"
 			  height="100%"
-			  paddingLeft="5"
-			  paddingRight="5"
-			  paddingTop="2"
-			  paddingBottom="2"
+			  paddingLeft="3"
+			  paddingRight="3"
+			  paddingTop="3"
+			  paddingBottom="3"
 			  verticalAlign="middle">
 		<s:Image id="image"/>
 		<s:Label id="displayLabel"
