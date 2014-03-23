@@ -1916,7 +1916,7 @@
 					</s:dataProvider>
 				</s:DropDownList>
 				<s:ToggleButton id="showThingListButton"
-								toolTip="@Resource(key='menu.view.showObjectList', bundle='controls')"
+								toolTip="@Resource(key='menu.show-object-list', bundle='controls')"
 								width="20"
 								height="20"
 								icon="{Icons.SHOW_LIST_ICON}"
