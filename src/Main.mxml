@@ -49,6 +49,7 @@
 			import nail.objectbuilder.commands.GetSpriteListCommand;
 			import nail.objectbuilder.commands.GetThingCommand;
 			import nail.objectbuilder.core.ObjectBuilder;
+			import nail.objectbuilder.utils.ListObject;
 			import nail.otlib.assets.AssetsInfo;
 			import nail.otlib.components.controls.CustomProgressBar;
 			import nail.otlib.things.ThingCategory;
@@ -88,6 +89,7 @@
 				registerClassAlias("SpriteData", SpriteData);
 				registerClassAlias("ByteArray", ByteArray);
 				registerClassAlias("ThingProperty", ThingProperty);
+				registerClassAlias("ListObject", ListObject);
 				registerFunction(CommandType.ERROR, onError);
 				registerFunction(CommandType.SHOW_PROGRESS_BAR, onShowProgressBar);
 				registerFunction(CommandType.HIDE_PROGRESS_BAR, onHideProgressBar);

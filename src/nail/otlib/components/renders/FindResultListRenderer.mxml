@@ -29,12 +29,13 @@
 				xmlns:s="library://ns.adobe.com/flex/spark" 
 				xmlns:mx="library://ns.adobe.com/flex/mx" 
 				autoDrawBackground="true"
-				height="25"
+				minHeight="38"
 				dataChange="dataChangeHandler(event)">
 	<fx:Script>
 		<![CDATA[
 			import mx.events.FlexEvent;
 			
+			import nail.objectbuilder.utils.ListObject;
 			import nail.otlib.things.ThingType;
 			
 			//--------------------------------------------------------------------------
@@ -49,11 +50,14 @@
 			
 			protected function dataChangeHandler(event:FlexEvent) : void
 			{
+				var obj : ListObject;
 				var thing : ThingType;
+				var bitmap : BitmapData;
 				
-				thing = data as ThingType;
-				if (thing != null)
+				obj = data as ListObject;
+				if (obj != null)
 				{
+					thing = obj.thing;
 					if (!isNullOrEmpty(thing.marketName))
 					{
 						displayLabel.text = thing.id + " - " + thing.marketName;
@@ -62,6 +66,17 @@
 					{
 						displayLabel.text = thing.id.toString();
 					}
+					
+					try
+					{
+						bitmap = obj.getBitmap();
+					} 
+					catch(error:Error)
+					{
+						trace(error.getStackTrace());
+					}
+					
+					image.source = bitmap;
 				}
 			}
 			
@@ -74,8 +89,15 @@
 		</s:stroke>
 	</s:Rect>
 	
-	<s:Label id="displayLabel"
-			 fontSize="10"
-			 left="10"
-			 verticalCenter="0"/>
+	<s:HGroup width="100%"
+			  height="100%"
+			  paddingLeft="5"
+			  paddingRight="5"
+			  paddingTop="2"
+			  paddingBottom="2"
+			  verticalAlign="middle">
+		<s:Image id="image"/>
+		<s:Label id="displayLabel"
+				 fontSize="11"/>
+	</s:HGroup>
 </s:ItemRenderer>

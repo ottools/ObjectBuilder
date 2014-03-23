@@ -31,11 +31,11 @@
 		  xmlns:nail="library://ns.nail.com/naillib"
 		  xmlns:otlib="library://ns.nail.com/otlib"
 		  minWidth="490"
+		  maxWidth="490"
 		  minHeight="410"
 		  backgroundColor="0x494949"
 		  maximizable="false"
 		  minimizable="false"
-		  resizable="false"
 		  showStatusBar="false"
 		  fontSize="11"
 		  title="@Resource(key='ftw.title', bundle='controls')"
@@ -52,14 +52,12 @@
 			import mx.events.FlexEvent;
 			import mx.events.PropertyChangeEvent;
 			
-			import spark.events.IndexChangeEvent;
-			
 			import nail.components.NailMain;
 			import nail.objectbuilder.commands.FindThingCommand;
 			import nail.objectbuilder.commands.GetThingCommand;
+			import nail.objectbuilder.utils.ListObject;
 			import nail.otlib.things.BindableThingType;
 			import nail.otlib.things.ThingCategory;
-			import nail.otlib.things.ThingType;
 			import nail.otlib.utils.ThingProperty;
 			
 			//--------------------------------------------------------------------------
@@ -149,6 +147,16 @@
 				}
 			}
 			
+			protected function selectButtonClickHandler(event:MouseEvent) : void
+			{
+				var object : ListObject;
+				object = resultList.selectedItem as ListObject;
+				if (object != null && object.thing != null)
+				{
+					NailMain.instance.sendCommand(new GetThingCommand(object.thing.id, object.thing.category));
+				}
+			}
+			
 			protected function thingPropertyChangeHandler(event:PropertyChangeEvent) : void
 			{
 				if (event.newValue)
@@ -158,16 +166,6 @@
 				else 
 				{
 					delete _properties[event.property];
-				}
-			}
-			
-			protected function resultListChangeHandler(event:IndexChangeEvent) : void
-			{
-				var thing : ThingType;
-				thing = resultList.selectedItem as ThingType;
-				if (thing != null)
-				{
-					NailMain.instance.sendCommand(new GetThingCommand(thing.id, thing.category));
 				}
 			}
 			
@@ -340,18 +338,23 @@
 				width="100%"
 				height="100%"
 				dataProvider="{_collection}"
-				itemRenderer="nail.otlib.components.renders.FindResultListRenderer"
-				change="resultListChangeHandler(event)"/>
+				itemRenderer="nail.otlib.components.renders.FindResultListRenderer"/>
 	</nail:GroupBox>
 	
 	<nail:ShadowLine left="10"
 					 right="10"
 					 bottom="40"/>
 	
-	<s:Button id="findButton"
-			  label="@Resource(key='label.find', bundle='controls')"
-			  minWidth="70"
+	<s:HGroup width="100%"
 			  left="10"
-			  bottom="10"
-			  click="findButtonClickHandler(event)"/>
+			  bottom="10">
+		<s:Button id="findButton"
+				  label="@Resource(key='label.find', bundle='controls')"
+				  minWidth="70"
+				  click="findButtonClickHandler(event)"/>
+		<s:Button id="selectButton"
+				  label="@Resource(key='label.select', bundle='controls')"
+				  minWidth="70"
+				  click="selectButtonClickHandler(event)"/>
+	</s:HGroup>
 </s:Window>

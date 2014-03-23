@@ -35,7 +35,14 @@ package nail.objectbuilder.core
 	import mx.resources.IResourceManager;
 	import mx.resources.ResourceManager;
 	
-	import nail.objectbuilder.commands.*;
+	import nail.objectbuilder.commands.CommandType;
+	import nail.objectbuilder.commands.ErrorCommand;
+	import nail.objectbuilder.commands.FindResultCommand;
+	import nail.objectbuilder.commands.MessageCommand;
+	import nail.objectbuilder.commands.SetAssetsInfoCommand;
+	import nail.objectbuilder.commands.SetSpriteListCommand;
+	import nail.objectbuilder.commands.SetThingCommand;
+	import nail.objectbuilder.utils.ListObject;
 	import nail.objectbuilder.utils.ObUtils;
 	import nail.otlib.assets.AssetsInfo;
 	import nail.otlib.assets.AssetsVersion;
@@ -45,6 +52,7 @@ package nail.objectbuilder.core
 	import nail.otlib.things.ThingType;
 	import nail.otlib.things.ThingTypeStorage;
 	import nail.otlib.utils.SpriteData;
+	import nail.otlib.utils.ThingData;
 	import nail.otlib.utils.ThingProperty;
 	import nail.otlib.utils.ThingUtils;
 	import nail.utils.FileUtils;
@@ -98,6 +106,7 @@ package nail.objectbuilder.core
 			registerClassAlias("SpriteData", SpriteData);
 			registerClassAlias("ByteArray", ByteArray);
 			registerClassAlias("ThingProperty", ThingProperty);
+			registerClassAlias("ListObject", ListObject);
 			registerCommand(CommandType.CREATE_NEW_ASSETS, onCreateNewAssets);
 			registerCommand(CommandType.LOAD_ASSETS, onLoadAssets);
 			registerCommand(CommandType.GET_ASSETS_INFO, onGetAssetsInfo);
@@ -558,7 +567,21 @@ package nail.objectbuilder.core
 		private function onFindThing(category:String, properties:Vector.<ThingProperty>) : void
 		{
 			var list : Array;
-			list = _things.findThingTypeByProperties(category, properties);
+			var things : Array;
+			var length : uint;
+			var i : uint;
+			var obj : ListObject;
+			
+			list = [];
+			things = _things.findThingTypeByProperties(category, properties);
+			length = things.length;
+			for (i = 0; i < length; i++)
+			{
+				obj = new ListObject();
+				obj.thing = things[i];
+				obj.pixels = getBitmapPixels(obj.thing);
+				list[i] = obj;
+			}
 			sendCommand(new FindResultCommand(list));
 		}
 		
@@ -790,6 +813,36 @@ package nail.objectbuilder.core
 				return false;
 			}
 			return true;
+		}
+		
+		private function getBitmapPixels(thing:ThingType) : ByteArray
+		{
+			var size : uint;
+			var width : uint;
+			var height : uint;
+			var w : uint;
+			var h : uint;
+			var bitmap : BitmapData;
+			var index : uint;
+			var px : int;
+			var py : int;
+			
+			size = Sprite.SPRITE_PIXELS;
+			width = thing.width;
+			height = thing.height;
+			bitmap = new BitmapData(width * size, height * size, true, 0xFF636363);
+			
+			for (w = 0; w < width; w++)
+			{
+				for (h = 0; h < height; h++)
+				{
+					index = ThingData.getSpriteIndex(thing, w, h, 0, 0, 0, 0, 0);
+					px = (width - x - 1) * size;
+					py = (height - y - 1) * size;
+					_sprites.copyPixels(thing.spriteIndex[index], bitmap, px, py);
+				}
+			}
+			return bitmap.getPixels(bitmap.rect);
 		}
 		
 		//--------------------------------------
