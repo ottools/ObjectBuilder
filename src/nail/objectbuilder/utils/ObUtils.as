@@ -74,5 +74,10 @@ package nail.objectbuilder.utils
 			}
 			return result;
 		}
+		
+		static public function hundredFloor(value:uint) : uint
+		{
+			return (Math.floor(value / 100) * 100);
+		}
 	}
 }

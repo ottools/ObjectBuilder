@@ -789,9 +789,8 @@ package nail.objectbuilder.core
 			
 			first = _things.getCategoryMinId(category);
 			last = _things.getCategoryCount(category);
-			min = Math.max(first, target - 50);
-			max = min == first ? Math.min(last, target + 100) : Math.min(last, target + 50);
-			min = max == last ? Math.max(first, min - 50) : min;
+			min = Math.max(first, ObUtils.hundredFloor(target));
+			max = Math.min(min + 99, last);
 			list = new Vector.<ThingListItem>();
 			
 			for (i = min; i <= max; i++)
@@ -799,7 +798,8 @@ package nail.objectbuilder.core
 				thing = _things.getThingType(i, category);
 				if (thing == null)
 				{
-					throw new Error("thing not found");
+					throw new Error(StringUtil.substitute(_resources.getString("controls", "error.thing-not-found"),
+						ObUtils.toLocale(category), i));
 				}
 				
 				listItem = new ThingListItem();
@@ -813,8 +813,10 @@ package nail.objectbuilder.core
 		
 		private function sendSpriteList(target:uint) : void
 		{
+			var first : uint;
+			var last : uint;
 			var min : uint;
-			var max : uint
+			var max : uint;
 			var list : Vector.<SpriteData>;
 			var i : int;
 			var pixels : ByteArray;
@@ -825,9 +827,10 @@ package nail.objectbuilder.core
 				throw new Error(_resources.getString("controls", "error.sprites-not-loaded"));
 			}
 			
-			min = Math.max(0, target - 50);
-			max = min == 0 ? Math.min(_sprites.spritesCount, target + 100) : Math.min(_sprites.spritesCount, target + 50);
-			min = max == _sprites.spritesCount ? Math.max(0, min - 50) : min;
+			first = 0;
+			last = _sprites.spritesCount;
+			min = Math.max(first, ObUtils.hundredFloor(target));
+			max = Math.min(min + 99, last);
 			list = new Vector.<SpriteData>();
 			
 			for (i = min; i <= max; i++)

@@ -72,6 +72,7 @@
 			
 			import spark.events.IndexChangeEvent;
 			
+			import nail.assets.NailAssets;
 			import nail.codecs.ImageCodec;
 			import nail.codecs.ImageFormat;
 			import nail.components.NailMain;
@@ -235,6 +236,7 @@
 				_selectThingIndex = -1;
 				_thingMin = min;
 				_thingMax = max;
+				thingAmountTextInput.text = min + " - " + max;
 				
 				length = things.length;
 				for (i = 0; i < length; i++)
@@ -1715,6 +1717,34 @@
 				_findThingWindow = null;
 			}
 			
+			protected function previusAmountButtonDownHandler(event:FlexEvent) : void
+			{
+				var target : uint;
+				
+				if (loaded && thingData != null)
+				{
+					target = Math.max(getMinThingId(), ObUtils.hundredFloor(thingData.id) - 100);
+					if (target < _thingMin)
+					{
+						sendCommand(new GetThingCommand(target, getCurrentCategory()));
+					}
+				}
+			}
+			
+			protected function nextAmountButtonDownHandler(event:FlexEvent) : void
+			{
+				var target : uint;
+				
+				if (loaded && thingData != null)
+				{
+					target = Math.min(getMaxThingId(), ObUtils.hundredFloor(thingData.id) + 100);
+					if (target > _thingMax)
+					{
+						sendCommand(new GetThingCommand(target, getCurrentCategory()));
+					}
+				}
+			}
+			
 			protected function applicationClosingHandler(event:Event) : void
 			{
 				this.closeLogWindow();
@@ -2004,6 +2034,15 @@
 						   fontSize="11"
 						   includeInLayout="false"
 						   skinClass="nail.components.skins.BorderContainerSkin">
+			<s:layout>
+				<s:VerticalLayout horizontalAlign="center"
+								  paddingRight="5"
+								  paddingLeft="5"
+								  paddingTop="10"
+								  paddingBottom="10"
+								  gap="10"/>
+			</s:layout>
+			
 			<otlib:ThingList id="thingList"
 							 width="100%"
 							 height="100%"
@@ -2019,6 +2058,32 @@
 							 remove="removeThingHandler(event)"
 							 change="thingListChangeHandler(event)"
 							 updateComplete="thingListUpdateCompleteHandler(event)"/>
+			
+			<s:HGroup width="100%"
+					  horizontalAlign="center"
+					  verticalAlign="middle"
+					  gap="1">
+				<s:Button id="previusAmountButton"
+						  width="20"
+						  height="20"
+						  autoRepeat="true"
+						  repeatInterval="300"
+						  icon="{NailAssets.PREVIOUS}"
+						  buttonDown="previusAmountButtonDownHandler(event)"/>
+				<s:TextInput id="thingAmountTextInput"
+							 width="100%"
+							 height="20"
+							 editable="false"
+							 textAlign="center"
+							 skinClass="nail.components.skins.NumericStepperTextInputSkin"/>
+				<s:Button id="nextAmountButton"
+						  width="20"
+						  height="20"
+						  autoRepeat="true"
+						  repeatInterval="300"
+						  icon="{NailAssets.NEXT}"
+						  buttonDown="nextAmountButtonDownHandler(event)"/>
+			</s:HGroup>
 		</s:BorderContainer>
 		
 		<!-- ThingType Editor Group -->
