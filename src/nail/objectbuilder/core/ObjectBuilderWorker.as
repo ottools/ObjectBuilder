@@ -874,8 +874,11 @@ package nail.objectbuilder.core
 			var size : uint;
 			var width : uint;
 			var height : uint;
+			var layers : uint;
 			var w : uint;
 			var h : uint;
+			var x : uint;
+			var l : uint;
 			var bitmap : BitmapData;
 			var index : uint;
 			var px : int;
@@ -884,18 +887,29 @@ package nail.objectbuilder.core
 			size = Sprite.SPRITE_PIXELS;
 			width = thing.width;
 			height = thing.height;
+			layers = thing.layers;
 			bitmap = new BitmapData(width * size, height * size, true, 0xFF636363);
 			
-			for (w = 0; w < width; w++)
+			if (thing.category == ThingCategory.OUTFIT)
 			{
-				for (h = 0; h < height; h++)
+				layers = 1;
+				x = thing.frames > 1 ? 2 : 0;
+			}
+			
+			for (l = 0; l < layers; l++)
+			{
+				for (w = 0; w < width; w++)
 				{
-					index = ThingData.getSpriteIndex(thing, w, h, 0, 0, 0, 0, 0);
-					px = (width - w - 1) * size;
-					py = (height - h - 1) * size;
-					_sprites.copyPixels(thing.spriteIndex[index], bitmap, px, py);
+					for (h = 0; h < height; h++)
+					{
+						index = ThingData.getSpriteIndex(thing, w, h, l, x, 0, 0, 0);
+						px = (width - w - 1) * size;
+						py = (height - h - 1) * size;
+						_sprites.copyPixels(thing.spriteIndex[index], bitmap, px, py);
+					}
 				}
 			}
+			
 			return bitmap.getPixels(bitmap.rect);
 		}
 		
