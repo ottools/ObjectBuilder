@@ -34,6 +34,7 @@
 					  minHeight="600"
 					  backgroundColor="0x494949"
 					  showStatusBar="false"
+					  displayStateChange="applicationDisplayStateChangeHandler(event)"
 					  closing="applicationClosingHandler(event)">
 	
 	<fx:Declarations>
@@ -155,6 +156,8 @@
 			private var _lookGenerator : LookGenerator;
 			private var _autosave : Boolean;
 			private var _autosaveChanged : Boolean;
+			private var _showThingList : Boolean;
+			private var _showThingListChanged : Boolean;
 			
 			//--------------------------------------------------------------------------
 			//
@@ -406,6 +409,15 @@
 					menuXML[1].menuitem[0].@toggled = _autosave; // Edit > Autosave Changes
 					_settings.autosaveThingChanges = _autosave;
 					_autosaveChanged = false;
+				}
+				
+				if (_showThingListChanged)
+				{
+					menuXML[2].menuitem[0].@toggled = _showThingList; // View > Show Object List
+					thingListContainer.includeInLayout = _showThingList;
+					showThingListButton.selected = _showThingList;
+					_settings.showThingList = _showThingList;
+					_showThingListChanged = false;
 				}
 			}
 			
@@ -1078,6 +1090,14 @@
 				NailMain.instance.sendCommand(command);
 			}
 			
+			private function saveWindowState() : void
+			{
+				_settings.previewContainerWidth = previewContainer.width;
+				_settings.thingListContainerWidth = thingListContainer.width;
+				_settings.spritesContainerWidth = spritesContainer.width;
+				_settings.showThingList = showThingList;
+			}
+			
 			//--------------------------------------
 			// Event Handlers
 			//--------------------------------------
@@ -1133,6 +1153,16 @@
 				super.creationCompleteHandler(event);
 				
 				this.autosave = _settings.autosaveThingChanges;
+				
+				if (_settings.maximized)
+				{
+					this.maximize();
+				}
+				
+				previewContainer.width = Math.max(previewContainer.minWidth, _settings.previewContainerWidth);
+				thingListContainer.width = Math.max(thingListContainer.minWidth, _settings.thingListContainerWidth);
+				spritesContainer.width = Math.max(spritesContainer.minWidth, _settings.spritesContainerWidth);
+				showThingList = _settings.showThingList;
 			}
 			
 			override protected function menuItemClickHandler(event:MenuEvent) : void
@@ -1154,8 +1184,7 @@
 						break;
 					
 					case "viewShowObjectList":
-						showThingListButton.selected = !showThingListButton.selected;
-						thingListContainer.includeInLayout = showThingListButton.selected;
+						this.showThingList = !this.showThingList;
 						break;
 					
 					case "editAutosave":
@@ -1745,11 +1774,20 @@
 				}
 			}
 			
+			protected function applicationDisplayStateChangeHandler(event:NativeWindowDisplayStateEvent) : void
+			{
+				if (_settings != null)
+				{
+					_settings.maximized = event.afterDisplayState == NativeWindowDisplayState.MAXIMIZED;
+				}
+			}
+			
 			protected function applicationClosingHandler(event:Event) : void
 			{
 				this.closeLogWindow();
 				this.closeFindThingWindow();
 				this.closeLookGenerator();
+				this.saveWindowState();
 				
 				if (loaded && !NailMain.instance.getSharedProperty("compiled"))
 				{
@@ -1809,6 +1847,21 @@
 				}
 			}
 			
+			public function get showThingList() : Boolean
+			{
+				return _showThingList;
+			}
+			
+			public function set showThingList(value:Boolean) : void
+			{
+				if (_showThingList != value)
+				{
+					_showThingList = value;
+					_showThingListChanged = true;
+					invalidateProperties();
+				}
+			}
+			
 		]]>
 	</fx:Script>
 	
@@ -1857,7 +1910,8 @@
 					height="100%">
 		
 		<!-- Info/View Container -->
-		<s:BorderContainer minWidth="165"
+		<s:BorderContainer id="previewContainer"
+						   minWidth="165"
 						   maxWidth="280"
 						   width="165"
 						   height="100%"
@@ -1950,7 +2004,7 @@
 								width="20"
 								height="20"
 								icon="{Icons.SHOW_LIST_ICON}"
-								change="{thingListContainer.includeInLayout = showThingListButton.selected}"/>
+								change="{showThingList = showThingListButton.selected}"/>
 			</s:HGroup>
 			
 			<nail:GroupBox id="thingViewGroup"
@@ -2135,7 +2189,8 @@
 		</s:Group>
 		
 		<!-- Sprites Container -->
-		<s:BorderContainer minWidth="165"
+		<s:BorderContainer id="spritesContainer"
+						   minWidth="165"
 						   maxWidth="250"
 						   width="165"
 						   height="100%"

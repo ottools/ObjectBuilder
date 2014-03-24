@@ -46,6 +46,11 @@ package nail.objectbuilder.settings
 		public var lastExportThingVersion : int;
 		public var lastExportSpriteFormat : String;
 		public var autosaveThingChanges : Boolean;
+		public var maximized : Boolean;
+		public var previewContainerWidth : Number = 0;
+		public var thingListContainerWidth : Number = 0;
+		public var spritesContainerWidth : Number = 0;
+		public var showThingList : Boolean;
 		
 		//--------------------------------------------------------------------------
 		//
