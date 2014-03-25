@@ -409,6 +409,7 @@
 				if (_thingDataChanged)
 				{
 					setThingData(_nextThingData);
+					_nextThingData = null;
 					_thingDataChanged = false;
 				}
 				
@@ -1046,6 +1047,8 @@
 				{
 					id = data.id;
 					thingStepper.value = id;
+					thingStepper.minimum = getMinThingId();
+					thingStepper.maximum = getMaxThingId();
 					
 					if (thingAttributes.thingData != null && thingAttributes.thingData.id == id)
 					{
