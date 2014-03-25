@@ -2117,11 +2117,13 @@
 							 dataProvider="{_thingsCollection}"
 							 fontSize="11"
 							 borderAlpha="0"
+							 doubleClickEnabled="true"
 							 replace="replaceThingHandler(event)"
 							 export="exportThingHandler(event)"
 							 duplicate="duplicateThingHandler(event)"
 							 edit="editThingHandler(event)"
 							 remove="removeThingHandler(event)"
+							 doubleClick="editThingHandler(event)"
 							 change="thingListChangeHandler(event)"
 							 updateComplete="thingListUpdateCompleteHandler(event)"/>
 			
