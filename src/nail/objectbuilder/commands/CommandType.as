@@ -62,6 +62,7 @@ package nail.objectbuilder.commands
 		static public const SET_THING_LIST : String = "setThingList";
 		static public const FIND_THING : String = "findThing";
 		static public const FIND_RESULT : String = "findResult";
+		static public const FIND_THING_PROGRESS : String = "findThingProgress";
 		static public const ADD_SPRITE : String = "addSprite";
 		static public const REPLACE_SPRITE : String = "replaceSprite";
 		static public const DUPLICATE_SPRITE : String = "duplicateSprite";

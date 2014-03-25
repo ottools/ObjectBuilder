@@ -85,6 +85,16 @@
 			{
 				_collection.source = list;
 				resultList.selectedIndex = -1;
+				progressBar.visible = false;
+			}
+			
+			public function setProgress(loaded:uint, total:uint) : void
+			{
+				if (progressBar != null)
+				{
+					progressBar.setProgress(loaded, total);
+					progressBar.label = loaded + " / " + total;
+				}
 			}
 			
 			//--------------------------------------
@@ -145,6 +155,8 @@
 				{
 					NailMain.instance.sendCommand(new FindThingCommand(category, list));
 				}
+				
+				progressBar.visible = true;
 			}
 			
 			protected function selectButtonClickHandler(event:MouseEvent) : void
@@ -346,8 +358,11 @@
 					 bottom="40"/>
 	
 	<s:HGroup width="100%"
-			  left="10"
-			  bottom="10">
+			  paddingLeft="10"
+			  paddingRight="10"
+			  paddingTop="10"
+			  paddingBottom="10"
+			  bottom="0">
 		<s:Button id="findButton"
 				  label="@Resource(key='label.find', bundle='controls')"
 				  minWidth="70"
@@ -356,5 +371,14 @@
 				  label="@Resource(key='label.select', bundle='controls')"
 				  minWidth="70"
 				  click="selectButtonClickHandler(event)"/>
+		<s:Spacer width="100%"/>
+		<mx:ProgressBar id="progressBar"
+						width="230"
+						height="20"
+						fontSize="11"
+						fontWeight="normal"
+						mode="manual"
+						labelPlacement="center"
+						visible="false"/>
 	</s:HGroup>
 </s:Window>

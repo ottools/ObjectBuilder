@@ -38,6 +38,7 @@ package nail.objectbuilder.core
 	import nail.objectbuilder.commands.CommandType;
 	import nail.objectbuilder.commands.ErrorCommand;
 	import nail.objectbuilder.commands.FindResultCommand;
+	import nail.objectbuilder.commands.FindThingProgressCommand;
 	import nail.objectbuilder.commands.MessageCommand;
 	import nail.objectbuilder.commands.SetAssetsInfoCommand;
 	import nail.objectbuilder.commands.SetSpriteListCommand;
@@ -46,6 +47,7 @@ package nail.objectbuilder.core
 	import nail.objectbuilder.utils.ObUtils;
 	import nail.otlib.assets.AssetsInfo;
 	import nail.otlib.assets.AssetsVersion;
+	import nail.otlib.events.ThingTypeStorageEvent;
 	import nail.otlib.sprites.Sprite;
 	import nail.otlib.sprites.SpriteStorage;
 	import nail.otlib.things.ThingCategory;
@@ -182,6 +184,7 @@ package nail.objectbuilder.core
 				_things.removeEventListener(Event.COMPLETE, thingsCompleteHandler);
 				_things.removeEventListener(Event.CHANGE, thingsChangeHandler);
 				_things.removeEventListener(ProgressEvent.PROGRESS, thingsProgressHandler);
+				_things.removeEventListener(ThingTypeStorageEvent.FIND_PROGRESS, thingFindProgressHandler);
 				_things.removeEventListener(ErrorEvent.ERROR, thingsErrorHandler);
 				_things = null;
 			}
@@ -199,6 +202,7 @@ package nail.objectbuilder.core
 			_things.addEventListener(Event.COMPLETE, thingsCompleteHandler);
 			_things.addEventListener(Event.CHANGE, thingsChangeHandler);
 			_things.addEventListener(ProgressEvent.PROGRESS, thingsProgressHandler);
+			_things.addEventListener(ThingTypeStorageEvent.FIND_PROGRESS, thingFindProgressHandler);
 			_things.addEventListener(ErrorEvent.ERROR, thingsErrorHandler);
 			
 			
@@ -958,6 +962,11 @@ package nail.objectbuilder.core
 				}
 			}
 		}	
+		
+		protected function thingFindProgressHandler(event:ThingTypeStorageEvent) : void
+		{
+			sendCommand(new FindThingProgressCommand(event.loaded, event.total));
+		}
 		
 		protected function spritesCompleteHandler(event:Event) : void
 		{

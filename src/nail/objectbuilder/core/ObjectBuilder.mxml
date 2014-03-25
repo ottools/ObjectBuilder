@@ -224,6 +224,14 @@
 				}
 			}
 			
+			public function setFindThingProgress(loaded:uint, total:uint) : void
+			{
+				if (_findThingWindow != null)
+				{
+					_findThingWindow.setProgress(loaded, total)
+				}
+			}
+			
 			public function setThingList(target:uint, min:uint, max:uint, things:Vector.<ThingListItem>) : void
 			{
 				var length :uint;
