@@ -494,6 +494,10 @@ package nail.objectbuilder.core
 			{
 				// Update preview.
 				onGetThing(thing.id, thing.category);
+				if (replaceId != 0)
+				{
+					onGetThingList(thing.id, thing.category);
+				}
 				
 				// Send import message.
 				message = StringUtil.substitute(message, ObUtils.toLocale(thing.category), thing.id);
