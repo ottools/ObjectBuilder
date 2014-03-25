@@ -2115,8 +2115,6 @@
 							 width="100%"
 							 height="100%"
 							 dataProvider="{_thingsCollection}"
-							 allowMultipleSelection="true"
-							 dragEnabled="true"
 							 fontSize="11"
 							 borderAlpha="0"
 							 replace="replaceThingHandler(event)"
