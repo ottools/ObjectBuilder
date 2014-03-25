@@ -78,6 +78,7 @@ package nail.objectbuilder.core
 		private var _version : AssetsVersion;
 		private var _enableSpritesU32 : Boolean;
 		private var _resources : IResourceManager;
+		private var _error : ErrorCommand;
 		
 		//--------------------------------------------------------------------------
 		//
@@ -938,7 +939,24 @@ package nail.objectbuilder.core
 		
 		protected function thingsErrorHandler(event:ErrorEvent) : void
 		{
-			sendError(event.text, "", event.errorID);
+			// Try load as extended.
+			if (!_enableSpritesU32)
+			{
+				_error = new ErrorCommand(event.text, "", event.errorID);
+				onLoadAssets(_datFile.nativePath, _sprFile.nativePath, _version.value, true);
+			}
+			else 
+			{
+				if (_error != null)
+				{
+					sendError(_error.args[0], _error.args[1], _error.args[2]);
+					_error = null;
+				}
+				else 
+				{
+					sendError(event.text, "", event.errorID);
+				}
+			}
 		}	
 		
 		protected function spritesCompleteHandler(event:Event) : void
