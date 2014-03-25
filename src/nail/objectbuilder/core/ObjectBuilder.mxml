@@ -724,7 +724,7 @@
 						if (sprite.id == id)
 						{
 							spritesList.selectedIndex = i;
-							spritesList.ensureIndexIsVisible(i);
+							_selectSpriteIndex = i;
 							spriteStepper.value = id;
 							break;
 						}
@@ -1083,7 +1083,7 @@
 							if (listItem.thing.id == id)
 							{
 								thingList.selectedIndex = i;
-								thingList.ensureIndexIsVisible(i);
+								_selectThingIndex = i;
 								break;
 							}
 						}
