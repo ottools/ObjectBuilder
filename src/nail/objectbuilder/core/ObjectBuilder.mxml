@@ -1144,7 +1144,10 @@
 			{
 				if (this.loaded && this.thingData != null)
 				{
-					sendCommand(new GetThingCommand(thingList.selectedThingId, getCurrentCategory()));
+					if (thingList.selectedThingId != 0)
+					{
+						sendCommand(new GetThingCommand(thingList.selectedThingId, getCurrentCategory()));
+					}
 				}
 			}
 			
