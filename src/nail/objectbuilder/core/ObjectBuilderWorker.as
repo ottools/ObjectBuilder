@@ -786,6 +786,7 @@ package nail.objectbuilder.core
 			var i : uint;
 			var thing : ThingType;
 			var listItem : ThingListItem;
+			var diff : uint;
 			
 			if (_things == null || !_things.loaded)
 			{
@@ -795,7 +796,8 @@ package nail.objectbuilder.core
 			first = _things.getCategoryMinId(category);
 			last = _things.getCategoryCount(category);
 			min = Math.max(first, ObUtils.hundredFloor(target));
-			max = Math.min(min + 99, last);
+			diff = (category != ThingCategory.ITEM && min == first) ? 1 : 0;
+			max = Math.min((min - diff) + 99, last);
 			list = new Vector.<ThingListItem>();
 			
 			for (i = min; i <= max; i++)
