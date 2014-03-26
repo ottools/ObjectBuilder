@@ -38,7 +38,7 @@ package nail.objectbuilder.commands
 		
 		public function ImportSpriteCommand(list:Vector.<ByteArray>)
 		{
-			super(CommandType.IMPORT_SPRITE, list);
+			super(CommandType.IMPORT_SPRITES, list);
 		}
 	}
 }

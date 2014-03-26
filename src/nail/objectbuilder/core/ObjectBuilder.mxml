@@ -94,6 +94,7 @@
 			import nail.objectbuilder.commands.ImportThingFilesCommand;
 			import nail.objectbuilder.commands.LoadAssetsCommand;
 			import nail.objectbuilder.commands.NewThingCommand;
+			import nail.objectbuilder.commands.ProgressBarID;
 			import nail.objectbuilder.commands.RemoveSpritesCommand;
 			import nail.objectbuilder.commands.RemoveThingCommand;
 			import nail.objectbuilder.commands.ReplaceSpriteCommand;
@@ -112,7 +113,6 @@
 			import nail.otlib.components.controls.OpenAssetsWindow;
 			import nail.otlib.events.ThingEditorEvent;
 			import nail.otlib.geom.Rect;
-			import nail.otlib.loaders.ThingDataLoader;
 			import nail.otlib.things.ThingCategory;
 			import nail.otlib.things.ThingType;
 			import nail.otlib.utils.OTFormat;
@@ -604,7 +604,12 @@
 				{
 					if (ImageFormat.hasImageFormat(format))
 					{
+						Main(NailMain.instance).onShowProgressBar(ProgressBarID.DEFAULT,
+							resourceManager.getString("controls", "label.exportingSprites"));
+							
 						helper = new SaveHelper();
+						helper.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+						helper.addEventListener(Event.COMPLETE, completeHandler);
 						
 						length = sprites.length;
 						for (i = 0; i < length; i++)
@@ -625,6 +630,16 @@
 				catch(error:Error)
 				{
 					NailMain.instance.onError(error.message, error.getStackTrace(), error.errorID);
+				}
+				
+				function progressHandler(event:ProgressEvent) : void
+				{
+					NailMain.instance.onProgress(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal);
+				}
+				
+				function completeHandler(event:Event) : void
+				{
+					Main(NailMain.instance).onHideProgressBar(ProgressBarID.DEFAULT);
 				}
 			}
 			
@@ -1549,14 +1564,23 @@
 					return;
 				}
 				
-				loader = new BitmapLoader(_settings.getLastImportExportDirectory())
+				Main(NailMain.instance).onShowProgressBar(ProgressBarID.DEFAULT,
+					resourceManager.getString("controls", "label.loadingFiles"));
+				
+				loader = new BitmapLoader(_settings.getLastImportExportDirectory());
+				loader.addEventListener(ProgressEvent.PROGRESS, progressHandler);
 				loader.addEventListener(Event.COMPLETE, completeHandler);
 				loader.browseForOpenMultiple(resourceManager.getString("controls", "dialog.select-images"));
+				
+				function progressHandler(event:ProgressEvent) : void
+				{
+					NailMain.instance.onProgress(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal);
+				}
 				
 				function completeHandler(event:Event) : void
 				{
 					_settings.setLastImportExportDirectory(loader.directory);
-					
+					Main(NailMain.instance).onHideProgressBar(ProgressBarID.DEFAULT);
 					onImportSprites(loader.bitmapList);
 				}
 			}
@@ -1676,7 +1700,6 @@
 				}
 				
 				clipboard = event.clipboard;
-				
 				if (clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT))
 				{
 					dropfiles = clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
@@ -1689,12 +1712,22 @@
 					}
 				}
 				
+				Main(NailMain.instance).onShowProgressBar(ProgressBarID.DEFAULT,
+					resourceManager.getString("controls", "label.loadingFiles"));
+				
 				loader = new BitmapLoader();
+				loader.addEventListener(ProgressEvent.PROGRESS, progressHandler);
 				loader.addEventListener(Event.COMPLETE, completeHandler);
 				loader.loadFiles(files);
 				
+				function progressHandler(event:ProgressEvent) : void
+				{
+					NailMain.instance.onProgress(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal);
+				}
+				
 				function completeHandler(event:Event) : void
 				{
+					Main(NailMain.instance).onHideProgressBar(ProgressBarID.DEFAULT);
 					onImportSprites(loader.bitmapList);
 				}
 			}

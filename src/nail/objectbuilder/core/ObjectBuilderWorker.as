@@ -130,7 +130,7 @@ package nail.objectbuilder.core
 			registerCommand(CommandType.GET_THING_LIST, onGetThingList);
 			registerCommand(CommandType.GET_SPRITE_LIST, onGetSpriteList);
 			registerCommand(CommandType.REPLACE_SPRITE, onReplaceSprite);
-			registerCommand(CommandType.IMPORT_SPRITE, onImportSprite);
+			registerCommand(CommandType.IMPORT_SPRITES, onImportSprites);
 			registerCommand(CommandType.NEW_SPRITE, onNewSprite);
 			registerCommand(CommandType.REMOVE_SPRITES, onRemoveSprites);
 		}
@@ -668,7 +668,7 @@ package nail.objectbuilder.core
 			}
 		}
 		
-		private function onImportSprite(pixelsList:Vector.<ByteArray>) : void
+		private function onImportSprites(pixelsList:Vector.<ByteArray>) : void
 		{
 			var ids : Array;
 			var pixels : ByteArray;
@@ -680,6 +680,9 @@ package nail.objectbuilder.core
 			{
 				throw new ArgumentError("Parameter pixelsList cannot be null.");
 			}
+			
+			// Temporarily remove change events.
+			_sprites.removeEventListener(Event.CHANGE, spritesChangeHandler);
 			
 			ids = [];
 			length = pixelsList.length;
@@ -697,6 +700,9 @@ package nail.objectbuilder.core
 				}
 			}
 			
+			// Again add change events.
+			_sprites.addEventListener(Event.CHANGE, spritesChangeHandler);
+			
 			length = ids.length;
 			(length > 0)
 			{
@@ -709,7 +715,8 @@ package nail.objectbuilder.core
 					message = StringUtil.substitute(_resources.getString("controls", "log.added-sprites"), ids);
 				}
 				
-				this.sendSpriteList(_sprites.spritesCount);
+				sendAssetsInfo();
+				sendSpriteList(_sprites.spritesCount);
 				sendCommand(new MessageCommand(message, "log"));
 			}
 		}

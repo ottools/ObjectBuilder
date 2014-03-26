@@ -82,6 +82,46 @@
 			//--------------------------------------------------------------------------
 			
 			//--------------------------------------
+			// Public
+			//--------------------------------------
+			
+			public function onShowProgressBar(id:uint, title:String) : void
+			{
+				switch(id)
+				{
+					case ProgressBarID.DAT_SPR:
+					{
+						this.showDatSprProgressBar(title);
+						break;
+					}
+						
+					case ProgressBarID.DEFAULT:
+					{
+						this.showDefaultProgressBar(title);
+						break;
+					}
+				}
+			}
+			
+			public function onHideProgressBar(id:uint) : void
+			{
+				switch(id)
+				{
+					case ProgressBarID.DAT_SPR:
+					{
+						this.hideDatSprProgressBar();
+						break;
+					}
+						
+					case ProgressBarID.DEFAULT:
+					{
+						this.hideDefaultProgressBar();
+						break;
+					}
+				}
+			}
+			
+			//--------------------------------------
 			// Override Public
 			//--------------------------------------
 			
@@ -109,6 +149,31 @@
 			//--------------------------------------
 			// Public
 			//--------------------------------------
+			
+			override public function onProgress(id:uint, loaded:uint, total:uint) : void
+			{
+				switch(id)
+				{
+					case ProgressBarID.DAT:
+					case ProgressBarID.SPR:
+					{
+						if (_datSprProgressBar != null)
+						{
+							_datSprProgressBar.setProgress(id, loaded, total);
+						}
+						break;
+					}
+						
+					case ProgressBarID.DEFAULT:
+					{
+						if (_defaultProgressBar != null)
+						{
+							_defaultProgressBar.setProgress(loaded, total);
+						}
+						break;
+					}
+				}
+			}
 			
 			override public function onError(message:String, stack:String = "", id:uint = 0) : void
 			{
@@ -143,42 +208,6 @@
 			//--------------------------------------
 			// Private
 			//--------------------------------------
-			
-			private function onShowProgressBar(id:uint, title:String) : void
-			{
-				switch(id)
-				{
-					case ProgressBarID.DAT_SPR:
-					{
-						this.showDatSprProgressBar(title);
-						break;
-					}
-					
-					case ProgressBarID.DEFAULT:
-					{
-						this.showDefaultProgressBar(title);
-						break;
-					}
-				}
-			}
-			
-			private function onHideProgressBar(id:uint) : void
-			{
-				switch(id)
-				{
-					case ProgressBarID.DAT_SPR:
-					{
-						this.hideDatSprProgressBar();
-						break;
-					}
-					
-					case ProgressBarID.DEFAULT:
-					{
-						this.hideDefaultProgressBar();
-						break;
-					}
-				}
-			}
 			
 			private function onShowMessage(text:String, title:String) : void
 			{
@@ -313,31 +342,6 @@
 			override protected function createWorkerByteClass() : ByteArray
 			{
 				return new ObjectBuilderWorker();
-			}
-			
-			override protected function onProgress(id:uint, loaded:uint, total:uint) : void
-			{
-				switch(id)
-				{
-					case ProgressBarID.DAT:
-					case ProgressBarID.SPR:
-					{
-						if (_datSprProgressBar != null)
-						{
-							_datSprProgressBar.setProgress(id, loaded, total);
-						}
-						break;
-					}
-					
-					case ProgressBarID.DEFAULT:
-					{
-						if (_defaultProgressBar != null)
-						{
-							_defaultProgressBar.setProgress(loaded, total);
-						}
-						break;
-					}
-				}
 			}
 			
 		]]>
