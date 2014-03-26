@@ -83,31 +83,18 @@
 				}
 			}
 			
-			public function setProgress(bar:uint, loaded:uint, total:uint) : void
+			public function setProgress(value:uint, total:uint) : void
 			{
-				if (bar == 1 && bar1 != null)
-				{
-					bar1.setProgress(loaded, total);
-				} 
-				else if (bar == 2)
-				{
-					bar2.setProgress(loaded, total);
-				}
+				progressBar.setProgress(value, total);
+				progressBar.label = value + " / " + total;
 			}
 			
 		]]>
 	</fx:Script>
 	
-	<mx:ProgressBar id="bar1"
+	<mx:ProgressBar id="progressBar"
 					fontSize="11"
 					fontWeight="normal"
 					mode="manual"
-					labelPlacement="center"
-					label="Metadata"/>
-	<mx:ProgressBar id="bar2"
-					fontSize="11"
-					fontWeight="normal"
-					mode="manual"
-					labelPlacement="center"
-					label="Sprites"/>
+					labelPlacement="center"/>
 </nail:Widget>

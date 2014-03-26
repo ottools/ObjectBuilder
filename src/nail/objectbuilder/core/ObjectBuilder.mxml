@@ -65,8 +65,8 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import mx.core.UIComponent;
 			import mx.collections.ArrayCollection;
+			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 			import mx.events.MenuEvent;
@@ -91,6 +91,7 @@
 			import nail.objectbuilder.commands.GetThingListCommand;
 			import nail.objectbuilder.commands.ImportSpriteCommand;
 			import nail.objectbuilder.commands.ImportThingCommand;
+			import nail.objectbuilder.commands.ImportThingFilesCommand;
 			import nail.objectbuilder.commands.LoadAssetsCommand;
 			import nail.objectbuilder.commands.NewThingCommand;
 			import nail.objectbuilder.commands.RemoveSpritesCommand;
@@ -114,6 +115,7 @@
 			import nail.otlib.loaders.ThingDataLoader;
 			import nail.otlib.things.ThingCategory;
 			import nail.otlib.things.ThingType;
+			import nail.otlib.utils.OTFormat;
 			import nail.otlib.utils.SpriteData;
 			import nail.otlib.utils.SpriteUtils;
 			import nail.otlib.utils.ThingData;
@@ -498,61 +500,6 @@
 					if (window.thingData != null)
 					{
 						sendCommand(new ImportThingCommand(window.thingData, replace));
-					}
-				}
-			}
-			
-			private function onImportThingDataList(list:Vector.<ThingData>) : void
-			{
-				var length : uint;
-				var i : uint;
-				var data : ThingData;
-				var message : String;
-				
-				if (!this.loaded)
-				{
-					return;
-				}
-				
-				length = list.length;
-				if (length == 1)
-				{
-					data = list[0];
-					if (data.category == thingData.category)
-					{
-						message = StringUtil.substitute(resourceManager.getString("controls", "alert.want-to-replace"),
-							ObUtils.toLocale(data.category),
-							thingData.id);
-						
-						Alert.show(message,
-							resourceManager.getString("controls", "alert.import-thing"),
-							Alert.YES | Alert.NO | Alert.CANCEL,
-							this,
-							closeHandler);
-					}
-					else 
-					{
-						sendCommand(new ImportThingCommand(data));
-					}
-				}
-				else 
-				{
-					for (i = 0; i < length; i++)
-					{
-						data = list[i];
-						sendCommand(new ImportThingCommand(data));
-					}
-				}
-				
-				function closeHandler(event:CloseEvent) : void
-				{
-					if (event.detail == Alert.YES)
-					{
-						sendCommand(new ImportThingCommand(data, thingData));
-					}
-					else if (event.detail == Alert.NO)
-					{
-						sendCommand(new ImportThingCommand(data));
 					}
 				}
 			}
@@ -1459,9 +1406,9 @@
 				var clipboard : Clipboard;
 				var dropfiles : Array;
 				var length : uint;
+				var file : File;
 				var i : uint;
 				var files : Array;
-				var loader : ThingDataLoader;
 				
 				if (!loaded)
 				{
@@ -1469,7 +1416,6 @@
 				}
 				
 				clipboard = event.clipboard;
-				
 				if (clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT))
 				{
 					dropfiles = clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
@@ -1478,17 +1424,17 @@
 					
 					for (i = 0; i < length; i++)
 					{
-						files.push(dropfiles[i]);
+						file = dropfiles[i];
+						if (file.extension == OTFormat.OBD)
+						{
+							files.push(file.nativePath);
+						}
 					}
-				}
-				
-				loader = new ThingDataLoader();
-				loader.addEventListener(Event.COMPLETE, completeHandler);
-				loader.loadFiles(files);
-				
-				function completeHandler(event:Event) : void
-				{
-					onImportThingDataList(loader.thingDataList);
+					
+					if (files.length > 0)
+					{
+						sendCommand(new ImportThingFilesCommand(files));
+					}
 				}
 			}
 			

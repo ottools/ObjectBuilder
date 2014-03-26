@@ -48,9 +48,11 @@
 			import nail.objectbuilder.commands.CommandType;
 			import nail.objectbuilder.commands.GetSpriteListCommand;
 			import nail.objectbuilder.commands.GetThingCommand;
+			import nail.objectbuilder.commands.ProgressBarID;
 			import nail.objectbuilder.core.ObjectBuilder;
 			import nail.otlib.assets.AssetsInfo;
-			import nail.otlib.components.controls.CustomProgressBar;
+			import nail.otlib.components.controls.DatSprProgressBar;
+			import nail.otlib.components.controls.DefaultProgressBar;
 			import nail.otlib.things.ThingCategory;
 			import nail.otlib.things.ThingType;
 			import nail.otlib.utils.SpriteData;
@@ -67,7 +69,8 @@
 			
 			[Embed(source="../workerswfs/nail/objectbuilder/core/ObjectBuilderWorker.swf", mimeType="application/octet-stream")]
 			public var ObjectBuilderWorker : Class;
-			private var _progressBar : CustomProgressBar;
+			private var _datSprProgressBar : DatSprProgressBar;
+			private var _defaultProgressBar : DefaultProgressBar;
 			private var _logger : ILogger = Log.getLogger("nail.Main");
 			private var _directory : File;
 			private var _errorAlert : Alert;
@@ -110,10 +113,10 @@
 			override public function onError(message:String, stack:String = "", id:uint = 0) : void
 			{
 				// Close progress bar
-				if (_progressBar != null)
+				if (_datSprProgressBar != null)
 				{
-					_progressBar.close();
-					_progressBar = null;
+					_datSprProgressBar.close();
+					_datSprProgressBar = null;
 				}
 				
 				// Show error
@@ -141,22 +144,39 @@
 			// Private
 			//--------------------------------------
 			
-			private function onShowProgressBar(title:String) : void
+			private function onShowProgressBar(id:uint, title:String) : void
 			{
-				if (_progressBar == null)
+				switch(id)
 				{
-					_progressBar = new CustomProgressBar();
-					_progressBar.title = title;
+					case ProgressBarID.DAT_SPR:
+					{
+						this.showDatSprProgressBar(title);
+						break;
+					}
+					
+					case ProgressBarID.DEFAULT:
+					{
+						this.showDefaultProgressBar(title);
+						break;
+					}
 				}
-				_progressBar.open();
 			}
 			
-			private function onHideProgressBar() : void
+			private function onHideProgressBar(id:uint) : void
 			{
-				if (_progressBar != null)
+				switch(id)
 				{
-					_progressBar.close();
-					_progressBar = null;
+					case ProgressBarID.DAT_SPR:
+					{
+						this.hideDatSprProgressBar();
+						break;
+					}
+					
+					case ProgressBarID.DEFAULT:
+					{
+						this.hideDefaultProgressBar();
+						break;
+					}
 				}
 			}
 			
@@ -208,6 +228,44 @@
 				ObjectBuilder(application).setSpriteList(target, min, max, list);
 			}
 			
+			private function showDatSprProgressBar(title:String) : void
+			{
+				if (_datSprProgressBar == null)
+				{
+					_datSprProgressBar = new DatSprProgressBar();
+					_datSprProgressBar.title = title;
+				}
+				_datSprProgressBar.open();
+			}
+			
+			private function hideDatSprProgressBar() : void
+			{
+				if (_datSprProgressBar != null)
+				{
+					_datSprProgressBar.close();
+					_datSprProgressBar = null;
+				}
+			}
+			
+			private function showDefaultProgressBar(title:String) : void
+			{
+				if (_defaultProgressBar == null)
+				{
+					_defaultProgressBar = new DefaultProgressBar();
+					_defaultProgressBar.title = title;
+				}
+				_defaultProgressBar.open();
+			}
+			
+			private function hideDefaultProgressBar() : void
+			{
+				if (_defaultProgressBar != null)
+				{
+					_defaultProgressBar.close();
+					_defaultProgressBar = null;
+				}
+			}
+			
 			//--------------------------------------
 			// Override Protected
 			//--------------------------------------
@@ -257,11 +315,28 @@
 				return new ObjectBuilderWorker();
 			}
 			
-			override protected function onProgress(bar:uint, loaded:uint, total:uint) : void
+			override protected function onProgress(id:uint, loaded:uint, total:uint) : void
 			{
-				if (_progressBar != null)
+				switch(id)
 				{
-					_progressBar.setProgress(bar, loaded, total);
+					case ProgressBarID.DAT:
+					case ProgressBarID.SPR:
+					{
+						if (_datSprProgressBar != null)
+						{
+							_datSprProgressBar.setProgress(id, loaded, total);
+						}
+						break;
+					}
+					
+					case ProgressBarID.DEFAULT:
+					{
+						if (_defaultProgressBar != null)
+						{
+							_defaultProgressBar.setProgress(loaded, total);
+						}
+						break;
+					}
 				}
 			}
 			

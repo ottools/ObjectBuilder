@@ -54,6 +54,7 @@ package nail.objectbuilder.commands
 		static public const REPLACE_THING : String = "replaceThing";
 		static public const DUPLICATE_THING : String = "duplicateThing";
 		static public const IMPORT_THING : String = "importThing";
+		static public const IMPORT_THING_FILES : String = "importThingFiles";
 		static public const UPDATE_THING : String = "updateThing";
 		static public const REMOVE_THING : String = "removeThing";
 		static public const GET_THING : String = "getThing";

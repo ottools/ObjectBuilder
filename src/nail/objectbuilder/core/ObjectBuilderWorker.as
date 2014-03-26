@@ -39,15 +39,19 @@ package nail.objectbuilder.core
 	import nail.objectbuilder.commands.ErrorCommand;
 	import nail.objectbuilder.commands.FindResultCommand;
 	import nail.objectbuilder.commands.FindThingProgressCommand;
+	import nail.objectbuilder.commands.HideProgressBarCommand;
 	import nail.objectbuilder.commands.MessageCommand;
+	import nail.objectbuilder.commands.ProgressBarID;
 	import nail.objectbuilder.commands.SetAssetsInfoCommand;
 	import nail.objectbuilder.commands.SetSpriteListCommand;
 	import nail.objectbuilder.commands.SetThingCommand;
 	import nail.objectbuilder.commands.SetThingListCommand;
+	import nail.objectbuilder.commands.ShowProgressBarCommand;
 	import nail.objectbuilder.utils.ObUtils;
 	import nail.otlib.assets.AssetsInfo;
 	import nail.otlib.assets.AssetsVersion;
 	import nail.otlib.events.ThingTypeStorageEvent;
+	import nail.otlib.loaders.ThingDataLoader;
 	import nail.otlib.sprites.Sprite;
 	import nail.otlib.sprites.SpriteStorage;
 	import nail.otlib.things.ThingCategory;
@@ -119,6 +123,7 @@ package nail.objectbuilder.core
 			registerCommand(CommandType.GET_THING, onGetThing);
 			registerCommand(CommandType.UPDATE_THING, onChangeThing);
 			registerCommand(CommandType.IMPORT_THING, onImportThing);
+			registerCommand(CommandType.IMPORT_THING_FILES, onImportThingFiles);
 			registerCommand(CommandType.DUPLICATE_THING, onDuplicateThing);
 			registerCommand(CommandType.REMOVE_THING, onRemoveThing);
 			registerCommand(CommandType.FIND_THING, onFindThing);
@@ -242,7 +247,7 @@ package nail.objectbuilder.core
 			_enableSpritesU32 = enableSpritesU32;
 			
 			title = _resources.getString("controls", "log.loading");
-			sendCommand(new Command(CommandType.SHOW_PROGRESS_BAR, title));
+			sendCommand(new ShowProgressBarCommand(ProgressBarID.DAT_SPR, title));
 			
 			createStorage();
 			setSharedProperty("compiled", true);
@@ -296,7 +301,7 @@ package nail.objectbuilder.core
 			version = AssetsVersion.getVersionBySignatures(datSignature, sprSignature);
 			
 			title = _resources.getString("controls", "log.compiling");
-			sendCommand(new Command(CommandType.SHOW_PROGRESS_BAR, title));
+			sendCommand(new ShowProgressBarCommand(ProgressBarID.DAT_SPR, title));
 			
 			if (_things.compile(dat, version, enableSpritesU32) &&
 				_sprites.compile(spr, version, enableSpritesU32, this._enableSpritesU32 != enableSpritesU32))
@@ -531,6 +536,29 @@ package nail.objectbuilder.core
 			}
 		}
 		
+		private function onImportThingFiles(files:Array) : void
+		{
+			var list : Array;
+			var length : uint;
+			var i : uint;
+			var loader : ThingDataLoader;
+			
+			list = [];
+			length = files.length;
+			for (i = 0; i < length; i++)
+			{
+				list[i] = new File(files[i]);
+			}
+			
+			sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT,
+				_resources.getString("controls", "label.loadingFiles")));
+			
+			loader = new ThingDataLoader();
+			loader.addEventListener(ProgressEvent.PROGRESS, importThingProgressHandler);
+			loader.addEventListener(Event.COMPLETE, importThingCompleteHandler);
+			loader.loadFiles(list);
+		}
+		
 		private function onDuplicateThing(id:uint, category:String) : void
 		{
 			var thing : ThingType;
@@ -743,7 +771,7 @@ package nail.objectbuilder.core
 		
 		private function assetsLoadComplete() : void
 		{
-			sendCommand(new Command(CommandType.HIDE_PROGRESS_BAR));
+			sendCommand(new HideProgressBarCommand(ProgressBarID.DAT_SPR));
 			sendCommand(new Command(CommandType.LOAD_COMPLETE));
 			sendCommand(new MessageCommand(_resources.getString("controls", "log.load-complete"), "Info"));
 		}
@@ -751,7 +779,7 @@ package nail.objectbuilder.core
 		private function assetsCompileComplete() : void
 		{
 			setSharedProperty("compiled", true);
-			sendCommand(new Command(CommandType.HIDE_PROGRESS_BAR));
+			sendCommand(new HideProgressBarCommand(ProgressBarID.DAT_SPR));
 			sendCommand(new MessageCommand(_resources.getString("controls", "log.compile-complete"), "Info"));
 		}
 		
@@ -952,7 +980,7 @@ package nail.objectbuilder.core
 		
 		protected function thingsProgressHandler(event:ProgressEvent) : void
 		{
-			sendProgress(1, event.bytesLoaded, event.bytesTotal);
+			sendProgress(ProgressBarID.DAT, event.bytesLoaded, event.bytesTotal);
 		}
 		
 		protected function thingsErrorHandler(event:ErrorEvent) : void
@@ -977,6 +1005,104 @@ package nail.objectbuilder.core
 			}
 		}	
 		
+		protected function importThingProgressHandler(event:ProgressEvent) : void
+		{
+			sendProgress(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal);
+		}
+		
+		protected function importThingCompleteHandler(event:Event) : void
+		{
+			var thingDataList : Vector.<ThingData>;
+			var dataLength : uint;
+			var d : uint;
+			var thing : ThingType;
+			var sprites : Vector.<SpriteData>;
+			var spriteLength : uint;
+			var s : uint;
+			var spriteId : uint;
+			var pixels : ByteArray;
+			var spritesAdded : Array;
+			var message : String;
+			
+			// Close current instance of DefaultProgressBar
+			sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
+			
+			// Open new instance of DefaultProgressBar
+			sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT,
+				_resources.getString("controls", "label.importingObjects")));
+			
+			// Temporarily remove change events.
+			_things.removeEventListener(Event.CHANGE, thingsChangeHandler);
+			_sprites.removeEventListener(Event.CHANGE, spritesChangeHandler);
+			
+			thingDataList = ThingDataLoader(event.target).thingDataList;
+			dataLength = thingDataList.length;
+			spritesAdded = [];
+			
+			for (d = 0; d < dataLength; d++)
+			{
+				// Add thing
+				thing = thingDataList[d].thing;
+				if (_things.addThing(thing, thing.category))
+				{
+					// Send import message.
+					message = _resources.getString("controls", "log.added-new-thing");
+					message = StringUtil.substitute(message, ObUtils.toLocale(thing.category), thing.id);
+					sendCommand(new MessageCommand(message, "log"));
+				}
+				
+				// Add sprites
+				sprites = thingDataList[d].sprites;
+				spriteLength = sprites.length;
+				
+				for (s = 0; s < spriteLength; s++)
+				{
+					pixels = sprites[s].pixels;
+					spriteId = thing.spriteIndex[s];
+					
+					// Only add if sprite are not equal.
+					if (!_sprites.compare(spriteId, pixels))
+					{
+						if (_sprites.addSprite(pixels))
+						{
+							thing.spriteIndex[s] = _sprites.spritesCount;
+							spritesAdded.push(_sprites.spritesCount);
+						}
+					}
+				}
+				
+				sendProgress(ProgressBarID.DEFAULT, d, dataLength);
+			}
+			
+			// Again add change events.
+			_things.addEventListener(Event.CHANGE, thingsChangeHandler);
+			_sprites.addEventListener(Event.CHANGE, spritesChangeHandler);
+			
+			// Update all.
+			onGetAssetsInfo();
+			onGetThing(thing.id, thing.category);
+			onGetThingList(thing.id, thing.category);
+			onGetSpriteList(_sprites.spritesCount);
+			
+			// Send sprites ids to log.
+			if (spritesAdded.length > 0)
+			{
+				if (spritesAdded.length == 1)
+				{
+					message = StringUtil.substitute(_resources.getString("controls", "log.added-sprite"), _sprites.spritesCount);
+				}
+				else
+				{
+					message = StringUtil.substitute(_resources.getString("controls", "log.added-sprites"), spritesAdded);
+				}
+				
+				sendCommand(new MessageCommand(message, "log"));
+			}
+			
+			// Close current instance of DefaultProgressBar
+			sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
+		}
+		
 		protected function thingFindProgressHandler(event:ThingTypeStorageEvent) : void
 		{
 			sendCommand(new FindThingProgressCommand(event.loaded, event.total));
@@ -998,7 +1124,7 @@ package nail.objectbuilder.core
 		
 		protected function spritesProgressHandler(event:ProgressEvent) : void
 		{
-			sendProgress(2, event.bytesLoaded, event.bytesTotal);
+			sendProgress(ProgressBarID.SPR, event.bytesLoaded, event.bytesTotal);
 		}
 		
 		protected function spritesErrorHandler(event:ErrorEvent) : void
