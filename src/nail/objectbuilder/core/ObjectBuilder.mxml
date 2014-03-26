@@ -65,6 +65,7 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import mx.core.UIComponent;
 			import mx.collections.ArrayCollection;
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
@@ -1440,19 +1441,20 @@
 				}
 			}
 			
-			protected function thingViewGroupNativeDragEnterHandler(event:NativeDragEvent) : void
+			protected function thingDataNativeDragEnterHandler(event:NativeDragEvent) : void
 			{
-				if (loaded && event.target === thingViewGroup)
+				if (loaded && event.target === thingViewGroup ||
+					event.target === thingList)
 				{
 					if (event.clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT))
 					{
 						NativeDragManager.dropAction = NativeDragActions.LINK;
-						DragManager.acceptDragDrop(thingViewGroup);
+						DragManager.acceptDragDrop(UIComponent(event.target));
 					}
 				}
 			}
 			
-			protected function thingViewGroupNativeDragDropHandler(event:NativeDragEvent) : void
+			protected function thingDataNativeDragDropHandler(event:NativeDragEvent) : void
 			{
 				var clipboard : Clipboard;
 				var dropfiles : Array;
@@ -2034,8 +2036,8 @@
 						   label="@Resource(key='label.view', bundle='controls')"
 						   width="100%"
 						   height="100%"
-						   nativeDragEnter="thingViewGroupNativeDragEnterHandler(event)"
-						   nativeDragDrop="thingViewGroupNativeDragDropHandler(event)">
+						   nativeDragEnter="thingDataNativeDragEnterHandler(event)"
+						   nativeDragDrop="thingDataNativeDragDropHandler(event)">
 				<otlib:ThingView id="thingView"
 								 horizontalCenter="0"
 								 verticalCenter="0"/>
@@ -2134,6 +2136,8 @@
 							 remove="removeThingHandler(event)"
 							 doubleClick="editThingHandler(event)"
 							 change="thingListChangeHandler(event)"
+							 nativeDragEnter="thingDataNativeDragEnterHandler(event)"
+							 nativeDragDrop="thingDataNativeDragDropHandler(event)"
 							 updateComplete="thingListUpdateCompleteHandler(event)"/>
 			
 			<s:HGroup width="100%"
