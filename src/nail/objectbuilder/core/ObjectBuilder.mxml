@@ -172,12 +172,14 @@
 			public function setAssetsInfo(info:AssetsInfo) : void
 			{
 				var visible : Boolean;
+				var version : AssetsVersion;
 				
 				_info = info;
 				
 				if (_info != null)
 				{
-					assetsVersionLabel.text = AssetsVersion.getVersionByValue(_info.version).toString();
+					version = AssetsVersion.getVersionBySignatures(_info.datSignature, _info.sprSignature);
+					assetsVersionLabel.text = version.toString();
 					datSignatureLabel.text = _info.datSignature.toString(16).toUpperCase();
 					itemsCountLabel.text = _info.maxItemId.toString();
 					outfitsCountLabel.text  =_info.maxOutfitId.toString();
@@ -748,7 +750,7 @@
 				
 				window = new CompileAssetsWindow();
 				window.directory = _settings.getLastDirectory();
-				window.version = AssetsVersion.getVersionByValue(_info.version);
+				window.version = AssetsVersion.getVersionBySignatures(_info.datSignature, _info.sprSignature);
 				window.enableSpritesU32 = _info.extended;
 				window.filesName = _filesName;
 				window.addEventListener(Event.CLOSE, windowCloseHandler);
@@ -1300,10 +1302,17 @@
 			protected function exportThingHandler(event:Event) : void
 			{
 				var window : ExportWindow;
+				var version : AssetsVersion;
 				
 				if (!this.loaded || this.thingData == null)
 				{
 					return;
+				}
+				
+				version = _settings.getLastExportThingVersion();
+				if (version == null)
+				{
+					version = AssetsVersion.getVersionBySignatures(_info.datSignature, _info.sprSignature);
 				}
 				
 				window = new ExportWindow();
@@ -1311,7 +1320,7 @@
 				window.fileName = thingData.category + "_" + thingData.id;
 				window.directory = _settings.getLastImportExportDirectory();
 				window.format = _settings.getLastExportThingFormat();
-				window.version = _settings.getLastExportThingVersion() || AssetsVersion.getVersionByValue(_info.version);
+				window.version = version;
 				window.addEventListener(Event.CLOSE, windowCloseHandler);
 				window.open();
 				

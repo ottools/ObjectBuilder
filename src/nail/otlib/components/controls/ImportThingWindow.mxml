@@ -82,6 +82,7 @@
 				var bytes : ByteArray;
 				var stream : FileStream;
 				var data : ThingData;
+				var version : AssetsVersion;
 				
 				_thingData = null;
 				bytes = new ByteArray();
@@ -104,13 +105,14 @@
 				_directory = FileUtils.getDirectory(file);
 				fileTextInput.text = file.nativePath;
 				
-				if (data != null)
+				bytes.position = 0;
+				version = AssetsVersion.getVersionByValue( bytes.readUnsignedShort() );
+				if (data != null && version != null)
 				{
 					typeLabel.text = StringUtil.capitaliseFirstLetter(data.category);
+					versionLabel.text = version.toString();
 				}
 				
-				bytes.position = 0;
-				versionLabel.text = AssetsVersion.getVersionByValue( bytes.readUnsignedShort() ).toString();
 				thingView.thingData = data;
 				confirmButton.enabled = (data != null);
 			}

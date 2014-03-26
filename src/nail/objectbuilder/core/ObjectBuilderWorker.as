@@ -134,20 +134,20 @@ package nail.objectbuilder.core
 		// Private
 		//--------------------------------------
 		
-		private function onCreateNewAssets(versionValue:uint, enableSpritesU32:Boolean) : void
+		private function onCreateNewAssets(datSignature:uint, sprSignature:uint, enableSpritesU32:Boolean) : void
 		{
 			var version : AssetsVersion;
 			var thing : ThingType;
 			
-			if (versionValue == 0)
+			if (datSignature == 0 || sprSignature == 0)
 			{
 				throw new ArgumentError(_resources.getString("controls", "error.invalid-version"));
 			}
 			
-			version = AssetsVersion.getVersionByValue(versionValue);
+			version = AssetsVersion.getVersionBySignatures(datSignature, sprSignature);
 			if (version == null)
 			{
-				throw new Error(StringUtil.substitute(_resources.getString("controls", "error.unsupported-version"), versionValue));
+				throw new ArgumentError(_resources.getString("controls", "error.invalid-version"));
 			}
 			
 			_version = version;
@@ -213,7 +213,11 @@ package nail.objectbuilder.core
 			_sprites.addEventListener(ErrorEvent.ERROR, spritesErrorHandler);
 		}
 		
-		private function onLoadAssets(datPath:String, sprPath:String, versionValue:uint, enableSpritesU32:Boolean) : void
+		private function onLoadAssets(datPath:String,
+									  sprPath:String,
+									  datSignature:uint,
+									  sprSignature:uint,
+									  enableSpritesU32:Boolean) : void
 		{
 			var title : String;
 			
@@ -227,14 +231,14 @@ package nail.objectbuilder.core
 				throw new ArgumentError("Parameter sprPath cannot be null or empty.");
 			}
 			
-			if (versionValue == 0)
+			if (datSignature == 0 || sprSignature == 0)
 			{
 				throw new ArgumentError(_resources.getString("controls", "error.invalid-version"));
 			}
 			
 			_datFile = new File(datPath);
 			_sprFile = new File(sprPath);
-			_version = AssetsVersion.getVersionByValue(versionValue);
+			_version = AssetsVersion.getVersionBySignatures(datSignature, sprSignature);
 			_enableSpritesU32 = enableSpritesU32;
 			
 			title = _resources.getString("controls", "log.loading");
@@ -251,7 +255,11 @@ package nail.objectbuilder.core
 			this.sendAssetsInfo();
 		}
 		
-		private function onCompileAssets(datPath:String, sprPath:String, versionValue:uint, enableSpritesU32:Boolean) : void
+		private function onCompileAssets(datPath:String,
+										 sprPath:String,
+										 datSignature:uint,
+										 sprSignature:uint,
+										 enableSpritesU32:Boolean) : void
 		{
 			var dat : File;
 			var spr : File;
@@ -268,7 +276,7 @@ package nail.objectbuilder.core
 				throw new ArgumentError("Parameter sprPath cannot be null or empty.");
 			}
 			
-			if (versionValue == 0)
+			if (datSignature == 0 || sprSignature == 0)
 			{
 				throw new ArgumentError(_resources.getString("controls", "error.invalid-version"));
 			}
@@ -285,7 +293,7 @@ package nail.objectbuilder.core
 			
 			dat = new File(datPath);
 			spr = new File(sprPath);
-			version = AssetsVersion.getVersionByValue(versionValue);
+			version = AssetsVersion.getVersionBySignatures(datSignature, sprSignature);
 			
 			title = _resources.getString("controls", "log.compiling");
 			sendCommand(new Command(CommandType.SHOW_PROGRESS_BAR, title));
@@ -953,7 +961,7 @@ package nail.objectbuilder.core
 			if (!_enableSpritesU32)
 			{
 				_error = new ErrorCommand(event.text, "", event.errorID);
-				onLoadAssets(_datFile.nativePath, _sprFile.nativePath, _version.value, true);
+				onLoadAssets(_datFile.nativePath, _sprFile.nativePath, _version.datSignature, _version.sprSignature, true);
 			}
 			else 
 			{

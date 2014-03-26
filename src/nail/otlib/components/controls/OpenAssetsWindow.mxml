@@ -231,7 +231,7 @@
 					stream.open(spr, FileMode.READ);
 					stream.endian = Endian.LITTLE_ENDIAN;
 					sprSignature = stream.readUnsignedInt();
-					version = AssetsVersion.getVersionBySignatures(sprSignature, datSignature);
+					version = AssetsVersion.getVersionBySignatures(datSignature, sprSignature);
 					
 					if (version == null)
 					{

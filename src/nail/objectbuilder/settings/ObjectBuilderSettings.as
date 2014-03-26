@@ -43,7 +43,8 @@ package nail.objectbuilder.settings
 		public var lastDirectory : String;
 		public var lastImportExportDirectory : String;
 		public var lastExportThingFormat : String;
-		public var lastExportThingVersion : int;
+		public var datSignature : int;
+		public var sprSignature : int;
 		public var lastExportSpriteFormat : String;
 		public var autosaveThingChanges : Boolean;
 		public var maximized : Boolean;
@@ -149,12 +150,13 @@ package nail.objectbuilder.settings
 		
 		public function getLastExportThingVersion() : AssetsVersion
 		{
-			return AssetsVersion.getVersionByValue(lastExportThingVersion);
+			return AssetsVersion.getVersionBySignatures(datSignature, sprSignature);
 		}
 		
 		public function setLastExportThingVersion(version:AssetsVersion) : void
 		{
-			this.lastExportThingVersion = version == null ? 0 : version.value;
+			this.datSignature = version == null ? 0 : version.datSignature;
+			this.sprSignature = version == null ? 0 : version.sprSignature;
 		}
 		
 		public function getLastExportSpriteFormat() : String
