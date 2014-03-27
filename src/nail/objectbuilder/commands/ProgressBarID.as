@@ -49,5 +49,6 @@ package nail.objectbuilder.commands
 		static public const SPR : uint = 2;
 		static public const DAT_SPR : uint = 3;
 		static public const DEFAULT : uint = 4;
+		static public const FIND_THING : uint = 5;
 	}
 }

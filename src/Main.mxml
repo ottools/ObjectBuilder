@@ -142,7 +142,6 @@
 				registerFunction(CommandType.SET_THING, onSetThing);
 				registerFunction(CommandType.SET_THING_LIST, onSetThingList);
 				registerFunction(CommandType.FIND_RESULT, onFindResult);
-				registerFunction(CommandType.FIND_THING_PROGRESS, onFindThingProgress);
 				registerFunction(CommandType.SET_SPRITE_LIST, onSetSpriteList);
 			}
 			
@@ -170,6 +169,12 @@
 						{
 							_defaultProgressBar.setProgress(loaded, total);
 						}
+						break;
+					}
+					
+					case ProgressBarID.FIND_THING:
+					{
+						ObjectBuilder(application).setFindThingProgress(loaded, total);
 						break;
 					}
 				}
@@ -245,11 +250,6 @@
 			private function onFindResult(list:Array) : void
 			{
 				ObjectBuilder(application).setFindThingResultList(list);
-			}
-			
-			private function onFindThingProgress(loaded:uint, total:uint) : void
-			{
-				ObjectBuilder(application).setFindThingProgress(loaded, total);
 			}
 			
 			private function onSetSpriteList(target:uint, min:uint, max:uint, list:Vector.<SpriteData>) : void

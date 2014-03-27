@@ -38,7 +38,6 @@ package nail.objectbuilder.core
 	import nail.objectbuilder.commands.CommandType;
 	import nail.objectbuilder.commands.ErrorCommand;
 	import nail.objectbuilder.commands.FindResultCommand;
-	import nail.objectbuilder.commands.FindThingProgressCommand;
 	import nail.objectbuilder.commands.HideProgressBarCommand;
 	import nail.objectbuilder.commands.MessageCommand;
 	import nail.objectbuilder.commands.ProgressBarID;
@@ -1112,7 +1111,7 @@ package nail.objectbuilder.core
 		
 		protected function thingFindProgressHandler(event:ThingTypeStorageEvent) : void
 		{
-			sendCommand(new FindThingProgressCommand(event.loaded, event.total));
+			sendProgress(ProgressBarID.FIND_THING, event.loaded, event.total);
 		}
 		
 		protected function spritesCompleteHandler(event:Event) : void
