@@ -177,13 +177,17 @@
 			  paddingBottom="10">
 		<s:Button id="saveButton"
 				  label="@Resource(key='menu.save', bundle='controls')"
-				  width="70"
+				  minWidth="70"
 				  enabled="false"
 				  click="saveButtonClickHandler(event)"/>
+		<s:Button id="clearButton"
+				  label="@Resource(key='label.clear', bundle='controls')"
+				  minWidth="70"
+				  click="{text = ''}"/>
 		<s:Spacer width="100%"/>
 		<s:Button id="closeButton"
 				  label="@Resource(key='menu.close', bundle='controls')"
-				  width="70"
+				  minWidth="70"
 				  click="close()"/>
 	</s:HGroup>
 </s:Window>
