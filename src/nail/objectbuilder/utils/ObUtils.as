@@ -24,12 +24,17 @@
 
 package nail.objectbuilder.utils
 {
+	import flash.filesystem.File;
+	
 	import mx.resources.ResourceManager;
 	
 	import nail.errors.AbstractClassError;
 	import nail.otlib.things.ThingCategory;
+	import nail.otlib.things.ThingType;
+	import nail.utils.StringUtil;
 
 	[ResourceBundle("controls")]
+	[ResourceBundle("otlibControls")]
 	
 	public final class ObUtils
 	{
@@ -78,6 +83,30 @@ package nail.objectbuilder.utils
 		static public function hundredFloor(value:uint) : uint
 		{
 			return (Math.floor(value / 100) * 100);
+		}
+		
+		static public function getPatternsString(thing:ThingType) : String
+		{
+			var text : String;
+			
+			text = ResourceManager.getInstance().getString("otlibControls", "thing.width") + "={0}" + File.lineEnding +
+				   ResourceManager.getInstance().getString("otlibControls", "thing.height") + "={1}" + File.lineEnding +
+				   ResourceManager.getInstance().getString("otlibControls", "thing.crop-size") + "={2}" + File.lineEnding +
+				   ResourceManager.getInstance().getString("otlibControls", "thing.layers") + "={3}" + File.lineEnding +
+				   ResourceManager.getInstance().getString("otlibControls", "thing.pattern-x") + "={4}" + File.lineEnding +
+				   ResourceManager.getInstance().getString("otlibControls", "thing.pattern-y") + "={5}" + File.lineEnding +
+				   ResourceManager.getInstance().getString("otlibControls", "thing.pattern-z") + "={6}" + File.lineEnding +
+				   ResourceManager.getInstance().getString("otlibControls", "thing.frames") + "={7}" + File.lineEnding;
+			
+			return StringUtil.substitute(text,
+										 thing.width,
+										 thing.height,
+										 thing.exactSize,
+										 thing.layers,
+										 thing.patternX,
+										 thing.patternY,
+										 thing.patternZ,
+										 thing.frames);
 		}
 	}
 }

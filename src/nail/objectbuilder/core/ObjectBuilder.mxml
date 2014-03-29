@@ -512,18 +512,19 @@
 				
 				try
 				{
+					helper = new SaveHelper();
+					
 					if (ImageFormat.hasImageFormat(format))
 					{
 						bitmap = ThingData.getSpriteSheet(data);
 						bytes = ImageCodec.encode(bitmap, format);
-						
+						helper.addFile(ObUtils.getPatternsString(data.thing), fileName, "txt", directory);
 					}
-					else if (format == "obd")
+					else if (format == OTFormat.OBD)
 					{
 						bytes = ThingData.serialize(data, version);
 					}
 					
-					helper = new SaveHelper();
 					helper.addFile(bytes, fileName, format, directory);
 					helper.save();
 				} 
