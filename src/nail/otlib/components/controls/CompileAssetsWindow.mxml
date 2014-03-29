@@ -37,12 +37,13 @@
 		  fontSize="11"
 		  backgroundColor="0x494949"
 		  showStatusBar="false"
-		  title="@Resource(key='compileClientFiles', bundle='strings')"
+		  title="@Resource(key='compileClientFiles', bundle='obstrings')"
 		  creationComplete="creationCompleteHandler(event)"
 		  closing="windowClosingHandler(event)">
 	
 	<fx:Metadata>
 		[ResourceBundle("strings")]
+		[ResourceBundle("obstrings")]
 	</fx:Metadata>
 	
 	<fx:Script>
