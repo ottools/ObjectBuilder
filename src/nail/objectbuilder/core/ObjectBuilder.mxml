@@ -43,6 +43,8 @@
 				<menuitem label="{resourceManager.getString('obstrings', 'menu.new')}" data="fileNew" icon="nail.objectbuilder.core.Icons_NEW_FILES"/>
 				<menuitem label="{resourceManager.getString('obstrings', 'menu.open')}" data="fileOpen" icon="nail.objectbuilder.core.Icons_OPEN"/>
 				<menuitem label="{resourceManager.getString('obstrings', 'menu.compile')}" data="fileCompile" icon="nail.objectbuilder.core.Icons_SAVE"/>
+				<menuitem type="separator"/>
+				<menuitem label="{resourceManager.getString('obstrings', 'menu.exit')}" data="fileExit"/>
 			</menuitem>
 			<menuitem label="{resourceManager.getString('obstrings', 'menu.edit')}">
 				<menuitem label="{resourceManager.getString('obstrings', 'menu.autoSave')}" type="check" data="editAutosave"/>
@@ -1166,6 +1168,10 @@
 					
 					case "fileCompile":
 						this.onCompile();
+						break;
+					
+					case "fileExit":
+						this.close();
 						break;
 					
 					case "viewShowObjectList":
