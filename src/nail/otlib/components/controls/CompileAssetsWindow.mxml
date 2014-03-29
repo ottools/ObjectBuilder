@@ -37,9 +37,13 @@
 		  fontSize="11"
 		  backgroundColor="0x494949"
 		  showStatusBar="false"
-		  title="@Resource(key='caw.title', bundle='controls')"
+		  title="@Resource(key='compileClientFiles', bundle='strings')"
 		  creationComplete="creationCompleteHandler(event)"
 		  closing="windowClosingHandler(event)">
+	
+	<fx:Metadata>
+		[ResourceBundle("strings")]
+	</fx:Metadata>
 	
 	<fx:Script>
 		<![CDATA[
@@ -147,7 +151,7 @@
 				path = _directory != null ? _directory.nativePath : File.documentsDirectory.nativePath;
 				dir = new File(path);
 				dir.addEventListener(Event.SELECT, fileSelectHandler);
-				dir.browseForDirectory(resourceManager.getString("controls", "caw.select-folder"));
+				dir.browseForDirectory(resourceManager.getString("strings", "selectFolder"));
 				
 				function fileSelectHandler(event:Event) : void
 				{
@@ -291,7 +295,7 @@
 		</s:layout>
 		
 		<nail:GroupBox width="100%"
-					   label="@Resource(key='label.name', bundle='controls')">
+					   label="{resourceManager.getString('strings', 'name') + ':'}">
 			<nail:layout>
 				<s:HorizontalLayout gap="10"
 									verticalAlign="middle"
@@ -307,7 +311,7 @@
 						 change="nameTextInputChangeHandler(event)"/>
 		</nail:GroupBox>
 		
-		<nail:GroupBox width="100%" label="@Resource(key='caw.output-folder', bundle='controls')">
+		<nail:GroupBox width="100%" label="{resourceManager.getString('strings', 'outputFolder') + ':'}">
 			<nail:layout>
 				<s:HorizontalLayout gap="10"
 									verticalAlign="middle"
@@ -322,12 +326,12 @@
 						 width="100%"
 						 change="directoryTextInputChangeHandler(event)"/>
 			<s:Button id="browseButton"
-					  label="@Resource(key='label.browse', bundle='controls')"
+					  label="@Resource(key='browse', bundle='strings')"
 					  height="21"
 					  click="browseButtonClickHandler(event)"/>
 		</nail:GroupBox>
 		
-		<nail:GroupBox width="100%" label="@Resource(key='label.version', bundle='controls')">
+		<nail:GroupBox width="100%" label="@Resource(key='version', bundle='strings')">
 			<nail:layout>
 				<s:HorizontalLayout gap="10"
 									verticalAlign="middle"
@@ -340,7 +344,7 @@
 							height="21"
 							change="versionsDropDownListChangeHandler(event)"/>
 			<s:CheckBox id="enableU32CheckBox"
-						label="@Resource(key='label.extended', bundle='controls')"
+						label="@Resource(key='extended', bundle='strings')"
 						change="enableU32CheckBoxChangeHandler(event)"/>
 		</nail:GroupBox>
 		
@@ -352,12 +356,12 @@
 				  verticalAlign="middle"
 				  horizontalAlign="right">
 			<s:Button id="confirmButton"
-					  label="@Resource(key='label.confirm', bundle='controls')"
+					  label="@Resource(key='confirm', bundle='strings')"
 					  minWidth="70"
 					  enabled="false"
 					  click="confirmButtonClickHandler(event)"/>
 			<s:Button id="cancelButton"
-					  label="@Resource(key='label.cancel', bundle='controls')"
+					  label="@Resource(key='cancel', bundle='strings')"
 					  minWidth="70"
 					  click="close()"/>
 		</s:HGroup>

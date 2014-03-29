@@ -33,6 +33,10 @@
 	
 	<fx:Style source="css/style.css"/>
 	
+	<fx:Metadata>
+		[ResourceBundle("obstrings")]
+	</fx:Metadata>
+	
 	<fx:Script>
 		<![CDATA[
 			import flash.net.registerClassAlias;
@@ -50,6 +54,7 @@
 			import nail.objectbuilder.commands.GetThingCommand;
 			import nail.objectbuilder.commands.ProgressBarID;
 			import nail.objectbuilder.core.ObjectBuilder;
+			import nail.objectbuilder.settings.ObjectBuilderSettings;
 			import nail.otlib.assets.AssetsInfo;
 			import nail.otlib.components.controls.DatSprProgressBar;
 			import nail.otlib.components.controls.DefaultProgressBar;
@@ -58,6 +63,7 @@
 			import nail.otlib.utils.SpriteData;
 			import nail.otlib.utils.ThingListItem;
 			import nail.otlib.utils.ThingProperty;
+			import nail.settings.Settings;
 			import nail.utils.FileUtils;
 			import nail.workers.Command;
 			
@@ -145,10 +151,6 @@
 				registerFunction(CommandType.SET_SPRITE_LIST, onSetSpriteList);
 			}
 			
-			//--------------------------------------
-			// Public
-			//--------------------------------------
-			
 			override public function onProgress(id:uint, loaded:uint, total:uint) : void
 			{
 				switch(id)
@@ -192,7 +194,8 @@
 				// Show error
 				if (_errorAlert == null)
 				{
-					_errorAlert = Alert.show(message, "Error", Alert.OK, UIComponent(application), errorAlertCloseHandler);
+					_errorAlert = Alert.show(message,
+						resourceManager.getString('obstrings', 'error'), Alert.OK, UIComponent(application), errorAlertCloseHandler);
 				}
 				else 
 				{
@@ -208,6 +211,15 @@
 				
 				// Save on log file.
 				_logger.error(stack);
+			}
+			
+			//--------------------------------------
+			// Override Protected
+			//--------------------------------------
+			
+			override protected function settingsLoadComplete(settings:Settings) : void
+			{
+				resourceManager.localeChain = ObjectBuilderSettings(settings).getLanguage();
 			}
 			
 			//--------------------------------------

@@ -33,8 +33,7 @@ package nail.objectbuilder.utils
 	import nail.otlib.things.ThingType;
 	import nail.utils.StringUtil;
 
-	[ResourceBundle("controls")]
-	[ResourceBundle("otlibControls")]
+	[ResourceBundle("strings")]
 	
 	public final class ObUtils
 	{
@@ -64,16 +63,16 @@ package nail.objectbuilder.utils
 				switch(category)
 				{
 					case ThingCategory.ITEM:
-						result = ResourceManager.getInstance().getString("controls", "label.item");
+						result = ResourceManager.getInstance().getString("strings", "item");
 						break;
 					case ThingCategory.OUTFIT:
-						result = ResourceManager.getInstance().getString("controls", "label.outfit");
+						result = ResourceManager.getInstance().getString("strings", "outfit");
 						break;
 					case ThingCategory.EFFECT:
-						result = ResourceManager.getInstance().getString("controls", "label.effect");
+						result = ResourceManager.getInstance().getString("strings", "effect");
 						break;
 					case ThingCategory.MISSILE:
-						result = ResourceManager.getInstance().getString("controls", "label.missile");
+						result = ResourceManager.getInstance().getString("strings", "missile");
 						break;
 				}
 			}
@@ -89,14 +88,14 @@ package nail.objectbuilder.utils
 		{
 			var text : String;
 			
-			text = ResourceManager.getInstance().getString("otlibControls", "thing.width") + "={0}" + File.lineEnding +
-				   ResourceManager.getInstance().getString("otlibControls", "thing.height") + "={1}" + File.lineEnding +
-				   ResourceManager.getInstance().getString("otlibControls", "thing.crop-size") + "={2}" + File.lineEnding +
-				   ResourceManager.getInstance().getString("otlibControls", "thing.layers") + "={3}" + File.lineEnding +
-				   ResourceManager.getInstance().getString("otlibControls", "thing.pattern-x") + "={4}" + File.lineEnding +
-				   ResourceManager.getInstance().getString("otlibControls", "thing.pattern-y") + "={5}" + File.lineEnding +
-				   ResourceManager.getInstance().getString("otlibControls", "thing.pattern-z") + "={6}" + File.lineEnding +
-				   ResourceManager.getInstance().getString("otlibControls", "thing.frames") + "={7}" + File.lineEnding;
+			text = ResourceManager.getInstance().getString("strings", "width") + "={0}" + File.lineEnding +
+				   ResourceManager.getInstance().getString("strings", "height") + "={1}" + File.lineEnding +
+				   ResourceManager.getInstance().getString("strings", "cropSize") + "={2}" + File.lineEnding +
+				   ResourceManager.getInstance().getString("strings", "layers") + "={3}" + File.lineEnding +
+				   ResourceManager.getInstance().getString("strings", "patternX") + "={4}" + File.lineEnding +
+				   ResourceManager.getInstance().getString("strings", "patternY") + "={5}" + File.lineEnding +
+				   ResourceManager.getInstance().getString("strings", "patternZ") + "={6}" + File.lineEnding +
+				   ResourceManager.getInstance().getString("strings", "animations") + "={7}" + File.lineEnding;
 			
 			return StringUtil.substitute(text,
 										 thing.width,

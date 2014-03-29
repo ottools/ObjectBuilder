@@ -38,7 +38,7 @@
 		  minimizable="true"
 		  width="600"
 		  height="300"
-		  title="@Resource(key='lg.title', bundle='controls')"
+		  title="@Resource(key='lookTypeGenerator', bundle='obstrings')"
 		  creationComplete="creationCompleteHandler(event)">
 	
 	<s:layout>
@@ -50,7 +50,8 @@
 	</s:layout>
 	
 	<fx:Metadata>
-		[ResourceBundle("controls")]
+		[ResourceBundle("strings")]
+		[ResourceBundle("obstrings")]
 	</fx:Metadata>
 	
 	<fx:Script>
@@ -185,7 +186,7 @@
 		]]>
 	</fx:Script>
 	
-	<nail:GroupBox label="@Resource(key='lg.look', bundle='controls')"
+	<nail:GroupBox label="@Resource(key='lookType', bundle='obstrings')"
 				   width="100%">
 		<nail:layout>
 			<s:HorizontalLayout gap="20"
@@ -201,7 +202,7 @@
 					  width="100%"
 					  verticalAlign="middle"
 					  enabled="true">
-				<s:Label text="@Resource(key='lg.type', bundle='controls')"
+				<s:Label text="{resourceManager.getString('strings', 'type') + ':'}"
 						 minWidth="70"
 						 textAlign="right"/>
 				<s:NumericStepper id="lookTypeNumericStepper"
@@ -210,7 +211,7 @@
 								  maximum="0xFFFFFF"
 								  change="lookTypeNumericStepperChangeHandler(event)"/>
 				<s:CheckBox id="lookAsItemCheckBox"
-							label="@Resource(key='lg.asItem', bundle='controls')"
+							label="@Resource(key='asItem', bundle='strings')"
 							selected="{_lookType.item != 0}"
 							change="lookAsItemCheckBoxChangeHandler(event)"/>
 			</s:HGroup>
@@ -219,7 +220,7 @@
 					  width="100%"
 					  verticalAlign="middle"
 					  enabled="true">
-				<s:Label text="@Resource(key='lg.head', bundle='controls')"
+				<s:Label text="{resourceManager.getString('strings', 'head') + ':'}"
 						 minWidth="70"
 						 textAlign="right"/>
 				<s:NumericStepper id="lookHeadNumericStepper"
@@ -237,7 +238,7 @@
 					  width="100%"
 					  verticalAlign="middle"
 					  enabled="true">
-				<s:Label text="@Resource(key='lg.body', bundle='controls')"
+				<s:Label text="{resourceManager.getString('strings', 'body') + ':'}"
 						 minWidth="70"
 						 textAlign="right"/>
 				<s:NumericStepper id="lookBodyNumericStepper"
@@ -255,7 +256,7 @@
 					  width="100%"
 					  verticalAlign="middle"
 					  enabled="true">
-				<s:Label text="@Resource(key='lg.legs', bundle='controls')"
+				<s:Label text="{resourceManager.getString('strings', 'legs') + ':'}"
 						 minWidth="70"
 						 textAlign="right"/>
 				<s:NumericStepper id="lookLegsNumericStepper"
@@ -273,7 +274,7 @@
 					  width="100%"
 					  verticalAlign="middle"
 					  enabled="true">
-				<s:Label text="@Resource(key='lg.feet', bundle='controls')"
+				<s:Label text="{resourceManager.getString('strings', 'feet') + ':'}"
 						 minWidth="70"
 						 textAlign="right"/>
 				<s:NumericStepper id="lookFeetNumericStepper"
@@ -294,7 +295,7 @@
 					  width="100%"
 					  verticalAlign="middle"
 					  enabled="true">
-				<s:Label text="@Resource(key='lg.addons', bundle='controls')"
+				<s:Label text="{resourceManager.getString('strings', 'addons') + ':'}"
 						 minWidth="70"
 						 textAlign="right"/>
 				<s:NumericStepper id="lookAddonsNumericStepper"
@@ -309,7 +310,7 @@
 					  width="100%"
 					  verticalAlign="middle"
 					  enabled="true">
-				<s:Label text="@Resource(key='lg.mount', bundle='controls')"
+				<s:Label text="{resourceManager.getString('strings', 'mount') + ':'}"
 						 minWidth="70"
 						 textAlign="right"/>
 				<s:NumericStepper id="lookMountNumericStepper"
@@ -324,7 +325,7 @@
 					  width="100%"
 					  verticalAlign="middle"
 					  enabled="true">
-				<s:Label text="@Resource(key='lg.corpse', bundle='controls')"
+				<s:Label text="{resourceManager.getString('strings', 'corpse') + ':'}"
 						 minWidth="70"
 						 textAlign="right"/>
 				<s:NumericStepper id="lookCorpseNumericStepper"
@@ -365,11 +366,11 @@
 	
 	<s:HGroup width="100%">
 		<s:Button id="copyButton"
-				  label="@Resource(key='lg.copy', bundle='controls')"
+				  label="@Resource(key='copy', bundle='strings')"
 				  minWidth="70"
 				  click="copyButtonClickHandler(event)"/>
 		<s:Button id="pasteButton"
-				  label="@Resource(key='lg.paste', bundle='controls')"
+				  label="@Resource(key='paste', bundle='strings')"
 				  minWidth="70"
 				  click="pasteButtonClickHandler(event)"/>
 	</s:HGroup>

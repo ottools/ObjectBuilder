@@ -39,29 +39,34 @@
 	
 	<fx:Declarations>
 		<fx:XMLList id="menuXML">
-			<menuitem label="{resourceManager.getString('controls', 'menu.file')}">
-				<menuitem label="{resourceManager.getString('controls', 'menu.new')}" data="fileNew" icon="nail.objectbuilder.core.Icons_NEW_FILES"/>
-				<menuitem label="{resourceManager.getString('controls', 'menu.open')}" data="fileOpen" icon="nail.objectbuilder.core.Icons_OPEN"/>
-				<menuitem label="{resourceManager.getString('controls', 'menu.compile')}" data="fileCompile" icon="nail.objectbuilder.core.Icons_SAVE"/>
+			<menuitem label="{resourceManager.getString('obstrings', 'menu.file')}">
+				<menuitem label="{resourceManager.getString('obstrings', 'menu.new')}" data="fileNew" icon="nail.objectbuilder.core.Icons_NEW_FILES"/>
+				<menuitem label="{resourceManager.getString('obstrings', 'menu.open')}" data="fileOpen" icon="nail.objectbuilder.core.Icons_OPEN"/>
+				<menuitem label="{resourceManager.getString('obstrings', 'menu.compile')}" data="fileCompile" icon="nail.objectbuilder.core.Icons_SAVE"/>
 			</menuitem>
-			<menuitem label="{resourceManager.getString('controls', 'menu.edit')}">
-				<menuitem label="{resourceManager.getString('controls', 'menu.autosave')}" type="check" data="editAutosave"/>
+			<menuitem label="{resourceManager.getString('obstrings', 'menu.edit')}">
+				<menuitem label="{resourceManager.getString('obstrings', 'menu.autoSave')}" type="check" data="editAutosave"/>
 			</menuitem>
-			<menuitem label="{resourceManager.getString('controls', 'menu.view')}">
-				<menuitem label="{resourceManager.getString('controls', 'menu.show-object-list')}" type="check" data="viewShowObjectList"/>
+			<menuitem label="{resourceManager.getString('obstrings', 'menu.view')}">
+				<menuitem label="{resourceManager.getString('obstrings', 'menu.showObjectList')}" type="check" data="viewShowObjectList"/>
 			</menuitem>
-			<menuitem label="{resourceManager.getString('controls', 'menu.tools')}">
-				<menuitem label="{resourceManager.getString('controls', 'menu.tools-find')}" data="toolsFind" icon="nail.objectbuilder.core.Icons_BINOCULARS"/>
-				<menuitem label="{resourceManager.getString('controls', 'menu.tools-look-generator')}" data="toolsLookGenerator" icon="nail.objectbuilder.core.Icons_OUTFIT"/>
+			<menuitem label="{resourceManager.getString('obstrings', 'menu.tools')}">
+				<menuitem label="{resourceManager.getString('obstrings', 'menu.toolsFindObject')}" data="toolsFind" icon="nail.objectbuilder.core.Icons_BINOCULARS"/>
+				<menuitem label="{resourceManager.getString('obstrings', 'menu.toolsLookTypeGenerator')}" data="toolsLookGenerator" icon="nail.objectbuilder.core.Icons_OUTFIT"/>
 			</menuitem>
-			<menuitem label="{resourceManager.getString('controls', 'menu.window')}">
-				<menuitem label="{resourceManager.getString('controls', 'menu.log-window')}" data="windowOpenLog" icon="nail.objectbuilder.core.Icons_LOG"/>
+			<menuitem label="{resourceManager.getString('obstrings', 'menu.window')}">
+				<menuitem label="{resourceManager.getString('obstrings', 'menu.logWindow')}" data="windowOpenLog" icon="nail.objectbuilder.core.Icons_LOG"/>
 			</menuitem>	
-			<menuitem label="{resourceManager.getString('controls', 'menu.help')}">
-				<menuitem label="{resourceManager.getString('controls', 'menu.about')}" data="helpAbout" icon="nail.objectbuilder.core.Icons_INFO"/>
+			<menuitem label="{resourceManager.getString('obstrings', 'menu.help')}">
+				<menuitem label="{resourceManager.getString('obstrings', 'menu.about')}" data="helpAbout" icon="nail.objectbuilder.core.Icons_INFO"/>
 			</menuitem>	
 		</fx:XMLList>
 	</fx:Declarations>
+	
+	<fx:Metadata>
+		[ResourceBundle("strings")]
+		[ResourceBundle("obstrings")]
+	</fx:Metadata>
 	
 	<fx:Script>
 		<![CDATA[
@@ -197,11 +202,11 @@
 					
 					if (_info.extended)
 					{
-						extendedValueLabel.text = resourceManager.getString("controls", "label.yes");
+						extendedValueLabel.text = resourceManager.getString("strings", "yes");
 					}
 					else 
 					{
-						extendedValueLabel.text = resourceManager.getString("controls", "label.no");
+						extendedValueLabel.text = resourceManager.getString("strings", "no");
 					}
 				}
 			}
@@ -552,8 +557,8 @@
 					bitmap = list[0];
 					if (bitmap.width < 32 || bitmap.height < 32)
 					{
-						Alert.show(resourceManager.getString("controls", "alert.invalid-sprite-size"),
-							resourceManager.getString("controls", "alert.import-sprite"));
+						Alert.show(resourceManager.getString("obstrings", "invalidSpriteSize"),
+							resourceManager.getString("obstrings", "importSprite"));
 						return;
 					}
 					else if (bitmap.width == 32 && bitmap.height == 32)
@@ -578,8 +583,8 @@
 						bitmap = list[i];
 						if (bitmap.width != 32 || bitmap.height != 32)
 						{
-							Alert.show(resourceManager.getString("controls", "alert.invalid-sprite-size"),
-								resourceManager.getString("controls", "alert.import-sprite"));
+							Alert.show(resourceManager.getString("obstrings", "invalidSpriteSize"),
+								resourceManager.getString("obstrings", "importSprite"));
 							return;
 						}
 						
@@ -606,7 +611,7 @@
 					if (ImageFormat.hasImageFormat(format))
 					{
 						Main(NailMain.instance).onShowProgressBar(ProgressBarID.DEFAULT,
-							resourceManager.getString("controls", "label.exportingSprites"));
+							resourceManager.getString("obstrings", "exportingSprites"));
 							
 						helper = new SaveHelper();
 						helper.addEventListener(ProgressEvent.PROGRESS, progressHandler);
@@ -1230,7 +1235,7 @@
 				
 				if (event.property != null)
 				{
-					message = resourceManager.getString("controls", "log.property-changed");
+					message = resourceManager.getString("obstrings", "propertyChanged");
 					this.appendLog(StringUtil.substitute(message,
 						ObUtils.toLocale(event.data.category),
 						event.data.id,
@@ -1329,7 +1334,7 @@
 				
 				if (thingAttributes.thingData != null && thingAttributes.changed)
 				{
-					message = StringUtil.substitute(resourceManager.getString("controls", "alert.save"),
+					message = StringUtil.substitute(resourceManager.getString("strings", "save"),
 						ObUtils.toLocale(thingAttributes.thingData.category),
 						thingAttributes.thingData.id);
 					
@@ -1351,7 +1356,7 @@
 					}
 					else if (event.detail == Alert.NO)
 					{
-						appendLog(StringUtil.substitute(resourceManager.getString("controls", "log.unsaved-changes"),
+						appendLog(StringUtil.substitute(resourceManager.getString("obstrings", "unsavedChanges"),
 							ObUtils.toLocale(thingAttributes.thingData.category),
 							thingAttributes.thingData.id));
 					}
@@ -1384,12 +1389,12 @@
 				
 				if (this.loaded && thingData != null)
 				{
-					message = StringUtil.substitute(resourceManager.getString("controls", "alert.want-to-remove"),
+					message = StringUtil.substitute(resourceManager.getString("obstrings", "wantToRemove"),
 						ObUtils.toLocale(thingData.category),
 						thingData.id);
 					
 					Alert.show(message,
-						resourceManager.getString("controls", "alert.remove"),
+						resourceManager.getString("strings", "remove"),
 						Alert.YES |  Alert.NO,
 						this,
 						alertCloseHandler);
@@ -1511,9 +1516,9 @@
 					}
 					else 
 					{
-						message = resourceManager.getString("controls", "alert.invalidSpriteSheetSize");
+						message = resourceManager.getString("obstrings", "invalidSpriteSheetSize");
 						Alert.show(StringUtil.substitute(message, rect.width, rect.height),
-							resourceManager.getString("controls", "alert.invalidSpriteSheetSizeTitle"));
+							resourceManager.getString("obstrings", "invalidSpriteSheetSizeTitle"));
 					}
 				}
 			}
@@ -1529,7 +1534,7 @@
 				
 				loader = new BitmapLoader(_settings.getLastImportExportDirectory());
 				loader.addEventListener(Event.COMPLETE, completeHandler);
-				loader.browseForOpen(resourceManager.getString("controls", "dialog.select-image"));
+				loader.browseForOpen(resourceManager.getString("strings", "selectImage"));
 				
 				function completeHandler(event:Event) : void
 				{
@@ -1539,8 +1544,8 @@
 					bitmap = loader.bitmap;
 					if (bitmap.width != 32 && bitmap.height != 32)
 					{
-						Alert.show(resourceManager.getString("controls", "alert.invalid-replace-size"),
-							resourceManager.getString("controls", "alert.replace-sprite"));
+						Alert.show(resourceManager.getString("obstrings", "invalidReplaceSize"),
+							resourceManager.getString("obstrings", "replaceSprite"));
 						return;
 					}
 					
@@ -1566,12 +1571,12 @@
 				}
 				
 				Main(NailMain.instance).onShowProgressBar(ProgressBarID.DEFAULT,
-					resourceManager.getString("controls", "label.loadingFiles"));
+					resourceManager.getString("obstrings", "loadingFiles"));
 				
 				loader = new BitmapLoader(_settings.getLastImportExportDirectory());
 				loader.addEventListener(ProgressEvent.PROGRESS, progressHandler);
 				loader.addEventListener(Event.COMPLETE, completeHandler);
-				loader.browseForOpenMultiple(resourceManager.getString("controls", "dialog.select-images"));
+				loader.browseForOpenMultiple(resourceManager.getString("strings", "selectImages"));
 				
 				function progressHandler(event:ProgressEvent) : void
 				{
@@ -1714,7 +1719,7 @@
 				}
 				
 				Main(NailMain.instance).onShowProgressBar(ProgressBarID.DEFAULT,
-					resourceManager.getString("controls", "label.loadingFiles"));
+					resourceManager.getString("obstrings", "loadingFiles"));
 				
 				loader = new BitmapLoader();
 				loader.addEventListener(ProgressEvent.PROGRESS, progressHandler);
@@ -1797,7 +1802,7 @@
 				if (loaded && !NailMain.instance.getSharedProperty("compiled"))
 				{
 					event.preventDefault();
-					Alert.show(resourceManager.getString("controls", "alert.want-to-compile"), "", Alert.YES | Alert.NO | Alert.CANCEL, this, alertCloseHandler);
+					Alert.show(resourceManager.getString("obstrings", "wantToCompile"), "", Alert.YES | Alert.NO | Alert.CANCEL, this, alertCloseHandler);
 				}
 				
 				function alertCloseHandler(event:CloseEvent) : void
@@ -1878,33 +1883,33 @@
 				  paddingRight="10">
 			<s:Button width="25"
 					  height="25"
-					  toolTip="@Resource(key='menu.new', bundle='controls')"
+					  toolTip="{resourceManager.getString('obstrings', 'menu.new')}"
 					  icon="{Icons.NEW_FILES_WHITE}"
 					  click="onCreateNew()"
 					  skinClass="nail.components.skins.IconButtonSkin"/>
 			<s:Button width="25"
 					  height="25"
-					  toolTip="@Resource(key='menu.open', bundle='controls')"
+					  toolTip="{resourceManager.getString('obstrings', 'menu.open')}"
 					  icon="{Icons.OPEN_WHITE}"
 					  click="onOpenFile()"
 					  skinClass="nail.components.skins.IconButtonSkin"/>
 			<s:Button width="25"
 					  height="25"
-					  toolTip="@Resource(key='menu.compile', bundle='controls')"
+					  toolTip="{resourceManager.getString('obstrings', 'menu.compile')}"
 					  icon="{Icons.SAVE_WHITE}"
 					  click="onCompile()"
 					  skinClass="nail.components.skins.IconButtonSkin"/>
 			<nail:ShadowLine height="20"/>
 			<s:Button width="25"
 					  height="25"
-					  toolTip="@Resource(key='menu.tools-find', bundle='controls')"
+					  toolTip="{resourceManager.getString('obstrings', 'menu.toolsFindObject')}"
 					  icon="{Icons.BINOCULARS_WHITE}"
 					  click="openFindThingWindow()"
 					  skinClass="nail.components.skins.IconButtonSkin"/>
 			<nail:ShadowLine height="20"/>
 			<s:Button width="25"
 					  height="25"
-					  toolTip="@Resource(key='menu.log-window', bundle='controls')"
+					  toolTip="{resourceManager.getString('obstrings', 'menu.logWindow')}"
 					  icon="{Icons.LOG_WHITE}"
 					  click="openLogWindow()"
 					  skinClass="nail.components.skins.IconButtonSkin"/>
@@ -1942,29 +1947,29 @@
 								  paddingTop="10"
 								  paddingBottom="10"/>
 				</nail:layout>
-				<s:Label text="@Resource(key='label.version-', bundle='controls')"/>
+				<s:Label text="{resourceManager.getString('strings', 'version') + ':'}"/>
 				<s:Label id="assetsVersionLabel"/>
 				<s:Label text="Dat:"/>
 				<s:RichEditableText id="datSignatureLabel"
 									editable="false"
 									focusEnabled="false"
 									height="13"/>
-				<s:Label text="@Resource(key='label.items-', bundle='controls')"/>
+				<s:Label text="{resourceManager.getString('strings', 'items') + ':'}"/>
 				<s:RichEditableText id="itemsCountLabel"
 									editable="false"
 									focusEnabled="false"
 									height="13"/>
-				<s:Label text="@Resource(key='label.outfits-', bundle='controls')"/>
+				<s:Label text="{resourceManager.getString('strings', 'outfits') + ':'}"/>
 				<s:RichEditableText id="outfitsCountLabel"
 									editable="false"
 									focusEnabled="false"
 									height="13"/>
-				<s:Label text="@Resource(key='label.effects-', bundle='controls')"/>
+				<s:Label text="{resourceManager.getString('strings', 'effects') + ':'}"/>
 				<s:RichEditableText id="effectsCountLabel"
 									editable="false"
 									focusEnabled="false"
 									height="13"/>
-				<s:Label text="@Resource(key='label.missiles-', bundle='controls')"/>
+				<s:Label text="{resourceManager.getString('strings', 'missiles') + ':'}"/>
 				<s:RichEditableText id="missilesCountLabel"
 									editable="false"
 									focusEnabled="false"
@@ -1974,12 +1979,12 @@
 									editable="false"
 									focusEnabled="false"
 									height="13"/>
-				<s:Label text="@Resource(key='label.sprites-', bundle='controls')"/>
+				<s:Label text="{resourceManager.getString('strings', 'sprites') + ':'}"/>
 				<s:RichEditableText id="spritesCountLabel"
 									editable="false"
 									focusEnabled="false"
 									height="13"/>
-				<s:Label text="@Resource(key='label.extended-', bundle='controls')"/>
+				<s:Label text="{resourceManager.getString('strings', 'extended') + ':'}"/>
 				<s:RichEditableText id="extendedValueLabel"
 									editable="false"
 									focusEnabled="false"
@@ -1997,15 +2002,15 @@
 								change="categoryDropDownListChangeHandler(event)">
 					<s:dataProvider>
 						<s:ArrayList>
-							<fx:String>{resourceManager.getString('controls', 'label.item')}</fx:String>
-							<fx:String>{resourceManager.getString('controls', 'label.outfit')}</fx:String>
-							<fx:String>{resourceManager.getString('controls', 'label.effect')}</fx:String>
-							<fx:String>{resourceManager.getString('controls', 'label.missile')}</fx:String>
+							<fx:String>{resourceManager.getString('strings', 'item')}</fx:String>
+							<fx:String>{resourceManager.getString('strings', 'outfit')}</fx:String>
+							<fx:String>{resourceManager.getString('strings', 'effect')}</fx:String>
+							<fx:String>{resourceManager.getString('strings', 'missile')}</fx:String>
 						</s:ArrayList>
 					</s:dataProvider>
 				</s:DropDownList>
 				<s:ToggleButton id="showThingListButton"
-								toolTip="@Resource(key='menu.show-object-list', bundle='controls')"
+								toolTip="@Resource(key='showObjectList', bundle='obstrings')"
 								width="20"
 								height="20"
 								icon="{Icons.SHOW_LIST_ICON}"
@@ -2013,7 +2018,7 @@
 			</s:HGroup>
 			
 			<nail:GroupBox id="thingViewGroup"
-						   label="@Resource(key='label.view', bundle='controls')"
+						   label="@Resource(key='preview', bundle='strings')"
 						   width="100%"
 						   height="100%"
 						   nativeDragEnter="thingDataNativeDragEnterHandler(event)"
@@ -2033,49 +2038,49 @@
 					  verticalAlign="middle"
 					  gap="3">
 				<s:Button id="replaceThingButton"
-						  toolTip="@Resource(key='menu.replace', bundle='controls')"
+						  toolTip="@Resource(key='replace', bundle='strings')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
 						  icon="{Icons.REPLACE}"
 						  click="replaceThingHandler(event)"/>
 				<s:Button id="importThingButton"
-						  toolTip="@Resource(key='menu.import', bundle='controls')"
+						  toolTip="@Resource(key='import', bundle='strings')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
 						  icon="{Icons.IMPORT}"
 						  click="importThingHandler(event)"/>
 				<s:Button id="exportThingButton"
-						  toolTip="@Resource(key='menu.export', bundle='controls')"
+						  toolTip="@Resource(key='export', bundle='strings')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
 						  icon="{Icons.EXPORT}"
 						  click="exportThingHandler(event)"/>
 				<s:Button id="editThingButton"
-						  toolTip="@Resource(key='menu.edit', bundle='controls')"
+						  toolTip="@Resource(key='edit', bundle='strings')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
 						  icon="{Icons.EDIT}"
 						  click="editThingHandler(event)"/>
 				<s:Button id="duplicateThingButton"
-						  toolTip="@Resource(key='menu.duplicate', bundle='controls')"
+						  toolTip="@Resource(key='duplicate', bundle='strings')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
 						  icon="{Icons.DUPLICATE}"
 						  click="duplicateThingHandler(event)"/>
 				<s:Button id="newThingButton"
-						  toolTip="@Resource(key='menu.new', bundle='controls')"
+						  toolTip="@Resource(key='new', bundle='strings')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
 						  icon="{Icons.NEW}"
 						  click="newThingHandler(event)"/>
 				<s:Button id="removeThingButton"
-						  toolTip="@Resource(key='menu.remove', bundle='controls')"
+						  toolTip="@Resource(key='remove', bundle='strings')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
@@ -2181,13 +2186,13 @@
 										paddingBottom="3"/>
 				</s:layout>
 				<s:Button id="confirmButton"
-						  label="@Resource(key='menu.save', bundle='controls')"
+						  label="@Resource(key='save', bundle='strings')"
 						  fontSize="11"
 						  height="20"
 						  enabled="false"
 						  click="confirmButtonClickHandler(event)"/>
 				<s:Button id="cancelButton"
-						  label="@Resource(key='menu.close', bundle='controls')" 
+						  label="@Resource(key='close', bundle='strings')" 
 						  fontSize="11"
 						  height="20"
 						  enabled="false"
@@ -2250,49 +2255,49 @@
 					  verticalAlign="middle"
 					  gap="3">
 				<s:Button id="replaceSpriteButton"
-						  toolTip="@Resource(key='menu.replace', bundle='controls')"
+						  toolTip="@Resource(key='replace', bundle='strings')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
 						  icon="{Icons.REPLACE}"
 						  click="replaceSpriteHandler(event)"/>
 				<s:Button id="importSpriteButton"
-						  toolTip="@Resource(key='menu.import', bundle='controls')"
+						  toolTip="@Resource(key='import', bundle='strings')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
 						  icon="{Icons.IMPORT}"
 						  click="importSpriteButtonClickHandler(event)"/>
 				<s:Button id="exportSpriteButton"
-						  toolTip="@Resource(key='menu.export', bundle='controls')"
+						  toolTip="@Resource(key='export', bundle='strings')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
 						  icon="{Icons.EXPORT}"
 						  click="exportSpriteHandler(event)"/>
 				<s:Button id="copySpriteButton"
-						  toolTip="@Resource(key='menu.copy', bundle='controls')"
+						  toolTip="@Resource(key='copy', bundle='strings')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
 						  icon="{Icons.COPY}"
 						  click="onCopySprite()"/>
 				<s:Button id="pasteSpriteButton"
-						  toolTip="@Resource(key='menu.paste', bundle='controls')"
+						  toolTip="@Resource(key='paste', bundle='strings')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
 						  icon="{Icons.PASTE}"
 						  click="onPasteSprite()"/>
 				<s:Button id="newSpriteButton"
-						  toolTip="@Resource(key='menu.new', bundle='controls')"
+						  toolTip="@Resource(key='new', bundle='strings')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"
 						  icon="{Icons.NEW}"
 						  click="newSpriteButtonClickHandler(event)"/>
 				<s:Button id="removeSpriteButton"
-						  toolTip="@Resource(key='menu.remove', bundle='controls')"
+						  toolTip="@Resource(key='remove', bundle='strings')"
 						  minWidth="19"
 						  width="100%"
 						  height="19"

@@ -37,7 +37,7 @@
 		  showStatusBar="false"
 		  fontSize="11"
 		  backgroundColor="0x494949"
-		  title="@Resource(key='oaw.title', bundle='controls')"
+		  title="@Resource(key='openClientFiles', bundle='obstrings')"
 		  creationComplete="windowCreationCompleteHandler(event)"
 		  closing="windowClosingHandler(event)">
 	
@@ -51,7 +51,8 @@
 	</s:layout>
 	
 	<fx:Metadata>
-		[ResourceBundle("controls")]
+		[ResourceBundle("strings")]
+		[ResourceBundle("obstrings")]
 	</fx:Metadata>
 	
 	<fx:Script>
@@ -178,7 +179,7 @@
 				}	
 				else 
 				{
-					unsupportedVersionLabel.text = resourceManager.getString("controls", "oaw.files-not-found");
+					unsupportedVersionLabel.text = resourceManager.getString("obstrings", "clientFilesNotFound");
 				}
 				
 				_loading = false;
@@ -235,7 +236,7 @@
 					
 					if (version == null)
 					{
-						unsupportedVersionLabel.text = resourceManager.getString("controls", "oaw.unsupported-version");
+						unsupportedVersionLabel.text = resourceManager.getString("obstrings", "unsupportedVersion");
 						datSignatureLabel.text = datSignature.toString(16).toUpperCase();
 						sprSignatureLabel.text = sprSignature.toString(16).toUpperCase();
 						enableU32CheckBox.visible = false;
@@ -321,7 +322,7 @@
 				path = _directory != null ? _directory.nativePath : File.documentsDirectory.nativePath;
 				dir = new File(path);
 				dir.addEventListener(Event.SELECT, fileSelectHandler);
-				dir.browseForDirectory(resourceManager.getString("controls", "oaw.select-folder"));
+				dir.browseForDirectory(resourceManager.getString("strings", "selectFolder"));
 				
 				function fileSelectHandler(event:Event) : void
 				{
@@ -433,7 +434,7 @@
 	</fx:Script>
 	
 	<s:Group width="100%">
-		<s:Label text="@Resource(key='oaw.client-folder', bundle='controls')"
+		<s:Label text="{resourceManager.getString('strings', 'clientFolder') + ':'}"
 				 fontSize="10" 
 				 color="0xDFDFDF"/>
 		<s:TextInput id="directoryTextInput"
@@ -442,7 +443,7 @@
 					 top="15"
 					 change="directoryTextInputChangeHandler(event)"/>
 		<s:Button id="browseButton"
-				  label="@Resource(key='label.browse', bundle='controls')"
+				  label="@Resource(key='browse', bundle='strings')"
 				  height="21"
 				  top="15"
 				  right="0"
@@ -452,7 +453,7 @@
 	
 	<!-- Version -->
 	<nail:GroupBox width="100%"
-				   label="@Resource(key='label.version', bundle='controls')">
+				   label="@Resource(key='version', bundle='strings')">
 		<nail:layout>
 			<s:HorizontalLayout gap="10"
 								verticalAlign="middle"
@@ -465,7 +466,7 @@
 		<s:Label id="unsupportedVersionLabel"
 				 color="0xFF0000"/>
 		<s:CheckBox id="enableU32CheckBox"
-					label="@Resource(key='label.extended', bundle='controls')"
+					label="@Resource(key='extended', bundle='strings')"
 					visible="false"
 					change="enableU32CheckBoxChangeHandler(event)"/>
 	</nail:GroupBox>
@@ -480,18 +481,18 @@
 						  paddingBottom="10"
 						  horizontalGap="10"/>
 		</nail:layout>
-		<s:Label text="@Resource(key='label.signature-', bundle='controls')"/>
+		<s:Label text="{resourceManager.getString('strings', 'signature') + ':'}"/>
 		<s:RichEditableText id="datSignatureLabel"
 							height="12"
 							editable="false"
 							focusEnabled="false"/>
-		<s:Label text="@Resource(key='label.items-', bundle='controls')"/>
+		<s:Label text="{resourceManager.getString('strings', 'items') + ':'}"/>
 		<s:Label id="itemsCountLabel"/>
-		<s:Label text="@Resource(key='label.outfits-', bundle='controls')"/>
+		<s:Label text="{resourceManager.getString('strings', 'outfits') + ':'}"/>
 		<s:Label id="outfitsCountLabel"/>
-		<s:Label text="@Resource(key='label.effects-', bundle='controls')"/>
+		<s:Label text="{resourceManager.getString('strings', 'effects') + ':'}"/>
 		<s:Label id="effectsCountLabel"/>
-		<s:Label text="@Resource(key='label.missiles-', bundle='controls')"/>
+		<s:Label text="{resourceManager.getString('strings', 'missiles') + ':'}"/>
 		<s:Label id="missilesCountLabel"/>
 	</nail:GroupBox>	
 	
@@ -504,12 +505,12 @@
 						  paddingTop="10"
 						  paddingBottom="10"/>
 		</nail:layout>
-		<s:Label text="@Resource(key='label.signature-', bundle='controls')"/>
+		<s:Label text="{resourceManager.getString('strings', 'signature') + ':'}"/>
 		<s:RichEditableText id="sprSignatureLabel"
 							height="12"
 							editable="false"
 							focusEnabled="false"/>
-		<s:Label text="@Resource(key='label.sprites-', bundle='controls')"/>
+		<s:Label text="{resourceManager.getString('strings', 'sprites') + ':'}"/>
 		<s:Label id="spritesCountLabel"/>
 	</nail:GroupBox>
 	
@@ -519,12 +520,12 @@
 			  verticalAlign="middle"
 			  horizontalAlign="right">
 		<s:Button id="loadButton"
-				  label="@Resource(key='label.load', bundle='controls')"
+				  label="@Resource(key='load', bundle='strings')"
 				  minWidth="70"
 				  enabled="false"
 				  click="loadButtonClickHandler(event)"/>
 		<s:Button id="cancelButton"
-				  label="@Resource(key='label.cancel', bundle='controls')"
+				  label="@Resource(key='cancel', bundle='strings')"
 				  minWidth="70"
 				  click="cancelButtonClickHandler(event)"/>
 	</s:HGroup>	

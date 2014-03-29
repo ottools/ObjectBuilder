@@ -32,9 +32,6 @@ package nail.objectbuilder.core
 	import flash.net.registerClassAlias;
 	import flash.utils.ByteArray;
 	
-	import mx.resources.IResourceManager;
-	import mx.resources.ResourceManager;
-	
 	import nail.objectbuilder.commands.CommandType;
 	import nail.objectbuilder.commands.ErrorCommand;
 	import nail.objectbuilder.commands.FindResultCommand;
@@ -66,7 +63,8 @@ package nail.objectbuilder.core
 	import nail.workers.Command;
 	import nail.workers.NailWorker;
 	
-	[ResourceBundle("controls")]
+	[ResourceBundle("strings")]
+	[ResourceBundle("obstrings")]
 	
 	public class ObjectBuilderWorker extends NailWorker
 	{
@@ -82,7 +80,6 @@ package nail.objectbuilder.core
 		private var _sprFile : File;
 		private var _version : AssetsVersion;
 		private var _enableSpritesU32 : Boolean;
-		private var _resources : IResourceManager;
 		private var _error : ErrorCommand;
 		
 		//--------------------------------------------------------------------------
@@ -93,7 +90,7 @@ package nail.objectbuilder.core
 		
 		public function ObjectBuilderWorker()
 		{
-			_resources = ResourceManager.getInstance();
+			
 		}
 		
 		//--------------------------------------------------------------------------
@@ -145,13 +142,13 @@ package nail.objectbuilder.core
 			
 			if (datSignature == 0 || sprSignature == 0)
 			{
-				throw new ArgumentError(_resources.getString("controls", "error.invalid-version"));
+				throw new ArgumentError(getResourceString("obstrings", "invalidVersion"));
 			}
 			
 			version = AssetsVersion.getVersionBySignatures(datSignature, sprSignature);
 			if (version == null)
 			{
-				throw new ArgumentError(_resources.getString("controls", "error.invalid-version"));
+				throw new ArgumentError(getResourceString("obstrings", "invalidVersion"));
 			}
 			
 			_version = version;
@@ -161,13 +158,13 @@ package nail.objectbuilder.core
 			
 			if (!_sprites.createNew(version, enableSpritesU32))
 			{
-				throw new Error(_resources.getString("controls", "error.not-create-spr"));
+				throw new Error(getResourceString("obstrings", "notCreateSpr"));
 			}
 			
 			// Create things.
 			if (!_things.createNew(version))
 			{
-				throw new Error(_resources.getString("controls", "error.not-create-dat"));
+				throw new Error(getResourceString("obstrings", "notCreateDat"));
 			}
 			
 			setSharedProperty("compiled", false);
@@ -237,7 +234,7 @@ package nail.objectbuilder.core
 			
 			if (datSignature == 0 || sprSignature == 0)
 			{
-				throw new ArgumentError(_resources.getString("controls", "error.invalid-version"));
+				throw new ArgumentError(getResourceString("obstrings", "invalidVersion"));
 			}
 			
 			_datFile = new File(datPath);
@@ -245,7 +242,7 @@ package nail.objectbuilder.core
 			_version = AssetsVersion.getVersionBySignatures(datSignature, sprSignature);
 			_enableSpritesU32 = enableSpritesU32;
 			
-			title = _resources.getString("controls", "log.loading");
+			title = getResourceString("obstrings", "loading");
 			sendCommand(new ShowProgressBarCommand(ProgressBarID.DAT_SPR, title));
 			
 			createStorage();
@@ -282,24 +279,24 @@ package nail.objectbuilder.core
 			
 			if (datSignature == 0 || sprSignature == 0)
 			{
-				throw new ArgumentError(_resources.getString("controls", "error.invalid-version"));
+				throw new ArgumentError(getResourceString("obstrings", "invalidVersion"));
 			}
 			
 			if (_things == null || !_things.loaded)
 			{
-				throw new Error(_resources.getString("controls", "error.metadata-not-loaded"));
+				throw new Error(getResourceString("obstrings", "metadataNotLoaded"));
 			}
 			
 			if (_sprites == null || !_sprites.loaded)
 			{
-				throw new Error(_resources.getString("controls", "error.sprites-not-loaded"));
+				throw new Error(getResourceString("obstrings", "spritesNotLoaded"));
 			}
 			
 			dat = new File(datPath);
 			spr = new File(sprPath);
 			version = AssetsVersion.getVersionBySignatures(datSignature, sprSignature);
 			
-			title = _resources.getString("controls", "log.compiling");
+			title = getResourceString("obstrings", "compiling");
 			sendCommand(new ShowProgressBarCommand(ProgressBarID.DAT_SPR, title));
 			
 			if (_things.compile(dat, version, enableSpritesU32) &&
@@ -323,7 +320,7 @@ package nail.objectbuilder.core
 			
 			if (ThingCategory.getCategory(category) == null)
 			{
-				throw new Error(_resources.getString("controls", "error.invalid-category"));
+				throw new Error(getResourceString("obstrings", "invalidCategory"));
 			}
 			
 			thing = ThingUtils.createThing(category);
@@ -333,7 +330,7 @@ package nail.objectbuilder.core
 				onGetThing(thing.id, category);
 				
 				// Send new thing message.
-				message = StringUtil.substitute(_resources.getString("controls", "log.added-new-thing"),
+				message = StringUtil.substitute(getResourceString("obstrings", "addedNewThing"),
 					ObUtils.toLocale(category),
 					thing.id);
 				sendCommand(new MessageCommand(message, "log"));
@@ -353,13 +350,13 @@ package nail.objectbuilder.core
 			
 			if (ThingCategory.getCategory(category) == null)
 			{
-				throw new Error(_resources.getString("controls", "error.invalid-category"));
+				throw new Error(getResourceString("obstrings", "invalidCategory"));
 			}
 			
 			thing = _things.getThingType(id,  category);
 			if (thing == null)
 			{
-				throw new Error(StringUtil.substitute(_resources.getString("controls", "error.thing-not-found"),
+				throw new Error(StringUtil.substitute(getResourceString("obstrings", "thingNotFound"),
 					ObUtils.toLocale(category), id));
 			}
 			
@@ -372,7 +369,7 @@ package nail.objectbuilder.core
 				pixels = _sprites.getPixels(spriteId);
 				if (pixels == null)
 				{
-					throw new Error(StringUtil.substitute(_resources.getString("controls", "error.sprite-not-found"), spriteId));
+					throw new Error(StringUtil.substitute(getResourceString("obstrings", "spriteNotFound"), spriteId));
 				}
 				
 				spriteData = new SpriteData();
@@ -403,7 +400,7 @@ package nail.objectbuilder.core
 				{
 					if (!_sprites.hasSpriteId(spriteId))
 					{
-						message = _resources.getString("controls", "error.sprite-not-found");
+						message = getResourceString("obstrings", "spriteNotFound");
 						throw new Error(StringUtil.substitute(message, spriteId));
 					}
 				}
@@ -425,11 +422,11 @@ package nail.objectbuilder.core
 			{
 				if (ids.length == 1)
 				{
-					message = StringUtil.substitute(_resources.getString("controls", "log.added-sprite"), _sprites.spritesCount);
+					message = StringUtil.substitute(getResourceString("obstrings", "addedSprite"), _sprites.spritesCount);
 				}
 				else
 				{
-					message = StringUtil.substitute(_resources.getString("controls", "log.added-sprites"), ids);
+					message = StringUtil.substitute(getResourceString("obstrings", "addedSprites"), ids);
 				}
 				
 				// Set sprite list to last sprite.
@@ -446,7 +443,7 @@ package nail.objectbuilder.core
 				onGetThingList(thing.id, thing.category);
 				
 				// Send change message
-				message = StringUtil.substitute(_resources.getString("controls", "log.saved-thing"),
+				message = StringUtil.substitute(getResourceString("obstrings", "savedThing"),
 					ObUtils.toLocale(thing.category), thing.id);
 				sendCommand(new MessageCommand(message, "log"));
 			}
@@ -475,12 +472,12 @@ package nail.objectbuilder.core
 			if (replaceId != 0)
 			{
 				done = _things.replace(thing, thing.category, replaceId);
-				message = _resources.getString("controls", "log.replaced-thing");
+				message = getResourceString("obstrings", "replacedThing");
 			}
 			else 
 			{
 				done = _things.addThing(thing, thing.category);
-				message = _resources.getString("controls", "log.added-new-thing");
+				message = getResourceString("obstrings", "addedNewThing");
 			}
 			
 			// Add sprites
@@ -519,11 +516,11 @@ package nail.objectbuilder.core
 				{
 					if (spritesAdded.length == 1)
 					{
-						message = StringUtil.substitute(_resources.getString("controls", "log.added-sprite"), _sprites.spritesCount);
+						message = StringUtil.substitute(getResourceString("obstrings", "addedSprite"), _sprites.spritesCount);
 					}
 					else
 					{
-						message = StringUtil.substitute(_resources.getString("controls", "log.added-sprites"), spritesAdded);
+						message = StringUtil.substitute(getResourceString("obstrings", "addedSprites"), spritesAdded);
 					}
 					
 					// Set sprite list to last sprite.
@@ -550,7 +547,7 @@ package nail.objectbuilder.core
 			}
 			
 			sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT,
-				_resources.getString("controls", "label.loadingFiles")));
+				getResourceString("obstrings", "loadingFiles")));
 			
 			loader = new ThingDataLoader();
 			loader.addEventListener(ProgressEvent.PROGRESS, importThingProgressHandler);
@@ -566,13 +563,13 @@ package nail.objectbuilder.core
 			
 			if (ThingCategory.getCategory(category) == null)
 			{
-				throw new Error(_resources.getString("controls", "error.invalid-category"));
+				throw new Error(getResourceString("obstrings", "invalidCategory"));
 			}
 			
 			thing = _things.getThingType(id, category);
 			if (thing == null)
 			{
-				throw new Error(StringUtil.substitute(_resources.getString("controls", "error.thing-not-found"),
+				throw new Error(StringUtil.substitute(getResourceString("obstrings", "thingNotFound"),
 					ObUtils.toLocale(category),
 					id));
 			}
@@ -584,7 +581,7 @@ package nail.objectbuilder.core
 				onGetThing(copy.id, category);
 				
 				// Send duplicated thing message.
-				message = StringUtil.substitute(_resources.getString("controls", "log.duplicated-thing"),
+				message = StringUtil.substitute(getResourceString("obstrings", "duplicatedThing"),
 					ObUtils.toLocale(category),
 					id,
 					copy.id);
@@ -607,7 +604,7 @@ package nail.objectbuilder.core
 				onGetThing(sendId, category);
 				onGetThingList(sendId, category);
 				
-				message = StringUtil.substitute(_resources.getString("controls", "log.removed-thing"),
+				message = StringUtil.substitute(getResourceString("obstrings", "removedThing"),
 					ObUtils.toLocale(category),
 					id);
 				sendCommand(new MessageCommand(message, "log"));
@@ -651,7 +648,7 @@ package nail.objectbuilder.core
 			
 			if (id == 0) 
 			{
-				throw new ArgumentError(StringUtil.substitute(_resources.getString("controls", "error.invalid-sprite-id"), id));
+				throw new ArgumentError(StringUtil.substitute(getResourceString("obstrings", "invalidSpriteId"), id));
 			}
 			
 			if (pixels == null) 
@@ -661,7 +658,7 @@ package nail.objectbuilder.core
 			
 			if (_sprites.replaceSprite(id, pixels))
 			{
-				message = StringUtil.substitute(_resources.getString("controls", "log.replaced-sprite"), id);
+				message = StringUtil.substitute(getResourceString("obstrings", "replacedSprite"), id);
 				sendCommand(new MessageCommand(message, "log"));
 				this.sendSpriteList(id);
 			}
@@ -707,11 +704,11 @@ package nail.objectbuilder.core
 			{
 				if (length == 1)
 				{
-					message = StringUtil.substitute(_resources.getString("controls", "log.added-sprite"), _sprites.spritesCount);
+					message = StringUtil.substitute(getResourceString("obstrings", "addedSprite"), _sprites.spritesCount);
 				}
 				else
 				{
-					message = StringUtil.substitute(_resources.getString("controls", "log.added-sprites"), ids);
+					message = StringUtil.substitute(getResourceString("obstrings", "addedSprites"), ids);
 				}
 				
 				sendAssetsInfo();
@@ -733,7 +730,7 @@ package nail.objectbuilder.core
 			sprite = new BitmapData(Sprite.SPRITE_PIXELS, Sprite.SPRITE_PIXELS, true, 0x00000000);
 			if (_sprites.addSprite(sprite.getPixels(sprite.rect)))
 			{
-				message = StringUtil.substitute(_resources.getString("controls", "log.added-sprite"), _sprites.spritesCount);
+				message = StringUtil.substitute(getResourceString("obstrings", "addedSprite"), _sprites.spritesCount);
 				this.sendSpriteList(_sprites.spritesCount);
 				sendCommand(new MessageCommand(message, "log"));
 			}
@@ -766,11 +763,11 @@ package nail.objectbuilder.core
 			
 			if (length > 1)
 			{
-				message = _resources.getString("controls", "log.remove-sprites");
+				message = getResourceString("obstrings", "removeSprites");
 			}
 			else 
 			{
-				message = _resources.getString("controls", "log.remove-sprite");
+				message = getResourceString("obstrings", "removeSprite");
 			}
 			sendCommand(new MessageCommand(StringUtil.substitute(message, list), "log"));
 		}
@@ -779,14 +776,16 @@ package nail.objectbuilder.core
 		{
 			sendCommand(new HideProgressBarCommand(ProgressBarID.DAT_SPR));
 			sendCommand(new Command(CommandType.LOAD_COMPLETE));
-			sendCommand(new MessageCommand(_resources.getString("controls", "log.load-complete"), "Info"));
+			sendCommand(new MessageCommand(getResourceString("obstrings", "loadComplete"),
+				getResourceString("strings", "info")));
 		}
 		
 		private function assetsCompileComplete() : void
 		{
 			setSharedProperty("compiled", true);
 			sendCommand(new HideProgressBarCommand(ProgressBarID.DAT_SPR));
-			sendCommand(new MessageCommand(_resources.getString("controls", "log.compile-complete"), "Info"));
+			sendCommand(new MessageCommand(getResourceString("obstrings", "compileComplete"),
+				getResourceString("strings", "info")));
 		}
 		
 		public function sendAssetsInfo() : void
@@ -795,12 +794,12 @@ package nail.objectbuilder.core
 			
 			if (_things == null || !_things.loaded)
 			{
-				throw new Error(_resources.getString("controls", "error.metadata-not-loaded"));
+				throw new Error(getResourceString("obstrings", "metadataNotLoaded"));
 			}
 			
 			if (_sprites == null || !_sprites.loaded)
 			{
-				throw new Error(_resources.getString("controls", "error.sprites-not-loaded"));
+				throw new Error(getResourceString("obstrings", "spritesNotLoaded"));
 			}
 			
 			info = new AssetsInfo();
@@ -836,7 +835,7 @@ package nail.objectbuilder.core
 			
 			if (_things == null || !_things.loaded)
 			{
-				throw new Error(_resources.getString("controls", "error.metadata-not-loaded"));
+				throw new Error(getResourceString("obstrings", "metadataNotLoaded"));
 			}
 			
 			first = _things.getCategoryMinId(category);
@@ -851,7 +850,7 @@ package nail.objectbuilder.core
 				thing = _things.getThingType(i, category);
 				if (thing == null)
 				{
-					throw new Error(StringUtil.substitute(_resources.getString("controls", "error.thing-not-found"),
+					throw new Error(StringUtil.substitute(getResourceString("obstrings", "thingNotFound"),
 						ObUtils.toLocale(category), i));
 				}
 				
@@ -877,7 +876,7 @@ package nail.objectbuilder.core
 			
 			if (_sprites == null || !_sprites.loaded)
 			{
-				throw new Error(_resources.getString("controls", "error.sprites-not-loaded"));
+				throw new Error(getResourceString("obstrings", "spritesNotLoaded"));
 			}
 			
 			first = 0;
@@ -891,7 +890,7 @@ package nail.objectbuilder.core
 				pixels = _sprites.getPixels(i);
 				if (pixels == null)
 				{
-					throw new Error(StringUtil.substitute(_resources.getString("controls", "error.sprite-not-found"), i));
+					throw new Error(StringUtil.substitute(getResourceString("obstrings", "spriteNotFound"), i));
 				}
 				
 				spriteData = new SpriteData();
@@ -915,8 +914,8 @@ package nail.objectbuilder.core
 		{
 			if (_sprites.isFull && !_enableSpritesU32)
 			{
-				sendCommand(new MessageCommand(_resources.getString("controls", "alert.sprites-limit-reached"),
-					_resources.getString("controls", "label.warning")));
+				sendCommand(new MessageCommand(getResourceString("obstrings", "spritesLimitReached"),
+					getResourceString("strings", "warning")));
 				return false;
 			}
 			return true;
@@ -1035,7 +1034,7 @@ package nail.objectbuilder.core
 			
 			// Open new instance of DefaultProgressBar
 			sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT,
-				_resources.getString("controls", "label.importingObjects")));
+				getResourceString("obstrings", "importingObjects")));
 			
 			// Temporarily remove change events.
 			_things.removeEventListener(Event.CHANGE, thingsChangeHandler);
@@ -1052,7 +1051,7 @@ package nail.objectbuilder.core
 				if (_things.addThing(thing, thing.category))
 				{
 					// Send import message.
-					message = _resources.getString("controls", "log.added-new-thing");
+					message = getResourceString("obstrings", "addedNewThing");
 					message = StringUtil.substitute(message, ObUtils.toLocale(thing.category), thing.id);
 					sendCommand(new MessageCommand(message, "log"));
 				}
@@ -1095,11 +1094,11 @@ package nail.objectbuilder.core
 			{
 				if (spritesAdded.length == 1)
 				{
-					message = StringUtil.substitute(_resources.getString("controls", "log.added-sprite"), _sprites.spritesCount);
+					message = StringUtil.substitute(getResourceString("obstrings", "addedSprite"), _sprites.spritesCount);
 				}
 				else
 				{
-					message = StringUtil.substitute(_resources.getString("controls", "log.added-sprites"), spritesAdded);
+					message = StringUtil.substitute(getResourceString("obstrings", "addedSprites"), spritesAdded);
 				}
 				
 				sendCommand(new MessageCommand(message, "log"));

@@ -38,7 +38,7 @@
 		  resizable="false"
 		  backgroundColor="0x494949"
 		  fontSize="11"
-		  title="@Resource(key='iow.title', bundle='controls')"
+		  title="@Resource(key='importObject', bundle='obstrings')"
 		  creationComplete="creationCompleteHandler(event)"
 		  closing="windowClosingHandler(event)">
 	
@@ -50,6 +50,11 @@
 						  paddingBottom="10"
 						  horizontalAlign="right"/>
 	</s:layout>
+	
+	<fx:Metadata>
+		[ResourceBundle("strings")]
+		[ResourceBundle("obstrings")]
+	</fx:Metadata>
 	
 	<fx:Script>
 		<![CDATA[
@@ -135,7 +140,7 @@
 				filter = new FileFilter("Object Builder Data", "*.obd");
 				file = _directory != null ? _directory : File.documentsDirectory;
 				file.addEventListener(Event.SELECT, fileSelectHandler);
-				file.browseForOpen(resourceManager.getString("controls", "iow.select-file"), [filter]);
+				file.browseForOpen(resourceManager.getString("strings", "selectFile"), [filter]);
 				
 				function fileSelectHandler(event:Event) : void
 				{
@@ -180,7 +185,7 @@
 	</fx:Script>
 	
 	<s:Group width="100%">
-		<s:Label text="@Resource(key='label.file-', bundle='controls')"
+		<s:Label text="{resourceManager.getString('strings', 'file') + ':'}"
 				 fontSize="10" 
 				 color="0xDFDFDF"/>
 		<s:TextInput id="fileTextInput"
@@ -189,22 +194,22 @@
 					 top="15"
 					 editable="false"/>
 		<s:Button id="browseButton"
-				  label="@Resource(key='label.browse', bundle='controls')"
+				  label="@Resource(key='browse', bundle='strings')"
 				  height="22"
 				  top="15"
 				  right="0"
 				  click="browseButtonClickHandler(event)"/>
 	</s:Group>
 	
-	<nail:GroupBox label="@Resource(key='label.view', bundle='controls')"
+	<nail:GroupBox label="@Resource(key='preview', bundle='strings')"
 				   width="100%"
 				   height="100%">
 		<s:TileGroup requestedColumnCount="2"
 					 left="10"
 					 bottom="10">
-			<s:Label text="@Resource(key='label.type-', bundle='controls')"/>
+			<s:Label text="{resourceManager.getString('strings', 'type') + ':'}"/>
 			<s:Label id="typeLabel"/>
-			<s:Label text="@Resource(key='label.version-', bundle='controls')"/>
+			<s:Label text="{resourceManager.getString('strings', 'version') + ':'}"/>
 			<s:Label id="versionLabel"/>
 		</s:TileGroup>
 		
@@ -217,12 +222,12 @@
 			  verticalAlign="middle"
 			  horizontalAlign="right">
 		<s:Button id="confirmButton"
-				  label="@Resource(key='label.confirm', bundle='controls')"
+				  label="@Resource(key='confirm', bundle='strings')"
 				  minWidth="70"
 				  enabled="false"
 				  click="confirmButtonClickHandler(event)"/>
 		<s:Button id="cancelButton"
-				  label="@Resource(key='label.cancel', bundle='controls')"
+				  label="@Resource(key='cancel', bundle='strings')"
 				  minWidth="70"
 				  click="close()"/>
 	</s:HGroup>

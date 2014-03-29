@@ -52,6 +52,7 @@ package nail.objectbuilder.settings
 		public var thingListContainerWidth : Number = 0;
 		public var spritesContainerWidth : Number = 0;
 		public var showThingList : Boolean;
+		public var language : String;
 		
 		//--------------------------------------------------------------------------
 		//
@@ -172,6 +173,15 @@ package nail.objectbuilder.settings
 		{
 			format = format == null ? "" : format.toLowerCase();
 			this.lastExportSpriteFormat = format;
+		}
+		
+		public function getLanguage() : Array
+		{
+			if (isNullOrEmpty(language) || language == "null")
+			{
+				return ["pl_PL"];
+			}
+			return [language];
 		}
 	}
 }

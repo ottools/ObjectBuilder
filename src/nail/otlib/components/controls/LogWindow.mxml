@@ -33,13 +33,18 @@
 		  minHeight="400"
 		  backgroundColor="0x494949"
 		  showStatusBar="false"
-		  title="@Resource(key='lw.title', bundle='controls')"
+		  title="@Resource(key='logWindow', bundle='obstrings')"
 		  creationComplete="windowCreationCompleteHandler(event)">
 	
 	<s:layout>
 		<s:VerticalLayout gap="0"
 						  horizontalAlign="right"/>
 	</s:layout>
+	
+	<fx:Metadata>
+		[ResourceBundle("strings")]
+		[ResourceBundle("obstrings")]
+	</fx:Metadata>
 	
 	<fx:Script>
 		<![CDATA[
@@ -123,7 +128,7 @@
 				
 				file = File.documentsDirectory.resolvePath("changes.log");
 				file.addEventListener(Event.SELECT, fileSelectHandler);
-				file.browseForSave(resourceManager.getString("controls", "lw.save-log"))
+				file.browseForSave(resourceManager.getString("obstrings", "saveLog"))
 				
 				function fileSelectHandler(event:Event) : void
 				{
@@ -176,18 +181,18 @@
 			  paddingTop="10"
 			  paddingBottom="10">
 		<s:Button id="saveButton"
-				  label="@Resource(key='menu.save', bundle='controls')"
-				  minWidth="70"
+				  label="@Resource(key='save', bundle='strings')"
+				  width="70"
 				  enabled="false"
 				  click="saveButtonClickHandler(event)"/>
 		<s:Button id="clearButton"
-				  label="@Resource(key='label.clear', bundle='controls')"
-				  minWidth="70"
+				  label="@Resource(key='clear', bundle='strings')"
+				  width="70"
 				  click="{text = ''}"/>
 		<s:Spacer width="100%"/>
 		<s:Button id="closeButton"
-				  label="@Resource(key='menu.close', bundle='controls')"
-				  minWidth="70"
+				  label="@Resource(key='close', bundle='strings')"
+				  width="70"
 				  click="close()"/>
 	</s:HGroup>
 </s:Window>

@@ -36,7 +36,7 @@
 		  resizable="false"
 		  showStatusBar="false"
 		  backgroundColor="0x494949"
-		  title="@Resource(key='naw.title', bundle='controls')"
+		  title="@Resource(key='newClientFiles', bundle='obstrings')"
 		  fontSize="11"
 		  creationComplete="creationCompleteHandler(event)"
 		  closing="closingHandler(event)">
@@ -51,7 +51,8 @@
 	</s:layout>
 	
 	<fx:Metadata>
-		[ResourceBundle("controls")]
+		[ResourceBundle("strings")]
+		[ResourceBundle("obstrings")]
 	</fx:Metadata>
 	
 	<fx:Script>
@@ -178,7 +179,7 @@
 		]]>
 	</fx:Script>
 	
-	<nail:GroupBox width="100%" label="@Resource(key='label.version', bundle='controls')">
+	<nail:GroupBox width="100%" label="@Resource(key='version', bundle='strings')">
 		<nail:layout>
 			<s:HorizontalLayout verticalAlign="middle"
 								paddingLeft="10" 
@@ -190,7 +191,7 @@
 						height="21"
 						change="versionsDropDownListChangeHandler(event)"/>
 		<s:CheckBox id="enableU32CheckBox"
-					label="@Resource(key='label.extended', bundle='controls')"
+					label="@Resource(key='extended', bundle='strings')"
 					change="enableU32CheckBoxChangeHandler(event)"/>
 	</nail:GroupBox>
 	
@@ -200,12 +201,12 @@
 			  verticalAlign="middle"
 			  horizontalAlign="right">
 		<s:Button id="confirmButton"
-				  label="@Resource(key='label.confirm', bundle='controls')"
+				  label="@Resource(key='confirm', bundle='strings')"
 				  minWidth="70"
 				  enabled="false"
 				  click="confirmButtonClickHandler(event)"/>
 		<s:Button id="cancelButton"
-				  label="@Resource(key='label.cancel', bundle='controls')"
+				  label="@Resource(key='cancel', bundle='strings')"
 				  minWidth="70"
 				  click="close()"/>
 	</s:HGroup>
