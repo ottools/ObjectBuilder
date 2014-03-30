@@ -331,7 +331,7 @@ package nail.objectbuilder.core
 				
 				// Send new thing message.
 				message = StringUtil.substitute(getResourceString("obstrings", "addedNewThing"),
-					ObUtils.toLocale(category),
+					getResourceString("strings", category),
 					thing.id);
 				sendCommand(new MessageCommand(message, "log"));
 			}
@@ -357,7 +357,7 @@ package nail.objectbuilder.core
 			if (thing == null)
 			{
 				throw new Error(StringUtil.substitute(getResourceString("obstrings", "thingNotFound"),
-					ObUtils.toLocale(category), id));
+					getResourceString("strings", category), id));
 			}
 			
 			list = new Vector.<SpriteData>();
@@ -444,7 +444,7 @@ package nail.objectbuilder.core
 				
 				// Send change message
 				message = StringUtil.substitute(getResourceString("obstrings", "savedThing"),
-					ObUtils.toLocale(thing.category), thing.id);
+					getResourceString("strings", thing.category), thing.id);
 				sendCommand(new MessageCommand(message, "log"));
 			}
 		}
@@ -509,7 +509,7 @@ package nail.objectbuilder.core
 				}
 				
 				// Send import message.
-				message = StringUtil.substitute(message, ObUtils.toLocale(thing.category), thing.id);
+				message = StringUtil.substitute(message, getResourceString("strings", thing.category), thing.id);
 				sendCommand(new MessageCommand(message, "log"));
 				
 				if (spritesAdded.length > 0)
@@ -570,7 +570,7 @@ package nail.objectbuilder.core
 			if (thing == null)
 			{
 				throw new Error(StringUtil.substitute(getResourceString("obstrings", "thingNotFound"),
-					ObUtils.toLocale(category),
+					getResourceString("strings", category),
 					id));
 			}
 			
@@ -582,7 +582,7 @@ package nail.objectbuilder.core
 				
 				// Send duplicated thing message.
 				message = StringUtil.substitute(getResourceString("obstrings", "duplicatedThing"),
-					ObUtils.toLocale(category),
+					getResourceString("strings", category),
 					id,
 					copy.id);
 				sendCommand(new MessageCommand(message, "log"));
@@ -605,7 +605,7 @@ package nail.objectbuilder.core
 				onGetThingList(sendId, category);
 				
 				message = StringUtil.substitute(getResourceString("obstrings", "removedThing"),
-					ObUtils.toLocale(category),
+					getResourceString("strings", category),
 					id);
 				sendCommand(new MessageCommand(message, "log"));
 			}
@@ -851,7 +851,7 @@ package nail.objectbuilder.core
 				if (thing == null)
 				{
 					throw new Error(StringUtil.substitute(getResourceString("obstrings", "thingNotFound"),
-						ObUtils.toLocale(category), i));
+						getResourceString("strings", category), i));
 				}
 				
 				listItem = new ThingListItem();
@@ -1052,7 +1052,7 @@ package nail.objectbuilder.core
 				{
 					// Send import message.
 					message = getResourceString("obstrings", "addedNewThing");
-					message = StringUtil.substitute(message, ObUtils.toLocale(thing.category), thing.id);
+					message = StringUtil.substitute(message, getResourceString("strings", thing.category), thing.id);
 					sendCommand(new MessageCommand(message, "log"));
 				}
 				
