@@ -1603,13 +1603,17 @@
 					return;
 				}
 				
-				Main(NailMain.instance).onShowProgressBar(ProgressBarID.DEFAULT,
-					resourceManager.getString("obstrings", "loadingFiles"));
-				
 				loader = new BitmapLoader(_settings.getLastImportExportDirectory());
+				loader.addEventListener(Event.SELECT, selectHandler);
 				loader.addEventListener(ProgressEvent.PROGRESS, progressHandler);
 				loader.addEventListener(Event.COMPLETE, completeHandler);
 				loader.browseForOpenMultiple(resourceManager.getString("strings", "selectImages"));
+				
+				function selectHandler(event:Event) : void
+				{
+					Main(NailMain.instance).onShowProgressBar(ProgressBarID.DEFAULT,
+						resourceManager.getString("obstrings", "loadingFiles"));
+				}
 				
 				function progressHandler(event:ProgressEvent) : void
 				{
