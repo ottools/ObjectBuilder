@@ -434,21 +434,23 @@
 	</fx:Script>
 	
 	<s:Group width="100%">
+		<s:layout>
+			<s:VerticalLayout gap="2"/>
+		</s:layout>
 		<s:Label text="{resourceManager.getString('strings', 'clientFolder') + ':'}"
 				 fontSize="10" 
 				 color="0xDFDFDF"/>
-		<s:TextInput id="directoryTextInput"
-					 left="0"
-					 right="65"
-					 top="15"
-					 change="directoryTextInputChangeHandler(event)"/>
-		<s:Button id="browseButton"
-				  label="@Resource(key='browse', bundle='strings')"
-				  height="21"
-				  top="15"
-				  right="0"
-				  enabled="{!_loading}"
-				  click="browseButtonClickHandler(event)"/>
+		<s:HGroup width="100%"
+				  height="100%">
+			<s:TextInput id="directoryTextInput"
+						 width="100%"
+						 change="directoryTextInputChangeHandler(event)"/>
+			<s:Button id="browseButton"
+					  label="@Resource(key='browse', bundle='strings')"
+					  height="21"
+					  enabled="{!_loading}"
+					  click="browseButtonClickHandler(event)"/>
+		</s:HGroup>
 	</s:Group>
 	
 	<!-- Version -->
