@@ -1,3 +1,16 @@
+### 0.2.8
+
+Features:
+
+* Support for multi languages [English, Polish, Portuguese]
+* Object list.
+* Progress bar for import / export.
+* Detect extended clients.
+* Keyboard shortcuts.
+* Support for all signatures 8.00 - 10.37
+* Draw crop size.
+* UI fixes and improvements.
+
 ### 0.2.7
 
 Features:

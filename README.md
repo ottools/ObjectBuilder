@@ -3,9 +3,9 @@
 Object Builder is a dat and spr files editor.
 
 * Faster loading and compiling.
-* Export and import objects or sprites to formats PNG, BMP, JPG or OBD.
+* Export and import sprite sheets.
 * Support for versions 10.xx
-* Crop images.
+* Cut imported images.
 
 ### Supported versions:
 
@@ -13,22 +13,15 @@ Object Builder is a dat and spr files editor.
 
 ### Download
 
-[Object Builder 0.2.7 en_US] (http://www.4shared.com/file/tsNmTiigba/ObjectBuilder027.html)
-[Object Builder 0.2.7 pl_PL] (http://www.4shared.com/file/hxm5XKphce/ObjectBuilder027_pl_PL.html)
-[Object Builder 0.2.7 pt_BR] (http://www.4shared.com/file/cEdO3xR4ba/ObjectBuilder027_pt_BR.html)
+[Object Builder 0.2.8] (http://www.4shared.com/file/JarzzCOaba/ObjectBuilder028.html)
 
-
-[Object Builder 0.2.6] (http://www.4shared.com/file/A9-gKCFeba/ObjectBuilder026.html)
-
-
-[Object Builder 0.2.5] (http://www.4shared.com/file/7KC3mF6Vce/ObjectBuilder025.html)
-
+[Object Builder 0.2.7] (http://www.4shared.com/file/tsNmTiigba/ObjectBuilder027.html)
 
 ### Install 
 
-To install the Object Builder, you need install Adobe AIR Runtime.
+To install the Object Builder you need install Adobe AIR Runtime.
 
-[Adobe AIR] (http://get.adobe.com/br/air/)
+[Adobe AIR] (http://get.adobe.com/air/)
 
 ### Project Dependencies:
 
