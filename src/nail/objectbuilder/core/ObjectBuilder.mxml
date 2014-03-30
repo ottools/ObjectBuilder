@@ -44,6 +44,7 @@
 				<menuitem label="{resourceManager.getString('obstrings', 'menu.open')}" data="fileOpen" icon="nail.objectbuilder.core.Icons_OPEN"/>
 				<menuitem label="{resourceManager.getString('obstrings', 'menu.compile')}" data="fileCompile" icon="nail.objectbuilder.core.Icons_SAVE"/>
 				<menuitem type="separator"/>
+				<menuitem label="{resourceManager.getString('obstrings', 'menu.preferences')}" data="filePreferences"/>
 				<menuitem label="{resourceManager.getString('obstrings', 'menu.exit')}" data="fileExit"/>
 			</menuitem>
 			<menuitem label="{resourceManager.getString('obstrings', 'menu.edit')}">
@@ -118,6 +119,7 @@
 			import nail.otlib.components.controls.LookGenerator;
 			import nail.otlib.components.controls.NewAssetsWindow;
 			import nail.otlib.components.controls.OpenAssetsWindow;
+			import nail.otlib.components.controls.PreferencesWindow;
 			import nail.otlib.events.ThingEditorEvent;
 			import nail.otlib.geom.Rect;
 			import nail.otlib.things.ThingCategory;
@@ -838,6 +840,16 @@
 				}
 			}
 			
+			private function openPreferencesWindow() : void
+			{
+				var window : PreferencesWindow;
+				window = new PreferencesWindow();
+				window.settings = _settings;
+				window.open();
+				
+				PopUpWindowManager.addWindow(window);
+			}
+			
 			private function openFindThingWindow() : void
 			{
 				if (!loaded)
@@ -1168,6 +1180,10 @@
 					
 					case "fileCompile":
 						this.onCompile();
+						break;
+					
+					case "filePreferences":
+						this.openPreferencesWindow();
 						break;
 					
 					case "fileExit":

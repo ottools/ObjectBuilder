@@ -27,6 +27,7 @@ package nail.objectbuilder.settings
 	import flash.filesystem.File;
 	
 	import nail.codecs.ImageFormat;
+	import nail.objectbuilder.utils.SupportedLanguages;
 	import nail.otlib.assets.AssetsVersion;
 	import nail.otlib.utils.OTFormat;
 	import nail.settings.Settings;
@@ -179,7 +180,7 @@ package nail.objectbuilder.settings
 		{
 			if (isNullOrEmpty(language) || language == "null")
 			{
-				return ["pl_PL"];
+				return [SupportedLanguages.EN_US];
 			}
 			return [language];
 		}
