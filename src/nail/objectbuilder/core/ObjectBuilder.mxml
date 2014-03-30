@@ -40,12 +40,12 @@
 	<fx:Declarations>
 		<fx:XMLList id="menuXML">
 			<menuitem label="{resourceManager.getString('obstrings', 'menu.file')}">
-				<menuitem label="{resourceManager.getString('obstrings', 'menu.new')}" data="fileNew" icon="nail.objectbuilder.core.Icons_NEW_FILES"/>
-				<menuitem label="{resourceManager.getString('obstrings', 'menu.open')}" data="fileOpen" icon="nail.objectbuilder.core.Icons_OPEN"/>
-				<menuitem label="{resourceManager.getString('obstrings', 'menu.compile')}" data="fileCompile" icon="nail.objectbuilder.core.Icons_SAVE"/>
+				<menuitem label="{resourceManager.getString('obstrings', 'menu.new')}" data="fileNew" keyEquivalent='N' icon="nail.objectbuilder.core.Icons_NEW_FILES"/>
+				<menuitem label="{resourceManager.getString('obstrings', 'menu.open')}" data="fileOpen" keyEquivalent='O' icon="nail.objectbuilder.core.Icons_OPEN"/>
+				<menuitem label="{resourceManager.getString('obstrings', 'menu.compile')}" keyEquivalent='S' data="fileCompile" icon="nail.objectbuilder.core.Icons_SAVE"/>
 				<menuitem type="separator"/>
-				<menuitem label="{resourceManager.getString('obstrings', 'menu.preferences')}" data="filePreferences"/>
-				<menuitem label="{resourceManager.getString('obstrings', 'menu.exit')}" data="fileExit"/>
+				<menuitem label="{resourceManager.getString('obstrings', 'menu.preferences')}"  keyEquivalent='P' data="filePreferences"/>
+				<menuitem label="{resourceManager.getString('obstrings', 'menu.exit')}"  keyEquivalent='Q' data="fileExit"/>
 			</menuitem>
 			<menuitem label="{resourceManager.getString('obstrings', 'menu.edit')}">
 				<menuitem label="{resourceManager.getString('obstrings', 'menu.autoSave')}" type="check" data="editAutosave"/>
@@ -54,11 +54,11 @@
 				<menuitem label="{resourceManager.getString('obstrings', 'menu.showObjectList')}" type="check" data="viewShowObjectList"/>
 			</menuitem>
 			<menuitem label="{resourceManager.getString('obstrings', 'menu.tools')}">
-				<menuitem label="{resourceManager.getString('obstrings', 'menu.toolsFindObject')}" data="toolsFind" icon="nail.objectbuilder.core.Icons_BINOCULARS"/>
+				<menuitem label="{resourceManager.getString('obstrings', 'menu.toolsFindObject')}"  keyEquivalent='F' data="toolsFind" icon="nail.objectbuilder.core.Icons_BINOCULARS"/>
 				<menuitem label="{resourceManager.getString('obstrings', 'menu.toolsLookTypeGenerator')}" data="toolsLookGenerator" icon="nail.objectbuilder.core.Icons_OUTFIT"/>
 			</menuitem>
 			<menuitem label="{resourceManager.getString('obstrings', 'menu.window')}">
-				<menuitem label="{resourceManager.getString('obstrings', 'menu.logWindow')}" data="windowOpenLog" icon="nail.objectbuilder.core.Icons_LOG"/>
+				<menuitem label="{resourceManager.getString('obstrings', 'menu.logWindow')}"  keyEquivalent='L' data="windowOpenLog" icon="nail.objectbuilder.core.Icons_LOG"/>
 			</menuitem>	
 			<menuitem label="{resourceManager.getString('obstrings', 'menu.help')}">
 				<menuitem label="{resourceManager.getString('obstrings', 'menu.about')}" data="helpAbout" icon="nail.objectbuilder.core.Icons_INFO"/>
@@ -1151,6 +1151,7 @@
 			{
 				super.creationCompleteHandler(event);
 				
+				this.systemManager.stage.addEventListener(KeyboardEvent.KEY_UP, keyUpHandler);
 				this.autosave = _settings.autosaveThingChanges;
 				
 				if (_settings.maximized)
@@ -1836,6 +1837,45 @@
 					else if (event.detail == Alert.NO)
 					{
 						NailMain.instance.exit();
+					}
+				}
+			}
+			
+			override protected function keyUpHandler(event:KeyboardEvent) : void
+			{
+				var code : uint = event.keyCode;
+				
+				if (event.ctrlKey == true)
+				{
+					switch (code)
+					{
+						case Keyboard.N:
+							this.onCreateNew();
+							break;
+						
+						case Keyboard.O:
+							this.onOpenFile();
+							break;
+						
+						case Keyboard.S:
+							this.onCompile();
+							break;
+						
+						case Keyboard.F:
+							this.openFindThingWindow();
+							break;
+						
+						case Keyboard.L:
+							this.openLogWindow();
+							break;
+						
+						case Keyboard.P:
+							this.openPreferencesWindow();
+							break;
+						
+						case Keyboard.Q:
+							this.close();
+							break;
 					}
 				}
 			}
