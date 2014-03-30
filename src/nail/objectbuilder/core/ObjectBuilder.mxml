@@ -120,6 +120,7 @@
 			import nail.otlib.components.controls.NewAssetsWindow;
 			import nail.otlib.components.controls.OpenAssetsWindow;
 			import nail.otlib.components.controls.PreferencesWindow;
+			import nail.otlib.components.renders.ThingListRenderer;
 			import nail.otlib.events.ThingEditorEvent;
 			import nail.otlib.geom.Rect;
 			import nail.otlib.things.ThingCategory;
@@ -1432,6 +1433,14 @@
 				}
 			}
 			
+			protected function thingListDoubleClickHandler(event:MouseEvent) : void
+			{
+				if (event.target is ThingListRenderer)
+				{
+					editThingHandler(event);
+				}
+			}
+			
 			protected function thingDataNativeDragEnterHandler(event:NativeDragEvent) : void
 			{
 				if (loaded && event.target === thingViewGroup ||
@@ -2181,7 +2190,7 @@
 							 duplicate="duplicateThingHandler(event)"
 							 edit="editThingHandler(event)"
 							 remove="removeThingHandler(event)"
-							 doubleClick="editThingHandler(event)"
+							 doubleClick="thingListDoubleClickHandler(event)"
 							 change="thingListChangeHandler(event)"
 							 nativeDragEnter="thingDataNativeDragEnterHandler(event)"
 							 nativeDragDrop="thingDataNativeDragDropHandler(event)"
