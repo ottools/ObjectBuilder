@@ -822,6 +822,7 @@
 				{
 					_logWindow = new LogWindow();
 					_logWindow.text = _logText;
+					_logWindow.addEventListener(Event.CLEAR, logWindowClearHandler);
 					_logWindow.addEventListener(Event.CLOSE, logWindowCloseHandler);
 					_logWindow.open();
 					
@@ -1776,8 +1777,15 @@
 				_lookGenerator = null;
 			}
 			
+			protected function logWindowClearHandler(event:Event) : void
+			{
+				_logText = "";
+				_logWindow.text = _logText;
+			}
+			
 			protected function logWindowCloseHandler(event:Event) : void
 			{
+				_logWindow.removeEventListener(Event.CLEAR, logWindowClearHandler);
 				_logWindow.removeEventListener(Event.CLOSE, logWindowCloseHandler);
 				_logWindow = null;
 			}

@@ -42,6 +42,7 @@
 	</s:layout>
 	
 	<fx:Metadata>
+		[Event(name="clear", type="flash.events.Event")]
 		[ResourceBundle("strings")]
 		[ResourceBundle("obstrings")]
 	</fx:Metadata>
@@ -136,6 +137,11 @@
 				}
 			}
 			
+			protected function clearButtonClickHandler(event:MouseEvent) : void
+			{
+				dispatchEvent(new Event(Event.CLEAR));
+			}
+			
 			//--------------------------------------
 			// Getters / Setters 
 			//--------------------------------------
@@ -188,7 +194,7 @@
 		<s:Button id="clearButton"
 				  label="@Resource(key='clear', bundle='strings')"
 				  width="70"
-				  click="{text = ''}"/>
+				  click="clearButtonClickHandler(event)"/>
 		<s:Spacer width="100%"/>
 		<s:Button id="closeButton"
 				  label="@Resource(key='close', bundle='strings')"
