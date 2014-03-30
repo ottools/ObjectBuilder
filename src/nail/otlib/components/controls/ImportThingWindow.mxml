@@ -185,20 +185,22 @@
 	</fx:Script>
 	
 	<s:Group width="100%">
+		<s:layout>
+			<s:VerticalLayout gap="2"/>
+		</s:layout>
 		<s:Label text="{resourceManager.getString('strings', 'file') + ':'}"
 				 fontSize="10" 
 				 color="0xDFDFDF"/>
-		<s:TextInput id="fileTextInput"
-					 left="0"
-					 right="65"
-					 top="15"
-					 editable="false"/>
-		<s:Button id="browseButton"
-				  label="@Resource(key='browse', bundle='strings')"
-				  height="22"
-				  top="15"
-				  right="0"
-				  click="browseButtonClickHandler(event)"/>
+		<s:HGroup width="100%"
+				  height="100%">
+			<s:TextInput id="fileTextInput"
+						 width="100%"
+						 editable="false"/>
+			<s:Button id="browseButton"
+					  height="21"
+					  label="@Resource(key='browse', bundle='strings')"
+					  click="browseButtonClickHandler(event)"/>
+		</s:HGroup>
 	</s:Group>
 	
 	<nail:GroupBox label="@Resource(key='preview', bundle='strings')"
