@@ -72,6 +72,8 @@
 			private var _versionChanged : Boolean;
 			private var _enableSpritesU32 : Boolean;
 			private var _enableSpritesU32Changed : Boolean;
+			private var _enableAlphaChannel : Boolean;
+			private var _enableAlphaChannelChanged : Boolean;
 			private var _cancel : Boolean = true;
 			
 			//--------------------------------------------------------------------------
@@ -106,6 +108,12 @@
 				{
 					enableU32CheckBox.selected = _enableSpritesU32;
 					_enableSpritesU32Changed = true;
+				}
+				
+				if (_enableAlphaChannelChanged)
+				{
+					enableAlphaChannelCheckBox.selected = _enableAlphaChannel;
+					_enableAlphaChannelChanged = true;
 				}
 			}
 			
@@ -207,6 +215,11 @@
 				this.enableSpritesU32 = enableU32CheckBox.selected;
 			}
 			
+			protected function enableAlphaChannelCheckBoxChangeHandler(event:Event) : void
+			{
+				this.enableAlphaChannel = enableAlphaChannelCheckBox.selected;
+			}
+			
 			//--------------------------------------
 			// Getters / Setters 
 			//--------------------------------------
@@ -281,6 +294,21 @@
 				}
 			}
 			
+			public function get enableAlphaChannel() : Boolean
+			{
+				return _enableAlphaChannel;
+			}
+			
+			public function set enableAlphaChannel(value:Boolean) : void
+			{
+				if (value != _enableAlphaChannel)
+				{
+					_enableAlphaChannel = value;
+					_enableAlphaChannelChanged = true;
+					invalidateProperties();
+				}
+			}
+			
 		]]>
 	</fx:Script>
 	
@@ -344,9 +372,13 @@
 			<s:DropDownList id="versionsDropDownList"	
 							height="21"
 							change="versionsDropDownListChangeHandler(event)"/>
+			<s:Spacer width="100%"/>
 			<s:CheckBox id="enableU32CheckBox"
 						label="@Resource(key='extended', bundle='strings')"
 						change="enableU32CheckBoxChangeHandler(event)"/>
+			<s:CheckBox id="enableAlphaChannelCheckBox"
+						label="@Resource(key='transparency', bundle='strings')"
+						change="enableAlphaChannelCheckBoxChangeHandler(event)"/>
 		</nail:GroupBox>
 		
 		<s:Spacer height="10"/>

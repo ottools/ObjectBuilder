@@ -29,7 +29,7 @@
 		  xmlns:s="library://ns.adobe.com/flex/spark" 
 		  xmlns:mx="library://ns.adobe.com/flex/mx"
 		  xmlns:nail="library://ns.nail.com/naillib"
-		  width="300"
+		  width="380"
 		  height="125"
 		  minimizable="false"
 		  maximizable="false"
@@ -74,6 +74,8 @@
 			private var _versionChanged : Boolean;
 			private var _enableSpritesU32 : Boolean;
 			private var _enableSpritesU32Changed : Boolean;
+			private var _enableAlphaChannel : Boolean;
+			private var _enableAlphaChannelChanged : Boolean;
 			private var _confirm : Boolean;
 			
 			//--------------------------------------------------------------------------
@@ -103,6 +105,12 @@
 					enableU32CheckBox.selected = _enableSpritesU32;
 					_enableSpritesU32Changed = false;
 				}
+				
+				if (_enableAlphaChannelChanged)
+				{
+					enableAlphaChannelCheckBox.selected = _enableAlphaChannel;
+					_enableAlphaChannelChanged = false;
+				}
 			}
 			
 			//--------------------------------------
@@ -126,6 +134,11 @@
 			protected function enableU32CheckBoxChangeHandler(event:Event) : void
 			{
 				this.enableSpritesU32 = enableU32CheckBox.selected;
+			}
+			
+			protected function enableAlphaChannelCheckBoxChangeHandler(event:Event) : void
+			{
+				this.enableAlphaChannel = enableAlphaChannelCheckBox.selected;
 			}
 			
 			protected function confirmButtonClickHandler(event:MouseEvent) : void
@@ -176,6 +189,21 @@
 				}
 			}
 			
+			public function get enableAlphaChannel() : Boolean
+			{
+				return _enableAlphaChannel;
+			}
+			
+			public function set enableAlphaChannel(value:Boolean) : void
+			{
+				if (value != _enableAlphaChannel)
+				{
+					_enableAlphaChannel = value;
+					_enableAlphaChannelChanged = true;
+					invalidateProperties();
+				}
+			}
+			
 		]]>
 	</fx:Script>
 	
@@ -190,9 +218,13 @@
 		<s:DropDownList id="versionsDropDownList"	
 						height="21"
 						change="versionsDropDownListChangeHandler(event)"/>
+		<s:Spacer width="100%"/>
 		<s:CheckBox id="enableU32CheckBox"
 					label="@Resource(key='extended', bundle='strings')"
 					change="enableU32CheckBoxChangeHandler(event)"/>
+		<s:CheckBox id="enableAlphaChannelCheckBox"
+					label="@Resource(key='transparency', bundle='strings')"
+					change="enableAlphaChannelCheckBoxChangeHandler(event)"/>
 	</nail:GroupBox>
 	
 	<nail:ShadowLine width="100%"/>

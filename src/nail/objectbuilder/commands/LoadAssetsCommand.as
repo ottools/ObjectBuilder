@@ -37,14 +37,19 @@ package nail.objectbuilder.commands
 		//
 		//--------------------------------------------------------------------------
 		
-		public function LoadAssetsCommand(datFile:File, sprFile:File, version:AssetsVersion, enableSpritesU32:Boolean)
+		public function LoadAssetsCommand(datFile:File,
+										  sprFile:File,
+										  version:AssetsVersion,
+										  enableSpritesU32:Boolean, 
+										  enableAlphaChannel:Boolean)
 		{
 			super(CommandType.LOAD_ASSETS,
 				datFile.nativePath, 
 				sprFile.nativePath,
 				version.datSignature,
 				version.sprSignature,
-				enableSpritesU32);
+				enableSpritesU32,
+				enableAlphaChannel);
 		}
 	}
 }

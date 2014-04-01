@@ -80,6 +80,7 @@ package nail.objectbuilder.core
 		private var _sprFile : File;
 		private var _version : AssetsVersion;
 		private var _enableSpritesU32 : Boolean;
+		private var _enableAlphaChannel : Boolean;
 		private var _error : ErrorCommand;
 		
 		//--------------------------------------------------------------------------
@@ -135,7 +136,10 @@ package nail.objectbuilder.core
 		// Private
 		//--------------------------------------
 		
-		private function onCreateNewAssets(datSignature:uint, sprSignature:uint, enableSpritesU32:Boolean) : void
+		private function onCreateNewAssets(datSignature:uint,
+										   sprSignature:uint,
+										   enableSpritesU32:Boolean,
+										   enableAlphaChannel:Boolean) : void
 		{
 			var version : AssetsVersion;
 			var thing : ThingType;
@@ -153,10 +157,11 @@ package nail.objectbuilder.core
 			
 			_version = version;
 			_enableSpritesU32 = enableSpritesU32;
+			_enableAlphaChannel = enableAlphaChannel;
 			
 			createStorage();
 			
-			if (!_sprites.createNew(version, enableSpritesU32))
+			if (!_sprites.createNew(version, enableSpritesU32, enableAlphaChannel))
 			{
 				throw new Error(getResourceString("obstrings", "notCreateSpr"));
 			}
@@ -218,7 +223,8 @@ package nail.objectbuilder.core
 									  sprPath:String,
 									  datSignature:uint,
 									  sprSignature:uint,
-									  enableSpritesU32:Boolean) : void
+									  enableSpritesU32:Boolean,
+									  enableAlphaChannel:Boolean) : void
 		{
 			var title : String;
 			
@@ -241,6 +247,7 @@ package nail.objectbuilder.core
 			_sprFile = new File(sprPath);
 			_version = AssetsVersion.getVersionBySignatures(datSignature, sprSignature);
 			_enableSpritesU32 = enableSpritesU32;
+			_enableAlphaChannel = enableAlphaChannel;
 			
 			title = getResourceString("obstrings", "loading");
 			sendCommand(new ShowProgressBarCommand(ProgressBarID.DAT_SPR, title));
@@ -260,12 +267,14 @@ package nail.objectbuilder.core
 										 sprPath:String,
 										 datSignature:uint,
 										 sprSignature:uint,
-										 enableSpritesU32:Boolean) : void
+										 enableSpritesU32:Boolean,
+										 enableAlphaChannel:Boolean) : void
 		{
 			var dat : File;
 			var spr : File;
 			var version : AssetsVersion;
 			var title : String;
+			var forceCompile : Boolean;
 			
 			if (isNullOrEmpty(datPath))
 			{
@@ -295,12 +304,13 @@ package nail.objectbuilder.core
 			dat = new File(datPath);
 			spr = new File(sprPath);
 			version = AssetsVersion.getVersionBySignatures(datSignature, sprSignature);
+			forceCompile = (_enableSpritesU32 != enableSpritesU32 || _enableAlphaChannel != enableAlphaChannel);
 			
 			title = getResourceString("obstrings", "compiling");
 			sendCommand(new ShowProgressBarCommand(ProgressBarID.DAT_SPR, title));
 			
 			if (_things.compile(dat, version, enableSpritesU32) &&
-				_sprites.compile(spr, version, enableSpritesU32, this._enableSpritesU32 != enableSpritesU32))
+				_sprites.compile(spr, version, enableSpritesU32, enableAlphaChannel, forceCompile))
 			{
 				assetsCompileComplete();
 			}
@@ -309,6 +319,7 @@ package nail.objectbuilder.core
 				FileUtils.compare(spr, _sprFile))
 			{
 				_enableSpritesU32 = enableSpritesU32;
+				_enableAlphaChannel = enableAlphaChannel;
 				sendAssetsInfo();
 			}
 		}
@@ -817,6 +828,7 @@ package nail.objectbuilder.core
 			info.minSpriteId = 0;
 			info.maxSpriteId = _sprites.spritesCount;
 			info.extended = (_enableSpritesU32 || _version.value >= 960);
+			info.transparency = _enableAlphaChannel;
 			
 			sendCommand(new SetAssetsInfoCommand(info));
 		}
@@ -973,7 +985,7 @@ package nail.objectbuilder.core
 		{
 			if (_sprites != null && !_sprites.loaded)
 			{
-				_sprites.load(_sprFile, _version, _enableSpritesU32);
+				_sprites.load(_sprFile, _version, _enableSpritesU32, _enableAlphaChannel);
 			}
 		}
 		
@@ -994,7 +1006,12 @@ package nail.objectbuilder.core
 			if (!_enableSpritesU32)
 			{
 				_error = new ErrorCommand(event.text, "", event.errorID);
-				onLoadAssets(_datFile.nativePath, _sprFile.nativePath, _version.datSignature, _version.sprSignature, true);
+				onLoadAssets(_datFile.nativePath,
+					_sprFile.nativePath,
+					_version.datSignature,
+					_version.sprSignature,
+					true,
+					_enableAlphaChannel);
 			}
 			else 
 			{

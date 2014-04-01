@@ -79,6 +79,8 @@
 			private var _version : AssetsVersion;
 			private var _enableSpritesU32 : Boolean;
 			private var _enableSpritesU32Changed : Boolean;
+			private var _enableAlphaChannel : Boolean;
+			private var _enableAlphaChannelChanged : Boolean;
 			private var _cancel : Boolean = true;
 			private var _creationComplete : Boolean;
 			private var _tmpDirectory : File;
@@ -109,6 +111,12 @@
 					openFiles(_directory);
 					_enableSpritesU32Changed = false;
 				}
+				
+				if (_enableAlphaChannelChanged)
+				{
+					enableAlphaChannelCheckBox.selected = _enableAlphaChannel;
+					_enableAlphaChannelChanged = false;
+				}
 			}
 			
 			//--------------------------------------
@@ -130,7 +138,7 @@
 				if (directory == null || !directory.exists)
 				{
 					browseButton.enabled = true;
-					enableU32CheckBox.visible = false;
+					enableU32CheckBox.enabled = false;
 					return;
 				}
 				
@@ -239,7 +247,7 @@
 						unsupportedVersionLabel.text = resourceManager.getString("obstrings", "unsupportedVersion");
 						datSignatureLabel.text = datSignature.toString(16).toUpperCase();
 						sprSignatureLabel.text = sprSignature.toString(16).toUpperCase();
-						enableU32CheckBox.visible = false;
+						enableU32CheckBox.enabled = false;
 						return;
 					}
 					
@@ -249,7 +257,7 @@
 					}
 					else 
 					{
-						enableU32CheckBox.visible = true;
+						enableU32CheckBox.enabled = true;
 						spritesCount = stream.readUnsignedShort();
 					}
 					stream.close();
@@ -274,7 +282,8 @@
 				effectsCountLabel.text = effectsCount.toString();
 				missilesCountLabel.text = missilesCount.toString();
 				loadButton.enabled = true;
-				enableU32CheckBox.visible = (_version.value < 960);
+				enableU32CheckBox.enabled = (_version.value < 960);
+				enableU32CheckBox.selected = (_version.value >= 960);
 			}
 			
 			private function resetInfo() : void
@@ -290,7 +299,7 @@
 				effectsCountLabel.text = empty;
 				missilesCountLabel.text = empty;
 				loadButton.enabled = false;
-				enableU32CheckBox.visible = false;
+				enableU32CheckBox.enabled = false;
 				_sprFile = null;
 				_datFile = null;
 				_version = null;
@@ -356,6 +365,11 @@
 			protected function enableU32CheckBoxChangeHandler(event:Event) : void
 			{
 				this.enableSpritesU32 = enableU32CheckBox.selected;
+			}
+			
+			protected function enableAlphaChannelCheckBoxChangeHandler(event:Event) : void
+			{
+				this.enableAlphaChannel = enableAlphaChannelCheckBox.selected;
 			}
 			
 			protected function loadButtonClickHandler(event:MouseEvent) : void
@@ -430,6 +444,21 @@
 				}
 			}
 			
+			public function get enableAlphaChannel() : Boolean
+			{
+				return _enableAlphaChannel;
+			}
+			
+			public function set enableAlphaChannel(value:Boolean) : void
+			{
+				if (value != _enableAlphaChannel)
+				{
+					_enableAlphaChannel = value;
+					_enableAlphaChannelChanged = true;
+					invalidateProperties();
+				}
+			}
+			
 		]]>
 	</fx:Script>
 	
@@ -467,10 +496,14 @@
 		<s:Label id="assetsVersionLabel"/>
 		<s:Label id="unsupportedVersionLabel"
 				 color="0xFF0000"/>
+		<s:Spacer width="100%"/>
 		<s:CheckBox id="enableU32CheckBox"
 					label="@Resource(key='extended', bundle='strings')"
-					visible="false"
+					enabled="false"
 					change="enableU32CheckBoxChangeHandler(event)"/>
+		<s:CheckBox id="enableAlphaChannelCheckBox"
+					label="@Resource(key='transparency', bundle='strings')"
+					change="enableAlphaChannelCheckBoxChangeHandler(event)"/>
 	</nail:GroupBox>
 	
 	<!-- Dat -->

@@ -184,7 +184,6 @@
 			
 			public function setAssetsInfo(info:AssetsInfo) : void
 			{
-				var visible : Boolean;
 				var version : AssetsVersion;
 				
 				_info = info;
@@ -204,15 +203,8 @@
 					thingStepper.maximum = getMaxThingId();
 					spriteStepper.minimum = _info.minSpriteId;
 					spriteStepper.maximum = _info.maxSpriteId;
-					
-					if (_info.extended)
-					{
-						extendedValueLabel.text = resourceManager.getString("strings", "yes");
-					}
-					else 
-					{
-						extendedValueLabel.text = resourceManager.getString("strings", "no");
-					}
+					extendedValueLabel.text = resourceManager.getString("strings", _info.extended ? "yes" : "no");
+					transparencyValueLabel.text = resourceManager.getString("strings", _info.transparency ? "yes" : "no");
 				}
 			}
 			
@@ -368,7 +360,7 @@
 					if (window.datFile != null && window.sprFile != null && window.version != null)
 					{
 						_filesName = FileUtils.getName(window.datFile);
-						loadAssets(window.datFile, window.sprFile, window.version, window.enableSpritesU32);
+						loadAssets(window.datFile, window.sprFile, window.version, window.enableSpritesU32, window.enableAlphaChannel);
 					}
 				}
 			}
@@ -454,19 +446,27 @@
 			// Private
 			//--------------------------------------
 			
-			private function loadAssets(dat:File, spr:File, version:AssetsVersion, enableSpritesU32:Boolean) : void
+			private function loadAssets(dat:File,
+										spr:File,
+										version:AssetsVersion, 
+										enableSpritesU32:Boolean,
+										enableAlphaChannel:Boolean) : void
 			{
-				sendCommand(new LoadAssetsCommand(dat, spr, version, enableSpritesU32));
+				sendCommand(new LoadAssetsCommand(dat, spr, version, enableSpritesU32, enableAlphaChannel));
 			}
 			
-			private function compileAssets(dat:File, spr:File, version:AssetsVersion, enableSpritesU32:Boolean) : void
+			private function compileAssets(dat:File,
+										   spr:File,
+										   version:AssetsVersion,
+										   enableSpritesU32:Boolean,
+										   enableAlphaChannel:Boolean) : void
 			{
 				if (this.autosave)
 				{
 					this.saveThingChanges();
 				}
 				
-				sendCommand(new CompileAssetsCommand(dat, spr, version, enableSpritesU32));
+				sendCommand(new CompileAssetsCommand(dat, spr, version, enableSpritesU32, enableAlphaChannel));
 			}
 			
 			private function onCreateNew() : void
@@ -482,7 +482,7 @@
 				{
 					if (window.version != null)
 					{
-						sendCommand(new CreateNewFilesCommand(window.version, window.enableSpritesU32));
+						sendCommand(new CreateNewFilesCommand(window.version, window.enableSpritesU32, window.enableAlphaChannel));
 					}
 				}
 			}
@@ -726,6 +726,7 @@
 				window.directory = _settings.getLastDirectory();
 				window.version = AssetsVersion.getVersionBySignatures(_info.datSignature, _info.sprSignature);
 				window.enableSpritesU32 = _info.extended;
+				window.enableAlphaChannel = _info.transparency;
 				window.filesName = _filesName;
 				window.addEventListener(Event.CLOSE, windowCloseHandler);
 				window.open();
@@ -738,7 +739,11 @@
 					
 					if (window.datFile != null && window.sprFile != null && window.version != null)
 					{
-						compileAssets(window.datFile, window.sprFile, window.version, window.enableSpritesU32);
+						compileAssets(window.datFile,
+							window.sprFile,
+							window.version,
+							window.enableSpritesU32,
+							window.enableAlphaChannel);
 					}
 				}
 			}
@@ -2069,6 +2074,11 @@
 									height="13"/>
 				<s:Label text="{resourceManager.getString('strings', 'extended') + ':'}"/>
 				<s:RichEditableText id="extendedValueLabel"
+									editable="false"
+									focusEnabled="false"
+									height="13"/>
+				<s:Label text="{resourceManager.getString('strings', 'transparency') + ':'}"/>
+				<s:RichEditableText id="transparencyValueLabel"
 									editable="false"
 									focusEnabled="false"
 									height="13"/>
