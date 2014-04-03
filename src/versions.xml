@@ -58,4 +58,5 @@
 	<version value="1035" string="10.35" dat="52FDFC2C" spr="52FDFC54" otb="55"/>
 	<version value="1036" string="10.36" dat="53159C7E" spr="53159CA9" otb="0"/>
 	<version value="1037" string="10.37" dat="531EA82E" spr="531EA856" otb="0"/>
+	<version value="1038" string="10.38" dat="5333C199" spr="5333C1C3" otb="0"/>
 </versions>
