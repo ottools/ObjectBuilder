@@ -25,10 +25,13 @@
 package nail.objectbuilder.utils
 {
 	import flash.filesystem.File;
+	import flash.utils.describeType;
 	
+	import mx.resources.IResourceManager;
 	import mx.resources.ResourceManager;
 	
 	import nail.errors.AbstractClassError;
+	import nail.otlib.things.BindableThingType;
 	import nail.otlib.things.ThingCategory;
 	import nail.otlib.things.ThingType;
 	import nail.utils.StringUtil;
@@ -84,18 +87,39 @@ package nail.objectbuilder.utils
 			return (Math.floor(value / 100) * 100);
 		}
 		
-		static public function getPatternsString(thing:ThingType) : String
+		static public function getPatternsString(thing:ThingType, saveValue:Number) : String
 		{
-			var text : String;
+			var resource : IResourceManager;
+			var text : String = "";
+			var description : XMLList;
+			var property : XML;
+			var name : String;
+			var type : String;
 			
-			text = ResourceManager.getInstance().getString("strings", "width") + "={0}" + File.lineEnding +
-				   ResourceManager.getInstance().getString("strings", "height") + "={1}" + File.lineEnding +
-				   ResourceManager.getInstance().getString("strings", "cropSize") + "={2}" + File.lineEnding +
-				   ResourceManager.getInstance().getString("strings", "layers") + "={3}" + File.lineEnding +
-				   ResourceManager.getInstance().getString("strings", "patternX") + "={4}" + File.lineEnding +
-				   ResourceManager.getInstance().getString("strings", "patternY") + "={5}" + File.lineEnding +
-				   ResourceManager.getInstance().getString("strings", "patternZ") + "={6}" + File.lineEnding +
-				   ResourceManager.getInstance().getString("strings", "animations") + "={7}" + File.lineEnding;
+			if (saveValue == 2)
+			{
+				description = describeType(thing)..variable;
+				for each (property in description)
+				{
+					name = property.@name;
+					type = property.@type;
+					if (name != "id" && (type == "Boolean" || type == "uint"))
+					{
+						text += BindableThingType.toLabel(name) + " = " + thing[name] + File.lineEnding;
+					}
+				}
+				return text;
+			}
+			
+			resource = ResourceManager.getInstance();
+			text = resource.getString("strings", "width") + " = {0}" + File.lineEnding +
+				resource.getString("strings", "height") + " = {1}" + File.lineEnding +
+				resource.getString("strings", "cropSize") + " = {2}" + File.lineEnding +
+				resource.getString("strings", "layers") + " = {3}" + File.lineEnding +
+				resource.getString("strings", "patternX") + " = {4}" + File.lineEnding +
+				resource.getString("strings", "patternY") + " = {5}" + File.lineEnding +
+				resource.getString("strings", "patternZ") + " = {6}" + File.lineEnding +
+				resource.getString("strings", "animations") + " = {7}" + File.lineEnding;
 			
 			return StringUtil.substitute(text,
 										 thing.width,

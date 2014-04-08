@@ -342,11 +342,15 @@
 				{
 					window = OpenAssetsWindow(PopUpWindowManager.currentWindow);
 					window.directory = defaultDirectory || _settings.getLastDirectory();
+					window.enableSpritesU32 = _settings.extended;
+					window.enableAlphaChannel = _settings.transparency;
 				}
 				else 
 				{
 					window = new OpenAssetsWindow();
 					window.directory = defaultDirectory || _settings.getLastDirectory();
+					window.enableSpritesU32 = _settings.extended;
+					window.enableAlphaChannel = _settings.transparency;
 					window.addEventListener(Event.CLOSE, windowCloseHandler);
 					window.open();
 					
@@ -473,6 +477,8 @@
 			{
 				var window : NewAssetsWindow;
 				window = new NewAssetsWindow();
+				window.enableSpritesU32 = _settings.extended;
+				window.enableAlphaChannel = _settings.transparency;
 				window.addEventListener(Event.CLOSE, windowCloseHandler);
 				window.open();
 				
@@ -528,7 +534,10 @@
 					{
 						bitmap = ThingData.getSpriteSheet(data);
 						bytes = ImageCodec.encode(bitmap, format);
-						helper.addFile(ObUtils.getPatternsString(data.thing), fileName, "txt", directory);
+						if (_settings.savingSpriteSheet != 0)
+						{
+							helper.addFile(ObUtils.getPatternsString(data.thing, _settings.savingSpriteSheet), fileName, "txt", directory);
+						}
 					}
 					else if (format == OTFormat.OBD)
 					{
@@ -661,6 +670,7 @@
 				
 				window = new CropImageWindow();
 				window.bitmap = bitmap;
+				window.enableAlphaChannel = _info.transparency;
 				window.addEventListener(Event.CLOSE, windowCloseHandler);
 				window.open();
 				

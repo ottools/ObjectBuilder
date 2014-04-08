@@ -54,6 +54,9 @@ package nail.objectbuilder.settings
 		public var spritesContainerWidth : Number = 0;
 		public var showThingList : Boolean;
 		public var language : String;
+		public var extended : Boolean;
+		public var transparency : Boolean;
+		public var savingSpriteSheet : Number = 0;
 		
 		//--------------------------------------------------------------------------
 		//
