@@ -254,6 +254,7 @@
 					if (enableSpritesU32 || version.value >= 960)
 					{
 						spritesCount = stream.readUnsignedInt();
+						enableU32CheckBox.selected = true;
 					}
 					else 
 					{
@@ -283,7 +284,6 @@
 				missilesCountLabel.text = missilesCount.toString();
 				loadButton.enabled = true;
 				enableU32CheckBox.enabled = (_version.value < 960);
-				enableU32CheckBox.selected = (_version.value >= 960);
 			}
 			
 			private function resetInfo() : void
@@ -341,20 +341,20 @@
 			
 			protected function directoryTextInputChangeHandler(event:TextOperationEvent) : void
 			{
-				var directory : File;
+				var dir : File;
 				
 				try
 				{
-					directory = new File(directoryTextInput.text);
+					dir = new File(directoryTextInput.text);
 				} 
-				catch(error:Error) 
+				catch(error:Error)
 				{
 					return;
 				}
 				
-				if (directory.exists && directory.isDirectory)
+				if (dir.exists && dir.isDirectory)
 				{
-					openFiles(directory);
+					this.directory = dir;
 				}
 				else 
 				{
