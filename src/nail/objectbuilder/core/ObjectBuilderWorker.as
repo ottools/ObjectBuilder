@@ -32,6 +32,8 @@ package nail.objectbuilder.core
 	import flash.net.registerClassAlias;
 	import flash.utils.ByteArray;
 	
+	import nail.codecs.ImageCodec;
+	import nail.codecs.ImageFormat;
 	import nail.objectbuilder.commands.CommandType;
 	import nail.objectbuilder.commands.ErrorCommand;
 	import nail.objectbuilder.commands.FindResultCommand;
@@ -53,12 +55,14 @@ package nail.objectbuilder.core
 	import nail.otlib.things.ThingCategory;
 	import nail.otlib.things.ThingType;
 	import nail.otlib.things.ThingTypeStorage;
+	import nail.otlib.utils.OTFormat;
 	import nail.otlib.utils.SpriteData;
 	import nail.otlib.utils.ThingData;
 	import nail.otlib.utils.ThingListItem;
 	import nail.otlib.utils.ThingProperty;
 	import nail.otlib.utils.ThingUtils;
 	import nail.utils.FileUtils;
+	import nail.utils.SaveHelper;
 	import nail.utils.StringUtil;
 	import nail.workers.Command;
 	import nail.workers.NailWorker;
@@ -119,6 +123,7 @@ package nail.objectbuilder.core
 			registerCommand(CommandType.NEW_THING, onNewThing);
 			registerCommand(CommandType.GET_THING, onGetThing);
 			registerCommand(CommandType.UPDATE_THING, onChangeThing);
+			registerCommand(CommandType.EXPORT_THING, onExportThing);
 			registerCommand(CommandType.IMPORT_THING, onImportThing);
 			registerCommand(CommandType.IMPORT_THING_FILES, onImportThingFiles);
 			registerCommand(CommandType.DUPLICATE_THING, onDuplicateThing);
@@ -315,12 +320,17 @@ package nail.objectbuilder.core
 				assetsCompileComplete();
 			}
 			
+			// If extended or alpha channel was changed need reload.
 			if (FileUtils.compare(dat, _datFile) && 
-				FileUtils.compare(spr, _sprFile))
+				FileUtils.compare(spr, _sprFile) && 
+				forceCompile)
 			{
-				_enableSpritesU32 = enableSpritesU32;
-				_enableAlphaChannel = enableAlphaChannel;
-				sendAssetsInfo();
+				/*onLoadAssets(_datFile.nativePath,
+							 _sprFile.nativePath,
+							 _version.datSignature,
+							 _version.sprSignature,
+							 enableSpritesU32,
+							 enableAlphaChannel);*/
 			}
 		}
 		
@@ -350,46 +360,8 @@ package nail.objectbuilder.core
 		
 		private function onGetThing(id:uint, category:String) : void
 		{
-			var thing : ThingType;
-			var spriteIndex : Vector.<uint>;
-			var length : uint;
-			var i :uint;
-			var spriteId : uint;
-			var pixels : ByteArray;
-			var spriteData : SpriteData;
-			var list : Vector.<SpriteData>;
-			
-			if (ThingCategory.getCategory(category) == null)
-			{
-				throw new Error(getResourceString("obstrings", "invalidCategory"));
-			}
-			
-			thing = _things.getThingType(id,  category);
-			if (thing == null)
-			{
-				throw new Error(StringUtil.substitute(getResourceString("obstrings", "thingNotFound"),
-					getResourceString("strings", category), id));
-			}
-			
-			list = new Vector.<SpriteData>();
-			spriteIndex = thing.spriteIndex;
-			length = spriteIndex.length;
-			for (i = 0; i < length; i++)
-			{
-				spriteId = spriteIndex[i];
-				pixels = _sprites.getPixels(spriteId);
-				if (pixels == null)
-				{
-					throw new Error(StringUtil.substitute(getResourceString("obstrings", "spriteNotFound"), spriteId));
-				}
-				
-				spriteData = new SpriteData();
-				spriteData.id = spriteId;
-				spriteData.pixels = pixels;
-				list.push(spriteData);
-			}
-			
-			sendCommand(new SetThingCommand(thing, list));
+			var data : ThingData = getThingData(id, category);
+			sendCommand(new SetThingCommand(data.thing, data.sprites));
 		}
 		
 		private function onChangeThing(thing:ThingType, sprites:Vector.<SpriteData>) : void
@@ -457,6 +429,83 @@ package nail.objectbuilder.core
 				message = StringUtil.substitute(getResourceString("obstrings", "savedThing"),
 					getResourceString("strings", thing.category), thing.id);
 				sendCommand(new MessageCommand(message, "log"));
+			}
+		}
+		
+		private function onExportThing(list:Array, category:String, datSignature:uint, sprSignature:uint, spriteSheetFlag:uint) : void
+		{
+			var bytes : ByteArray;
+			var bitmap : BitmapData;
+			var file : File;
+			var version : AssetsVersion;
+			var helper : SaveHelper;
+			var length :uint;
+			var i : uint;
+			var obj : Object;
+			var data : ThingData;
+			var name : String;
+			var format : String;
+			
+			if (list == null || list.length == 0)
+			{
+				throw new ArgumentError("Parameter list cannot be null or empty.");
+			}
+			
+			if (ThingCategory.getCategory(category) == null)
+			{
+				throw new Error(getResourceString("obstrings", "invalidCategory"));
+			}
+			
+			if (datSignature == 0 || sprSignature == 0)
+			{
+				throw new ArgumentError(getResourceString("obstrings", "invalidVersion"));
+			}
+			
+			sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT,
+				getResourceString("obstrings", "exportObject")));
+			
+			version = AssetsVersion.getVersionBySignatures(datSignature, sprSignature);
+			helper = new SaveHelper();
+			
+			length = list.length;
+			for (i = 0; i < length; i++)
+			{
+				obj = list[i];
+				data = getThingData(obj.id, category);
+				file = new File(obj.file);
+				name = FileUtils.getName(file);
+				format = file.extension;
+				
+				if (ImageFormat.hasImageFormat(format))
+				{
+					bitmap = ThingData.getSpriteSheet(data);
+					bytes = ImageCodec.encode(bitmap, format);
+					if (spriteSheetFlag != 0)
+					{
+						helper.addFile(ObUtils.getPatternsString(data.thing, spriteSheetFlag), name, "txt", file);
+					}
+				}
+				else if (format == OTFormat.OBD)
+				{
+					bytes = ThingData.serialize(data, version);
+				}
+				
+				helper.addFile(bytes, name, format, file);
+			}
+			
+			helper.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+			helper.addEventListener(Event.COMPLETE, completeHandler);
+			helper.save();
+			
+			function progressHandler(event:ProgressEvent) : void
+			{
+				sendProgress(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal);
+			}
+			
+			function completeHandler(event:Event) : void
+			{
+				// Close current instance of DefaultProgressBar
+				sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
 			}
 		}
 		
@@ -975,6 +1024,49 @@ package nail.objectbuilder.core
 			}
 			
 			return bitmap.getPixels(bitmap.rect);
+		}
+		
+		private function getThingData(id:uint, category:String) : ThingData
+		{
+			var thing : ThingType;
+			var spriteIndex : Vector.<uint>;
+			var length : uint;
+			var i :uint;
+			var spriteId : uint;
+			var pixels : ByteArray;
+			var spriteData : SpriteData;
+			var sprites : Vector.<SpriteData>;
+			
+			if (ThingCategory.getCategory(category) == null)
+			{
+				throw new Error(getResourceString("obstrings", "invalidCategory"));
+			}
+			
+			thing = _things.getThingType(id,  category);
+			if (thing == null)
+			{
+				throw new Error(StringUtil.substitute(getResourceString("obstrings", "thingNotFound"),
+					getResourceString("strings", category), id));
+			}
+			
+			sprites = new Vector.<SpriteData>();
+			spriteIndex = thing.spriteIndex;
+			length = spriteIndex.length;
+			for (i = 0; i < length; i++)
+			{
+				spriteId = spriteIndex[i];
+				pixels = _sprites.getPixels(spriteId);
+				if (pixels == null)
+				{
+					throw new Error(StringUtil.substitute(getResourceString("obstrings", "spriteNotFound"), spriteId));
+				}
+				
+				spriteData = new SpriteData();
+				spriteData.id = spriteId;
+				spriteData.pixels = pixels;
+				sprites.push(spriteData);
+			}
+			return new ThingData(thing, sprites);
 		}
 		
 		//--------------------------------------

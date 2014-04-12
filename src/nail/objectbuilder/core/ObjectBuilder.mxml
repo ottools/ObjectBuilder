@@ -94,6 +94,7 @@
 			import nail.objectbuilder.commands.CompileAssetsCommand;
 			import nail.objectbuilder.commands.CreateNewFilesCommand;
 			import nail.objectbuilder.commands.DuplicateThingCommand;
+			import nail.objectbuilder.commands.ExportThingCommand;
 			import nail.objectbuilder.commands.GetSpriteListCommand;
 			import nail.objectbuilder.commands.GetThingCommand;
 			import nail.objectbuilder.commands.GetThingListCommand;
@@ -122,6 +123,7 @@
 			import nail.otlib.components.controls.PreferencesWindow;
 			import nail.otlib.components.renders.ThingListRenderer;
 			import nail.otlib.events.ThingEditorEvent;
+			import nail.otlib.events.ThingListEvent;
 			import nail.otlib.geom.Rect;
 			import nail.otlib.things.ThingCategory;
 			import nail.otlib.things.ThingType;
@@ -131,6 +133,7 @@
 			import nail.otlib.utils.ThingData;
 			import nail.otlib.utils.ThingListItem;
 			import nail.settings.Settings;
+			import nail.utils.FileQueueHelper;
 			import nail.utils.FileUtils;
 			import nail.utils.SaveHelper;
 			import nail.utils.StringUtil;
@@ -520,36 +523,48 @@
 				}
 			}
 			
-			private function onExportThingData(fileName:String, format:String, directory:File, version:AssetsVersion, data:ThingData) : void
+			private function onExportThingData(fileName:String,
+											   format:String,
+											   directory:File,
+											   version:AssetsVersion,
+											   things:Vector.<ThingType>,
+											   category:String,
+											   spriteSheetFlag:uint) : void
 			{
-				var bytes : ByteArray;
-				var bitmap : BitmapData;
-				var helper : SaveHelper;
+				var queue : FileQueueHelper;
+				var length : uint;
+				var i : uint;
+				var thing : ThingType;
+				var changeName : Boolean;
+				var name : String;
 				
-				try
+				queue = new FileQueueHelper();
+				queue.parent = this;
+				queue.addEventListener(Event.COMPLETE, completeHandler);
+				changeName = (fileName.indexOf("_") == -1);
+				
+				length = things.length;
+				for (i = 0; i < length; i++)
 				{
-					helper = new SaveHelper();
+					thing = things[i];
 					
-					if (ImageFormat.hasImageFormat(format))
-					{
-						bitmap = ThingData.getSpriteSheet(data);
-						bytes = ImageCodec.encode(bitmap, format);
-						if (_settings.savingSpriteSheet != 0)
-						{
-							helper.addFile(ObUtils.getPatternsString(data.thing, _settings.savingSpriteSheet), fileName, "txt", directory);
-						}
-					}
-					else if (format == OTFormat.OBD)
-					{
-						bytes = ThingData.serialize(data, version);
+					if (changeName) {
+						name = fileName + "_" + thing.id;
+					} else {
+						name = fileName;
 					}
 					
-					helper.addFile(bytes, fileName, format, directory);
-					helper.save();
-				} 
-				catch(error:Error)
+					queue.addFile(thing, name, format, directory);
+				}
+				
+				queue.start();
+				
+				function completeHandler(event:Event) : void
 				{
-					NailMain.instance.onError(error.message, error.getStackTrace(), error.errorID);
+					if (queue.result != null && queue.result.length > 0)
+					{
+						sendCommand(new ExportThingCommand(queue.result, category, version, spriteSheetFlag));
+					}
 				}
 			}
 			
@@ -1144,12 +1159,20 @@
 			
 			protected function thingListChangeHandler(event:IndexChangeEvent) : void
 			{
+				var enable : Boolean;
+				
 				if (this.loaded && this.thingData != null)
 				{
 					if (thingList.selectedThingId != 0)
 					{
 						sendCommand(new GetThingCommand(thingList.selectedThingId, getCurrentCategory()));
 					}
+					
+					enable = !thingList.multiSelected;
+					replaceThingButton.enabled = enable;
+					duplicateThingButton.enabled = enable;
+					editThingButton.enabled = enable;
+					removeThingButton.enabled = enable;
 				}
 			}
 			
@@ -1312,6 +1335,8 @@
 			{
 				var window : ExportWindow;
 				var version : AssetsVersion;
+				var name : String;
+				var things : Vector.<ThingType>;
 				
 				if (!this.loaded || this.thingData == null)
 				{
@@ -1324,9 +1349,17 @@
 					version = AssetsVersion.getVersionBySignatures(_info.datSignature, _info.sprSignature);
 				}
 				
+				things = thingList.selectedThings;
+				name = thingData.category;
+				if (things.length <= 1)
+				{
+					things[0] = thingData.thing;
+					name = name + "_" + thingData.id;
+				}
+				
 				window = new ExportWindow();
 				window.enableObdFormat = true;
-				window.fileName = thingData.category + "_" + thingData.id;
+				window.fileName = name;
 				window.directory = _settings.getLastImportExportDirectory();
 				window.format = _settings.getLastExportThingFormat();
 				window.version = version;
@@ -1345,7 +1378,13 @@
 						_settings.setLastExportThingFormat(window.format);
 						_settings.setLastExportThingVersion(window.version);
 						
-						onExportThingData(window.fileName, window.format, window.directory, window.version, thingData);
+						onExportThingData(window.fileName,
+							window.format,
+							window.directory,
+							window.version,
+							things,
+							thingData.category,
+							_settings.savingSpriteSheet);
 					}
 				}
 			}
@@ -2217,6 +2256,7 @@
 							 fontSize="11"
 							 borderAlpha="0"
 							 doubleClickEnabled="true"
+							 allowMultipleSelection="true"
 							 replace="replaceThingHandler(event)"
 							 export="exportThingHandler(event)"
 							 duplicate="duplicateThingHandler(event)"

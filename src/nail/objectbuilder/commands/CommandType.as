@@ -49,9 +49,10 @@ package nail.objectbuilder.commands
 		static public const LOAD_ASSETS : String = "loadAssets";
 		static public const GET_ASSETS_INFO : String = "getAssetsInfo";
 		static public const SET_ASSETS_INFO : String = "getAssetsInfo";
-		static public var LOAD_COMPLETE : String = "loadComplete";
+		static public const LOAD_COMPLETE : String = "loadComplete";
 		static public const NEW_THING : String = "newThing";
 		static public const REPLACE_THING : String = "replaceThing";
+		static public const EXPORT_THING : String = "replaceThing";
 		static public const DUPLICATE_THING : String = "duplicateThing";
 		static public const IMPORT_THING : String = "importThing";
 		static public const IMPORT_THING_FILES : String = "importThingFiles";

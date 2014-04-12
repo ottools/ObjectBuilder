@@ -24,10 +24,9 @@
 
 package nail.objectbuilder.commands
 {
-	import flash.filesystem.File;
-	
 	import nail.otlib.assets.AssetsVersion;
-	import nail.otlib.utils.ThingData;
+	import nail.otlib.things.ThingType;
+	import nail.utils.FileData;
 	import nail.workers.Command;
 	
 	public class ExportThingCommand extends Command
@@ -38,9 +37,24 @@ package nail.objectbuilder.commands
 		//
 		//--------------------------------------------------------------------------
 		
-		public function ExportThingCommand(data:ThingData, version:AssetsVersion, file:File)
+		public function ExportThingCommand(fileDataList:Vector.<FileData>, category:String, version:AssetsVersion, spriteSheetFlag:uint)
 		{
-			super(CommandType.EXPORT_THING, data.id, data.category, version.value, file.nativePath);
+			var list : Array;
+			var length : uint;
+			var i : uint;
+			var fileData : FileData;
+			var thing : ThingType;
+			
+			list = [];
+			length = fileDataList.length;
+			for (i = 0; i < length; i++)
+			{
+				fileData = fileDataList[i];
+				thing = fileData.data as ThingType;
+				list[i] = {id:thing.id, file:fileData.file.nativePath};
+			}
+			
+			super(CommandType.EXPORT_THING, list, category, version.datSignature, version.sprSignature, spriteSheetFlag);
 		}
 	}
 }
