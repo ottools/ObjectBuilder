@@ -121,7 +121,6 @@
 			import nail.otlib.components.controls.NewAssetsWindow;
 			import nail.otlib.components.controls.OpenAssetsWindow;
 			import nail.otlib.components.controls.PreferencesWindow;
-			import nail.otlib.components.renders.ThingListRenderer;
 			import nail.otlib.events.ThingEditorEvent;
 			import nail.otlib.events.ThingListEvent;
 			import nail.otlib.geom.Rect;
@@ -752,7 +751,7 @@
 				window.version = AssetsVersion.getVersionBySignatures(_info.datSignature, _info.sprSignature);
 				window.enableSpritesU32 = _info.extended;
 				window.enableAlphaChannel = _info.transparency;
-				window.filesName = _filesName;
+				window.filesName = isNullOrEmpty(_filesName) ? "Tibia" : _filesName;
 				window.addEventListener(Event.CLOSE, windowCloseHandler);
 				window.open();
 				

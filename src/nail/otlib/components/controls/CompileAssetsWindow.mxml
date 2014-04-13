@@ -93,7 +93,6 @@
 				if (_filesNameChanged)
 				{
 					setDirectory(_directory);
-					nameTextInput.text = _filesName;
 					_filesNameChanged = false;
 				}
 				
@@ -126,7 +125,8 @@
 				_datFile = null;
 				_sprFile = null;
 				
-				directoryTextInput.text = _directory != null ? _directory.nativePath : "";
+				nameTextInput.text = _filesName;
+				directoryTextInput.text = directory != null ? directory.nativePath : "";
 				versionsDropDownList.selectedItem = _version;
 				
 				if (directory != null && !isNullOrEmpty(_filesName))
@@ -335,7 +335,6 @@
 									paddingBottom="10"/>
 			</nail:layout>
 			<s:TextInput id="nameTextInput"
-						 text="Tibia"
 						 width="100%"
 						 change="nameTextInputChangeHandler(event)"/>
 		</nail:GroupBox>
