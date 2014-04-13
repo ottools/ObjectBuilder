@@ -1095,7 +1095,7 @@ package nail.objectbuilder.core
 		protected function thingsErrorHandler(event:ErrorEvent) : void
 		{
 			// Try load as extended.
-			if (!_enableSpritesU32)
+			if (!_things.loaded && !_enableSpritesU32)
 			{
 				_error = new ErrorCommand(event.text, "", event.errorID);
 				onLoadAssets(_datFile.nativePath,
@@ -1117,7 +1117,7 @@ package nail.objectbuilder.core
 					sendError(event.text, "", event.errorID);
 				}
 			}
-		}	
+		}
 		
 		protected function importThingProgressHandler(event:ProgressEvent) : void
 		{
