@@ -35,6 +35,7 @@
 		<![CDATA[
 			import mx.events.FlexEvent;
 			
+			import nail.components.NailMain;
 			import nail.otlib.things.ThingType;
 			import nail.otlib.utils.ThingListItem;
 			
@@ -73,7 +74,7 @@
 					} 
 					catch(error:Error)
 					{
-						trace(error.getStackTrace());
+						NailMain.instance.onError(error.message, error.getStackTrace(), error.errorID);
 					}
 					
 					image.source = bitmap;
