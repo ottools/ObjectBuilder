@@ -1490,7 +1490,8 @@
 			
 			protected function thingListDoubleClickHandler(event:MouseEvent) : void
 			{
-				if (event.target is ThingListRenderer)
+				if (event.currentTarget === thingList ||
+					event.currentTarget === thingViewGroup)
 				{
 					editThingHandler(event);
 				}
@@ -2163,6 +2164,8 @@
 						   label="@Resource(key='preview', bundle='strings')"
 						   width="100%"
 						   height="100%"
+						   doubleClickEnabled="true"
+						   doubleClick="thingListDoubleClickHandler(event)"
 						   nativeDragEnter="thingDataNativeDragEnterHandler(event)"
 						   nativeDragDrop="thingDataNativeDragDropHandler(event)">
 				<otlib:ThingView id="thingView"
