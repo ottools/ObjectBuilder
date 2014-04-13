@@ -52,6 +52,7 @@
 			import nail.objectbuilder.commands.CommandType;
 			import nail.objectbuilder.commands.GetSpriteListCommand;
 			import nail.objectbuilder.commands.GetThingCommand;
+			import nail.objectbuilder.commands.NeedToReloadCommand;
 			import nail.objectbuilder.commands.ProgressBarID;
 			import nail.objectbuilder.core.ObjectBuilder;
 			import nail.objectbuilder.settings.ObjectBuilderSettings;
@@ -149,6 +150,7 @@
 				registerFunction(CommandType.SET_THING_LIST, onSetThingList);
 				registerFunction(CommandType.FIND_RESULT, onFindResult);
 				registerFunction(CommandType.SET_SPRITE_LIST, onSetSpriteList);
+				registerFunction(CommandType.NEED_TO_RELOAD, onNeedToReload);
 			}
 			
 			override public function onProgress(id:uint, loaded:uint, total:uint) : void
@@ -267,6 +269,23 @@
 			private function onSetSpriteList(target:uint, min:uint, max:uint, list:Vector.<SpriteData>) : void
 			{	
 				ObjectBuilder(application).setSpriteList(target, min, max, list);
+			}
+			
+			private function onNeedToReload(enableSpritesU32:Boolean, enableAlphaChannel:Boolean) : void
+			{
+				Alert.show(resourceManager.getString('obstrings', 'needToReload'),
+						resourceManager.getString('strings', 'warning'),
+						Alert.YES | Alert.NO,
+						UIComponent(application),
+						alertCloseHandler);
+				
+				function alertCloseHandler(event:CloseEvent) : void
+				{
+					if (event.detail == Alert.YES)
+					{
+						sendCommand(new NeedToReloadCommand(enableSpritesU32, enableAlphaChannel));
+					}
+				}
 			}
 			
 			private function showDatSprProgressBar(title:String) : void

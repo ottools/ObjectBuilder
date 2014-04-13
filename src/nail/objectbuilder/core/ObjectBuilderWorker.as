@@ -39,6 +39,7 @@ package nail.objectbuilder.core
 	import nail.objectbuilder.commands.FindResultCommand;
 	import nail.objectbuilder.commands.HideProgressBarCommand;
 	import nail.objectbuilder.commands.MessageCommand;
+	import nail.objectbuilder.commands.NeedToReloadCommand;
 	import nail.objectbuilder.commands.ProgressBarID;
 	import nail.objectbuilder.commands.SetAssetsInfoCommand;
 	import nail.objectbuilder.commands.SetSpriteListCommand;
@@ -135,6 +136,7 @@ package nail.objectbuilder.core
 			registerCommand(CommandType.IMPORT_SPRITES, onImportSprites);
 			registerCommand(CommandType.NEW_SPRITE, onNewSprite);
 			registerCommand(CommandType.REMOVE_SPRITES, onRemoveSprites);
+			registerCommand(CommandType.NEED_TO_RELOAD, onNeedToReload);
 		}
 		
 		//--------------------------------------
@@ -161,7 +163,7 @@ package nail.objectbuilder.core
 			}
 			
 			_version = version;
-			_enableSpritesU32 = enableSpritesU32;
+			_enableSpritesU32 = (enableSpritesU32 || _version.value >= 960);
 			_enableAlphaChannel = enableAlphaChannel;
 			
 			createStorage();
@@ -251,7 +253,7 @@ package nail.objectbuilder.core
 			_datFile = new File(datPath);
 			_sprFile = new File(sprPath);
 			_version = AssetsVersion.getVersionBySignatures(datSignature, sprSignature);
-			_enableSpritesU32 = enableSpritesU32;
+			_enableSpritesU32 = _enableSpritesU32 = (enableSpritesU32 || _version.value >= 960);
 			_enableAlphaChannel = enableAlphaChannel;
 			
 			title = getResourceString("obstrings", "loading");
@@ -314,23 +316,32 @@ package nail.objectbuilder.core
 			title = getResourceString("obstrings", "compiling");
 			sendCommand(new ShowProgressBarCommand(ProgressBarID.DAT_SPR, title));
 			
-			if (_things.compile(dat, version, enableSpritesU32) &&
-				_sprites.compile(spr, version, enableSpritesU32, enableAlphaChannel, forceCompile))
+			if (!_things.compile(dat, version, enableSpritesU32) ||
+				!_sprites.compile(spr, version, enableSpritesU32, enableAlphaChannel, forceCompile))
 			{
-				assetsCompileComplete();
+				return;
+			}
+			
+			assetsCompileComplete();
+			
+			if (_datFile == null || _sprFile == null)
+			{
+				_datFile = dat;
+				_sprFile = spr;
 			}
 			
 			// If extended or alpha channel was changed need reload.
 			if (FileUtils.compare(dat, _datFile) && 
-				FileUtils.compare(spr, _sprFile) && 
-				forceCompile)
+				FileUtils.compare(spr, _sprFile))
 			{
-				/*onLoadAssets(_datFile.nativePath,
-							 _sprFile.nativePath,
-							 _version.datSignature,
-							 _version.sprSignature,
-							 enableSpritesU32,
-							 enableAlphaChannel);*/
+				if (forceCompile)
+				{
+					sendCommand(new NeedToReloadCommand(enableSpritesU32, enableAlphaChannel));
+				}
+				else 
+				{
+					sendAssetsInfo();
+				}
 			}
 		}
 		
@@ -830,6 +841,16 @@ package nail.objectbuilder.core
 				message = getResourceString("obstrings", "removeSprite");
 			}
 			sendCommand(new MessageCommand(StringUtil.substitute(message, list), "log"));
+		}
+		
+		private function onNeedToReload(enableSpritesU32:Boolean, enableAlphaChannel:Boolean) : void
+		{
+			onLoadAssets(_datFile.nativePath,
+				_sprFile.nativePath,
+				_version.datSignature,
+				_version.sprSignature,
+				enableSpritesU32,
+				enableAlphaChannel);
 		}
 		
 		private function assetsLoadComplete() : void
