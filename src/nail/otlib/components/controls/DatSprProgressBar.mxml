@@ -45,6 +45,7 @@
 			import mx.managers.PopUpManager;
 			
 			import nail.components.NailMain;
+			import nail.objectbuilder.commands.ProgressBarID;
 			
 			//--------------------------------------------------------------------------
 			//
@@ -85,11 +86,11 @@
 			
 			public function setProgress(id:uint, loaded:uint, total:uint) : void
 			{
-				if (id == 1 && bar1 != null)
+				if (id == ProgressBarID.DAT)
 				{
 					bar1.setProgress(loaded, total);
 				} 
-				else if (id == 2)
+				else if (id == ProgressBarID.SPR)
 				{
 					bar2.setProgress(loaded, total);
 				}
