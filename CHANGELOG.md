@@ -1,3 +1,13 @@
+### 0.2.9
+
+Features:
+
+* Support for version 10.38
+* Support for transparency.
+* Compiles in temporary files first.
+* Export multiple objects.
+* UI fixes and improvements.
+
 ### 0.2.8
 
 Features:
