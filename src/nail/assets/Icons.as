@@ -120,6 +120,12 @@ package nail.assets
         [Embed(source="../../../assets/viewer_white.png", mimeType="image/png")]
         static public const VIEWER_WHITE:Class;
         
+        [Embed(source="../../../assets/slicer.png", mimeType="image/png")]
+        static public const SLICER : Class;
+        
+        [Embed(source="../../../assets/slicer_white.png", mimeType="image/png")]
+        static public const SLICER_WHITE:Class;
+        
         [Embed(source="../../../assets/outfit.png", mimeType="image/png")]
         static public const OUTFIT:Class;
         

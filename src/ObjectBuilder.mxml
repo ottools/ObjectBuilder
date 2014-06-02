@@ -55,6 +55,7 @@
                 <menuitem label="{resourceManager.getString('strings', 'find')}"  keyEquivalent='F' data="toolsFind" icon="nail.assets.Icons_BINOCULARS"/>
                 <menuitem label="{resourceManager.getString('strings', 'menu.toolsLookTypeGenerator')}" data="toolsLookGenerator" icon="nail.assets.Icons_OUTFIT"/>
                 <menuitem label="{resourceManager.getString('strings', 'objectViewer')}" data="toolsObjectViewer" icon="nail.assets.Icons_VIEWER"/>
+                <menuitem label="Slicer" data="toolsSlicer" icon="nail.assets.Icons_SLICER"/>
             </menuitem>
             <menuitem label="{resourceManager.getString('strings', 'menu.window')}">
                 <menuitem label="{resourceManager.getString('strings', 'menu.logWindow')}"  keyEquivalent='L' data="windowOpenLog" icon="nail.assets.Icons_LOG"/>
@@ -103,6 +104,7 @@
             import nail.objectbuilder.commands.files.UnloadFilesCommand;
             import nail.objectbuilder.commands.sprites.ExportSpritesCommand;
             import nail.objectbuilder.commands.sprites.GetSpriteListCommand;
+            import nail.objectbuilder.commands.sprites.ImportSpritesCommand;
             import nail.objectbuilder.commands.sprites.ImportSpritesFromFileCommand;
             import nail.objectbuilder.commands.sprites.RemoveSpritesCommand;
             import nail.objectbuilder.commands.sprites.ReplaceSpritesCommand;
@@ -145,6 +147,7 @@
             import nail.otlib.utils.SpriteUtils;
             import nail.otlib.utils.ThingListItem;
             import nail.settings.Settings;
+            import nail.slicer.Slicer;
             import nail.utils.FileData;
             import nail.utils.FileQueueHelper;
             import nail.utils.FileUtil;
@@ -188,6 +191,7 @@
             private var _category:String;
             private var _categoryChanged:Boolean;
             private var _objectViewer:ObjectViewer;
+            private var _slicer:Slicer;
             
             //--------------------------------------
             // Getters / Setters 
@@ -348,6 +352,12 @@
                 }
             }
             
+            public function importSprites(list:Vector.<ByteArray>):void
+            {
+                if (!this.loaded || !list || list.length == 0) return;
+                sendCommand(new ImportSpritesCommand(list));
+            }
+            
             public function importSpritesFromFiles(list:Vector.<PathHelper>):void
             {
                 if (!this.loaded || !list || list.length == 0) return;
@@ -506,8 +516,8 @@
                     _objectViewer.height = _settings.objectViewerHeight;
                     _objectViewer.addEventListener(
                         NativeWindowDisplayStateEvent.DISPLAY_STATE_CHANGING,
-                        objectViewerStateChagingHandler);
-                    _objectViewer.addEventListener(Event.CLOSING, objectViewerClosingHandler);
+                        windowStateChagingHandler);
+                    _objectViewer.addEventListener(Event.CLOSING, windowClosingHandler);
                     _objectViewer.open();
                     
                     if (_settings.objectViewerMaximized) {
@@ -525,6 +535,42 @@
             {
                 if (_objectViewer) {
                     _objectViewer.close();
+                }
+            }
+            
+            public function openSlicer(file:File = null):void
+            {
+                if (file && !FileUtil.hasBitmapFormat(file)) return;
+                
+                if (!_slicer) {
+                    _slicer = new Slicer();
+                    _slicer.application = this;
+                    _slicer.file = file;
+                    _slicer.width = _settings.slicerWidth;
+                    _slicer.height = _settings.slicerHeight;
+                    _slicer.transparency = _info ? _info.transparency : false;
+                    _slicer.lastDirectory = _settings.getSlicerLastDirectory();
+                    _slicer.addEventListener(
+                        NativeWindowDisplayStateEvent.DISPLAY_STATE_CHANGING,
+                        windowStateChagingHandler);
+                    _slicer.addEventListener(Event.CLOSING, windowClosingHandler);
+                    _slicer.open();
+                    
+                    if (_settings.slicerMaximized) {
+                        _slicer.maximize();
+                    } else {
+                        WindowUtil.centralizeWindowOnScreen(_slicer);
+                    }
+                } else {
+                    _slicer.file = file;
+                    _slicer.activate();
+                }
+            }
+            
+            public function closeSlicer():void
+            {
+                if (_slicer) {
+                    _slicer.close();
                 }
             }
             
@@ -1816,21 +1862,32 @@
                 _errorAlert = null;
             }
             
-            protected function objectViewerStateChagingHandler(event:NativeWindowDisplayStateEvent):void
+            protected function windowStateChagingHandler(event:NativeWindowDisplayStateEvent):void
             {
-                _settings.objectViewerMaximized = (event.afterDisplayState == NativeWindowDisplayState.MAXIMIZED);
+                if (event.target is ObjectViewer) {
+                    _settings.objectViewerMaximized = (event.afterDisplayState == NativeWindowDisplayState.MAXIMIZED);
+                } else if (event.target is Slicer) {
+                    _settings.slicerMaximized = (event.afterDisplayState == NativeWindowDisplayState.MAXIMIZED);
+                }
             }
             
-            protected function objectViewerClosingHandler(event:Event):void
+            protected function windowClosingHandler(event:Event):void
             {
-                _settings.objectViewerWidth = _objectViewer.width;
-                _settings.objectViewerHeight = _objectViewer.height;
-                
-                _objectViewer.removeEventListener(
+                event.target.removeEventListener(
                     NativeWindowDisplayStateEvent.DISPLAY_STATE_CHANGING,
-                    objectViewerStateChagingHandler);
-                _objectViewer.removeEventListener(Event.CLOSING, objectViewerClosingHandler);
-                _objectViewer = null;
+                    windowStateChagingHandler);
+                event.target.removeEventListener(Event.CLOSING, windowClosingHandler);
+                
+                if (event.target is ObjectViewer) {
+                    _settings.objectViewerWidth = _objectViewer.width;
+                    _settings.objectViewerHeight = _objectViewer.height;
+                    _objectViewer = null;
+                } else if (event.target is Slicer) {
+                    _settings.slicerWidth = _slicer.width;
+                    _settings.slicerHeight = _slicer.height;
+                    _settings.setSlicerLastDirectory(_slicer.lastDirectory);
+                    _slicer = null
+                }
             }
             
             override protected function displayStateChangingHandler(event:NativeWindowDisplayStateEvent):void
@@ -1846,6 +1903,7 @@
                 this.closeFindThingWindow();
                 this.closeLookGenerator();
                 this.closeObjectViewer();
+                this.closeSlicer();
                 this.saveWindowState();
                 this.saveSettings();
                 
@@ -1940,6 +1998,9 @@
                         break;
                     case "toolsObjectViewer":
                         this.openObjectViewer();
+                        break;
+                    case "toolsSlicer":
+                        this.openSlicer();
                         break;
                     case "windowOpenLog":
                         this.openLogWindow();
@@ -2045,6 +2106,12 @@
                       toolTip="{resourceManager.getString('strings', 'objectViewer')}"
                       icon="{nail.assets.Icons.VIEWER_WHITE}"
                       click="openObjectViewer()"
+                      skinClass="nail.components.skins.IconButtonSkin"/>
+            <s:Button width="25"
+                      height="25"
+                      toolTip="Slicer"
+                      icon="{nail.assets.Icons.SLICER_WHITE}"
+                      click="openSlicer()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <nail:ShadowLine height="20"/>
             <s:Button width="25"

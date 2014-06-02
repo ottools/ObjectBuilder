@@ -37,11 +37,18 @@
           fontSize="11"
           backgroundColor="0x494949"
           showStatusBar="false"
-          title="@Resource(key='cropImage', bundle='strings')"
-          closing="windowClosingHandler(event)">
+          title="Slicer">
+    
+    <fx:Declarations>
+        <fx:XMLList id="menuXML">
+            <menuitem label="{resourceManager.getString('strings', 'menu.file')}">
+                <menuitem label="{resourceManager.getString('strings', 'menu.open')}" data="fileOpen" keyEquivalent='O' icon="nail.assets.Icons_OPEN"/>
+            </menuitem>
+        </fx:XMLList>
+    </fx:Declarations>
     
     <s:layout>
-        <s:HorizontalLayout/>
+        <s:VerticalLayout/>
     </s:layout>
     
     <fx:Metadata>
@@ -50,13 +57,19 @@
     
     <fx:Script>
         <![CDATA[
-            
             import mx.collections.ArrayCollection;
+            import mx.events.MenuEvent;
             import mx.events.MoveEvent;
             
             import nail.assets.NailAssets;
+            import nail.codecs.ImageCodec;
+            import nail.components.controls.Alert;
+            import nail.objectbuilder.core.IObjectBuilder;
+            import nail.objectbuilder.utils.ObUtils;
+            import nail.otlib.components.SurfaceCells;
             import nail.otlib.sprites.Sprite;
             import nail.otlib.utils.SpriteUtils;
+            import nail.utils.FileUtil;
             
             //--------------------------------------------------------------------------
             //
@@ -64,10 +77,15 @@
             //
             //--------------------------------------------------------------------------
             
+            public var application:IObjectBuilder;
+            public var lastDirectory:File;
+            
             [Bindable]
             private var _sprites:ArrayCollection = new ArrayCollection();
             private var _surfaceCells:SurfaceCells;
             private var _rect:Rectangle = new Rectangle();
+            private var _file:File;
+            private var _fileChanged:Boolean;
             private var _bitmap:BitmapData;
             private var _nextBitmap:BitmapData;
             private var _bitmapChanged:Boolean;
@@ -75,12 +93,19 @@
             private var _zoom:Number;
             private var _zoomChanged:Boolean;
             private var _lastValues:Rectangle = new Rectangle();
-            private var _import:Boolean;
-            private var _enableAlphaChannel:Boolean;
+            private var _transparency:Boolean;
             
             //--------------------------------------
             // Getters / Setters 
             //--------------------------------------
+            
+            public function get file():File { return _file; }
+            public function set file(value:File):void
+            {
+                _file = value;
+                _fileChanged = true;
+                invalidateProperties();
+            }
             
             public function get bitmap():BitmapData { return _bitmap; }
             public function set bitmap(value:BitmapData):void
@@ -108,8 +133,7 @@
             public function get bitmapList():Vector.<BitmapData>
             {
                 var length:uint = _sprites.length;
-                if (_import && length > 0)
-                {
+                if (length > 0) {
                     var list:Vector.<BitmapData> = new Vector.<BitmapData>(length, true);
                     for (var i:uint = 0; i < length; i++) {
                         list[i] = _sprites.getItemAt(i) as BitmapData;
@@ -119,8 +143,8 @@
                 return null;
             }
             
-            public function get enableAlphaChannel():Boolean { return _enableAlphaChannel; }
-            public function set enableAlphaChannel(value:Boolean):void { _enableAlphaChannel = value; }
+            public function get transparency():Boolean { return _transparency; }
+            public function set transparency(value:Boolean):void { _transparency = value; }
             
             //--------------------------------------------------------------------------
             //
@@ -179,7 +203,7 @@
                 rowsStepper.maximum = Math.floor(this.bitmap.height / size);
             }
             
-            protected function onCropImage():void
+            protected function onCutImage():void
             {
                 if (!this.hasImage) return;
                 
@@ -191,7 +215,8 @@
                 var rows:uint = rowsStepper.value;
                 
                 // Returns if the values ​​have not changed.
-                if (_lastValues.x == x &&
+                if (_sprites.length != 0 &&
+                    _lastValues.x == x &&
                     _lastValues.y == y &&
                     _lastValues.width == columns &&
                     _lastValues.height == rows) {
@@ -202,7 +227,6 @@
                 var point:Point = new Point();
                 
                 _lastValues.setTo(x, y, columns, rows);
-                _sprites.removeAll();
                 
                 for (var c:uint = 0; c < columns; c++) {
                     for (var r:uint = 0; r < rows; r++) {
@@ -210,7 +234,7 @@
                         rect.y = y + (r * height);
                         
                         var sprite:BitmapData;
-                        if (_enableAlphaChannel)
+                        if (_transparency)
                             sprite = new BitmapData(width, height, true, 0xFFFF00FF);
                         else
                             sprite = new BitmapData(width, height, false, 0xFF00FF);
@@ -257,6 +281,11 @@
             {
                 super.commitProperties();
                 
+                if (_fileChanged) {
+                    setFile(_file);
+                    _fileChanged = false;
+                }
+                
                 if (_bitmapChanged) {
                     setBitmap(_nextBitmap);
                     _nextBitmap = null;
@@ -274,6 +303,24 @@
             // Private
             //--------------------------------------
             
+            private function setFile(file:File):void
+            {
+                if (!file || !FileUtil.hasBitmapFormat(file)) return;
+                
+                try
+                {
+                    ImageCodec.decodeFromFile(file, imageReadCallback);
+                    lastDirectory = FileUtil.getDirectory(file);
+                } catch(error:Error) {
+                    Alert.show(error.getStackTrace(), resourceManager.getString("strings", "error"), Alert.OK, this);
+                }
+                
+                function imageReadCallback(bitmap:BitmapData):void
+                {
+                    setBitmap(bitmap);
+                }
+            }
+            
             private function setBitmap(bitmap:BitmapData):void
             {
                 _bitmap = bitmap;
@@ -281,6 +328,19 @@
                 
                 resetControls();
                 update();
+            }
+            
+            private function onOpenFile():void
+            {
+                var filters:Array = ObUtils.createImagesFileFilter();
+                var file:File = lastDirectory ? new File(lastDirectory.nativePath) : File.userDirectory;
+                file.addEventListener(Event.SELECT, fileSelectHandler);
+                file.browseForOpen(resourceManager.getString("strings", "selectImage"), filters);
+                
+                function fileSelectHandler(event:Event):void
+                {
+                    setFile(file);
+                }
             }
             
             //--------------------------------------
@@ -352,171 +412,219 @@
                 this.zoom = HSlider(event.target).value;
             }
             
-            protected function windowClosingHandler(event:Event):void
+            protected function menuItemClickHandler(event:MenuEvent):void
             {
-                if (!_import) {
-                    _sprites.removeAll();
+                var data:String = String(event.item.@data);
+                switch(data) {
+                    case "fileOpen":
+                        this.onOpenFile();
+                        break;
                 }
             }
             
             protected function importButtonClickHandler(event:MouseEvent):void
             {
-                _import = true;
-                this.close();
+                var length:uint = _sprites.length;
+                if (length > 0) {
+                    var rect:Rectangle = new Rectangle(0, 0, 32, 32);
+                    var list:Vector.<ByteArray> = new Vector.<ByteArray>(length, true);
+                    for (var i:uint = 0; i < length; i++) {
+                        var bitmap:BitmapData = _sprites.getItemAt(i) as BitmapData;
+                        list[i] = bitmap.getPixels(rect);;
+                    }
+                    application.importSprites(list);
+                }
+            }
+            
+            protected function clearButtonClickHandler(event:MouseEvent):void
+            {
+                _sprites.removeAll();
             }
             
         ]]>
     </fx:Script>
     
-    <s:BorderContainer width="150"
-                       height="100%"
-                       skinClass="nail.components.skins.BorderContainerSkin">
-        <s:layout>
-            <s:VerticalLayout paddingLeft="5"
-                              paddingRight="5"
-                              paddingTop="10"
-                              paddingBottom="10"
-                              verticalAlign="bottom"/>
-        </s:layout>
+    <!-- menu bar -->
+    <s:Group width="100%"
+             height="31">
+        <!-- fill -->
+        <s:Rect left="-1" right="-1" top="1" bottom="0">
+            <s:fill>
+                <s:SolidColor color="0x494949"/>
+            </s:fill>
+        </s:Rect>
         
-        <nail:GroupBox label="@Resource(key='cells', bundle='strings')"
-                       width="100%">
-            <nail:layout>
-                <s:VerticalLayout paddingLeft="5"
-                                  paddingRight="5"
-                                  paddingTop="10"
-                                  paddingBottom="10"/>
-            </nail:layout>
-            <s:TileGroup width="100%"
-                         requestedColumnCount="2"
-                         verticalAlign="middle">
-                <s:Label text="X:"
-                         textAlign="right"/>
-                <s:NumericStepper id="offsetXStepper"
-                                  width="55"
-                                  minimum="0"
-                                  maximum="608"
-                                  change="offsetStepperChangeHandler(event)"/>
-                <s:Label text="Y:"
-                         textAlign="right"/>
-                <s:NumericStepper id="offsetYStepper"
-                                  width="55"
-                                  minimum="0"
-                                  maximum="608"
-                                  change="offsetStepperChangeHandler(event)"/>
-                <s:Label text="{resourceManager.getString('strings', 'columns') + ':'}"
-                         textAlign="right"/>
-                <s:NumericStepper id="columnsStepper"
-                                  width="55"
-                                  minimum="1"
-                                  maximum="20"
-                                  change="update()"/>
-                <s:Label text="{resourceManager.getString('strings', 'rows') + ':'}"
-                         textAlign="right"/>
-                <s:NumericStepper id="rowsStepper"
-                                  width="55"
-                                  minimum="1"
-                                  maximum="20"
-                                  change="update()"/>
-            </s:TileGroup>
-        </nail:GroupBox>
+        <!-- border -->
+        <s:Rect left="-1" right="-1" top="0" bottom="0">
+            <s:stroke>
+                <s:SolidColorStroke color="0x272727"/>
+            </s:stroke>
+        </s:Rect>
         
-        <nail:GroupBox label="@Resource(key='zoom', bundle='strings')"
-                       width="100%">
-            <nail:layout>
-                <s:VerticalLayout paddingLeft="5"
-                                  paddingRight="5"
-                                  paddingTop="10"
-                                  paddingBottom="10"/>
-            </nail:layout>
-            <s:HSlider id="zoomSlider"
-                       width="100%"
-                       minimum="1.0"
-                       maximum="5.0"
-                       stepSize="0.1"
-                       value="{zoom}"
-                       bottom="10"
-                       right="10"
-                       change="zoomChangeHandler(event)"/>
-        </nail:GroupBox>
-        
-        <s:Spacer height="3"/>
-        <nail:ShadowLine width="100%"/>
-        <s:Spacer height="3"/>
-        
-        <s:Button id="cropButton"
-                  label="@Resource(key='crop', bundle='strings')"
-                  width="100%"
-                  click="onCropImage()"/>
-    </s:BorderContainer>
+        <mx:MenuBar id="menuBar"
+                    width="100%"
+                    top="4"
+                    fontSize="11"
+                    labelField="@label"
+                    iconField="@icon"
+                    showRoot="true"
+                    dataProvider="{menuXML}"
+                    itemSkin="nail.components.skins.MenuBarItemSkin"
+                    itemClick="menuItemClickHandler(event)"/>
+    </s:Group>
     
-    <s:BorderContainer width="100%"
-                       height="100%"
-                       skinClass="nail.components.skins.BorderContainerSkin">
-        <s:layout>
-            <s:VerticalLayout paddingLeft="1"
-                              paddingRight="0"
-                              paddingTop="1"
-                              paddingBottom="0"/>
-        </s:layout>
-        <s:Scroller width="100%"
-                    height="100%"
-                    verticalScrollPolicy="on"
-                    horizontalScrollPolicy="on">
+    <s:HGroup width="100%"
+              height="100%">
+        <s:BorderContainer width="150"
+                           height="100%"
+                           skinClass="nail.components.skins.BorderContainerSkin">
+            <s:layout>
+                <s:VerticalLayout paddingLeft="5"
+                                  paddingRight="5"
+                                  paddingTop="10"
+                                  paddingBottom="10"
+                                  verticalAlign="bottom"/>
+            </s:layout>
             
-            <s:Group id="imageConteinerGroup"
-                     width="100%"
-                     height="100%"
-                     mouseMove="imageContainerMouseMoveHandler(event)"
-                     mouseDown="imageContainerMouseDownHandler(event)">
-                
-                <components:CheckerBoard id="checkerboard"
-                                       width="{imageControl.width}"
-                                       height="{imageControl.height}"/>
-                
-                <s:Image id="imageControl"/>
-                
-                <s:SpriteVisualElement id="surfaceLine"
-                                       width="100%"
-                                       height="100%"
-                                       blendMode="invert"/>	
-            </s:Group>
-        </s:Scroller>
-    </s:BorderContainer>
-    
-    <s:BorderContainer width="150"
-                       height="100%"
-                       skinClass="nail.components.skins.BorderContainerSkin">
-        <s:layout>
-            <s:VerticalLayout paddingLeft="5"
-                              paddingRight="5"
-                              paddingTop="10"
-                              paddingBottom="10"/>
-        </s:layout>
+            <nail:GroupBox label="@Resource(key='cells', bundle='strings')"
+                           width="100%">
+                <nail:layout>
+                    <s:VerticalLayout paddingLeft="5"
+                                      paddingRight="5"
+                                      paddingTop="10"
+                                      paddingBottom="10"/>
+                </nail:layout>
+                <s:TileGroup width="100%"
+                             requestedColumnCount="2"
+                             verticalAlign="middle">
+                    <s:Label text="X:"
+                             textAlign="right"/>
+                    <s:NumericStepper id="offsetXStepper"
+                                      width="55"
+                                      minimum="0"
+                                      maximum="608"
+                                      change="offsetStepperChangeHandler(event)"/>
+                    <s:Label text="Y:"
+                             textAlign="right"/>
+                    <s:NumericStepper id="offsetYStepper"
+                                      width="55"
+                                      minimum="0"
+                                      maximum="608"
+                                      change="offsetStepperChangeHandler(event)"/>
+                    <s:Label text="{resourceManager.getString('strings', 'columns') + ':'}"
+                             textAlign="right"/>
+                    <s:NumericStepper id="columnsStepper"
+                                      width="55"
+                                      minimum="1"
+                                      maximum="20"
+                                      change="update()"/>
+                    <s:Label text="{resourceManager.getString('strings', 'rows') + ':'}"
+                             textAlign="right"/>
+                    <s:NumericStepper id="rowsStepper"
+                                      width="55"
+                                      minimum="1"
+                                      maximum="20"
+                                      change="update()"/>
+                </s:TileGroup>
+            </nail:GroupBox>
+            
+            <nail:GroupBox label="@Resource(key='zoom', bundle='strings')"
+                           width="100%">
+                <nail:layout>
+                    <s:VerticalLayout paddingLeft="5"
+                                      paddingRight="5"
+                                      paddingTop="10"
+                                      paddingBottom="10"/>
+                </nail:layout>
+                <s:HSlider id="zoomSlider"
+                           width="100%"
+                           minimum="1.0"
+                           maximum="5.0"
+                           stepSize="0.1"
+                           value="{zoom}"
+                           bottom="10"
+                           right="10"
+                           change="zoomChangeHandler(event)"/>
+            </nail:GroupBox>
+            
+            <s:Spacer height="3"/>
+            <nail:ShadowLine width="100%"/>
+            <s:Spacer height="3"/>
+            
+            <s:Button id="cutButton"
+                      label="@Resource(key='crop', bundle='strings')"
+                      width="100%"
+                      click="onCutImage()"/>
+        </s:BorderContainer>
         
-        <nail:GroupBox label="Sprites"
-                       width="100%"
-                       height="100%">
-            <s:List width="100%"
-                    height="100%"
-                    contentBackgroundColor="0x494949"
-                    borderVisible="false"
-                    dataProvider="{_sprites}"
-                    itemRenderer="nail.otlib.components.renders.BitmapListRenderer"/>
-        </nail:GroupBox>
+        <s:BorderContainer width="100%"
+                           height="100%"
+                           skinClass="nail.components.skins.BorderContainerSkin">
+            <s:layout>
+                <s:VerticalLayout paddingLeft="1"
+                                  paddingRight="0"
+                                  paddingTop="1"
+                                  paddingBottom="0"/>
+            </s:layout>
+            <s:Scroller width="100%"
+                        height="100%"
+                        verticalScrollPolicy="on"
+                        horizontalScrollPolicy="on">
+                
+                <s:Group id="imageConteinerGroup"
+                         width="100%"
+                         height="100%"
+                         mouseMove="imageContainerMouseMoveHandler(event)"
+                         mouseDown="imageContainerMouseDownHandler(event)">
+                    
+                    <components:CheckerBoard id="checkerboard"
+                                             width="{imageControl.width}"
+                                             height="{imageControl.height}"/>
+                    
+                    <s:Image id="imageControl"/>
+                    
+                    <s:SpriteVisualElement id="surfaceLine"
+                                           width="100%"
+                                           height="100%"
+                                           blendMode="invert"/>	
+                </s:Group>
+            </s:Scroller>
+        </s:BorderContainer>
         
-        <s:Spacer height="3"/>
-        <nail:ShadowLine width="100%"/>
-        <s:Spacer height="3"/>
-        
-        <s:Button id="importButton"
-                  label="@Resource(key='import', bundle='strings')"
-                  width="100%"
-                  enabled="{_sprites.length > 0}"
-                  click="importButtonClickHandler(event)"/>
-        <s:Button id="cancelButton"
-                  label="@Resource(key='cancel', bundle='strings')"
-                  width="100%"
-                  click="close()"/>
-    </s:BorderContainer>
+        <s:BorderContainer width="150"
+                           height="100%"
+                           skinClass="nail.components.skins.BorderContainerSkin">
+            <s:layout>
+                <s:VerticalLayout paddingLeft="5"
+                                  paddingRight="5"
+                                  paddingTop="10"
+                                  paddingBottom="10"/>
+            </s:layout>
+            
+            <nail:GroupBox label="@Resource(key='sprites', bundle='strings')"
+                           width="100%"
+                           height="100%">
+                <s:List width="100%"
+                        height="100%"
+                        contentBackgroundColor="0x494949"
+                        borderVisible="false"
+                        dataProvider="{_sprites}"
+                        itemRenderer="nail.otlib.components.renders.BitmapListRenderer"/>
+            </nail:GroupBox>
+            
+            <s:Spacer height="3"/>
+            <nail:ShadowLine width="100%"/>
+            <s:Spacer height="3"/>
+            
+            <s:Button id="importButton"
+                      label="@Resource(key='import', bundle='strings')"
+                      width="100%"
+                      enabled="{_sprites.length > 0}"
+                      click="importButtonClickHandler(event)"/>
+            <s:Button id="clearButton"
+                      label="@Resource(key='clear', bundle='strings')"
+                      width="100%"
+                      click="clearButtonClickHandler(event)"/>
+        </s:BorderContainer>
+    </s:HGroup>
 </s:Window>

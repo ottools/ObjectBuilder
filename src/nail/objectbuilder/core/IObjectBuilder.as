@@ -26,6 +26,7 @@ package nail.objectbuilder.core
 {
     import flash.display.BitmapData;
     import flash.filesystem.File;
+    import flash.utils.ByteArray;
     
     import nail.core.IApplication;
     import nail.objectbuilder.settings.ObjectBuilderSettings;
@@ -43,6 +44,8 @@ package nail.objectbuilder.core
         function openClient(directory:File = null):void;
         function openObjectViewer(file:File = null):void;
         function closeObjectViewer():void;
+        function openSlicer(file:File = null):void;
+        function closeSlicer():void;
         
         function importThingsFromFiles(list:Vector.<PathHelper>):void;
         function exportThings(fileDataList:Vector.<FileData>, category:String, version:Version, spriteSheetFlag:uint):void;
@@ -51,6 +54,7 @@ package nail.objectbuilder.core
         function duplicateThings(ids:Vector.<uint>, category:String):void;
         function removeThing(thing:ThingType, removeSprites:Boolean = false):void;
         function removeThings(list:Vector.<uint>, category:String, removeSprites:Boolean = false):void;
+        function importSprites(list:Vector.<ByteArray>):void;
         function importSpritesFromFiles(list:Vector.<PathHelper>):void;
         function exportSprites(fileDataList:Vector.<FileData>):void;
         function replaceSprite(id:uint, bitmap:BitmapData):void;
