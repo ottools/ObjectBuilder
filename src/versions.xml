@@ -59,4 +59,7 @@
 	<version value="1036" string="10.36" dat="53159C7E" spr="53159CA9" otb="0"/>
 	<version value="1037" string="10.37" dat="531EA82E" spr="531EA856" otb="0"/>
 	<version value="1038" string="10.38" dat="5333C199" spr="5333C1C3" otb="0"/>
+	<version value="1039" string="10.39" dat="535A50AD" spr="535A50D5" otb="0"/>
+	<version value="1040" string="10.40" dat="5379984D" spr="53799876" otb="0"/>
+	<version value="1041" string="10.41" dat="5383504E" spr="53835077" otb="0"/>
 </versions>
