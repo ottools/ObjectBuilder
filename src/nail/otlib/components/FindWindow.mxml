@@ -37,7 +37,7 @@
           minimizable="false"
           showStatusBar="false"
           fontSize="11"
-          title="@Resource(key='findObject', bundle='strings')"
+          title="@Resource(key='find', bundle='strings')"
           creationComplete="creationCompleteHandler(event)">
     
     <s:layout>

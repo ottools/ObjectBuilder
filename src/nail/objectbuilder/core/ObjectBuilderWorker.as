@@ -591,7 +591,7 @@ package nail.objectbuilder.core
             //============================================================================
             // Export things
             
-            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("strings", "importingObjects")));
+            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("strings", "exportingObjects")));
             
             var version:Version = Version.getVersionBySignatures(datSignature, sprSignature);
             var helper:SaveHelper = new SaveHelper();

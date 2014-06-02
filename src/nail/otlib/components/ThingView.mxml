@@ -51,7 +51,7 @@
             private var _rect:Rectangle = new Rectangle(0, 0, 32, 32);
             private var _fillRect:Rectangle = new Rectangle();
             private var _point:Point = new Point();
-            private var _timer:Timer;
+            private var _timer:Timer = new Timer(500);;
             private var _frame:uint;
             
             //--------------------------------------
@@ -165,7 +165,6 @@
             
             protected function creationCompleteHandler(event:FlexEvent):void
             {
-                _timer = new Timer(500);
                 _timer.addEventListener(TimerEvent.TIMER, timerEventHandler);
             }
             

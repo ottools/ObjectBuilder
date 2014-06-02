@@ -38,10 +38,10 @@
     <fx:Declarations>
         <fx:XMLList id="menuXML">
             <menuitem label="{resourceManager.getString('strings', 'menu.file')}">
-                <menuitem label="{resourceManager.getString('strings', 'menu.new')}" data="fileNew" keyEquivalent='N' icon="nail.objectbuilder.core.Icons_NEW_FILE"/>
-                <menuitem label="{resourceManager.getString('strings', 'menu.open')}" data="fileOpen" keyEquivalent='O' icon="nail.objectbuilder.core.Icons_OPEN"/>
-                <menuitem label="{resourceManager.getString('strings', 'menu.compile')}" keyEquivalent='S' data="fileCompile" icon="nail.objectbuilder.core.Icons_SAVE"/>
-                <menuitem label="{resourceManager.getString('strings', 'menu.compileAs')}" keyEquivalent='s' data="fileCompileAs" icon="nail.objectbuilder.core.Icons_SAVE_AS"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.new')}" data="fileNew" keyEquivalent='N' icon="nail.assets.Icons_NEW_FILE"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.open')}" data="fileOpen" keyEquivalent='O' icon="nail.assets.Icons_OPEN"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.compile')}" keyEquivalent='S' data="fileCompile" icon="nail.assets.Icons_SAVE"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.compileAs')}" keyEquivalent='s' data="fileCompileAs" icon="nail.assets.Icons_SAVE_AS"/>
                 <menuitem type="separator"/>
                 <menuitem label="{resourceManager.getString('strings', 'menu.close')}"  keyEquivalent='W' data="fileClose"/>
                 <menuitem type="separator"/>
@@ -52,16 +52,17 @@
                 <menuitem label="{resourceManager.getString('strings', 'menu.showObjectList')}" type="check" data="viewShowObjectList"/>
             </menuitem>
             <menuitem label="{resourceManager.getString('strings', 'menu.tools')}">
-                <menuitem label="{resourceManager.getString('strings', 'menu.toolsFindObject')}"  keyEquivalent='F' data="toolsFind" icon="nail.objectbuilder.core.Icons_BINOCULARS"/>
-                <menuitem label="{resourceManager.getString('strings', 'menu.toolsLookTypeGenerator')}" data="toolsLookGenerator" icon="nail.objectbuilder.core.Icons_OUTFIT"/>
+                <menuitem label="{resourceManager.getString('strings', 'find')}"  keyEquivalent='F' data="toolsFind" icon="nail.assets.Icons_BINOCULARS"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.toolsLookTypeGenerator')}" data="toolsLookGenerator" icon="nail.assets.Icons_OUTFIT"/>
+                <menuitem label="{resourceManager.getString('strings', 'objectViewer')}" data="toolsObjectViewer" icon="nail.assets.Icons_VIEWER"/>
             </menuitem>
             <menuitem label="{resourceManager.getString('strings', 'menu.window')}">
-                <menuitem label="{resourceManager.getString('strings', 'menu.logWindow')}"  keyEquivalent='L' data="windowOpenLog" icon="nail.objectbuilder.core.Icons_LOG"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.logWindow')}"  keyEquivalent='L' data="windowOpenLog" icon="nail.assets.Icons_LOG"/>
             </menuitem>	
             <menuitem label="{resourceManager.getString('strings', 'menu.help')}">
-                <menuitem label="{resourceManager.getString('strings', 'menu.helpContents')}" data="helpContents" enabled="false" icon="nail.objectbuilder.core.Icons_HELP"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.helpContents')}" data="helpContents" enabled="false" icon="nail.assets.Icons_HELP"/>
                 <menuitem type="separator"/>
-                <menuitem label="{resourceManager.getString('strings', 'menu.about')}" data="helpAbout" icon="nail.objectbuilder.core.Icons_INFO"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.about')}" data="helpAbout" icon="nail.assets.Icons_INFO"/>
             </menuitem>	
         </fx:XMLList>
     </fx:Declarations>
@@ -118,6 +119,7 @@
             import nail.objectbuilder.commands.things.UpdateThingCommand;
             import nail.objectbuilder.settings.ObjectBuilderSettings;
             import nail.objectbuilder.utils.ObUtils;
+            import nail.objectviewer.ObjectViewer;
             import nail.otlib.components.CompileFilesWindow;
             import nail.otlib.components.DatSprProgressBar;
             import nail.otlib.components.DefaultProgressBar;
@@ -185,6 +187,7 @@
             private var _errorAlert:Alert;
             private var _category:String;
             private var _categoryChanged:Boolean;
+            private var _objectViewer:ObjectViewer;
             
             //--------------------------------------
             // Getters / Setters 
@@ -491,6 +494,40 @@
                 }
             }
             
+            public function openObjectViewer(file:File = null):void
+            {
+                if (file && file.extension != OTFormat.OBD) return;
+                
+                if (!_objectViewer) {
+                    _objectViewer = new ObjectViewer();
+                    _objectViewer.application = this;
+                    _objectViewer.file = file;
+                    _objectViewer.width = _settings.objectViewerWidth;
+                    _objectViewer.height = _settings.objectViewerHeight;
+                    _objectViewer.addEventListener(
+                        NativeWindowDisplayStateEvent.DISPLAY_STATE_CHANGING,
+                        objectViewerStateChagingHandler);
+                    _objectViewer.addEventListener(Event.CLOSING, objectViewerClosingHandler);
+                    _objectViewer.open();
+                    
+                    if (_settings.objectViewerMaximized) {
+                        _objectViewer.maximize();
+                    } else {
+                        WindowUtil.centralizeWindowOnScreen(_objectViewer);
+                    }
+                } else {
+                    _objectViewer.file = file;
+                    _objectViewer.activate();
+                }
+            }
+            
+            public function closeObjectViewer():void
+            {
+                if (_objectViewer) {
+                    _objectViewer.close();
+                }
+            }
+            
             public function clear():void
             {
                 _thingData = null;
@@ -640,8 +677,12 @@
                 if (args) {
                     var path:String = args[0];
                     if (!isNullOrEmpty(path)) {
-                        var directory:File = FileUtil.getDirectory(new File(path));
-                        openClient(directory);
+                        var file:File = new File(path);
+                        if (file.extension == OTFormat.DAT || file.extension == OTFormat.SPR) {
+                            openClient(FileUtil.getDirectory(file));
+                        } else if (file.extension == OTFormat.OBD) {
+                            openObjectViewer(file);
+                        }
                     }
                 }
             }
@@ -893,7 +934,7 @@
                 }
             }
             
-            private function openFindThingWindow():void
+            private function openFindWindow():void
             {
                 if (!this.loaded) return;
                 
@@ -1775,6 +1816,23 @@
                 _errorAlert = null;
             }
             
+            protected function objectViewerStateChagingHandler(event:NativeWindowDisplayStateEvent):void
+            {
+                _settings.objectViewerMaximized = (event.afterDisplayState == NativeWindowDisplayState.MAXIMIZED);
+            }
+            
+            protected function objectViewerClosingHandler(event:Event):void
+            {
+                _settings.objectViewerWidth = _objectViewer.width;
+                _settings.objectViewerHeight = _objectViewer.height;
+                
+                _objectViewer.removeEventListener(
+                    NativeWindowDisplayStateEvent.DISPLAY_STATE_CHANGING,
+                    objectViewerStateChagingHandler);
+                _objectViewer.removeEventListener(Event.CLOSING, objectViewerClosingHandler);
+                _objectViewer = null;
+            }
+            
             override protected function displayStateChangingHandler(event:NativeWindowDisplayStateEvent):void
             {
                 if (_settings) {
@@ -1787,6 +1845,7 @@
                 this.closeLogWindow();
                 this.closeFindThingWindow();
                 this.closeLookGenerator();
+                this.closeObjectViewer();
                 this.saveWindowState();
                 this.saveSettings();
                 
@@ -1824,7 +1883,7 @@
                             this.compile();
                             break;
                         case Keyboard.F:
-                            this.openFindThingWindow();
+                            this.openFindWindow();
                             break;
                         case Keyboard.L:
                             this.openLogWindow();
@@ -1847,7 +1906,7 @@
             
             protected function menuItemClickHandler(event:MenuEvent):void
             {
-                var data : String = String(event.item.@data);
+                var data:String = String(event.item.@data);
                 switch(data) {
                     case "fileNew":
                         this.onCreateNew();
@@ -1874,10 +1933,13 @@
                         this.showThingList = !this.showThingList;
                         break;
                     case "toolsFind":
-                        this.openFindThingWindow();
+                        this.openFindWindow();
                         break;
                     case "toolsLookGenerator":
                         this.openLookGenerator();
+                        break;
+                    case "toolsObjectViewer":
+                        this.openObjectViewer();
                         break;
                     case "windowOpenLog":
                         this.openLogWindow();
@@ -1950,39 +2012,45 @@
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.new')}"
-                      icon="{nail.objectbuilder.core.Icons.NEW_FILE_WHITE}"
+                      icon="{nail.assets.Icons.NEW_FILE_WHITE}"
                       click="onCreateNew()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.open')}"
-                      icon="{nail.objectbuilder.core.Icons.OPEN_WHITE}"
+                      icon="{nail.assets.Icons.OPEN_WHITE}"
                       click="openClient()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.compile')}"
-                      icon="{nail.objectbuilder.core.Icons.SAVE_WHITE}"
+                      icon="{nail.assets.Icons.SAVE_WHITE}"
                       click="compile()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.compileAs')}"
-                      icon="{nail.objectbuilder.core.Icons.SAVE_AS_WHITE}"
+                      icon="{nail.assets.Icons.SAVE_AS_WHITE}"
                       click="compileAs()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <nail:ShadowLine height="20"/>
             <s:Button width="25"
                       height="25"
-                      toolTip="{resourceManager.getString('strings', 'menu.toolsFindObject')}"
-                      icon="{nail.objectbuilder.core.Icons.BINOCULARS_WHITE}"
-                      click="openFindThingWindow()"
+                      toolTip="{resourceManager.getString('strings', 'find')}"
+                      icon="{nail.assets.Icons.BINOCULARS_WHITE}"
+                      click="openFindWindow()"
+                      skinClass="nail.components.skins.IconButtonSkin"/>
+            <s:Button width="25"
+                      height="25"
+                      toolTip="{resourceManager.getString('strings', 'objectViewer')}"
+                      icon="{nail.assets.Icons.VIEWER_WHITE}"
+                      click="openObjectViewer()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <nail:ShadowLine height="20"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.logWindow')}"
-                      icon="{nail.objectbuilder.core.Icons.LOG_WHITE}"
+                      icon="{nail.assets.Icons.LOG_WHITE}"
                       click="openLogWindow()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
         </s:HGroup>
@@ -2034,7 +2102,7 @@
                                 toolTip="@Resource(key='showObjectList', bundle='strings')"
                                 width="20"
                                 height="20"
-                                icon="{nail.objectbuilder.core.Icons.SHOW_LIST_ICON}"
+                                icon="{nail.assets.Icons.SHOW_LIST_ICON}"
                                 change="{showThingList = showThingListButton.selected;}"/>
             </s:HGroup>
             
@@ -2063,49 +2131,49 @@
                           minWidth="19"
                           width="100%"
                           height="19"
-                          icon="{nail.objectbuilder.core.Icons.REPLACE}"
+                          icon="{nail.assets.Icons.REPLACE}"
                           click="replaceThingHandler(event)"/>
                 <s:Button id="importThingButton"
                           toolTip="@Resource(key='import', bundle='strings')"
                           minWidth="19"
                           width="100%"
                           height="19"
-                          icon="{nail.objectbuilder.core.Icons.IMPORT}"
+                          icon="{nail.assets.Icons.IMPORT}"
                           click="importThingHandler(event)"/>
                 <s:Button id="exportThingButton"
                           toolTip="@Resource(key='export', bundle='strings')"
                           minWidth="19"
                           width="100%"
                           height="19"
-                          icon="{nail.objectbuilder.core.Icons.EXPORT}"
+                          icon="{nail.assets.Icons.EXPORT}"
                           click="exportThingHandler(event)"/>
                 <s:Button id="editThingButton"
                           toolTip="@Resource(key='edit', bundle='strings')"
                           minWidth="19"
                           width="100%"
                           height="19"
-                          icon="{nail.objectbuilder.core.Icons.EDIT}"
+                          icon="{nail.assets.Icons.EDIT}"
                           click="editThingHandler(event)"/>
                 <s:Button id="duplicateThingButton"
                           toolTip="@Resource(key='duplicate', bundle='strings')"
                           minWidth="19"
                           width="100%"
                           height="19"
-                          icon="{nail.objectbuilder.core.Icons.DUPLICATE}"
+                          icon="{nail.assets.Icons.DUPLICATE}"
                           click="duplicateThingHandler(event)"/>
                 <s:Button id="newThingButton"
                           toolTip="@Resource(key='new', bundle='strings')"
                           minWidth="19"
                           width="100%"
                           height="19"
-                          icon="{nail.objectbuilder.core.Icons.NEW}"
+                          icon="{nail.assets.Icons.NEW}"
                           click="newThingHandler(event)"/>
                 <s:Button id="removeThingButton"
                           toolTip="@Resource(key='remove', bundle='strings')"
                           minWidth="19"
                           width="100%"
                           height="19"
-                          icon="{nail.objectbuilder.core.Icons.DELETE}"
+                          icon="{nail.assets.Icons.DELETE}"
                           click="removeThingHandler(event)"/>
             </s:HGroup>
         </s:BorderContainer>
@@ -2289,49 +2357,49 @@
                           minWidth="19"
                           width="100%"
                           height="19"
-                          icon="{nail.objectbuilder.core.Icons.REPLACE}"
+                          icon="{nail.assets.Icons.REPLACE}"
                           click="replaceSpriteHandler(event)"/>
                 <s:Button id="importSpriteButton"
                           toolTip="@Resource(key='import', bundle='strings')"
                           minWidth="19"
                           width="100%"
                           height="19"
-                          icon="{nail.objectbuilder.core.Icons.IMPORT}"
+                          icon="{nail.assets.Icons.IMPORT}"
                           click="importSpriteHandler(event)"/>
                 <s:Button id="exportSpriteButton"
                           toolTip="@Resource(key='export', bundle='strings')"
                           minWidth="19"
                           width="100%"
                           height="19"
-                          icon="{nail.objectbuilder.core.Icons.EXPORT}"
+                          icon="{nail.assets.Icons.EXPORT}"
                           click="exportSpriteHandler(event)"/>
                 <s:Button id="copySpriteButton"
                           toolTip="@Resource(key='copy', bundle='strings')"
                           minWidth="19"
                           width="100%"
                           height="19"
-                          icon="{nail.objectbuilder.core.Icons.COPY}"
+                          icon="{nail.assets.Icons.COPY}"
                           click="onCopySprite()"/>
                 <s:Button id="pasteSpriteButton"
                           toolTip="@Resource(key='paste', bundle='strings')"
                           minWidth="19"
                           width="100%"
                           height="19"
-                          icon="{nail.objectbuilder.core.Icons.PASTE}"
+                          icon="{nail.assets.Icons.PASTE}"
                           click="onPasteSprite()"/>
                 <s:Button id="newSpriteButton"
                           toolTip="@Resource(key='new', bundle='strings')"
                           minWidth="19"
                           width="100%"
                           height="19"
-                          icon="{nail.objectbuilder.core.Icons.NEW}"
+                          icon="{nail.assets.Icons.NEW}"
                           click="newSpriteButtonClickHandler(event)"/>
                 <s:Button id="removeSpriteButton"
                           toolTip="@Resource(key='remove', bundle='strings')"
                           minWidth="19"
                           width="100%"
                           height="19"
-                          icon="{nail.objectbuilder.core.Icons.DELETE}"
+                          icon="{nail.assets.Icons.DELETE}"
                           click="removeSpriteHandler(event)"/>
             </s:HGroup>
         </s:BorderContainer>

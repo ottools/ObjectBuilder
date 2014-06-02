@@ -58,7 +58,7 @@
         <![CDATA[
             import mx.events.FlexEvent;
             
-            import nail.objectbuilder.core.Icons;
+            import nail.assets.Icons;
             import nail.objectbuilder.settings.ObjectBuilderSettings;
             import nail.objectbuilder.utils.SupportedLanguages;
             
@@ -307,7 +307,7 @@
         <s:Button id="infoButton"
                   width="25"
                   height="25"
-                  icon="{nail.objectbuilder.core.Icons.INFO}"
+                  icon="{nail.assets.Icons.INFO}"
                   focusEnabled="false"
                   toolTip="@Resource(key='needToRestart', bundle='strings')"
                   skinClass="nail.components.skins.IconButtonSkin"/>

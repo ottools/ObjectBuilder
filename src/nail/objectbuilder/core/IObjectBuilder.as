@@ -41,6 +41,8 @@ package nail.objectbuilder.core
         function loadFiles(datFile:File, sprFile:File, version:Version, extended:Boolean, transparency:Boolean):void;
         function createFiles(version:Version, extended:Boolean, transparency:Boolean):void;
         function openClient(directory:File = null):void;
+        function openObjectViewer(file:File = null):void;
+        function closeObjectViewer():void;
         
         function importThingsFromFiles(list:Vector.<PathHelper>):void;
         function exportThings(fileDataList:Vector.<FileData>, category:String, version:Version, spriteSheetFlag:uint):void;

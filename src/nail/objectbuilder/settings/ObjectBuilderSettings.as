@@ -59,6 +59,9 @@ package nail.objectbuilder.settings
         public var savingSpriteSheet:Number = 0;
         public var findWindowWidth:Number = 0;
         public var findWindowHeight:Number = 0;
+        public var objectViewerWidth:Number = 0;
+        public var objectViewerHeight:Number = 0;
+        public var objectViewerMaximized:Boolean;
         
         //--------------------------------------------------------------------------
         //
