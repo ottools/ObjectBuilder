@@ -22,11 +22,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.objectbuilder.utils
+package nail.objectbuilder.commands.things
 {
-    import nail.errors.AbstractClassError;
+    import nail.objectbuilder.commands.CommandType;
+    import nail.otlib.things.ThingData;
+    import nail.workers.Command;
     
-    public final class SupportedLanguages
+    public class ReplaceThingsCommand extends Command
     {
         //--------------------------------------------------------------------------
         //
@@ -34,19 +36,9 @@ package nail.objectbuilder.utils
         //
         //--------------------------------------------------------------------------
         
-        public function SupportedLanguages()
+        public function ReplaceThingsCommand(list:Vector.<ThingData>)
         {
-            throw new AbstractClassError(SupportedLanguages);
+            super(CommandType.REPLACE_THINGS, list);
         }
-        
-        //--------------------------------------------------------------------------
-        //
-        // STATIC
-        //
-        //--------------------------------------------------------------------------
-        
-        public static const EN_US:String = "en_US";
-        public static const PL_PL:String = "pl_PL";
-        public static const PT_BR:String = "pt_BR";
     }
 }

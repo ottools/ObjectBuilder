@@ -1,7 +1,7 @@
 /*
 ///////////////////////////////////////////////////////////////////////////////////
 // 
-//  Copyright (c) 2014 <nailsonnego@gmail.com>
+//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
 // 
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -26,20 +26,22 @@
 
 @namespace s "library://ns.adobe.com/flex/spark";
 @namespace mx "library://ns.adobe.com/flex/mx";
+@namespace controls "nail.otlib.components.controls.*";
+@namespace components "nail.otlib.components.*";
 
 global
 {
-	chromeColor: #494949;
-	rollOverColor: #355D89;
-	selectionColor: #294867;
-	color: #DFDFDF; 
-	contentBackgroundColor: #494949;
-	focusedTextSelectionColor: #272727;
-	symbolColor: #DFDFDF;
-	fontFamily: "Verdana";	
-	modal-transparency-blur: 0;
-	modal-transparency: 0.3;
-	modalTransparencyColor: #656565;
+    chromeColor: #494949;
+    rollOverColor: #355D89;
+    selectionColor: #294867;
+    color: #DFDFDF; 
+    contentBackgroundColor: #494949;
+    focusedTextSelectionColor: #272727;
+    symbolColor: #DFDFDF;
+    fontFamily: "Verdana";
+    modal-transparency-blur: 0;
+    modal-transparency: 0.3;
+    modalTransparencyColor: #656565;
 }
 
 /*
@@ -50,9 +52,30 @@ global
 
 mx|ToolTip
 {
-	backgroundAlpha: 1.0;
-	backgroundColor: #294867;
-	color: #DFDFDF;
-	cornerRadius: 0;
-	fontSize: 11;
+    backgroundAlpha: 1.0;
+    backgroundColor: #294867;
+    color: #DFDFDF;
+    cornerRadius: 0;
+    fontSize: 11;
+}
+
+/*
+//--------------------------------------
+// otlib components
+//--------------------------------------
+*/
+
+components|HSIColorPicker
+{
+    skinClass: ClassReference("nail.otlib.components.skins.HSIColorPickerSkin");
+}
+
+components|EightBitColorPicker
+{
+    skinClass: ClassReference("nail.otlib.components.skins.EightBitColorPickerSkin");
+}
+
+components|PatternSlider
+{
+    skinClass: ClassReference("nail.otlib.components.skins.PatternSliderSkin");
 }

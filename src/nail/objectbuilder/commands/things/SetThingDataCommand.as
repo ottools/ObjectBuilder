@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // 
-//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
+//  Copyright (c) 2014 NAilson <nailsonnego@gmail.com>
 // 
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -22,11 +22,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.objectbuilder.utils
+package nail.objectbuilder.commands.things
 {
-    import nail.errors.AbstractClassError;
+    import nail.otlib.things.ThingData;
+    import nail.workers.Command;
+    import nail.objectbuilder.commands.CommandType;
     
-    public final class SupportedLanguages
+    public class SetThingDataCommand extends Command
     {
         //--------------------------------------------------------------------------
         //
@@ -34,19 +36,9 @@ package nail.objectbuilder.utils
         //
         //--------------------------------------------------------------------------
         
-        public function SupportedLanguages()
+        public function SetThingDataCommand(thingData:ThingData)
         {
-            throw new AbstractClassError(SupportedLanguages);
+            super(CommandType.SET_THING, thingData);
         }
-        
-        //--------------------------------------------------------------------------
-        //
-        // STATIC
-        //
-        //--------------------------------------------------------------------------
-        
-        public static const EN_US:String = "en_US";
-        public static const PL_PL:String = "pl_PL";
-        public static const PT_BR:String = "pt_BR";
     }
 }

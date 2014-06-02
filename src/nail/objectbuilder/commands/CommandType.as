@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // 
-//  Copyright (c) 2014 <nailsonnego@gmail.com>
+//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
 // 
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -24,60 +24,66 @@
 
 package nail.objectbuilder.commands
 {
-	import nail.errors.AbstractClassError;
-
-	public final class CommandType
-	{
-		//--------------------------------------------------------------------------
-		//
-		// CONSTRUCTOR
-		//
-		//--------------------------------------------------------------------------
-		
-		public function CommandType()
-		{
-			throw new AbstractClassError(CommandType);
-		}
-		
-		//--------------------------------------------------------------------------
-		//
-		// STATIC
-		//
-		//--------------------------------------------------------------------------
-		
-		static public const CREATE_NEW_ASSETS : String = "createNewAssets";
-		static public const LOAD_ASSETS : String = "loadAssets";
-		static public const GET_ASSETS_INFO : String = "getAssetsInfo";
-		static public const SET_ASSETS_INFO : String = "getAssetsInfo";
-		static public const LOAD_COMPLETE : String = "loadComplete";
-		static public const NEW_THING : String = "newThing";
-		static public const REPLACE_THING : String = "replaceThing";
-		static public const EXPORT_THING : String = "replaceThing";
-		static public const DUPLICATE_THING : String = "duplicateThing";
-		static public const IMPORT_THING : String = "importThing";
-		static public const IMPORT_THING_FILES : String = "importThingFiles";
-		static public const UPDATE_THING : String = "updateThing";
-		static public const REMOVE_THING : String = "removeThing";
-		static public const GET_THING : String = "getThing";
-		static public const SET_THING : String = "setThing";
-		static public const GET_THING_LIST : String = "getThingList";
-		static public const SET_THING_LIST : String = "setThingList";
-		static public const FIND_THING : String = "findThing";
-		static public const FIND_RESULT : String = "findResult";
-		static public const ADD_SPRITE : String = "addSprite";
-		static public const REPLACE_SPRITE : String = "replaceSprite";
-		static public const DUPLICATE_SPRITE : String = "duplicateSprite";
-		static public const NEW_SPRITE : String = "newSprite"
-		static public const REMOVE_SPRITES : String = "removeSprites";
-		static public const IMPORT_SPRITES : String = "importSprite";
-		static public const EXPORT_SPRITE : String = "exportSprite";
-		static public const GET_SPRITE_LIST : String = "getSpriteList";
-		static public const SET_SPRITE_LIST : String = "setSpriteList";
-		static public const COMPILE_ASSETS : String = "compileAssets";
-		static public const SHOW_PROGRESS_BAR : String = "showProgressBar";	
-		static public const HIDE_PROGRESS_BAR : String = "hideProgressBar";	
-		static public const SHOW_MESSAGE : String = "showMessage";	
-		static public const ERROR : String = "error";
-		static public const NEED_TO_RELOAD : String = "needToReload";
-	}
+    import nail.errors.AbstractClassError;
+    
+    public final class CommandType
+    {
+        //--------------------------------------------------------------------------
+        //
+        // CONSTRUCTOR
+        //
+        //--------------------------------------------------------------------------
+        
+        public function CommandType()
+        {
+            throw new AbstractClassError(CommandType);
+        }
+        
+        //--------------------------------------------------------------------------
+        //
+        // STATIC
+        //
+        //--------------------------------------------------------------------------
+        
+        static public const CREATE_NEW_FILES:String = "createNewFiles";
+        static public const LOAD_FILES:String = "loadFiles";
+        static public const UNLOAD_FILES:String = "unloadFiles";
+        static public const FILES_INFO:String = "filesInfo";
+        static public const LOAD_COMPLETE:String = "loadComplete";
+        static public const COMPILE:String = "compile";
+        static public const COMPILE_AS:String = "compileAs";
+        
+        static public const NEW_THING:String = "newThing";
+        static public const IMPORT_THINGS:String = "importThings";
+        static public const IMPORT_THINGS_FROM_FILES:String = "importThingsFromFiles";
+        static public const EXPORT_THINGS:String = "exportThings";
+        static public const DUPLICATE_THINGS:String = "duplicateThings";
+        static public const REPLACE_THINGS:String = "replaceThings";
+        static public const REPLACE_THINGS_FROM_FILES:String = "replaceThingsFromFiles";
+        static public const REMOVE_THINGS:String = "removeThings";
+        static public const UPDATE_THING:String = "updateThing";
+        static public const GET_THING:String = "getThing";
+        static public const SET_THING:String = "setThing";
+        static public const GET_THING_LIST:String = "getThingList";
+        static public const SET_THING_LIST:String = "setThingList";
+        static public const FIND_THING:String = "findThing";
+        static public const FIND_RESULT:String = "findResult";
+        
+        static public const NEW_SPRITE:String = "newSprite";
+        static public const IMPORT_SPRITES:String = "importSprites";
+        static public const IMPORT_SPRITES_FROM_FILES:String = "importSpritesFromFiles";
+        static public const REPLACE_SPRITES:String = "replaceSprites";
+        static public const REPLACE_SPRITES_FROM_FILES:String = "replaceSpritesFromFiles";
+        static public const REMOVE_SPRITES:String = "removeSprites";
+        static public const EXPORT_SPRITES:String = "exportSprites";
+        static public const GET_SPRITE_LIST:String = "getSpriteList";
+        static public const SET_SPRITE_LIST:String = "setSpriteList";
+        static public const FIND_SPRITES:String = "findSprites";
+        
+        static public const PROGRESS:String = "progress";
+        static public const SHOW_PROGRESS_BAR:String = "showProgressBar";
+        static public const HIDE_PROGRESS_BAR:String = "hideProgressBar";
+        static public const ERROR:String = "error";
+        static public const NEED_TO_RELOAD:String = "needToReload";
+    }
 }

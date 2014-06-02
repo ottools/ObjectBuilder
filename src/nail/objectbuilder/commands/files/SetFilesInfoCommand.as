@@ -22,11 +22,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.objectbuilder.utils
+package nail.objectbuilder.commands.files
 {
-    import nail.errors.AbstractClassError;
+    import nail.otlib.utils.FilesInfo;
+    import nail.workers.Command;
+    import nail.objectbuilder.commands.CommandType;
     
-    public final class SupportedLanguages
+    public class SetFilesInfoCommand extends Command
     {
         //--------------------------------------------------------------------------
         //
@@ -34,19 +36,9 @@ package nail.objectbuilder.utils
         //
         //--------------------------------------------------------------------------
         
-        public function SupportedLanguages()
+        public function SetFilesInfoCommand(info:FilesInfo)
         {
-            throw new AbstractClassError(SupportedLanguages);
+            super(CommandType.FILES_INFO, info);
         }
-        
-        //--------------------------------------------------------------------------
-        //
-        // STATIC
-        //
-        //--------------------------------------------------------------------------
-        
-        public static const EN_US:String = "en_US";
-        public static const PL_PL:String = "pl_PL";
-        public static const PT_BR:String = "pt_BR";
     }
 }

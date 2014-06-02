@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // 
-//  Copyright (c) 2014 <nailsonnego@gmail.com>
+//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
 // 
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -24,112 +24,145 @@
 
 package nail.objectbuilder.utils
 {
-	import flash.filesystem.File;
-	import flash.utils.describeType;
-	
-	import mx.resources.IResourceManager;
-	import mx.resources.ResourceManager;
-	
-	import nail.errors.AbstractClassError;
-	import nail.otlib.things.BindableThingType;
-	import nail.otlib.things.ThingCategory;
-	import nail.otlib.things.ThingType;
-	import nail.utils.StringUtil;
-
-	[ResourceBundle("strings")]
-	
-	public final class ObUtils
-	{
-		//--------------------------------------------------------------------------
-		//
-		// CONSTRUCTOR
-		//
-		//--------------------------------------------------------------------------
-		
-		public function ObUtils()
-		{
-			throw new AbstractClassError(ObUtils);
-		}
-		
-		//--------------------------------------------------------------------------
-		//
-		// STATIC
-		//
-		//--------------------------------------------------------------------------
-		
-		static public function toLocale(category:String) : String
-		{
-			var result : String = "";
-			
-			if (ThingCategory.getCategory(category) != null)
-			{
-				switch(category)
-				{
-					case ThingCategory.ITEM:
-						result = ResourceManager.getInstance().getString("strings", "item");
-						break;
-					case ThingCategory.OUTFIT:
-						result = ResourceManager.getInstance().getString("strings", "outfit");
-						break;
-					case ThingCategory.EFFECT:
-						result = ResourceManager.getInstance().getString("strings", "effect");
-						break;
-					case ThingCategory.MISSILE:
-						result = ResourceManager.getInstance().getString("strings", "missile");
-						break;
-				}
-			}
-			return result;
-		}
-		
-		static public function hundredFloor(value:uint) : uint
-		{
-			return (Math.floor(value / 100) * 100);
-		}
-		
-		static public function getPatternsString(thing:ThingType, saveValue:Number) : String
-		{
-			var resource : IResourceManager;
-			var text : String = "";
-			var description : XMLList;
-			var property : XML;
-			var name : String;
-			var type : String;
-			
-			if (saveValue == 2)
-			{
-				description = describeType(thing)..variable;
-				for each (property in description)
-				{
-					name = property.@name;
-					type = property.@type;
-					if (name != "id" && (type == "Boolean" || type == "uint"))
-					{
-						text += BindableThingType.toLabel(name) + " = " + thing[name] + File.lineEnding;
-					}
-				}
-				return text;
-			}
-			
-			resource = ResourceManager.getInstance();
-			text = resource.getString("strings", "width") + " = {0}" + File.lineEnding +
-				resource.getString("strings", "height") + " = {1}" + File.lineEnding +
-				resource.getString("strings", "cropSize") + " = {2}" + File.lineEnding +
-				resource.getString("strings", "layers") + " = {3}" + File.lineEnding +
-				resource.getString("strings", "patternX") + " = {4}" + File.lineEnding +
-				resource.getString("strings", "patternY") + " = {5}" + File.lineEnding +
-				resource.getString("strings", "patternZ") + " = {6}" + File.lineEnding +
-				resource.getString("strings", "animations") + " = {7}" + File.lineEnding;
-			
-			return StringUtil.substitute(text,
-										 thing.width,
-										 thing.height,
-										 thing.exactSize,
-										 thing.layers,
-										 thing.patternX,
-										 thing.patternY,
-										 thing.patternZ,
-										 thing.frames);
-		}
-	}
+    import flash.filesystem.File;
+    import flash.net.FileFilter;
+    import flash.utils.describeType;
+    
+    import mx.resources.IResourceManager;
+    import mx.resources.ResourceManager;
+    
+    import nail.errors.AbstractClassError;
+    import nail.otlib.things.BindableThingType;
+    import nail.otlib.things.ThingCategory;
+    import nail.otlib.things.ThingType;
+    import nail.resources.Resources;
+    import nail.utils.FileUtil;
+    import nail.utils.StringUtil;
+    
+    [ResourceBundle("strings")]
+    
+    public final class ObUtils
+    {
+        //--------------------------------------------------------------------------
+        //
+        // CONSTRUCTOR
+        //
+        //--------------------------------------------------------------------------
+        
+        public function ObUtils()
+        {
+            throw new AbstractClassError(ObUtils);
+        }
+        
+        //--------------------------------------------------------------------------
+        //
+        // STATIC
+        //
+        //--------------------------------------------------------------------------
+        
+        public static function toLocale(category:String):String
+        {
+            var result:String = "";
+            
+            if (ThingCategory.getCategory(category)) {
+                switch(category) {
+                    case ThingCategory.ITEM:
+                        result = Resources.getString("strings", "item");
+                        break;
+                    case ThingCategory.OUTFIT:
+                        result = ResourceManager.getInstance().getString("strings", "outfit");
+                        break;
+                    case ThingCategory.EFFECT:
+                        result = ResourceManager.getInstance().getString("strings", "effect");
+                        break;
+                    case ThingCategory.MISSILE:
+                        result = ResourceManager.getInstance().getString("strings", "missile");
+                        break;
+                }
+            }
+            return result;
+        }
+        
+        public static function hundredFloor(value:uint):uint
+        {
+            return (Math.floor(value / 100) * 100);
+        }
+        
+        public static function getPatternsString(thing:ThingType, saveValue:Number):String
+        {
+            var text:String = "";
+                
+            if (saveValue == 2) {
+                var list:Array = [];
+                var description:XMLList = describeType(thing)..variable;
+                for each (var property:XML in description) {
+                    var name:String = property.@name;
+                    var type:String = property.@type;
+                    if (name != "id" && (type == "Boolean" || type == "uint")) {
+                        list.push(BindableThingType.toLabel(name) + " = " + thing[name] + File.lineEnding);
+                    }
+                }
+                
+                list.sort(Array.CASEINSENSITIVE);
+                var length:uint = list.length;
+                for (var i:uint = 0; i < length; i++) {
+                    text += list[i];
+                }
+                return text;
+            }
+            
+            var resource:IResourceManager = ResourceManager.getInstance();
+            text = resource.getString("strings", "width") + " = {0}" + File.lineEnding +
+                resource.getString("strings", "height") + " = {1}" + File.lineEnding +
+                resource.getString("strings", "cropSize") + " = {2}" + File.lineEnding +
+                resource.getString("strings", "layers") + " = {3}" + File.lineEnding +
+                resource.getString("strings", "patternX") + " = {4}" + File.lineEnding +
+                resource.getString("strings", "patternY") + " = {5}" + File.lineEnding +
+                resource.getString("strings", "patternZ") + " = {6}" + File.lineEnding +
+                resource.getString("strings", "animations") + " = {7}" + File.lineEnding;
+            
+            return StringUtil.substitute(text,
+                thing.width,
+                thing.height,
+                thing.exactSize,
+                thing.layers,
+                thing.patternX,
+                thing.patternY,
+                thing.patternZ,
+                thing.frames);
+        }
+        
+        public static function sortFiles(list:*, flags:uint):*
+        {
+            if (!list || flags == 0) return list;
+                
+            var array:Array = [];
+            var length:uint = list.length;
+            for (var i:uint = 0; i < length; i++)
+            {
+                var id:uint = 0;
+                var file : File = list[i];
+                var name:String = FileUtil.getName(file);
+                var index:int = name.indexOf("_");
+                if (index != -1) id = parseInt(name.split("_")[1]);
+                array[i] = {id:id, file:file};
+            }
+            
+            array.sortOn("id", flags);
+            for (i = 0; i < length; i++)
+            {
+                list[i] = array[i].file;
+            }
+            return list;
+        }
+        
+        public static function createImagesFileFilter():Array
+        {
+            return [ new FileFilter(Resources.getString("strings", "allFormats"), "*.png;*.bmp;*.jpg;*.gif;"),
+                new FileFilter("PNG (*.PNG)", "*.png"),
+                new FileFilter("BMP (*.BMP)", "*.bmp"),
+                new FileFilter("JPEG (*.JPG)", "*.jpg"),
+                new FileFilter("CompuServe (*.GIF)", "*.gif")];
+        }
+    }
 }

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // 
-//  Copyright (c) 2014 <nailsonnego@gmail.com>
+//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
 // 
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -24,53 +24,52 @@
 
 package nail.objectbuilder.utils
 {
-	import flash.display.BitmapData;
-	import flash.utils.ByteArray;
-	import flash.utils.Endian;
-	
-	import nail.otlib.things.ThingType;
-
-	public class ListObject
-	{
-		//--------------------------------------------------------------------------
-		//
-		// PROPERTIES
-		//
-		//--------------------------------------------------------------------------
-		
-		public var thing : ThingType;
-		public var pixels : ByteArray;
-		
-		private var _bitmap : BitmapData;
-		//--------------------------------------------------------------------------
-		//
-		// CONSTRUCTOR
-		//
-		//--------------------------------------------------------------------------
-		
-		public function ListObject()
-		{
-			
-		}
-		
-		//--------------------------------------------------------------------------
-		//
-		// METHODS
-		//
-		//--------------------------------------------------------------------------
-		
-		//--------------------------------------
-		// Public
-		//--------------------------------------
-		
-		public function getBitmap() : BitmapData
-		{
-			if (pixels != null && thing != null && _bitmap == null)
-			{
-				_bitmap = new BitmapData(thing.width * 32, thing.height * 32, true, 0xFFFF00FF);
-				_bitmap.setPixels(_bitmap.rect, pixels);
-			}
-			return _bitmap;
-		}
-	}
+    import flash.display.BitmapData;
+    import flash.utils.ByteArray;
+    
+    import nail.otlib.things.ThingType;
+    
+    public class ListObject
+    {
+        //--------------------------------------------------------------------------
+        //
+        // PROPERTIES
+        //
+        //--------------------------------------------------------------------------
+        
+        public var thing:ThingType;
+        public var pixels:ByteArray;
+        
+        private var _bitmap:BitmapData;
+        
+        //--------------------------------------------------------------------------
+        //
+        // CONSTRUCTOR
+        //
+        //--------------------------------------------------------------------------
+        
+        public function ListObject()
+        {
+            
+        }
+        
+        //--------------------------------------------------------------------------
+        //
+        // METHODS
+        //
+        //--------------------------------------------------------------------------
+        
+        //--------------------------------------
+        // Public
+        //--------------------------------------
+        
+        public function getBitmap():BitmapData
+        {
+            if (pixels && thing && !_bitmap) {
+                _bitmap = new BitmapData(thing.width * 32, thing.height * 32, true, 0xFFFF00FF);
+                _bitmap.setPixels(_bitmap.rect, pixels);
+            }
+            return _bitmap;
+        }
+    }
 }

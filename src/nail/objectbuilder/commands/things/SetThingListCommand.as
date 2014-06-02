@@ -22,11 +22,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.objectbuilder.utils
+package nail.objectbuilder.commands.things
 {
-    import nail.errors.AbstractClassError;
+    import nail.otlib.utils.ThingListItem;
+    import nail.workers.Command;
+    import nail.objectbuilder.commands.CommandType;
     
-    public final class SupportedLanguages
+    public class SetThingListCommand extends Command
     {
         //--------------------------------------------------------------------------
         //
@@ -34,19 +36,12 @@ package nail.objectbuilder.utils
         //
         //--------------------------------------------------------------------------
         
-        public function SupportedLanguages()
+        public function SetThingListCommand(selectedIds:Vector.<uint>,
+                                            min:uint,
+                                            max:uint,
+                                            things:Vector.<ThingListItem>)
         {
-            throw new AbstractClassError(SupportedLanguages);
+            super(CommandType.SET_THING_LIST, selectedIds, min, max, things);
         }
-        
-        //--------------------------------------------------------------------------
-        //
-        // STATIC
-        //
-        //--------------------------------------------------------------------------
-        
-        public static const EN_US:String = "en_US";
-        public static const PL_PL:String = "pl_PL";
-        public static const PT_BR:String = "pt_BR";
     }
 }

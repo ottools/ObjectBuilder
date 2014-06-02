@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // 
-//  Copyright (c) 2014 <nailsonnego@gmail.com>
+//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
 // 
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -24,19 +24,19 @@
 
 package nail.objectbuilder.commands
 {
-	import nail.workers.Command;
-	
-	public class HideProgressBarCommand extends Command
-	{
-		//--------------------------------------------------------------------------
-		//
-		// CONSTRUCTOR
-		//
-		//--------------------------------------------------------------------------
-		
-		public function HideProgressBarCommand(id:uint)
-		{
-			super(CommandType.HIDE_PROGRESS_BAR, id);
-		}
-	}
+    import nail.workers.Command;
+    
+    public class HideProgressBarCommand extends Command
+    {
+        //--------------------------------------------------------------------------
+        //
+        // CONSTRUCTOR
+        //
+        //--------------------------------------------------------------------------
+        
+        public function HideProgressBarCommand(id:uint)
+        {
+            super(CommandType.HIDE_PROGRESS_BAR, id);
+        }
+    }
 }

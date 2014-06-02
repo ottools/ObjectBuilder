@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // 
-//  Copyright (c) 2014 <nailsonnego@gmail.com>
+//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
 // 
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -24,19 +24,19 @@
 
 package nail.objectbuilder.commands
 {
-	import nail.workers.Command;
-	
-	public class NeedToReloadCommand extends Command
-	{
-		//--------------------------------------------------------------------------
-		//
-		// CONSTRUCTOR
-		//
-		//--------------------------------------------------------------------------
-		
-		public function NeedToReloadCommand(enableSpritesU32:Boolean, enableAlphaChannel:Boolean)
-		{
-			super(CommandType.NEED_TO_RELOAD, enableSpritesU32, enableAlphaChannel);
-		}
-	}
+    import nail.workers.Command;
+    
+    public class NeedToReloadCommand extends Command
+    {
+        //--------------------------------------------------------------------------
+        //
+        // CONSTRUCTOR
+        //
+        //--------------------------------------------------------------------------
+        
+        public function NeedToReloadCommand(extended:Boolean, transparency:Boolean)
+        {
+            super(CommandType.NEED_TO_RELOAD, extended, transparency);
+        }
+    }
 }

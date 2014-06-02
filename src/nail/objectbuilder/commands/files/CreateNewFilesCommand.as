@@ -22,11 +22,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.objectbuilder.utils
+package nail.objectbuilder.commands.files
 {
-    import nail.errors.AbstractClassError;
+    import nail.otlib.core.Version;
+    import nail.workers.Command;
+    import nail.objectbuilder.commands.CommandType;
     
-    public final class SupportedLanguages
+    public class CreateNewFilesCommand extends Command
     {
         //--------------------------------------------------------------------------
         //
@@ -34,19 +36,13 @@ package nail.objectbuilder.utils
         //
         //--------------------------------------------------------------------------
         
-        public function SupportedLanguages()
+        public function CreateNewFilesCommand(version:Version, extended:Boolean, transparency:Boolean)
         {
-            throw new AbstractClassError(SupportedLanguages);
+            super(CommandType.CREATE_NEW_FILES,
+                  version.datSignature,
+                  version.sprSignature,
+                  extended, 
+                  transparency);
         }
-        
-        //--------------------------------------------------------------------------
-        //
-        // STATIC
-        //
-        //--------------------------------------------------------------------------
-        
-        public static const EN_US:String = "en_US";
-        public static const PL_PL:String = "pl_PL";
-        public static const PT_BR:String = "pt_BR";
     }
 }

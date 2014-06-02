@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // 
-//  Copyright (c) 2014 <nailsonnego@gmail.com>
+//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
 // 
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -24,19 +24,28 @@
 
 package nail.objectbuilder.commands
 {
-	import nail.workers.Command;
-	
-	public class FindResultCommand extends Command
-	{
-		//--------------------------------------------------------------------------
-		//
-		// CONSTRUCTOR
-		//
-		//--------------------------------------------------------------------------
-		
-		public function FindResultCommand(list:Array)
-		{
-			super(CommandType.FIND_RESULT, list);
-		}
-	}
+    import nail.workers.Command;
+    
+    public class FindResultCommand extends Command
+    {
+        //--------------------------------------------------------------------------
+        //
+        // CONSTRUCTOR
+        //
+        //--------------------------------------------------------------------------
+        
+        public function FindResultCommand(type:uint, list:Array)
+        {
+            super(CommandType.FIND_RESULT, type, list);
+        }
+        
+        //--------------------------------------------------------------------------
+        //
+        // STATIC
+        //
+        //--------------------------------------------------------------------------
+        
+        public static const THINGS:uint = 1;
+        public static const SPRITES:uint = 2;
+    }
 }

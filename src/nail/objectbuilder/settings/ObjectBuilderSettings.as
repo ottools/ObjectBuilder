@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // 
-//  Copyright (c) 2014 <nailsonnego@gmail.com>
+//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
 // 
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -24,168 +24,154 @@
 
 package nail.objectbuilder.settings
 {
-	import flash.filesystem.File;
-	
-	import nail.codecs.ImageFormat;
-	import nail.objectbuilder.utils.SupportedLanguages;
-	import nail.otlib.assets.AssetsVersion;
-	import nail.otlib.utils.OTFormat;
-	import nail.settings.Settings;
-	import nail.utils.FileUtils;
-	
-	public class ObjectBuilderSettings extends Settings
-	{
-		//--------------------------------------------------------------------------
-		//
-		// PROPERTIES
-		//
-		//--------------------------------------------------------------------------
-		
-		public var lastDirectory : String;
-		public var lastImportExportDirectory : String;
-		public var lastExportThingFormat : String;
-		public var datSignature : int;
-		public var sprSignature : int;
-		public var lastExportSpriteFormat : String;
-		public var autosaveThingChanges : Boolean;
-		public var maximized : Boolean;
-		public var previewContainerWidth : Number = 0;
-		public var thingListContainerWidth : Number = 0;
-		public var spritesContainerWidth : Number = 0;
-		public var showThingList : Boolean;
-		public var language : String;
-		public var extended : Boolean;
-		public var transparency : Boolean;
-		public var savingSpriteSheet : Number = 0;
-		
-		//--------------------------------------------------------------------------
-		//
-		// CONSTRUCTOR
-		//
-		//--------------------------------------------------------------------------
-		
-		public function ObjectBuilderSettings()
-		{
-			super();
-		}
-		
-		//--------------------------------------------------------------------------
-		//
-		// METHODS
-		//
-		//--------------------------------------------------------------------------
-		
-		//--------------------------------------
-		// Public
-		//--------------------------------------
-		
-		public function getLastDirectory() : File
-		{
-			var directory : File;
-			
-			if (isNullOrEmpty(lastDirectory))
-			{
-				return null;
-			}
-			
-			try
-			{
-				directory = new File(lastDirectory);
-			} 
-			catch(error:Error) 
-			{
-				return null;
-			}
-			return directory;
-		}
-		
-		public function setLastDirectory(file:File) : void
-		{
-			if (file != null)
-			{
-				this.lastDirectory = FileUtils.getDirectory(file).nativePath;
-			}
-		}
-		
-		public function getLastImportExportDirectory() : File
-		{
-			var directory : File;
-			
-			if (isNullOrEmpty(lastImportExportDirectory))
-			{
-				return null;
-			}
-			
-			try
-			{
-				directory = new File(lastImportExportDirectory);
-			} 
-			catch(error:Error) 
-			{
-				return null;
-			}
-			return directory;
-		}
-		
-		public function setLastImportExportDirectory(file:File) : void
-		{
-			if (file != null)
-			{
-				this.lastImportExportDirectory = FileUtils.getDirectory(file).nativePath;
-			}
-		}
-		
-		public function getLastExportThingFormat() : String
-		{
-			if (!isNullOrEmpty(lastExportThingFormat))
-			{
-				if (ImageFormat.hasImageFormat(lastExportThingFormat) || lastExportThingFormat == OTFormat.OBD)
-				{
-					return lastExportThingFormat;
-				}
-			}
-			return null;
-		}
-		
-		public function setLastExportThingFormat(format:String) : void
-		{
-			format = format == null ? "" : format.toLowerCase();
-			this.lastExportThingFormat = format;
-		}
-		
-		public function getLastExportThingVersion() : AssetsVersion
-		{
-			return AssetsVersion.getVersionBySignatures(datSignature, sprSignature);
-		}
-		
-		public function setLastExportThingVersion(version:AssetsVersion) : void
-		{
-			this.datSignature = version == null ? 0 : version.datSignature;
-			this.sprSignature = version == null ? 0 : version.sprSignature;
-		}
-		
-		public function getLastExportSpriteFormat() : String
-		{
-			if (ImageFormat.hasImageFormat(lastExportSpriteFormat))
-			{
-				return lastExportSpriteFormat;
-			}
-			return null;
-		}
-		
-		public function setLastExportSpriteFormat(format:String) : void
-		{
-			format = format == null ? "" : format.toLowerCase();
-			this.lastExportSpriteFormat = format;
-		}
-		
-		public function getLanguage() : Array
-		{
-			if (isNullOrEmpty(language) || language == "null")
-			{
-				return [SupportedLanguages.EN_US];
-			}
-			return [language];
-		}
-	}
+    import flash.filesystem.File;
+    
+    import nail.codecs.ImageFormat;
+    import nail.objectbuilder.utils.SupportedLanguages;
+    import nail.otlib.core.Version;
+    import nail.otlib.utils.OTFormat;
+    import nail.settings.Settings;
+    import nail.utils.FileUtil;
+    
+    public class ObjectBuilderSettings extends Settings
+    {
+        //--------------------------------------------------------------------------
+        //
+        // PROPERTIES
+        //
+        //--------------------------------------------------------------------------
+        
+        public var lastDirectory:String;
+        public var lastIODirectory:String;
+        public var exportThingFormat:String;
+        public var exportSpriteFormat:String;
+        public var datSignature:int;
+        public var sprSignature:int;
+        public var autosaveThingChanges:Boolean;
+        public var maximized:Boolean;
+        public var previewContainerWidth:Number = 0;
+        public var thingListContainerWidth:Number = 0;
+        public var spritesContainerWidth:Number = 0;
+        public var showThingList:Boolean;
+        public var language:String;
+        public var extended:Boolean;
+        public var transparency:Boolean;
+        public var savingSpriteSheet:Number = 0;
+        public var findWindowWidth:Number = 0;
+        public var findWindowHeight:Number = 0;
+        
+        //--------------------------------------------------------------------------
+        //
+        // CONSTRUCTOR
+        //
+        //--------------------------------------------------------------------------
+        
+        public function ObjectBuilderSettings()
+        {
+           this.language = SupportedLanguages.EN_US;
+           this.maximized = true;
+           this.showThingList = true;
+        }
+        
+        //--------------------------------------------------------------------------
+        //
+        // METHODS
+        //
+        //--------------------------------------------------------------------------
+        
+        //--------------------------------------
+        // Public
+        //--------------------------------------
+        
+        public function getLastDirectory():File
+        {
+            if (isNullOrEmpty(lastDirectory)) return null;
+            
+            var directory:File;
+            try
+            {
+                directory = new File(lastDirectory);
+            } catch(error:Error) {
+                return null;
+            }
+            return directory;
+        }
+        
+        public function setLastDirectory(file:File):void
+        {
+            if (file) {
+                this.lastDirectory = FileUtil.getDirectory(file).nativePath;
+            }
+        }
+        
+        public function getIODirectory():File
+        {
+            if (isNullOrEmpty(lastIODirectory)) return null;
+            
+            var directory:File;
+            try 
+            {
+                directory = new File(lastIODirectory);
+            } catch(error:Error) {
+                return null;
+            }
+            return directory;
+        }
+        
+        public function setIODirectory(file:File):void
+        {
+            if (file) {
+                this.lastIODirectory = FileUtil.getDirectory(file).nativePath;
+            }
+        }
+        
+        public function getLastExportThingFormat():String
+        {
+            if (!isNullOrEmpty(exportThingFormat)) {
+                if (ImageFormat.hasImageFormat(exportThingFormat) || exportThingFormat == OTFormat.OBD) {
+                    return exportThingFormat;
+                }
+            }
+            return null;
+        }
+        
+        public function setLastExportThingFormat(format:String):void
+        {
+            format = format ? format.toLowerCase() : "";
+            this.exportThingFormat = format;
+        }
+        
+        public function getLastExportThingVersion():Version
+        {
+            return Version.getVersionBySignatures(datSignature, sprSignature);
+        }
+        
+        public function setLastExportThingVersion(version:Version):void
+        {
+            this.datSignature = !version ? 0 : version.datSignature;
+            this.sprSignature = !version ? 0 : version.sprSignature;
+        }
+        
+        public function getLastExportSpriteFormat():String
+        {
+            if (ImageFormat.hasImageFormat(exportSpriteFormat)) {
+                return exportSpriteFormat;
+            }
+            return null;
+        }
+        
+        public function setLastExportSpriteFormat(format:String):void
+        {
+            format = !format ? "" : format.toLowerCase();
+            this.exportSpriteFormat = format;
+        }
+        
+        public function getLanguage():Array
+        {
+            if (isNullOrEmpty(language) || language == "null") {
+                return [SupportedLanguages.EN_US];
+            }
+            return [language];
+        }
+    }
 }

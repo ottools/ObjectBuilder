@@ -22,11 +22,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.objectbuilder.utils
+package nail.objectbuilder.commands.sprites
 {
-    import nail.errors.AbstractClassError;
+    import nail.otlib.sprites.SpriteData;
+    import nail.workers.Command;
+    import nail.objectbuilder.commands.CommandType;
     
-    public final class SupportedLanguages
+    public class SetSpriteListCommand extends Command
     {
         //--------------------------------------------------------------------------
         //
@@ -34,19 +36,12 @@ package nail.objectbuilder.utils
         //
         //--------------------------------------------------------------------------
         
-        public function SupportedLanguages()
+        public function SetSpriteListCommand(selectedIds:Vector.<uint>,
+                                             min:uint,
+                                             max:uint,
+                                             sprites:Vector.<SpriteData>)
         {
-            throw new AbstractClassError(SupportedLanguages);
+            super(CommandType.SET_SPRITE_LIST, selectedIds, min, max, sprites);
         }
-        
-        //--------------------------------------------------------------------------
-        //
-        // STATIC
-        //
-        //--------------------------------------------------------------------------
-        
-        public static const EN_US:String = "en_US";
-        public static const PL_PL:String = "pl_PL";
-        public static const PT_BR:String = "pt_BR";
     }
 }

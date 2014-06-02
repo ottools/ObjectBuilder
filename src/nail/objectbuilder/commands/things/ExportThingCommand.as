@@ -22,11 +22,14 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.objectbuilder.utils
+package nail.objectbuilder.commands.things
 {
-    import nail.errors.AbstractClassError;
+    import nail.objectbuilder.commands.CommandType;
+    import nail.otlib.core.Version;
+    import nail.otlib.loaders.PathHelper;
+    import nail.workers.Command;
     
-    public final class SupportedLanguages
+    public class ExportThingCommand extends Command
     {
         //--------------------------------------------------------------------------
         //
@@ -34,19 +37,9 @@ package nail.objectbuilder.utils
         //
         //--------------------------------------------------------------------------
         
-        public function SupportedLanguages()
+        public function ExportThingCommand(list:Vector.<PathHelper>, category:String, version:Version, spriteSheetFlag:uint)
         {
-            throw new AbstractClassError(SupportedLanguages);
+            super(CommandType.EXPORT_THINGS, list, category, version.datSignature, version.sprSignature, spriteSheetFlag);
         }
-        
-        //--------------------------------------------------------------------------
-        //
-        // STATIC
-        //
-        //--------------------------------------------------------------------------
-        
-        public static const EN_US:String = "en_US";
-        public static const PL_PL:String = "pl_PL";
-        public static const PT_BR:String = "pt_BR";
     }
 }

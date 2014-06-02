@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // 
-//  Copyright (c) 2014 <nailsonnego@gmail.com>
+//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
 // 
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -24,31 +24,31 @@
 
 package nail.objectbuilder.commands
 {
-	import nail.errors.AbstractClassError;
-
-	public final class ProgressBarID
-	{
-		//--------------------------------------------------------------------------
-		//
-		// CONSTRUCTOR
-		//
-		//--------------------------------------------------------------------------
-		
-		public function ProgressBarID()
-		{
-			throw new AbstractClassError(ProgressBarID);
-		}
-		
-		//--------------------------------------------------------------------------
-		//
-		// STATIC
-		//
-		//--------------------------------------------------------------------------
-		
-		static public const DAT : uint = 1;
-		static public const SPR : uint = 2;
-		static public const DAT_SPR : uint = 3;
-		static public const DEFAULT : uint = 4;
-		static public const FIND_THING : uint = 5;
-	}
+    import nail.errors.AbstractClassError;
+    
+    public final class ProgressBarID
+    {
+        //--------------------------------------------------------------------------
+        //
+        // CONSTRUCTOR
+        //
+        //--------------------------------------------------------------------------
+        
+        public function ProgressBarID()
+        {
+            throw new AbstractClassError(ProgressBarID);
+        }
+        
+        //--------------------------------------------------------------------------
+        //
+        // STATIC
+        //
+        //--------------------------------------------------------------------------
+        
+        static public const DAT : uint = 1;
+        static public const SPR : uint = 2;
+        static public const DAT_SPR : uint = 3;
+        static public const DEFAULT : uint = 4;
+        static public const FIND : uint = 5;
+    }
 }

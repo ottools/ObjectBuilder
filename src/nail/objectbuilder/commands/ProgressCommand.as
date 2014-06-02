@@ -22,11 +22,11 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.objectbuilder.utils
+package nail.objectbuilder.commands
 {
-    import nail.errors.AbstractClassError;
+    import nail.workers.Command;
     
-    public final class SupportedLanguages
+    public class ProgressCommand extends Command
     {
         //--------------------------------------------------------------------------
         //
@@ -34,19 +34,9 @@ package nail.objectbuilder.utils
         //
         //--------------------------------------------------------------------------
         
-        public function SupportedLanguages()
+        public function ProgressCommand(id:uint, value:uint, total:uint)
         {
-            throw new AbstractClassError(SupportedLanguages);
+            super(CommandType.PROGRESS, id, value, total);
         }
-        
-        //--------------------------------------------------------------------------
-        //
-        // STATIC
-        //
-        //--------------------------------------------------------------------------
-        
-        public static const EN_US:String = "en_US";
-        public static const PL_PL:String = "pl_PL";
-        public static const PT_BR:String = "pt_BR";
     }
 }

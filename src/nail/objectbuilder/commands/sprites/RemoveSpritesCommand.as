@@ -22,11 +22,12 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.objectbuilder.utils
+package nail.objectbuilder.commands.sprites
 {
-    import nail.errors.AbstractClassError;
+    import nail.workers.Command;
+    import nail.objectbuilder.commands.CommandType;
     
-    public final class SupportedLanguages
+    public class RemoveSpritesCommand extends Command
     {
         //--------------------------------------------------------------------------
         //
@@ -34,19 +35,9 @@ package nail.objectbuilder.utils
         //
         //--------------------------------------------------------------------------
         
-        public function SupportedLanguages()
+        public function RemoveSpritesCommand(list:Vector.<uint>)
         {
-            throw new AbstractClassError(SupportedLanguages);
+            super(CommandType.REMOVE_SPRITES, list);
         }
-        
-        //--------------------------------------------------------------------------
-        //
-        // STATIC
-        //
-        //--------------------------------------------------------------------------
-        
-        public static const EN_US:String = "en_US";
-        public static const PL_PL:String = "pl_PL";
-        public static const PT_BR:String = "pt_BR";
     }
 }

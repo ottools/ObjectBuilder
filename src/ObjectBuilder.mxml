@@ -1,0 +1,2339 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+///////////////////////////////////////////////////////////////////////////////////
+// 
+//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
+// 
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+// 
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+// 
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+//
+///////////////////////////////////////////////////////////////////////////////////
+-->
+
+<nail:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+                  xmlns:s="library://ns.adobe.com/flex/spark"
+                  xmlns:mx="library://ns.adobe.com/flex/mx"
+                  xmlns:nail="library://ns.nail.com/naillib"
+                  xmlns:components="nail.otlib.components.*"
+                  implements="nail.objectbuilder.core.IObjectBuilder"
+                  minWidth="800"
+                  minHeight="600"
+                  showStatusBar="false">
+    
+    <fx:Declarations>
+        <fx:XMLList id="menuXML">
+            <menuitem label="{resourceManager.getString('strings', 'menu.file')}">
+                <menuitem label="{resourceManager.getString('strings', 'menu.new')}" data="fileNew" keyEquivalent='N' icon="nail.objectbuilder.core.Icons_NEW_FILE"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.open')}" data="fileOpen" keyEquivalent='O' icon="nail.objectbuilder.core.Icons_OPEN"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.compile')}" keyEquivalent='S' data="fileCompile" icon="nail.objectbuilder.core.Icons_SAVE"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.compileAs')}" keyEquivalent='s' data="fileCompileAs" icon="nail.objectbuilder.core.Icons_SAVE_AS"/>
+                <menuitem type="separator"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.close')}"  keyEquivalent='W' data="fileClose"/>
+                <menuitem type="separator"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.preferences')}"  keyEquivalent='P' data="filePreferences"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.exit')}"  keyEquivalent='Q' data="fileExit"/>
+            </menuitem>
+            <menuitem label="{resourceManager.getString('strings', 'menu.view')}">
+                <menuitem label="{resourceManager.getString('strings', 'menu.showObjectList')}" type="check" data="viewShowObjectList"/>
+            </menuitem>
+            <menuitem label="{resourceManager.getString('strings', 'menu.tools')}">
+                <menuitem label="{resourceManager.getString('strings', 'menu.toolsFindObject')}"  keyEquivalent='F' data="toolsFind" icon="nail.objectbuilder.core.Icons_BINOCULARS"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.toolsLookTypeGenerator')}" data="toolsLookGenerator" icon="nail.objectbuilder.core.Icons_OUTFIT"/>
+            </menuitem>
+            <menuitem label="{resourceManager.getString('strings', 'menu.window')}">
+                <menuitem label="{resourceManager.getString('strings', 'menu.logWindow')}"  keyEquivalent='L' data="windowOpenLog" icon="nail.objectbuilder.core.Icons_LOG"/>
+            </menuitem>	
+            <menuitem label="{resourceManager.getString('strings', 'menu.help')}">
+                <menuitem label="{resourceManager.getString('strings', 'menu.helpContents')}" data="helpContents" enabled="false" icon="nail.objectbuilder.core.Icons_HELP"/>
+                <menuitem type="separator"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.about')}" data="helpAbout" icon="nail.objectbuilder.core.Icons_INFO"/>
+            </menuitem>	
+        </fx:XMLList>
+    </fx:Declarations>
+    
+    <fx:Style source="css/style.css"/>
+    
+    <fx:Metadata>
+        [ResourceBundle("strings")]
+    </fx:Metadata>
+    
+    <fx:Script>
+        <![CDATA[
+            import flash.net.registerClassAlias;
+            
+            import mx.core.UIComponent;
+            import mx.events.CloseEvent;
+            import mx.events.FlexEvent;
+            import mx.events.MenuEvent;
+            import mx.managers.DragManager;
+            
+            import spark.events.IndexChangeEvent;
+            
+            import nail.assets.NailAssets;
+            import nail.components.controls.AboutWindow;
+            import nail.components.controls.Alert;
+            import nail.core.nail_internal;
+            import nail.errors.NullArgumentError;
+            import nail.loaders.BitmapLoader;
+            import nail.logging.Log;
+            import nail.managers.PopUpWindowManager;
+            import nail.objectbuilder.commands.CommandType;
+            import nail.objectbuilder.commands.NeedToReloadCommand;
+            import nail.objectbuilder.commands.ProgressBarID;
+            import nail.objectbuilder.commands.files.CompileAsCommand;
+            import nail.objectbuilder.commands.files.CompileCommand;
+            import nail.objectbuilder.commands.files.CreateNewFilesCommand;
+            import nail.objectbuilder.commands.files.LoadFilesCommand;
+            import nail.objectbuilder.commands.files.UnloadFilesCommand;
+            import nail.objectbuilder.commands.sprites.ExportSpritesCommand;
+            import nail.objectbuilder.commands.sprites.GetSpriteListCommand;
+            import nail.objectbuilder.commands.sprites.ImportSpritesFromFileCommand;
+            import nail.objectbuilder.commands.sprites.RemoveSpritesCommand;
+            import nail.objectbuilder.commands.sprites.ReplaceSpritesCommand;
+            import nail.objectbuilder.commands.sprites.ReplaceSpritesFromFilesCommand;
+            import nail.objectbuilder.commands.things.DuplicateThingCommand;
+            import nail.objectbuilder.commands.things.ExportThingCommand;
+            import nail.objectbuilder.commands.things.GetThingCommand;
+            import nail.objectbuilder.commands.things.GetThingListCommand;
+            import nail.objectbuilder.commands.things.ImportThingsFromFilesCommand;
+            import nail.objectbuilder.commands.things.NewThingCommand;
+            import nail.objectbuilder.commands.things.RemoveThingCommand;
+            import nail.objectbuilder.commands.things.ReplaceThingsCommand;
+            import nail.objectbuilder.commands.things.ReplaceThingsFromFilesCommand;
+            import nail.objectbuilder.commands.things.UpdateThingCommand;
+            import nail.objectbuilder.settings.ObjectBuilderSettings;
+            import nail.objectbuilder.utils.ObUtils;
+            import nail.otlib.components.CompileFilesWindow;
+            import nail.otlib.components.DatSprProgressBar;
+            import nail.otlib.components.DefaultProgressBar;
+            import nail.otlib.components.ExportWindow;
+            import nail.otlib.components.FindWindow;
+            import nail.otlib.components.LogWindow;
+            import nail.otlib.components.LookGenerator;
+            import nail.otlib.components.NewFilesWindow;
+            import nail.otlib.components.OpenFilesWindow;
+            import nail.otlib.components.PreferencesWindow;
+            import nail.otlib.components.renders.ThingListRenderer;
+            import nail.otlib.core.Version;
+            import nail.otlib.events.ThingEditorEvent;
+            import nail.otlib.geom.Rect;
+            import nail.otlib.loaders.PathHelper;
+            import nail.otlib.sprites.SpriteData;
+            import nail.otlib.things.ThingCategory;
+            import nail.otlib.things.ThingData;
+            import nail.otlib.things.ThingProperty;
+            import nail.otlib.things.ThingType;
+            import nail.otlib.utils.FilesInfo;
+            import nail.otlib.utils.OTFormat;
+            import nail.otlib.utils.SpriteUtils;
+            import nail.otlib.utils.ThingListItem;
+            import nail.settings.Settings;
+            import nail.utils.FileData;
+            import nail.utils.FileQueueHelper;
+            import nail.utils.FileUtil;
+            import nail.utils.StringUtil;
+            import nail.utils.WindowUtil;
+            import nail.workers.Command;
+            
+            use namespace nail_internal;
+            
+            //--------------------------------------------------------------------------
+            //
+            // PROPERTIES
+            //
+            //--------------------------------------------------------------------------
+            
+            [Embed(source="../workerswfs/nail/objectbuilder/core/ObjectBuilderWorker.swf", mimeType="application/octet-stream")]
+            public const ObjectBuilderWorker:Class;
+            
+            private var _settings:ObjectBuilderSettings = new ObjectBuilderSettings();
+            private var _thingData:ThingData;
+            private var _nextThingData:ThingData;
+            private var _thingDataChanged:Boolean;
+            private var _filesName:String;
+            private var _info:FilesInfo;
+            private var _selectThingIndex:int;
+            private var _thingMin:uint;
+            private var _thingMax:uint;
+            private var _spriteMin:uint;
+            private var _spriteMax:uint;
+            private var _logText:String = "";
+            private var _logWindow:LogWindow;
+            private var _findThingWindow:FindWindow;
+            private var _lookGenerator:LookGenerator;
+            private var _autosave:Boolean;
+            private var _autosaveChanged:Boolean;
+            private var _showThingList:Boolean;
+            private var _showThingListChanged:Boolean;
+            private var _datSprProgressBar:DatSprProgressBar;
+            private var _defaultProgressBar:DefaultProgressBar;
+            private var _errorAlert:Alert;
+            private var _category:String;
+            private var _categoryChanged:Boolean;
+            
+            //--------------------------------------
+            // Getters / Setters 
+            //--------------------------------------
+            
+            public function get loaded():Boolean { return (_info != null); }
+            
+            public function get compiled():Boolean {
+                var value:* = getSharedProperty("compiled");
+                if (value !== undefined) {
+                    return value;
+                }
+                return false;
+            }
+            
+            public function get isTemporary():Boolean
+            {
+                var value:* = getSharedProperty("isTemporary");
+                if (value !== undefined) {
+                    return value;
+                }
+                return false;
+            }
+            
+            public function get thingData():ThingData { return _thingData; }
+            public function set thingData(value:ThingData):void
+            {
+                if (_thingData != value) {
+                    _nextThingData = value;
+                    _thingDataChanged = true;
+                    invalidateProperties();
+                }
+            }
+            
+            public function get showThingList():Boolean { return _showThingList; }
+            public function set showThingList(value:Boolean):void
+            {
+                if (_showThingList != value) {
+                    _showThingList = value;
+                    _showThingListChanged = true;
+                    invalidateProperties();
+                }
+            }
+            
+            public function get currentCategory():String { return _category; }
+            public function set currentCategory(value:String):void
+            {
+                if (_category != value) {
+                    _category = value;
+                    _categoryChanged = true;
+                    invalidateProperties();
+                }
+            }
+            
+            public function get settings():ObjectBuilderSettings { return _settings; }
+            
+            //--------------------------------------------------------------------------
+            //
+            // METHODS
+            //
+            //--------------------------------------------------------------------------
+            
+            //--------------------------------------
+            // Public
+            //--------------------------------------
+            
+            public function loadFiles(datFile:File, sprFile:File, version:Version, extended:Boolean, transparency:Boolean):void
+            {
+                if (!datFile || !sprFile || !version) return;
+                sendCommand(new LoadFilesCommand(datFile, sprFile, version, extended, transparency));
+            }
+            
+            public function createFiles(version:Version, extended:Boolean, transparency:Boolean):void
+            {
+                if (!version) return;
+                sendCommand(new CreateNewFilesCommand(version, extended, transparency));
+            }
+            
+            public function openClient(directory:File = null):void
+            {
+                var window:OpenFilesWindow;
+                
+                if (PopUpWindowManager.currentWindow is OpenFilesWindow) {
+                    window = OpenFilesWindow(PopUpWindowManager.currentWindow);
+                    window.directory = directory || _settings.getLastDirectory();
+                    window.extended = _settings.extended;
+                    window.transparency = _settings.transparency;
+                }
+                else 
+                {
+                    window = new OpenFilesWindow();
+                    window.directory = directory || _settings.getLastDirectory();
+                    window.extended = _settings.extended;
+                    window.transparency = _settings.transparency;
+                    window.addEventListener(Event.CLOSE, windowCloseHandler);
+                    window.open();
+                    
+                    PopUpWindowManager.addWindow(window);
+                }
+                
+                function windowCloseHandler(event:Event):void
+                {
+                    _settings.setLastDirectory(window.datFile);
+                    
+                    if (window.datFile && window.sprFile && window.version) {
+                        _filesName = FileUtil.getName(window.datFile);
+                        loadFiles(window.datFile, window.sprFile, window.version, window.extended, window.transparency);
+                    }
+                }
+            }
+            
+            public function importThingsFromFiles(list:Vector.<PathHelper>):void
+            {
+                if (!this.loaded || !list || list.length == 0) return;
+                sendCommand(new ImportThingsFromFilesCommand(list));
+            }
+            
+            public function exportThings(fileDataList:Vector.<FileData>, category:String, version:Version, spriteSheetFlags:uint):void
+            {
+                if (!this.loaded || !fileDataList || fileDataList.length == 0 || isNullOrEmpty(category) || !version) return;
+                var length:uint = fileDataList.length;
+                var list:Vector.<PathHelper> = new Vector.<PathHelper>(length, true);
+                for (var i:uint = 0; i < length; i++) {
+                    list[i] = new PathHelper(fileDataList[i].nativePath, fileDataList[i].data as uint);
+                }
+                sendCommand(new ExportThingCommand(list, category, version, spriteSheetFlags));
+            }
+            
+            public function replaceThings(list:Vector.<ThingData>):void
+            {
+                if (!this.loaded || !list || list.length == 0) return;
+                sendCommand(new ReplaceThingsCommand(list));
+            }
+            
+            public function duplicateThings(ids:Vector.<uint>, category:String):void
+            {
+                if (!this.loaded || !ids || ids.length == 0 || isNullOrEmpty(category)) return;
+                sendCommand(new DuplicateThingCommand(ids, category));
+            }
+            
+            public function replaceThingsFromFiles(list:Vector.<PathHelper>):void
+            {
+                if (!this.loaded || !list || list.length == 0) return;
+                sendCommand(new ReplaceThingsFromFilesCommand(list));
+            }
+            
+            public function removeThing(thing:ThingType, removeSprites:Boolean = false):void
+            {
+                if (this.loaded && thing) {
+                    sendCommand(new RemoveThingCommand(Vector.<uint>([thing.id]), thing.category, removeSprites));
+                }
+            }
+            
+            public function removeThings(list:Vector.<uint>, category:String, removeSprites:Boolean = false):void
+            {
+                if (this.loaded && list && !isNullOrEmpty(category)) {
+                    sendCommand(new RemoveThingCommand(list, category, removeSprites));
+                }
+            }
+            
+            public function importSpritesFromFiles(list:Vector.<PathHelper>):void
+            {
+                if (!this.loaded || !list || list.length == 0) return;
+                sendCommand(new ImportSpritesFromFileCommand(list));
+            }
+            
+            public function exportSprites(fileDataList:Vector.<FileData>):void
+            {
+                if (!this.loaded || !fileDataList || fileDataList.length == 0) return;
+                var length:uint = fileDataList.length;
+                var list:Vector.<PathHelper> = new Vector.<PathHelper>(length, true);
+                for (var i:uint = 0; i < length; i++) {
+                    list[i] = new PathHelper(fileDataList[i].nativePath, fileDataList[i].data as uint);
+                }
+                sendCommand(new ExportSpritesCommand(list));
+            }
+            
+            public function replaceSprite(id:uint, bitmap:BitmapData):void
+            {
+                if (!this.loaded || id == 0 || !bitmap) return;
+                var spriteData:SpriteData = SpriteData.createSpriteData(id, bitmap.getPixels(bitmap.rect));
+                sendCommand(new ReplaceSpritesCommand(Vector.<SpriteData>([spriteData])));
+            }
+            
+            public function replaceSprites(sprites:Vector.<SpriteData>):void
+            {
+                if (!this.loaded || !sprites || sprites.length == 0) return;
+                sendCommand(new ReplaceSpritesCommand(sprites));
+            }
+            
+            public function replaceSpritesFromFiles(list:Vector.<PathHelper>):void
+            {
+                if (!this.loaded || !list || list.length == 0) return;
+                sendCommand(new ReplaceSpritesFromFilesCommand(list));
+            }
+            
+            public function removeSpritesIds(sprites:Vector.<uint>):void
+            {
+                if (!this.loaded || !sprites || sprites.length == 0) return;
+                sprites.sort(Array.NUMERIC | Array.DESCENDING);
+                sendCommand(new RemoveSpritesCommand(sprites));
+            }
+            
+            public function removeSprites(sprites:Vector.<SpriteData>):void
+            {
+                if (!this.loaded || !sprites || sprites.length == 0) return;
+                var length:uint = sprites.length;
+                var list:Vector.<uint> = new Vector.<uint>(length, true);
+                for (var i:uint = 0; i < length; i++) {
+                    list[i] = sprites[i].id;
+                }
+                list.sort(Array.NUMERIC | Array.DESCENDING);
+                sendCommand(new RemoveSpritesCommand(list));
+            }
+            
+            public function openPreferencesWindow():void
+            {
+                var window:PreferencesWindow = new PreferencesWindow();
+                window.settings = _settings;
+                window.open();
+                
+                PopUpWindowManager.addWindow(window);
+            }
+            
+            public function compile():void
+            {
+                if (!loaded) return;
+                
+                if (isTemporary) {
+                    compileAs();
+                    return;
+                }
+                
+                if (_settings.autosaveThingChanges) {
+                    saveThingChanges();
+                }
+                
+                sendCommand(new CompileCommand());
+            }
+            
+            public function compileAs():void
+            {
+                if (!this.loaded) return;
+                
+                var window:CompileFilesWindow = new CompileFilesWindow();
+                window.directory = _settings.getLastDirectory();
+                window.version = Version.getVersionBySignatures(_info.datSignature, _info.sprSignature);
+                window.extended = _info.extended;
+                window.transparency = _info.transparency;
+                window.filesName = isNullOrEmpty(_filesName) ? "Tibia" : _filesName;
+                window.addEventListener(Event.CLOSE, windowCloseHandler);
+                window.open();
+                
+                PopUpWindowManager.addWindow(window);
+                
+                function windowCloseHandler(event:Event) : void
+                {
+                    _settings.setLastDirectory(window.directory);
+                    
+                    if (window.datFile && window.sprFile && window.version) {
+                        if (_settings.autosaveThingChanges) {
+                            saveThingChanges();
+                        }
+                        
+                        sendCommand(new CompileAsCommand(window.datFile,
+                            window.sprFile,
+                            window.version,
+                            window.extended,
+                            window.transparency));
+                    }
+                }
+            }
+            
+            public function unload():void
+            {
+                if (!this.loaded) return;
+                this.clear();
+                sendCommand(new UnloadFilesCommand());
+            }
+            
+            public function appendLog(text:String):void
+            {
+                if (text) {
+                    _logText += "→ " + text + "<br/>"; 
+                    if (_logWindow) {
+                        _logWindow.text = _logText;
+                    }
+                }
+            }
+            
+            public function saveThingChanges():void
+            {
+                if (this.loaded && this.thingData && this.thingTypeEditor.changed) {
+                    if (this.thingTypeEditor.saveChanges()) {
+                        sendCommand(new UpdateThingCommand(thingTypeEditor.thingData));
+                    }
+                }
+            }
+            
+            public function setFindThingProgress(loaded:uint, total:uint):void
+            {
+                if (_findThingWindow != null) {
+                    _findThingWindow.setProgress(loaded, total);
+                }
+            }
+            
+            public function clear():void
+            {
+                _thingData = null;
+                _thingDataChanged = false;
+                _info = null;
+                _nextThingData = null;
+                _selectThingIndex = -1;
+                _thingMax = 0;
+                _thingMin = 0;
+                _spriteMax = 0;
+                _spriteMin = 0;
+                
+                thingList.removeAll();
+                spritesList.removeAll();
+                
+                editThing(null);
+                thingView.thingData = null;
+                infoPanel.clear();
+                categoryDropDownList.selectedIndex = 0;
+                thingStepper.value = 0;
+                spriteStepper.value = 0;
+                _logText = "";
+            }
+            
+            //--------------------------------------
+            // Override Public
+            //--------------------------------------
+            
+            override public function register():void
+            {
+                super.register();
+                
+                registerClassAlias("ThingType", ThingType);
+                registerClassAlias("FilesInfo", FilesInfo);
+                registerClassAlias("ThingData", ThingData);
+                registerClassAlias("SpriteData", SpriteData);
+                registerClassAlias("ByteArray", ByteArray);
+                registerClassAlias("ThingProperty", ThingProperty);
+                registerClassAlias("ThingListItem", ThingListItem);
+                registerClassAlias("LoaderHelper", PathHelper);
+                registerCallback(CommandType.PROGRESS, onProgress);
+                registerCallback(CommandType.SHOW_PROGRESS_BAR, onShowProgressBar);
+                registerCallback(CommandType.HIDE_PROGRESS_BAR, onHideProgressBar);
+                registerCallback(CommandType.LOAD_COMPLETE, onLoadComplete);
+                registerCallback(CommandType.FILES_INFO, onSetAssetsInfo);
+                registerCallback(CommandType.SET_THING, onSetThingData);
+                registerCallback(CommandType.SET_THING_LIST, onSetThingList);
+                registerCallback(CommandType.FIND_RESULT, onSetFindResultList);
+                registerCallback(CommandType.SET_SPRITE_LIST, onSetSpriteList);
+                registerCallback(CommandType.NEED_TO_RELOAD, onNeedToReload);
+            }
+            
+            override public function onInternalLog(level:uint, message:String, stack:String, id:uint):void
+            {
+                this.hideDatSprProgressBar();
+                this.hideDefaultProgressBar();
+                
+                if (level != Log.INFO) {
+                    super.onInternalLog(level, message, stack, id);
+                    
+                    // Show message
+                    if (!_errorAlert) {
+                        _errorAlert = Alert.show(message,
+                            toLogString(level),
+                            Alert.OK, 
+                            this,
+                            errorAlertCloseHandler);
+                    } else {
+                        _errorAlert.text += "\n" + message;
+                    }
+                }
+                
+                this.appendLog(message);
+            }
+            
+            //--------------------------------------
+            // Override Protected
+            //--------------------------------------
+            
+            override protected function commitProperties():void
+            {
+                super.commitProperties();
+                
+                if (_thingDataChanged) {
+                    setThingData(_nextThingData);
+                    _nextThingData = null;
+                    _thingDataChanged = false;
+                }
+                
+                if (_autosaveChanged) {
+                    _settings.autosaveThingChanges = _autosave;
+                    _autosaveChanged = false;
+                }
+                
+                if (_showThingListChanged) {
+                    menuXML[1].menuitem[0].@toggled = _showThingList; // View > Show Object List
+                    thingListContainer.includeInLayout = _showThingList;
+                    showThingListButton.selected = _showThingList;
+                    _settings.showThingList = _showThingList;
+                    _showThingListChanged = false;
+                }
+                
+                if (_categoryChanged) {
+                    onSetCategory(_category);
+                    _categoryChanged = false;
+                }
+            }
+            
+            override protected function getSplashScreenImageFile():File
+            {
+                return File.applicationDirectory.resolvePath("icon/splash/ObjectBuilder.png");
+            }
+            
+            override protected function getWorkerByteClass():ByteArray
+            {
+                return new ObjectBuilderWorker() as ByteArray;
+            }
+            
+            override protected function getSettings():Settings
+            {
+                return _settings;
+            }
+            
+            override protected function setSettings(settings:Settings):void
+            {
+                resourceManager.localeChain = ObjectBuilderSettings(settings).getLanguage();
+            }
+            
+            override protected function applicationLoadComplete():void
+            {
+                super.applicationLoadComplete();
+                
+                this.systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
+                
+                if (_settings.maximized) {
+                    this.maximize();
+                }
+                
+                previewContainer.width = Math.max(previewContainer.minWidth, _settings.previewContainerWidth);
+                thingListContainer.width = Math.max(thingListContainer.minWidth, _settings.thingListContainerWidth);
+                spritesContainer.width = Math.max(spritesContainer.minWidth, _settings.spritesContainerWidth);
+                showThingList = _settings.showThingList;
+            }
+            
+            override protected function setInvokeArgs(args:Array):void
+            {
+                if (args) {
+                    var path:String = args[0];
+                    if (!isNullOrEmpty(path)) {
+                        var directory:File = FileUtil.getDirectory(new File(path));
+                        openClient(directory);
+                    }
+                }
+            }
+            
+            //--------------------------------------
+            // Private
+            //--------------------------------------
+            
+            public function onSetAssetsInfo(info:FilesInfo):void
+            {
+                _info = info;
+                infoPanel.setFilesInfo(info);
+                
+                if (info) {
+                    thingStepper.minimum = getMinThingId();
+                    thingStepper.maximum = getMaxThingId();
+                    spriteStepper.minimum = info.minSpriteId;
+                    spriteStepper.maximum = info.maxSpriteId;
+                }
+            }
+            
+            private function onSetThingData(thingData:ThingData):void
+            {
+                if (!thingData) {
+                    throw new NullArgumentError("thingData");
+                }
+                
+                this.thingData = thingData;
+            }
+            
+            private function onSetThingList(selectedIds:Vector.<uint>, min:uint, max:uint, things:Vector.<ThingListItem>):void
+            {
+                if (!selectedIds) {
+                    throw new NullArgumentError("selectedIds");
+                }
+                
+                if (!things) {
+                    throw new NullArgumentError("things");
+                }
+                
+                _thingMin = min;
+                _thingMax = max;
+                thingAmountTextInput.text = min + " - " + max;
+                
+                thingList.rememberScroll();
+                thingList.setListObjects(things);
+                thingList.ensureIdIsVisible(selectedIds[0]);
+                thingList.selectedIds = selectedIds;
+            }
+            
+            private function onSetSpriteList(selectedIds:Vector.<uint>,  min:uint, max:uint, sprites:Vector.<SpriteData>):void
+            {
+                if (!selectedIds) {
+                    throw new NullArgumentError("selectedIds");
+                }
+                
+                if (!sprites) {
+                    throw new NullArgumentError("sprites");
+                }
+                
+                _spriteMin = min;
+                _spriteMax = max;
+                
+                spritesList.rememberScroll();
+                spritesList.setListObjects(sprites);
+                spritesList.ensureIdIsVisible(selectedIds[0]);
+                spritesList.selectedIds = selectedIds;
+            }
+            
+            private function onNeedToReload(extended:Boolean, transparency:Boolean):void
+            {
+                Alert.show(
+                    resourceManager.getString("strings", "needToReload"),
+                    resourceManager.getString("strings", "warning"),
+                    Alert.YES | Alert.NO,
+                    this,
+                    alertCloseHandler);
+                
+                function alertCloseHandler(event:CloseEvent) : void
+                {
+                    if (event.detail == Alert.YES) {
+                        sendCommand(new NeedToReloadCommand(extended, transparency));
+                    }
+                }
+            }
+            
+            private function onSetFindResultList(type:uint, list:Array):void
+            {
+                if (_findThingWindow) {
+                    _findThingWindow.setFindThingResultList(type, list);
+                }
+            }
+            
+            private function onCreateNew():void
+            {
+                var window : NewFilesWindow = new NewFilesWindow();
+                window.extended = _settings.extended;
+                window.transparency = _settings.transparency;
+                window.addEventListener(Event.CLOSE, windowCloseHandler);
+                window.open();
+                
+                PopUpWindowManager.addWindow(window);
+                
+                function windowCloseHandler (event:Event):void
+                {
+                    if (window.version) {
+                        createFiles(window.version, window.extended, window.transparency);
+                    }
+                }
+            }
+            
+            private function onExportThingData(fileName:String,
+                                               format:String,
+                                               directory:File,
+                                               version:Version,
+                                               things:Vector.<ThingType>,
+                                               category:String,
+                                               spriteSheetFlag:uint):void
+            {
+                var queue:FileQueueHelper = new FileQueueHelper();
+                queue.parent = this;
+                queue.addEventListener(Event.COMPLETE, completeHandler);
+                var changeName:Boolean = (fileName.indexOf("_") == -1);
+                
+                var length:uint = things.length;
+                for (var i:uint = 0; i < length; i++) {
+                    var id:uint = things[i].id;
+                    var name:String = !changeName ? fileName : (name = fileName + "_" + id);
+                    queue.addFile(id, name, format, directory);
+                }
+                queue.start();
+                
+                function completeHandler(event:Event):void
+                {
+                    if (queue.result && queue.result.length > 0) {
+                        exportThings(queue.result, category, version, spriteSheetFlag);
+                    }
+                }
+            }
+            
+            private function onExportSprites(fileName:String, format:String, directory:File, sprites:Vector.<SpriteData>):void
+            {
+                var queue:FileQueueHelper = new FileQueueHelper();
+                queue.parent = this;
+                queue.addEventListener(Event.COMPLETE, completeHandler);
+                var changeName:Boolean = (fileName.indexOf("_") == -1);
+                
+                var length:uint = sprites.length;
+                for (var i:uint = 0; i < length; i++) {
+                    var id:uint = sprites[i].id;
+                    var name:String = !changeName ? fileName : (name = fileName + "_" + id);
+                    queue.addFile(id, name, format, directory);
+                }
+                queue.start();
+                
+                function completeHandler(event:Event):void
+                {
+                    if (queue.result && queue.result.length > 0) {
+                        exportSprites(queue.result);
+                    }
+                }
+            }
+            
+            private function selectSprite(id:uint):void
+            {
+                // Return if id is current selected.
+                if (!this.loaded || this.spritesList.selectedId == id)  return;
+                
+                // Search index if id is in range of loaded list.
+                if (id >= _spriteMin && id <= _spriteMax) {
+                    spritesList.ensureIdIsVisible(id);
+                    spritesList.selectedId = id;
+                    spriteStepper.value = id;
+                } else {
+                    // Request new list by target id.
+                    sendCommand(new GetSpriteListCommand(id));
+                }
+            }
+            
+            private function onCopySprite():void
+            {
+                if (!this.loaded) return;
+                
+                var data:SpriteData = spritesList.selectedSprite;
+                if (data) {
+                    var bitmap:BitmapData = data.getBitmap(0xFFFF00FF);
+                    Clipboard.generalClipboard.clear();
+                    Clipboard.generalClipboard.setData(ClipboardFormats.BITMAP_FORMAT, bitmap);
+                }
+            }
+            
+            private function onPasteSprite():void
+            {
+                if (!this.loaded) return;
+                
+                if (Clipboard.generalClipboard.hasFormat(ClipboardFormats.BITMAP_FORMAT)) {
+                    var bitmap:BitmapData = BitmapData(Clipboard.generalClipboard.getData(ClipboardFormats.BITMAP_FORMAT));
+                    bitmap = SpriteUtils.removeMagenta(bitmap);
+                    
+                    if (bitmap.width == 32 && bitmap.height == 32) {
+                        if (!spritesList.multipleSelected && spritesList.selectedId != 0) {
+                            var pixels:ByteArray = bitmap.getPixels(bitmap.rect);
+                            var spriteData:SpriteData = SpriteData.createSpriteData(spritesList.selectedId, pixels);
+                            sendCommand(new ReplaceSpritesCommand(Vector.<SpriteData>([spriteData])));
+                        }
+                    }
+                }
+            }
+            
+            private function openLookGenerator():void
+            {
+                if (!_lookGenerator) {
+                    _lookGenerator = new LookGenerator();
+                    _lookGenerator.addEventListener(Event.CLOSE, lookGeneratorCloseHandler);
+                    _lookGenerator.open();
+                    
+                    WindowUtil.centralizeWindowOnScreen(_lookGenerator);
+                } else {
+                    _lookGenerator.activate();
+                }
+            }
+            
+            private function closeLookGenerator():void
+            {
+                if (_lookGenerator && !_lookGenerator.closed) {
+                    _lookGenerator.close();
+                }
+            }
+            
+            private function openLogWindow():void
+            {
+                if (!_logWindow) {
+                    _logWindow = new LogWindow();
+                    _logWindow.text = _logText;
+                    _logWindow.addEventListener(Event.CLEAR, logWindowClearHandler);
+                    _logWindow.addEventListener(Event.CLOSE, logWindowCloseHandler);
+                    _logWindow.open();
+                    
+                    WindowUtil.centralizeWindowOnScreen(_logWindow);
+                } else {
+                    _logWindow.activate();
+                }
+            }
+            
+            private function closeLogWindow():void
+            {
+                if (_logWindow && !_logWindow.closed) {
+                    _logWindow.close();
+                }
+            }
+            
+            private function openFindThingWindow():void
+            {
+                if (!this.loaded) return;
+                
+                if (!_findThingWindow) {
+                    _findThingWindow = new FindWindow();
+                    _findThingWindow.width = _settings.findWindowWidth;
+                    _findThingWindow.height = _settings.findWindowHeight;
+                    _findThingWindow.addEventListener(Event.CLOSE, fingThingWindowCloseHandler);
+                    _findThingWindow.open();
+                    
+                    WindowUtil.centralizeWindowOnScreen(_findThingWindow);
+                } else {
+                    _findThingWindow.activate();
+                }
+            }
+            
+            private function closeFindThingWindow():void
+            {
+                if (_findThingWindow && !_findThingWindow.closed) {
+                    _findThingWindow.close();
+                }
+            }
+            
+            private function openHelpWindow():void
+            {
+                var options:NativeWindowInitOptions = new NativeWindowInitOptions();
+                var screenBounds:Rectangle = Screen.mainScreen.bounds;
+                var bounds:Rectangle = new Rectangle(0, 0, 550, 600);
+                bounds.x = (screenBounds.width - bounds.width) * 0.5;
+                bounds.y = (screenBounds.height - bounds.height) * 0.5;
+                var html:HTMLLoader = HTMLLoader.createRootWindow(true, options, true, bounds);
+                html.load(new URLRequest("app:/help/help.html"));
+            }
+            
+            private function onAboutApplication():void
+            {
+                var window : AboutWindow = new AboutWindow();
+                window.open();
+                
+                PopUpWindowManager.addWindow(window);
+            }
+            
+            private function editThing(data:ThingData):void
+            {
+                thingTypeEditor.thingData = data;
+                thingTypeEditor.visible = (data != null);
+                confirmButton.enabled = thingTypeEditor.changed;
+                cancelButton.enabled = (data != null);
+                
+                if (this.loaded && data) {
+                    // Hide unused controls to non-item objects.
+                    var visible:Boolean = (data.category == ThingCategory.ITEM);
+                    
+                    thingTypeEditor.groundGroupCheckBox.visible = visible;
+                    thingTypeEditor.groundGroupCheckBox.includeInLayout = visible;
+                    thingTypeEditor.automapGroupCheckBox.visible = visible;
+                    thingTypeEditor.automapGroupCheckBox.includeInLayout = visible;
+                    thingTypeEditor.hasElevationGroupCheckBox.visible = visible;
+                    thingTypeEditor.hasElevationGroupCheckBox.includeInLayout = visible;
+                    thingTypeEditor.equipGroupCheckBox.visible = visible;
+                    thingTypeEditor.equipGroupCheckBox.includeInLayout = visible;
+                    thingTypeEditor.writeReadGroupCheckBox.visible = visible;
+                    thingTypeEditor.writeReadGroupCheckBox.includeInLayout = visible;
+                    thingTypeEditor.flagsLeftColumn.visible = visible;
+                    thingTypeEditor.flagsLeftColumn.includeInLayout = visible;
+                    thingTypeEditor.pickupableCheckBox.visible = visible;
+                    thingTypeEditor.pickupableCheckBox.includeInLayout = visible;
+                    thingTypeEditor.pickupableCheckBox.visible = visible;
+                    thingTypeEditor.pickupableCheckBox.includeInLayout = visible;
+                    thingTypeEditor.hangableCheckBox.visible = visible;
+                    thingTypeEditor.hangableCheckBox.includeInLayout = visible;
+                    thingTypeEditor.horizontalCheckBox.visible = visible;
+                    thingTypeEditor.horizontalCheckBox.includeInLayout = visible;
+                    thingTypeEditor.verticalCheckBox.visible = visible;
+                    thingTypeEditor.verticalCheckBox.includeInLayout = visible;
+                    thingTypeEditor.rotatableCheckBox.visible = visible;
+                    thingTypeEditor.rotatableCheckBox.includeInLayout = visible;
+                    thingTypeEditor.dontHideCheckBox.visible = visible;
+                    thingTypeEditor.dontHideCheckBox.includeInLayout = visible;
+                    thingTypeEditor.translucentCheckBox.visible = visible;
+                    thingTypeEditor.translucentCheckBox.includeInLayout = visible;
+                    thingTypeEditor.isLyingObjectCheckBox.visible = visible;
+                    thingTypeEditor.isLyingObjectCheckBox.includeInLayout = visible;
+                    thingTypeEditor.fullGroundCheckBox.visible = visible;
+                    thingTypeEditor.fullGroundCheckBox.includeInLayout = visible;
+                    thingTypeEditor.ignoreLookCheckBox.visible = visible;
+                    thingTypeEditor.ignoreLookCheckBox.includeInLayout = visible;
+                    thingTypeEditor.animateAlwaysCheckBox.visible = !visible;
+                    thingTypeEditor.animateAlwaysCheckBox.includeInLayout = !visible;
+                    
+                    // Hide 'Market' GroupCheckBox.
+                    visible = (_info.version >= 940 && data.category == ThingCategory.ITEM);
+                    thingTypeEditor.marketGroupCheckBox.visible = visible;
+                    thingTypeEditor.marketGroupCheckBox.includeInLayout = visible;
+                    
+                    // Hide 'No Move Animation' CheckBox by version.
+                    visible = (_info.version >= 1010 && data.category == ThingCategory.ITEM);
+                    thingTypeEditor.noMoveAnimationCheckBox.visible = visible;
+                    thingTypeEditor.noMoveAnimationCheckBox.includeInLayout = visible;
+                    
+                    // Hide 'Action' GroupCheckBox and 'Usable' CheckBox by version.
+                    visible = (_info.version >= 1021 && data.category == ThingCategory.ITEM);
+                    thingTypeEditor.actionGroupCheckBox.visible = visible;
+                    thingTypeEditor.actionGroupCheckBox.includeInLayout = visible;
+                    thingTypeEditor.usableCheckBox.visible = visible;
+                    thingTypeEditor.usableCheckBox.includeInLayout = visible;
+                    
+                    // Charges, Floor Change, Equip and Translucent.
+                    visible = (_info.version <= 854 && data.category == ThingCategory.ITEM);
+                    thingTypeEditor.chargesCheckBox.visible = visible;
+                    thingTypeEditor.chargesCheckBox.includeInLayout = visible;
+                    thingTypeEditor.floorChangeCheckBox.visible = visible;
+                    thingTypeEditor.floorChangeCheckBox.includeInLayout = visible;
+                    
+                    if (_info.version <= 854) {
+                        thingTypeEditor.translucentCheckBox.visible = false;
+                        thingTypeEditor.translucentCheckBox.includeInLayout = false;
+                        thingTypeEditor.equipGroupCheckBox.visible = false;
+                        thingTypeEditor.equipGroupCheckBox.includeInLayout = false;
+                    }
+                }
+            }
+            
+            private function getMinThingId():uint
+            {
+                if (this.loaded) {
+                    switch (this.currentCategory) {
+                        case ThingCategory.ITEM:
+                            return _info.minItemId;
+                        case ThingCategory.OUTFIT:
+                            return _info.minOutfitId;
+                        case ThingCategory.EFFECT:
+                            return _info.minEffectId;
+                        case ThingCategory.MISSILE:
+                            return _info.minMissileId;
+                    }
+                }
+                return 0;
+            }
+            
+            private function getMaxThingId():uint
+            {
+                if (this.loaded) {
+                    switch(currentCategory) {
+                        case ThingCategory.ITEM:
+                            return _info.maxItemId;
+                        case ThingCategory.OUTFIT:
+                            return _info.maxOutfitId;
+                        case ThingCategory.EFFECT:
+                            return _info.maxEffectId;
+                        case ThingCategory.MISSILE:
+                            return _info.maxMissileId;
+                    }
+                }
+                return 0;
+            }
+            
+            private function setThingData(data:ThingData):void
+            {
+                _thingData = data;
+                thingView.thingData = data;
+                
+                if (data) {
+                    var id:uint = data.id;
+                    thingStepper.value = id;
+                    thingStepper.minimum = getMinThingId();
+                    thingStepper.maximum = getMaxThingId();
+                    
+                    if (thingTypeEditor.thingData && thingTypeEditor.thingData.id == id) {
+                        thingTypeEditor.thingData = data;
+                    }
+                    
+                    this.currentCategory = data.category;
+                    
+                    // set index if id is in range of loaded thing list.
+                    if (id >= _thingMin && id <= _thingMax) {
+                        thingList.selectedId = id;
+                    } else {
+                        // request new thing list by target id.
+                        sendCommand(new GetThingListCommand(id, data.category));
+                    }
+                }
+            }
+            
+            private function saveWindowState():void
+            {
+                _settings.previewContainerWidth = previewContainer.width;
+                _settings.thingListContainerWidth = thingListContainer.width;
+                _settings.spritesContainerWidth = spritesContainer.width;
+                _settings.showThingList = showThingList;
+            }
+            
+            private function showDatSprProgressBar(title:String):void
+            {
+                if (!_datSprProgressBar) {
+                    _datSprProgressBar = new DatSprProgressBar();
+                    _datSprProgressBar.title = title;
+                }
+                _datSprProgressBar.open();
+            }
+            
+            private function hideDatSprProgressBar():void
+            {
+                if (_datSprProgressBar) {
+                    _datSprProgressBar.close();
+                    _datSprProgressBar = null;
+                }
+            }
+            
+            private function showDefaultProgressBar(title:String):void
+            {
+                if (!_defaultProgressBar) {
+                    _defaultProgressBar = new DefaultProgressBar();
+                    _defaultProgressBar.title = title;
+                }
+                _defaultProgressBar.open();
+            }
+            
+            private function hideDefaultProgressBar():void
+            {
+                if (_defaultProgressBar) {
+                    _defaultProgressBar.close();
+                    _defaultProgressBar = null;
+                }
+            }
+            
+            private function onShowProgressBar(id:uint, title:String):void
+            {
+                switch(id) {
+                    case ProgressBarID.DAT_SPR:
+                        this.showDatSprProgressBar(title);
+                        break;
+                    case ProgressBarID.DEFAULT:
+                        this.showDefaultProgressBar(title);
+                        break;
+                }
+            }
+            
+            private function onHideProgressBar(id:uint):void
+            {
+                switch(id) {
+                    case ProgressBarID.DAT_SPR:
+                        this.hideDatSprProgressBar();
+                        break;
+                    case ProgressBarID.DEFAULT:
+                        this.hideDefaultProgressBar();
+                        break;
+                }
+            }
+            
+            private function onLoadComplete():void
+            {
+                this.clear();
+                this.sendCommand(new Command(CommandType.FILES_INFO));
+                this.sendCommand(new GetSpriteListCommand(0));
+                this.sendCommand(new GetThingCommand(100, ThingCategory.ITEM));
+            }
+            
+            private function onProgress(id:uint, loaded:uint, total:uint):void
+            {
+                switch(id) {
+                    case ProgressBarID.DAT:
+                    case ProgressBarID.SPR:
+                        if (_datSprProgressBar) _datSprProgressBar.setProgress(id, loaded, total);
+                        break;
+                    case ProgressBarID.DEFAULT:
+                        if (_defaultProgressBar) _defaultProgressBar.setProgress(loaded, total);
+                        break;
+                    case ProgressBarID.FIND:
+                        this.setFindThingProgress(loaded, total);
+                        break;
+                }
+            }
+            
+            private function toLogString(level:uint):String
+            {
+                switch(level) {
+                    case Log.DEBUG:
+                        return resourceManager.getString("strings", "debug");
+                    case Log.INFO:
+                        return resourceManager.getString("strings", "info");
+                    case Log.WARN:
+                        return resourceManager.getString("strings", "warn");
+                    case Log.ERROR:
+                        return resourceManager.getString("strings", "error");
+                    case Log.FATAL:
+                        return resourceManager.getString("strings", "fatal");
+                }
+                return "";
+            }
+            
+            private function onSetCategory(category:String):void
+            {
+                if (this.loaded) {
+                    switch(category) {
+                        case ThingCategory.ITEM:
+                            categoryDropDownList.selectedIndex = 0;
+                            break;
+                        case ThingCategory.OUTFIT:
+                            categoryDropDownList.selectedIndex = 1;
+                            break;
+                        case ThingCategory.EFFECT:
+                            categoryDropDownList.selectedIndex = 2;
+                            break;
+                        case ThingCategory.MISSILE:
+                            categoryDropDownList.selectedIndex = 3;
+                            break;
+                    }
+                    
+                    thingStepper.minimum = getMinThingId();
+                    thingStepper.maximum = getMaxThingId();
+                    thingStepper.value = thingStepper.minimum;
+                    objectListGroupBox.label = resourceManager.getString("strings", category+"s");
+                    sendCommand(new GetThingCommand(thingStepper.minimum, category));
+                    sendCommand(new GetThingListCommand(thingStepper.minimum, category));
+                }
+            }
+            
+            //--------------------------------------
+            // Event Handlers
+            //--------------------------------------
+            
+            protected function confirmButtonClickHandler(event:MouseEvent):void
+            {
+                if (thingTypeEditor.changed) {
+                    if (thingTypeEditor.saveChanges()) {
+                        sendCommand(new UpdateThingCommand(thingTypeEditor.thingData));
+                    }
+                }
+            }
+            
+            protected function cancelButtonClickHandler(event:MouseEvent):void
+            {
+                editThing(null);
+            }
+            
+            protected function thingListChangeHandler(event:IndexChangeEvent):void
+            {
+                if (!this.loaded) return;
+                if (thingList.selectedId != 0) {
+                    sendCommand(new GetThingCommand(thingList.selectedId, this.currentCategory));
+                }
+                editThingButton.enabled = !thingList.multipleSelected;
+                this.setSharedProperty("selectedThingId", thingList.selectedId);
+            }
+            
+            protected function categoryDropDownListChangeHandler(event:IndexChangeEvent):void
+            {
+                switch(event.newIndex) {
+                    case 0:
+                        this.currentCategory = ThingCategory.ITEM;
+                        break;
+                    case 1:
+                        this.currentCategory = ThingCategory.OUTFIT;
+                        break;
+                    case 2:
+                        this.currentCategory = ThingCategory.EFFECT;
+                        break;
+                    case 3:
+                        this.currentCategory = ThingCategory.MISSILE;
+                        break;
+                }
+            }
+            
+            protected function thingChangedHandler(event:ThingEditorEvent):void
+            {
+                var title:String = "";
+                if (event.data) {
+                    title = ObUtils.toLocale(event.data.category) + " " + event.data.id;
+                }
+                
+                this.updateTitle(title);
+                confirmButton.enabled = false;
+            }
+            
+            protected function thingPropertyChangedHandler(event:ThingEditorEvent):void
+            {
+                var title:String = "";
+                
+                if (event.data) {
+                    title = ObUtils.toLocale(event.data.category) + " " + event.data.id;
+                }
+                
+                this.updateTitle(title, !thingTypeEditor.changed);
+                
+                confirmButton.enabled = thingTypeEditor.changed;
+                
+                if (event.property) {
+                    var message:String = resourceManager.getString("strings", "propertyChanged");
+                    this.appendLog(StringUtil.substitute(message,
+                        ObUtils.toLocale(event.data.category),
+                        event.data.id,
+                        event.property,
+                        event.oldValue,
+                        event.newValue));
+                }
+            }
+            
+            protected function thingSpriteDoubleClickHandler(event:ThingEditorEvent):void
+            {
+                selectSprite(event.sprite);
+            }
+            
+            protected function thingStepperChangeHandler(event:Event):void
+            {
+                if (this.loaded && this.thingData) {
+                    sendCommand(new GetThingCommand(thingStepper.value, this.currentCategory));
+                }
+            }
+            
+            protected function replaceThingHandler(event:Event):void
+            {
+                if (!this.loaded) return;
+                
+                var filter:FileFilter = new FileFilter("Object Builder Data", "*.obd;");
+                var file:File = _settings.getIODirectory() || File.userDirectory;
+                file.addEventListener(FileListEvent.SELECT_MULTIPLE, selectMultipleHandler);
+                file.browseForOpenMultiple(resourceManager.getString("strings", "selectFiles"), [filter]);
+                
+                function selectMultipleHandler(event:FileListEvent):void
+                {
+                    var selectedIds:Vector.<uint> = thingList.selectedIds;
+                    var files:Array = event.files;
+                    var length:uint = files.length;
+                    var list:Vector.<PathHelper> = new Vector.<PathHelper>(length, true);
+                    
+                    if (selectedIds.length != files.length) {
+                        Alert.show(
+                            resourceManager.getString(
+                                "strings",
+                                "invalidFileAmount",
+                                [resourceManager.getString("strings", "objects").toLowerCase()]),
+                            resourceManager.getString("strings", "error"));
+                        return;
+                    }
+                    
+                    FileUtil.sortFiles(files, Array.NUMERIC | Array.DESCENDING);
+                    
+                    for (var i:uint = 0; i < length; i++) {
+                        list[i] = new PathHelper(files[i].nativePath, selectedIds[i]);
+                    }
+                    
+                    if (list.length != 0) {
+                        replaceThingsFromFiles(list);
+                    }
+                }
+            }
+            
+            protected function importThingHandler(event:Event):void
+            {
+                if (!this.loaded) return;
+                
+                var filter:FileFilter = new FileFilter("Object Builder Data", "*.obd;");
+                var file:File = _settings.getIODirectory() || File.userDirectory;
+                file.addEventListener(FileListEvent.SELECT_MULTIPLE, selectMultipleHandler);
+                file.browseForOpenMultiple(resourceManager.getString("strings", "selectFiles"), [filter]);
+                
+                function selectMultipleHandler(event:FileListEvent):void
+                {
+                    var selectedIds:Vector.<uint> = thingList.selectedIds;
+                    var files:Array = event.files;
+                    var length:uint = files.length;
+                    var list:Vector.<PathHelper> = new Vector.<PathHelper>(length, true);
+                    
+                    FileUtil.sortFiles(files, Array.NUMERIC);
+                    
+                    for (var i:uint = 0; i < length; i++) {
+                        list[i] = new PathHelper(files[i].nativePath, i);
+                    }
+                    
+                    if (list.length != 0) {
+                        importThingsFromFiles(list);
+                    }
+                }
+            }
+            
+            protected function exportThingHandler(event:Event):void
+            {
+                if (!this.loaded) return;
+                
+                var things:Vector.<ThingType> = thingList.selectedThings;
+                if (things.length == 0) return;
+                
+                var version:Version = _settings.getLastExportThingVersion();
+                if (!version) {
+                    version = Version.getVersionBySignatures(_info.datSignature, _info.sprSignature);
+                }
+                
+                var window:ExportWindow = new ExportWindow();
+                window.enableObdFormat = true;
+                window.fileName = this.currentCategory;
+                window.directory = _settings.getIODirectory();
+                window.format = _settings.getLastExportThingFormat();
+                window.version = version;
+                window.addEventListener(Event.CLOSE, windowCloseHandler);
+                window.open();
+                
+                PopUpWindowManager.addWindow(window);
+                
+                function windowCloseHandler(event:Event):void
+                {
+                    if (window.fileName && window.directory && window.format) {
+                        _settings.setIODirectory(window.directory);
+                        _settings.setLastExportThingFormat(window.format);
+                        _settings.setLastExportThingVersion(window.version);
+                        
+                        onExportThingData(window.fileName,
+                            window.format,
+                            window.directory,
+                            window.version,
+                            things,
+                            thingData.category,
+                            _settings.savingSpriteSheet);
+                    }
+                }
+            }
+            
+            protected function duplicateThingHandler(event:Event):void
+            {
+                if (!this.loaded) return;
+                var things:Vector.<uint> = thingList.selectedIds;
+                if (things && things.length > 0) {
+                    duplicateThings(things, currentCategory);
+                }
+            }
+            
+            protected function editThingHandler(event:Event):void
+            {
+                if (!this.loaded || thingTypeEditor.thingData == this.thingData) return;
+                
+                if (_settings.autosaveThingChanges) {
+                    this.saveThingChanges();
+                }
+                
+                if (thingTypeEditor.thingData != null && thingTypeEditor.changed) {
+                    var message:String = resourceManager.getString(
+                        "strings",
+                        "saveChanges",
+                        [ObUtils.toLocale(thingTypeEditor.thingData.category),
+                            thingTypeEditor.thingData.id]);
+                    
+                    Alert.show(
+                        message,
+                        resourceManager.getString("controls", "label.info"),
+                        Alert.YES | Alert.NO | Alert.CANCEL,
+                        this,
+                        closeHandler);
+                    return;
+                }
+                
+                editThing(thingData);
+                
+                function closeHandler(event:CloseEvent):void
+                {
+                    if (event.detail == Alert.YES) {
+                        saveThingChanges();
+                    } else if (event.detail == Alert.NO) {
+                        appendLog(StringUtil.substitute(resourceManager.getString("strings", "unsavedChanges"),
+                            ObUtils.toLocale(thingTypeEditor.thingData.category),
+                            thingTypeEditor.thingData.id));
+                    } else if (event.detail == Alert.CANCEL) {
+                        return;
+                    }
+                    
+                    editThing(thingData);
+                }
+            }
+            
+            protected function newThingHandler(event:Event):void
+            {
+                if (this.loaded) {
+                    if (this.currentCategory) {
+                        sendCommand(new NewThingCommand(this.currentCategory));
+                    }
+                }
+            }
+            
+            protected function removeThingHandler(event:Event):void
+            {
+                if (this.loaded) {
+                    var selectedIds:Vector.<uint> = thingList.selectedIds;
+                    if (selectedIds && selectedIds.length > 0) {
+                        removeThings(selectedIds, this.currentCategory);
+                    }
+                }
+            }
+            
+            protected function thingListDoubleClickHandler(event:MouseEvent):void
+            {
+                if (event.target is ThingListRenderer) {
+                    editThingHandler(event);
+                }
+            }
+            
+            protected function thingDataNativeDragEnterHandler(event:NativeDragEvent):void
+            {
+                if (loaded && event.target === thingViewGroup || event.target === thingList) {
+                    if (event.clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) {
+                        NativeDragManager.dropAction = NativeDragActions.LINK;
+                        DragManager.acceptDragDrop(UIComponent(event.target));
+                    }
+                }
+            }
+            
+            protected function thingDataNativeDragDropHandler(event:NativeDragEvent):void
+            {
+                if (!this.loaded) return;
+                
+                var clipboard:Clipboard = event.clipboard;
+                if (clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) {
+                    var dropfiles:Array = clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
+                    var length:uint = dropfiles.length;
+                    var list:Vector.<PathHelper> = new Vector.<PathHelper>();
+                    
+                    for (var i:uint = 0; i < length; i++) {
+                        var file:File = dropfiles[i];
+                        if (file.extension == OTFormat.OBD) {
+                            list[list.length] = new PathHelper(file.nativePath, i);
+                        }
+                    }
+                    
+                    if (list.length > 0) {
+                        importThingsFromFiles(list);
+                    }
+                }
+            }
+            
+            protected function thingEditorDragEnterHandler(event:NativeDragEvent):void
+            {
+                if (loaded && event.target === thingTypeEditor.buttonsContainer) {
+                    if (event.clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) {
+                        NativeDragManager.dropAction = NativeDragActions.LINK;
+                        DragManager.acceptDragDrop(thingTypeEditor.buttonsContainer);
+                    }
+                }
+            }
+            
+            protected function thingEditorDragDropHandler(event:NativeDragEvent):void
+            {
+                if (!this.loaded) return;
+                
+                var clipboard:Clipboard = event.clipboard;
+                if (clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) {
+                    var file:File = clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT)[0];
+                    if (FileUtil.hasBitmapFormat(file)) {
+                        var loader:BitmapLoader = new BitmapLoader();
+                        loader.addEventListener(Event.COMPLETE, loadCompleteHandler);
+                        loader.load(file);
+                    }
+                }
+                
+                function loadCompleteHandler(event:Event):void
+                {
+                    var bitmap:BitmapData = event.target.bitmap;
+                    var thing:ThingType = thingTypeEditor.getThingTypeResult();
+                    var rect:nail.otlib.geom.Rect = SpriteUtils.getSpriteSheetSize(thing);
+                    
+                    if (bitmap.width == rect.width && rect.height == bitmap.height) {
+                        var data:ThingData = ThingData.setSpriteSheet(bitmap, thing);
+                        if (data != null) {
+                            thingTypeEditor.thingData = data;
+                            confirmButton.enabled = true;
+                            thingTypeEditor.invalidateThingData();
+                        }
+                    } else {
+                        var message:String = resourceManager.getString("strings", "invalidSpriteSheetSize");
+                        Alert.show(StringUtil.substitute(message, rect.width, rect.height),
+                            resourceManager.getString("strings", "invalidSpriteSheetSizeTitle"));
+                    }
+                }
+            }
+            
+            protected function replaceSpriteHandler(event:Event):void
+            {
+                if (!this.loaded) return;
+                
+                var filters:Array = ObUtils.createImagesFileFilter();
+                var file:File = _settings.getIODirectory() || File.userDirectory;
+                file.addEventListener(FileListEvent.SELECT_MULTIPLE, multipleSelectHandler);
+                file.browseForOpenMultiple(resourceManager.getString("strings", "selectImages"), filters);
+                
+                function multipleSelectHandler(event:FileListEvent):void
+                {
+                    var selectedIds:Vector.<uint> = spritesList.selectedIds;
+                    var files:Array = event.files;
+                    var length:uint = files.length;
+                    var list:Vector.<PathHelper> = new Vector.<PathHelper>(length, true);
+                    
+                    if (selectedIds.length != files.length) {
+                        Alert.show(
+                            resourceManager.getString(
+                                "strings",
+                                "invalidFileAmount",
+                                [resourceManager.getString("strings", "sprites").toLowerCase()]),
+                            resourceManager.getString("strings", "error"));
+                        return;
+                    }
+                    
+                    FileUtil.sortFiles(files, Array.NUMERIC | Array.DESCENDING);
+                    
+                    for (var i:uint = 0; i < length; i++) {
+                        list[i] = new PathHelper(files[i].nativePath, selectedIds[i]);
+                    }
+                    
+                    if (list.length != 0) {
+                        replaceSpritesFromFiles(list);
+                    }
+                }
+            }
+            
+            protected function importSpriteHandler(event:MouseEvent):void
+            {
+                if (!this.loaded) return;
+                
+                var filters:Array = ObUtils.createImagesFileFilter();
+                var file:File = _settings.getIODirectory() || File.userDirectory;
+                file.addEventListener(FileListEvent.SELECT_MULTIPLE, multipleSelectHandler);
+                file.browseForOpenMultiple(resourceManager.getString("strings", "selectImages"), filters);
+                
+                function multipleSelectHandler(event:FileListEvent):void
+                {
+                    var files:Array = event.files;
+                    var length:uint = files.length;
+                    var list:Vector.<PathHelper> = new Vector.<PathHelper>(length, true);
+                    
+                    FileUtil.sortFiles(files, Array.NUMERIC | Array.DESCENDING);
+                    
+                    for (var i:uint = 0; i < length; i++) {
+                        list[i] = new PathHelper(files[i].nativePath, i);
+                    }
+                    
+                    if (files.length != 0) {
+                        importSpritesFromFiles(list);
+                    }
+                }
+            }
+            
+            protected function exportSpriteHandler(event:Event):void
+            {
+                if (!this.loaded) return;
+                
+                var sprites:Vector.<SpriteData> = spritesList.selectedSprites;
+                if (sprites.length == 0) return;
+                
+                var window:ExportWindow = new ExportWindow();
+                window.fileName = "sprite";
+                window.format = _settings.getLastExportSpriteFormat();
+                window.directory = _settings.getIODirectory();
+                window.enableObdFormat = false;
+                window.addEventListener(Event.CLOSE, windowCloseHandler);
+                window.open();
+                
+                PopUpWindowManager.addWindow(window);
+                
+                function windowCloseHandler(event:Event):void
+                {
+                    if (window.fileName != null && window.format != null && window.directory) {
+                        _settings.setIODirectory(window.directory);
+                        _settings.setLastExportSpriteFormat(window.format);
+                        onExportSprites(window.fileName, window.format, window.directory, sprites);
+                    }
+                }
+            }
+            
+            protected function newSpriteButtonClickHandler(event:MouseEvent):void
+            {
+                if (this.loaded) {
+                    sendCommand(new Command(CommandType.NEW_SPRITE));
+                }
+            }
+            
+            protected function removeSpriteHandler(event:Event):void
+            {
+                this.removeSpritesIds(spritesList.selectedIds);
+            }
+            
+            protected function spritesListChangeHandler(event:IndexChangeEvent):void
+            {
+                if (this.loaded) {
+                    spriteStepper.value = this.spritesList.selectedId;
+                    var enable:Boolean = !spritesList.multipleSelected;
+                    copySpriteButton.enabled = enable;
+                    pasteSpriteButton.enabled = enable;
+                    this.setSharedProperty("selectedSpriteId", this.spritesList.selectedId);
+                }
+            }
+            
+            protected function spriteStepperChangeHandler(event:Event):void
+            {
+                if (this.loaded) {
+                    selectSprite(spriteStepper.value);
+                }
+            }
+            
+            protected function spritesListNativeDragEnterHandler(event:NativeDragEvent):void
+            {
+                if (loaded && event.target === spritesList) {
+                    if (event.clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) {
+                        NativeDragManager.dropAction = NativeDragActions.LINK;
+                        DragManager.acceptDragDrop(spritesList);
+                    }
+                }
+            }
+            
+            protected function spritesListNativeDragDropHandler(event:NativeDragEvent):void
+            {
+                if (!this.loaded) return;
+                
+                var clipboard:Clipboard = event.clipboard;
+                if (clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) {
+                    var dropfiles:Array = clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
+                    
+                    FileUtil.sortFiles(dropfiles, Array.NUMERIC | Array.DESCENDING);
+                    
+                    var length:uint = dropfiles.length;
+                    var list:Vector.<PathHelper> = new Vector.<PathHelper>();
+                    for (var i:uint = 0; i < length; i++) {
+                        var file:File = dropfiles[i];
+                        if (FileUtil.hasBitmapFormat(file)) {
+                            list[list.length] = new PathHelper(file.nativePath, i);
+                        }
+                    }
+                }
+                
+                if (list.length > 0) {
+                    importSpritesFromFiles(list);
+                }
+            }
+            
+            protected function lookGeneratorCloseHandler(event:Event):void
+            {
+                _lookGenerator.removeEventListener(Event.CLOSE, logWindowCloseHandler);
+                _lookGenerator = null;
+            }
+            
+            protected function logWindowClearHandler(event:Event):void
+            {
+                _logText = "";
+                _logWindow.text = _logText;
+            }
+            
+            protected function logWindowCloseHandler(event:Event):void
+            {
+                _logWindow.removeEventListener(Event.CLEAR, logWindowClearHandler);
+                _logWindow.removeEventListener(Event.CLOSE, logWindowCloseHandler);
+                _logWindow = null;
+            }
+            
+            protected function fingThingWindowCloseHandler(event:Event):void
+            {
+                _settings.findWindowWidth = _findThingWindow.width;
+                _settings.findWindowHeight = _findThingWindow.height;
+                _findThingWindow.removeEventListener(Event.CLOSE, logWindowCloseHandler);
+                _findThingWindow = null;
+            }
+            
+            protected function previusAmountButtonDownHandler(event:FlexEvent):void
+            {
+                if (this.loaded && this.thingData) {
+                    var target:uint = Math.max(getMinThingId(), ObUtils.hundredFloor(thingData.id) - 100);
+                    if (target < _thingMin) {
+                        sendCommand(new GetThingCommand(target, this.currentCategory));
+                    }
+                }
+            }
+            
+            protected function nextAmountButtonDownHandler(event:FlexEvent):void
+            {
+                if (loaded && thingData) {
+                    var target:uint = Math.min(getMaxThingId(), ObUtils.hundredFloor(thingData.id) + 100);
+                    if (target > _thingMax) {
+                        sendCommand(new GetThingCommand(target, this.currentCategory));
+                    }
+                }
+            }
+            
+            protected function errorAlertCloseHandler(event:CloseEvent):void
+            {
+                _errorAlert = null;
+            }
+            
+            override protected function displayStateChangingHandler(event:NativeWindowDisplayStateEvent):void
+            {
+                if (_settings) {
+                    _settings.maximized = event.afterDisplayState == NativeWindowDisplayState.MAXIMIZED;
+                }
+            }
+            
+            override protected function applicationClosingHandler(event:Event):void
+            {
+                this.closeLogWindow();
+                this.closeFindThingWindow();
+                this.closeLookGenerator();
+                this.saveWindowState();
+                this.saveSettings();
+                
+                if (this.loaded && !this.compiled) {
+                    event.preventDefault();
+                    Alert.show(
+                        resourceManager.getString("strings", "wantToCompile"),
+                        "",
+                        Alert.YES | Alert.NO | Alert.CANCEL,
+                        this,
+                        alertCloseHandler);
+                }
+                
+                function alertCloseHandler(event:CloseEvent):void
+                {
+                    if (event.detail == Alert.YES)
+                        compile();
+                    else if (event.detail == Alert.NO)
+                        exit();
+                }
+            }
+            
+            override protected function keyDownHandler(event:KeyboardEvent):void
+            {
+                var code : uint = event.keyCode;
+                if (event.ctrlKey && !event.shiftKey) {
+                    switch (code) {
+                        case Keyboard.N:
+                            this.onCreateNew();
+                            break;
+                        case Keyboard.O:
+                            this.openClient();
+                            break;
+                        case Keyboard.S:
+                            this.compile();
+                            break;
+                        case Keyboard.F:
+                            this.openFindThingWindow();
+                            break;
+                        case Keyboard.L:
+                            this.openLogWindow();
+                            break;
+                        case Keyboard.P:
+                            this.openPreferencesWindow();
+                            break;
+                        case Keyboard.Q:
+                            this.close();
+                            break;
+                    }
+                } else if (event.ctrlKey && event.shiftKey) {
+                    switch (code) {
+                        case Keyboard.S:
+                            this.compileAs();
+                            break;
+                    }
+                }
+            }
+            
+            protected function menuItemClickHandler(event:MenuEvent):void
+            {
+                var data : String = String(event.item.@data);
+                switch(data) {
+                    case "fileNew":
+                        this.onCreateNew();
+                        break;
+                    case "fileOpen":
+                        this.openClient();;
+                        break;
+                    case "fileCompile":
+                        this.compile();
+                        break;
+                    case "fileCompileAs":
+                        this.compileAs();
+                        break;
+                    case "fileClose":
+                        this.unload();
+                        break;
+                    case "filePreferences":
+                        this.openPreferencesWindow();
+                        break;
+                    case "fileExit":
+                        this.close();
+                        break;
+                    case "viewShowObjectList":
+                        this.showThingList = !this.showThingList;
+                        break;
+                    case "toolsFind":
+                        this.openFindThingWindow();
+                        break;
+                    case "toolsLookGenerator":
+                        this.openLookGenerator();
+                        break;
+                    case "windowOpenLog":
+                        this.openLogWindow();
+                        break;
+                    case "helpContents":
+                        this.openHelpWindow();
+                        break;
+                    case "helpAbout":
+                        this.onAboutApplication();
+                        break;
+                }
+            }
+            
+        ]]>
+    </fx:Script>
+    
+    <!-- menu bar -->
+    <s:Group width="100%"
+             height="31">
+        <!-- fill -->
+        <s:Rect left="-1" right="-1" top="1" bottom="0">
+            <s:fill>
+                <s:SolidColor color="0x494949"/>
+            </s:fill>
+        </s:Rect>
+        
+        <!-- border -->
+        <s:Rect left="-1" right="-1" top="0" bottom="0">
+            <s:stroke>
+                <s:SolidColorStroke color="0x272727"/>
+            </s:stroke>
+        </s:Rect>
+        
+        <mx:MenuBar id="menuBar"
+                    width="100%"
+                    top="4"
+                    fontSize="11"
+                    labelField="@label"
+                    iconField="@icon"
+                    showRoot="true"
+                    dataProvider="{menuXML}"
+                    itemSkin="nail.components.skins.MenuBarItemSkin"
+                    itemClick="menuItemClickHandler(event)"/>
+    </s:Group>
+    
+    <!-- tool bar -->
+    <s:Group width="100%"
+             height="35"
+             top="30">
+        
+        <!-- highlight -->
+        <s:Rect left="-1" right="-1" top="1" bottom="0">
+            <s:stroke>
+                <s:SolidColorStroke color="0x636363"/>
+            </s:stroke>
+        </s:Rect>
+        
+        <!-- border -->
+        <s:Rect left="-1" right="-1" top="0" bottom="0">
+            <s:stroke>
+                <s:SolidColorStroke color="0x272727"/>
+            </s:stroke>
+        </s:Rect>
+        
+        <s:HGroup width="100%"
+                  height="100%"
+                  verticalAlign="middle"
+                  paddingLeft="10"
+                  paddingRight="10">
+            <s:Button width="25"
+                      height="25"
+                      toolTip="{resourceManager.getString('strings', 'menu.new')}"
+                      icon="{nail.objectbuilder.core.Icons.NEW_FILE_WHITE}"
+                      click="onCreateNew()"
+                      skinClass="nail.components.skins.IconButtonSkin"/>
+            <s:Button width="25"
+                      height="25"
+                      toolTip="{resourceManager.getString('strings', 'menu.open')}"
+                      icon="{nail.objectbuilder.core.Icons.OPEN_WHITE}"
+                      click="openClient()"
+                      skinClass="nail.components.skins.IconButtonSkin"/>
+            <s:Button width="25"
+                      height="25"
+                      toolTip="{resourceManager.getString('strings', 'menu.compile')}"
+                      icon="{nail.objectbuilder.core.Icons.SAVE_WHITE}"
+                      click="compile()"
+                      skinClass="nail.components.skins.IconButtonSkin"/>
+            <s:Button width="25"
+                      height="25"
+                      toolTip="{resourceManager.getString('strings', 'menu.compileAs')}"
+                      icon="{nail.objectbuilder.core.Icons.SAVE_AS_WHITE}"
+                      click="compileAs()"
+                      skinClass="nail.components.skins.IconButtonSkin"/>
+            <nail:ShadowLine height="20"/>
+            <s:Button width="25"
+                      height="25"
+                      toolTip="{resourceManager.getString('strings', 'menu.toolsFindObject')}"
+                      icon="{nail.objectbuilder.core.Icons.BINOCULARS_WHITE}"
+                      click="openFindThingWindow()"
+                      skinClass="nail.components.skins.IconButtonSkin"/>
+            <nail:ShadowLine height="20"/>
+            <s:Button width="25"
+                      height="25"
+                      toolTip="{resourceManager.getString('strings', 'menu.logWindow')}"
+                      icon="{nail.objectbuilder.core.Icons.LOG_WHITE}"
+                      click="openLogWindow()"
+                      skinClass="nail.components.skins.IconButtonSkin"/>
+        </s:HGroup>
+    </s:Group>
+    
+    <mx:HDividedBox width="100%"
+                    height="100%"
+                    top="65">
+        
+        <!-- info/view container -->
+        <s:BorderContainer id="previewContainer"
+                           minWidth="165"
+                           maxWidth="280"
+                           width="165"
+                           height="100%"
+                           fontSize="11"
+                           skinClass="nail.components.skins.BorderContainerSkin">
+            <s:layout>
+                <s:VerticalLayout horizontalAlign="center"
+                                  paddingRight="5"
+                                  paddingLeft="5"
+                                  paddingTop="10"
+                                  paddingBottom="10"
+                                  gap="10"/>
+            </s:layout>
+            
+            <components:FilesInfoPanel id="infoPanel"
+                                       width="100%"/>
+            
+            <nail:ShadowLine width="100%"/>
+            
+            <s:HGroup width="100%"
+                      height="22">
+                <s:DropDownList id="categoryDropDownList"
+                                selectedIndex="0"
+                                width="100%"
+                                height="20"
+                                change="categoryDropDownListChangeHandler(event)">
+                    <s:dataProvider>
+                        <s:ArrayList>
+                            <fx:String>{resourceManager.getString('strings', 'item')}</fx:String>
+                            <fx:String>{resourceManager.getString('strings', 'outfit')}</fx:String>
+                            <fx:String>{resourceManager.getString('strings', 'effect')}</fx:String>
+                            <fx:String>{resourceManager.getString('strings', 'missile')}</fx:String>
+                        </s:ArrayList>
+                    </s:dataProvider>
+                </s:DropDownList>
+                <s:ToggleButton id="showThingListButton"
+                                toolTip="@Resource(key='showObjectList', bundle='strings')"
+                                width="20"
+                                height="20"
+                                icon="{nail.objectbuilder.core.Icons.SHOW_LIST_ICON}"
+                                change="{showThingList = showThingListButton.selected;}"/>
+            </s:HGroup>
+            
+            <nail:GroupBox id="thingViewGroup"
+                           label="@Resource(key='preview', bundle='strings')"
+                           width="100%"
+                           height="100%"
+                           nativeDragEnter="thingDataNativeDragEnterHandler(event)"
+                           nativeDragDrop="thingDataNativeDragDropHandler(event)">
+                <components:ThingView id="thingView"
+                                      horizontalCenter="0"
+                                      verticalCenter="0"/>
+            </nail:GroupBox>
+            
+            <nail:XNumericStepper id="thingStepper"
+                                  width="100%"
+                                  fontSize="11"
+                                  change="thingStepperChangeHandler(event)"/>
+            
+            <s:HGroup width="100%"
+                      horizontalAlign="center"
+                      verticalAlign="middle"
+                      gap="3">
+                <s:Button id="replaceThingButton"
+                          toolTip="@Resource(key='replace', bundle='strings')"
+                          minWidth="19"
+                          width="100%"
+                          height="19"
+                          icon="{nail.objectbuilder.core.Icons.REPLACE}"
+                          click="replaceThingHandler(event)"/>
+                <s:Button id="importThingButton"
+                          toolTip="@Resource(key='import', bundle='strings')"
+                          minWidth="19"
+                          width="100%"
+                          height="19"
+                          icon="{nail.objectbuilder.core.Icons.IMPORT}"
+                          click="importThingHandler(event)"/>
+                <s:Button id="exportThingButton"
+                          toolTip="@Resource(key='export', bundle='strings')"
+                          minWidth="19"
+                          width="100%"
+                          height="19"
+                          icon="{nail.objectbuilder.core.Icons.EXPORT}"
+                          click="exportThingHandler(event)"/>
+                <s:Button id="editThingButton"
+                          toolTip="@Resource(key='edit', bundle='strings')"
+                          minWidth="19"
+                          width="100%"
+                          height="19"
+                          icon="{nail.objectbuilder.core.Icons.EDIT}"
+                          click="editThingHandler(event)"/>
+                <s:Button id="duplicateThingButton"
+                          toolTip="@Resource(key='duplicate', bundle='strings')"
+                          minWidth="19"
+                          width="100%"
+                          height="19"
+                          icon="{nail.objectbuilder.core.Icons.DUPLICATE}"
+                          click="duplicateThingHandler(event)"/>
+                <s:Button id="newThingButton"
+                          toolTip="@Resource(key='new', bundle='strings')"
+                          minWidth="19"
+                          width="100%"
+                          height="19"
+                          icon="{nail.objectbuilder.core.Icons.NEW}"
+                          click="newThingHandler(event)"/>
+                <s:Button id="removeThingButton"
+                          toolTip="@Resource(key='remove', bundle='strings')"
+                          minWidth="19"
+                          width="100%"
+                          height="19"
+                          icon="{nail.objectbuilder.core.Icons.DELETE}"
+                          click="removeThingHandler(event)"/>
+            </s:HGroup>
+        </s:BorderContainer>
+        
+        <!-- thing list container -->
+        <s:BorderContainer id="thingListContainer"
+                           minWidth="165"
+                           maxWidth="280"
+                           width="165"
+                           height="100%"
+                           fontSize="11"
+                           includeInLayout="false"
+                           skinClass="nail.components.skins.BorderContainerSkin">
+            <s:layout>
+                <s:VerticalLayout horizontalAlign="center"
+                                  paddingRight="5"
+                                  paddingLeft="5"
+                                  paddingTop="10"
+                                  paddingBottom="10"
+                                  gap="10"/>
+            </s:layout>
+            
+            <nail:GroupBox id="objectListGroupBox"
+                           label="@Resource(key='objects', bundle='strings')"
+                           width="100%"
+                           height="100%">
+                <nail:layout>
+                    <s:VerticalLayout paddingRight="0"
+                                      paddingLeft="0"
+                                      paddingTop="10"
+                                      paddingBottom="0"/>
+                </nail:layout>
+                <components:ThingList id="thingList"
+                                      width="100%"
+                                      height="100%"
+                                      fontSize="11"
+                                      borderAlpha="0"
+                                      horizontalScrollPolicy="off"
+                                      doubleClickEnabled="true"
+                                      allowMultipleSelection="true"
+                                      replace="replaceThingHandler(event)"
+                                      export="exportThingHandler(event)"
+                                      duplicate="duplicateThingHandler(event)"
+                                      edit="editThingHandler(event)"
+                                      remove="removeThingHandler(event)"
+                                      doubleClick="thingListDoubleClickHandler(event)"
+                                      change="thingListChangeHandler(event)"
+                                      nativeDragEnter="thingDataNativeDragEnterHandler(event)"
+                                      nativeDragDrop="thingDataNativeDragDropHandler(event)"/>
+            </nail:GroupBox>
+            
+            <s:HGroup width="100%"
+                      horizontalAlign="center"
+                      verticalAlign="middle"
+                      gap="1">
+                <s:Button id="previusAmountButton"
+                          width="20"
+                          height="20"
+                          autoRepeat="true"
+                          repeatInterval="300"
+                          icon="{nail.assets.NailAssets.PREVIOUS}"
+                          buttonDown="previusAmountButtonDownHandler(event)"/>
+                <s:TextInput id="thingAmountTextInput"
+                             width="100%"
+                             height="20"
+                             editable="false"
+                             textAlign="center"
+                             skinClass="nail.components.skins.NumericStepperTextInputSkin"/>
+                <s:Button id="nextAmountButton"
+                          width="20"
+                          height="20"
+                          autoRepeat="true"
+                          repeatInterval="300"
+                          icon="{nail.assets.NailAssets.NEXT}"
+                          buttonDown="nextAmountButtonDownHandler(event)"/>
+            </s:HGroup>
+        </s:BorderContainer>
+        
+        <!-- ThingType editor -->
+        <s:Group minWidth="310"
+                 width="100%"
+                 height="100%">
+            <s:layout>
+                <s:VerticalLayout gap="-1"/>
+            </s:layout>
+            
+            <s:BorderContainer width="100%"
+                               height="100%"
+                               skinClass="nail.components.skins.BorderContainerSkin">
+                <components:ThingTypeEditor id="thingTypeEditor"
+                                            width="100%"
+                                            height="100%"
+                                            visible="false"
+                                            thingChange="thingChangedHandler(event)"
+                                            thingPropertyChange="thingPropertyChangedHandler(event)"
+                                            spriteDoubleClick="thingSpriteDoubleClickHandler(event)"
+                                            nativeDragEnter="thingEditorDragEnterHandler(event)"
+                                            nativeDragDrop="thingEditorDragDropHandler(event)"/>
+            </s:BorderContainer>
+            
+            <s:BorderContainer width="100%"
+                               backgroundColor="0x535353"
+                               borderColor="0x272727">
+                <s:layout>
+                    <s:HorizontalLayout horizontalAlign="right"
+                                        verticalAlign="middle"
+                                        paddingLeft="10"
+                                        paddingRight="10"
+                                        paddingTop="3"
+                                        paddingBottom="3"/>
+                </s:layout>
+                <s:Button id="confirmButton"
+                          label="@Resource(key='save', bundle='strings')"
+                          fontSize="11"
+                          height="20"
+                          enabled="false"
+                          click="confirmButtonClickHandler(event)"/>
+                <s:Button id="cancelButton"
+                          label="@Resource(key='close', bundle='strings')" 
+                          fontSize="11"
+                          height="20"
+                          enabled="false"
+                          click="cancelButtonClickHandler(event)"/>
+            </s:BorderContainer>
+        </s:Group>
+        
+        <!-- sprites container -->
+        <s:BorderContainer id="spritesContainer"
+                           minWidth="165"
+                           maxWidth="250"
+                           width="165"
+                           height="100%"
+                           skinClass="nail.components.skins.BorderContainerSkin">
+            <s:layout>
+                <s:VerticalLayout horizontalAlign="center"
+                                  paddingRight="5"
+                                  paddingLeft="5"
+                                  paddingTop="10"
+                                  paddingBottom="10"
+                                  gap="10"/>
+            </s:layout>	
+            
+            <nail:GroupBox label="@Resource(key='sprites', bundle='strings')"
+                           width="100%"
+                           height="100%">
+                <nail:layout>
+                    <s:VerticalLayout paddingRight="0"
+                                      paddingLeft="0"
+                                      paddingTop="10"
+                                      paddingBottom="0"/>
+                </nail:layout>
+                
+                <components:SpriteList id="spritesList"
+                                       width="100%"
+                                       height="100%"
+                                       allowMultipleSelection="true"
+                                       dragEnabled="true"
+                                       fontSize="11"
+                                       borderAlpha="0"
+                                       change="spritesListChangeHandler(event)"
+                                       copy="onCopySprite()"
+                                       paste="onPasteSprite()"
+                                       replace="replaceSpriteHandler(event)"
+                                       export="exportSpriteHandler(event)"
+                                       remove="removeSpriteHandler(event)"
+                                       nativeDragEnter="spritesListNativeDragEnterHandler(event)"
+                                       nativeDragDrop="spritesListNativeDragDropHandler(event)"/>
+            </nail:GroupBox>
+            
+            <nail:XNumericStepper id="spriteStepper"
+                                  width="100%"
+                                  fontSize="11"
+                                  change="spriteStepperChangeHandler(event)"/>
+            
+            <s:HGroup width="100%"
+                      horizontalAlign="right"
+                      verticalAlign="middle"
+                      gap="3">
+                <s:Button id="replaceSpriteButton"
+                          toolTip="@Resource(key='replace', bundle='strings')"
+                          minWidth="19"
+                          width="100%"
+                          height="19"
+                          icon="{nail.objectbuilder.core.Icons.REPLACE}"
+                          click="replaceSpriteHandler(event)"/>
+                <s:Button id="importSpriteButton"
+                          toolTip="@Resource(key='import', bundle='strings')"
+                          minWidth="19"
+                          width="100%"
+                          height="19"
+                          icon="{nail.objectbuilder.core.Icons.IMPORT}"
+                          click="importSpriteHandler(event)"/>
+                <s:Button id="exportSpriteButton"
+                          toolTip="@Resource(key='export', bundle='strings')"
+                          minWidth="19"
+                          width="100%"
+                          height="19"
+                          icon="{nail.objectbuilder.core.Icons.EXPORT}"
+                          click="exportSpriteHandler(event)"/>
+                <s:Button id="copySpriteButton"
+                          toolTip="@Resource(key='copy', bundle='strings')"
+                          minWidth="19"
+                          width="100%"
+                          height="19"
+                          icon="{nail.objectbuilder.core.Icons.COPY}"
+                          click="onCopySprite()"/>
+                <s:Button id="pasteSpriteButton"
+                          toolTip="@Resource(key='paste', bundle='strings')"
+                          minWidth="19"
+                          width="100%"
+                          height="19"
+                          icon="{nail.objectbuilder.core.Icons.PASTE}"
+                          click="onPasteSprite()"/>
+                <s:Button id="newSpriteButton"
+                          toolTip="@Resource(key='new', bundle='strings')"
+                          minWidth="19"
+                          width="100%"
+                          height="19"
+                          icon="{nail.objectbuilder.core.Icons.NEW}"
+                          click="newSpriteButtonClickHandler(event)"/>
+                <s:Button id="removeSpriteButton"
+                          toolTip="@Resource(key='remove', bundle='strings')"
+                          minWidth="19"
+                          width="100%"
+                          height="19"
+                          icon="{nail.objectbuilder.core.Icons.DELETE}"
+                          click="removeSpriteHandler(event)"/>
+            </s:HGroup>
+        </s:BorderContainer>
+    </mx:HDividedBox>
+</nail:Application>

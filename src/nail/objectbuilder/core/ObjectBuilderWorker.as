@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // 
-//  Copyright (c) 2014 <nailsonnego@gmail.com>
+//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
 // 
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -24,1247 +24,1661 @@
 
 package nail.objectbuilder.core
 {
-	import flash.display.BitmapData;
-	import flash.events.ErrorEvent;
-	import flash.events.Event;
-	import flash.events.ProgressEvent;
-	import flash.filesystem.File;
-	import flash.net.registerClassAlias;
-	import flash.utils.ByteArray;
-	
-	import nail.codecs.ImageCodec;
-	import nail.codecs.ImageFormat;
-	import nail.objectbuilder.commands.CommandType;
-	import nail.objectbuilder.commands.ErrorCommand;
-	import nail.objectbuilder.commands.FindResultCommand;
-	import nail.objectbuilder.commands.HideProgressBarCommand;
-	import nail.objectbuilder.commands.MessageCommand;
-	import nail.objectbuilder.commands.NeedToReloadCommand;
-	import nail.objectbuilder.commands.ProgressBarID;
-	import nail.objectbuilder.commands.SetAssetsInfoCommand;
-	import nail.objectbuilder.commands.SetSpriteListCommand;
-	import nail.objectbuilder.commands.SetThingCommand;
-	import nail.objectbuilder.commands.SetThingListCommand;
-	import nail.objectbuilder.commands.ShowProgressBarCommand;
-	import nail.objectbuilder.utils.ObUtils;
-	import nail.otlib.assets.AssetsInfo;
-	import nail.otlib.assets.AssetsVersion;
-	import nail.otlib.events.ThingTypeStorageEvent;
-	import nail.otlib.loaders.ThingDataLoader;
-	import nail.otlib.sprites.Sprite;
-	import nail.otlib.sprites.SpriteStorage;
-	import nail.otlib.things.ThingCategory;
-	import nail.otlib.things.ThingType;
-	import nail.otlib.things.ThingTypeStorage;
-	import nail.otlib.utils.OTFormat;
-	import nail.otlib.utils.SpriteData;
-	import nail.otlib.utils.ThingData;
-	import nail.otlib.utils.ThingListItem;
-	import nail.otlib.utils.ThingProperty;
-	import nail.otlib.utils.ThingUtils;
-	import nail.utils.FileUtils;
-	import nail.utils.SaveHelper;
-	import nail.utils.StringUtil;
-	import nail.workers.Command;
-	import nail.workers.NailWorker;
-	
-	[ResourceBundle("strings")]
-	[ResourceBundle("obstrings")]
-	
-	public class ObjectBuilderWorker extends NailWorker
-	{
-		//--------------------------------------------------------------------------
-		//
-		// PROPERTIES
-		//
-		//--------------------------------------------------------------------------
-		
-		private var _things : ThingTypeStorage;
-		private var _sprites : SpriteStorage;
-		private var _datFile : File;
-		private var _sprFile : File;
-		private var _version : AssetsVersion;
-		private var _enableSpritesU32 : Boolean;
-		private var _enableAlphaChannel : Boolean;
-		private var _error : ErrorCommand;
-		
-		//--------------------------------------------------------------------------
-		//
-		// CONSTRUCTOR
-		//
-		//--------------------------------------------------------------------------
-		
-		public function ObjectBuilderWorker()
-		{
-			
-		}
-		
-		//--------------------------------------------------------------------------
-		//
-		// METHODS
-		//
-		//--------------------------------------------------------------------------
-		
-		//--------------------------------------
-		// Override Protected
-		//--------------------------------------
-		
-		override protected function register() : void
-		{
-			registerClassAlias("ThingType", ThingType);
-			registerClassAlias("AssetsInfo", AssetsInfo);
-			registerClassAlias("SpriteData", SpriteData);
-			registerClassAlias("ByteArray", ByteArray);
-			registerClassAlias("ThingProperty", ThingProperty);
-			registerClassAlias("ThingListItem", ThingListItem);
-			registerCommand(CommandType.CREATE_NEW_ASSETS, onCreateNewAssets);
-			registerCommand(CommandType.LOAD_ASSETS, onLoadAssets);
-			registerCommand(CommandType.GET_ASSETS_INFO, onGetAssetsInfo);
-			registerCommand(CommandType.COMPILE_ASSETS, onCompileAssets);
-			registerCommand(CommandType.NEW_THING, onNewThing);
-			registerCommand(CommandType.GET_THING, onGetThing);
-			registerCommand(CommandType.UPDATE_THING, onChangeThing);
-			registerCommand(CommandType.EXPORT_THING, onExportThing);
-			registerCommand(CommandType.IMPORT_THING, onImportThing);
-			registerCommand(CommandType.IMPORT_THING_FILES, onImportThingFiles);
-			registerCommand(CommandType.DUPLICATE_THING, onDuplicateThing);
-			registerCommand(CommandType.REMOVE_THING, onRemoveThing);
-			registerCommand(CommandType.FIND_THING, onFindThing);
-			registerCommand(CommandType.GET_THING_LIST, onGetThingList);
-			registerCommand(CommandType.GET_SPRITE_LIST, onGetSpriteList);
-			registerCommand(CommandType.REPLACE_SPRITE, onReplaceSprite);
-			registerCommand(CommandType.IMPORT_SPRITES, onImportSprites);
-			registerCommand(CommandType.NEW_SPRITE, onNewSprite);
-			registerCommand(CommandType.REMOVE_SPRITES, onRemoveSprites);
-			registerCommand(CommandType.NEED_TO_RELOAD, onNeedToReload);
-		}
-		
-		//--------------------------------------
-		// Private
-		//--------------------------------------
-		
-		private function onCreateNewAssets(datSignature:uint,
-										   sprSignature:uint,
-										   enableSpritesU32:Boolean,
-										   enableAlphaChannel:Boolean) : void
-		{
-			var version : AssetsVersion;
-			var thing : ThingType;
-			
-			if (datSignature == 0 || sprSignature == 0)
-			{
-				throw new ArgumentError(getResourceString("obstrings", "invalidVersion"));
-			}
-			
-			version = AssetsVersion.getVersionBySignatures(datSignature, sprSignature);
-			if (version == null)
-			{
-				throw new ArgumentError(getResourceString("obstrings", "invalidVersion"));
-			}
-			
-			_version = version;
-			_enableSpritesU32 = (enableSpritesU32 || _version.value >= 960);
-			_enableAlphaChannel = enableAlphaChannel;
-			
-			createStorage();
-			
-			if (!_sprites.createNew(version, enableSpritesU32, enableAlphaChannel))
-			{
-				throw new Error(getResourceString("obstrings", "notCreateSpr"));
-			}
-			
-			// Create things.
-			if (!_things.createNew(version))
-			{
-				throw new Error(getResourceString("obstrings", "notCreateDat"));
-			}
-			
-			setSharedProperty("compiled", false);
-			assetsLoadComplete();
-			
-			// Update preview.
-			thing = _things.getItemType(ThingTypeStorage.MIN_ITEM_ID);
-			onGetThing(thing.id, thing.category);
-			
-			//Send sprites.
-			sendSpriteList(1);
-		}
-		
-		private function createStorage() : void
-		{
-			if (_things != null)
-			{
-				_things.removeEventListener(Event.COMPLETE, thingsCompleteHandler);
-				_things.removeEventListener(Event.CHANGE, thingsChangeHandler);
-				_things.removeEventListener(ProgressEvent.PROGRESS, thingsProgressHandler);
-				_things.removeEventListener(ThingTypeStorageEvent.FIND_PROGRESS, thingFindProgressHandler);
-				_things.removeEventListener(ErrorEvent.ERROR, thingsErrorHandler);
-				_things = null;
-			}
-			
-			if (_sprites != null)
-			{
-				_sprites.removeEventListener(Event.COMPLETE, spritesCompleteHandler);
-				_sprites.removeEventListener(Event.CHANGE, spritesChangeHandler);
-				_sprites.removeEventListener(ProgressEvent.PROGRESS, spritesProgressHandler);
-				_sprites.removeEventListener(ErrorEvent.ERROR, spritesErrorHandler);
-				_sprites = null;
-			}
-			
-			_things = new ThingTypeStorage();
-			_things.addEventListener(Event.COMPLETE, thingsCompleteHandler);
-			_things.addEventListener(Event.CHANGE, thingsChangeHandler);
-			_things.addEventListener(ProgressEvent.PROGRESS, thingsProgressHandler);
-			_things.addEventListener(ThingTypeStorageEvent.FIND_PROGRESS, thingFindProgressHandler);
-			_things.addEventListener(ErrorEvent.ERROR, thingsErrorHandler);
-			
-			
-			_sprites = new SpriteStorage();
-			_sprites.addEventListener(Event.COMPLETE, spritesCompleteHandler);
-			_sprites.addEventListener(Event.CHANGE, spritesChangeHandler);
-			_sprites.addEventListener(ProgressEvent.PROGRESS, spritesProgressHandler);
-			_sprites.addEventListener(ErrorEvent.ERROR, spritesErrorHandler);
-		}
-		
-		private function onLoadAssets(datPath:String,
-									  sprPath:String,
-									  datSignature:uint,
-									  sprSignature:uint,
-									  enableSpritesU32:Boolean,
-									  enableAlphaChannel:Boolean) : void
-		{
-			var title : String;
-			
-			if (isNullOrEmpty(datPath))
-			{
-				throw new ArgumentError("Parameter datPath cannot be null or empty.");
-			}
-			
-			if (isNullOrEmpty(sprPath))
-			{
-				throw new ArgumentError("Parameter sprPath cannot be null or empty.");
-			}
-			
-			if (datSignature == 0 || sprSignature == 0)
-			{
-				throw new ArgumentError(getResourceString("obstrings", "invalidVersion"));
-			}
-			
-			_datFile = new File(datPath);
-			_sprFile = new File(sprPath);
-			_version = AssetsVersion.getVersionBySignatures(datSignature, sprSignature);
-			_enableSpritesU32 = _enableSpritesU32 = (enableSpritesU32 || _version.value >= 960);
-			_enableAlphaChannel = enableAlphaChannel;
-			
-			title = getResourceString("obstrings", "loading");
-			sendCommand(new ShowProgressBarCommand(ProgressBarID.DAT_SPR, title));
-			
-			createStorage();
-			setSharedProperty("compiled", true);
-			
-			_things.load(_datFile, _version, _enableSpritesU32);
-		}
-		
-		private function onGetAssetsInfo() : void
-		{
-			this.sendAssetsInfo();
-		}
-		
-		private function onCompileAssets(datPath:String,
-										 sprPath:String,
-										 datSignature:uint,
-										 sprSignature:uint,
-										 enableSpritesU32:Boolean,
-										 enableAlphaChannel:Boolean) : void
-		{
-			var dat : File;
-			var spr : File;
-			var version : AssetsVersion;
-			var title : String;
-			var forceCompile : Boolean;
-			
-			if (isNullOrEmpty(datPath))
-			{
-				throw new ArgumentError("Parameter datPath cannot be null or empty.");
-			}
-			
-			if (isNullOrEmpty(sprPath))
-			{
-				throw new ArgumentError("Parameter sprPath cannot be null or empty.");
-			}
-			
-			if (datSignature == 0 || sprSignature == 0)
-			{
-				throw new ArgumentError(getResourceString("obstrings", "invalidVersion"));
-			}
-			
-			if (_things == null || !_things.loaded)
-			{
-				throw new Error(getResourceString("obstrings", "metadataNotLoaded"));
-			}
-			
-			if (_sprites == null || !_sprites.loaded)
-			{
-				throw new Error(getResourceString("obstrings", "spritesNotLoaded"));
-			}
-			
-			dat = new File(datPath);
-			spr = new File(sprPath);
-			version = AssetsVersion.getVersionBySignatures(datSignature, sprSignature);
-			forceCompile = (_enableSpritesU32 != enableSpritesU32 || _enableAlphaChannel != enableAlphaChannel);
-			
-			title = getResourceString("obstrings", "compiling");
-			sendCommand(new ShowProgressBarCommand(ProgressBarID.DAT_SPR, title));
-			
-			if (!_things.compile(dat, version, enableSpritesU32) ||
-				!_sprites.compile(spr, version, enableSpritesU32, enableAlphaChannel, forceCompile))
-			{
-				return;
-			}
-			
-			assetsCompileComplete();
-			
-			if (_datFile == null || _sprFile == null)
-			{
-				_datFile = dat;
-				_sprFile = spr;
-			}
-			
-			// If extended or alpha channel was changed need reload.
-			if (FileUtils.compare(dat, _datFile) && 
-				FileUtils.compare(spr, _sprFile))
-			{
-				if (forceCompile)
-				{
-					sendCommand(new NeedToReloadCommand(enableSpritesU32, enableAlphaChannel));
-				}
-				else 
-				{
-					sendAssetsInfo();
-				}
-			}
-		}
-		
-		private function onNewThing(category:String) : void
-		{
-			var thing : ThingType;
-			var message : String;
-			
-			if (ThingCategory.getCategory(category) == null)
-			{
-				throw new Error(getResourceString("obstrings", "invalidCategory"));
-			}
-			
-			thing = ThingUtils.createThing(category);
-			if (_things.addThing(thing, category))
-			{
-				// Update preview and list.
-				onGetThing(thing.id, category);
-				
-				// Send new thing message.
-				message = StringUtil.substitute(getResourceString("obstrings", "addedNewThing"),
-					getResourceString("strings", category),
-					thing.id);
-				sendCommand(new MessageCommand(message, "log"));
-			}
-		}
-		
-		private function onGetThing(id:uint, category:String) : void
-		{
-			var data : ThingData = getThingData(id, category);
-			sendCommand(new SetThingCommand(data.thing, data.sprites));
-		}
-		
-		private function onChangeThing(thing:ThingType, sprites:Vector.<SpriteData>) : void
-		{
-			var length : uint;
-			var i : uint;
-			var spriteData : SpriteData;
-			var spriteId : uint;
-			var message : String;
-			var ids : Array;
-			
-			ids = [];
-			length = thing.spriteIndex.length;
-			for (i = 0; i < length; i++)
-			{
-				spriteData = sprites[i];
-				spriteId = thing.spriteIndex[i];
-				if (spriteId != 0xFFFFFF)
-				{
-					if (!_sprites.hasSpriteId(spriteId))
-					{
-						message = getResourceString("obstrings", "spriteNotFound");
-						throw new Error(StringUtil.substitute(message, spriteId));
-					}
-				}
-				else 
-				{
-					if (spriteData.isEmpty())
-					{
-						thing.spriteIndex[i] = 0;
-					}
-					else if (_sprites.addSprite(spriteData.pixels))
-					{
-						ids[i] = _sprites.spritesCount;
-						thing.spriteIndex[i] = _sprites.spritesCount;
-					}
-				}
-			}
-			
-			if (ids.length > 0)
-			{
-				if (ids.length == 1)
-				{
-					message = StringUtil.substitute(getResourceString("obstrings", "addedSprite"), _sprites.spritesCount);
-				}
-				else
-				{
-					message = StringUtil.substitute(getResourceString("obstrings", "addedSprites"), ids);
-				}
-				
-				// Set sprite list to last sprite.
-				this.sendSpriteList(_sprites.spritesCount);
-				
-				// Send sprites added message.
-				sendCommand(new MessageCommand(message, "log"));
-			}
-			
-			if (_things.replace(thing, thing.category, thing.id))
-			{
-				// Update preview and list.
-				onGetThing(thing.id, thing.category);
-				onGetThingList(thing.id, thing.category);
-				
-				// Send change message
-				message = StringUtil.substitute(getResourceString("obstrings", "savedThing"),
-					getResourceString("strings", thing.category), thing.id);
-				sendCommand(new MessageCommand(message, "log"));
-			}
-		}
-		
-		private function onExportThing(list:Array, category:String, datSignature:uint, sprSignature:uint, spriteSheetFlag:uint) : void
-		{
-			var bytes : ByteArray;
-			var bitmap : BitmapData;
-			var file : File;
-			var version : AssetsVersion;
-			var helper : SaveHelper;
-			var length :uint;
-			var i : uint;
-			var obj : Object;
-			var data : ThingData;
-			var name : String;
-			var format : String;
-			
-			if (list == null || list.length == 0)
-			{
-				throw new ArgumentError("Parameter list cannot be null or empty.");
-			}
-			
-			if (ThingCategory.getCategory(category) == null)
-			{
-				throw new Error(getResourceString("obstrings", "invalidCategory"));
-			}
-			
-			if (datSignature == 0 || sprSignature == 0)
-			{
-				throw new ArgumentError(getResourceString("obstrings", "invalidVersion"));
-			}
-			
-			sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT,
-				getResourceString("obstrings", "exportObject")));
-			
-			version = AssetsVersion.getVersionBySignatures(datSignature, sprSignature);
-			helper = new SaveHelper();
-			
-			length = list.length;
-			for (i = 0; i < length; i++)
-			{
-				obj = list[i];
-				data = getThingData(obj.id, category);
-				file = new File(obj.file);
-				name = FileUtils.getName(file);
-				format = file.extension;
-				
-				if (ImageFormat.hasImageFormat(format))
-				{
-					bitmap = ThingData.getSpriteSheet(data);
-					bytes = ImageCodec.encode(bitmap, format);
-					if (spriteSheetFlag != 0)
-					{
-						helper.addFile(ObUtils.getPatternsString(data.thing, spriteSheetFlag), name, "txt", file);
-					}
-				}
-				else if (format == OTFormat.OBD)
-				{
-					bytes = ThingData.serialize(data, version);
-				}
-				
-				helper.addFile(bytes, name, format, file);
-			}
-			
-			helper.addEventListener(ProgressEvent.PROGRESS, progressHandler);
-			helper.addEventListener(Event.COMPLETE, completeHandler);
-			helper.save();
-			
-			function progressHandler(event:ProgressEvent) : void
-			{
-				sendProgress(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal);
-			}
-			
-			function completeHandler(event:Event) : void
-			{
-				// Close current instance of DefaultProgressBar
-				sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
-			}
-		}
-		
-		private function onImportThing(thing:ThingType, sprites:Vector.<SpriteData>, replaceId:uint) : void
-		{
-			var done : Boolean;
-			var length : uint;
-			var i :uint;
-			var spriteId : uint;
-			var pixels : ByteArray;
-			var spritesAdded : Array;
-			var message : String;
-			
-			if (thing == null) 
-			{
-				throw new ArgumentError("Parameter thing cannot be null.");
-			}
-			
-			if (sprites == null) 
-			{
-				throw new ArgumentError("Parameter sprites cannot be null.");
-			}
-			
-			if (replaceId != 0)
-			{
-				done = _things.replace(thing, thing.category, replaceId);
-				message = getResourceString("obstrings", "replacedThing");
-			}
-			else 
-			{
-				done = _things.addThing(thing, thing.category);
-				message = getResourceString("obstrings", "addedNewThing");
-			}
-			
-			// Add sprites
-			spritesAdded = [];
-			length = sprites.length;
-			for (i = 0; i < length; i++)
-			{
-				pixels = sprites[i].pixels;
-				spriteId = thing.spriteIndex[i];
-				
-				// Only add if sprite are not equal.
-				if (!_sprites.compare(spriteId, pixels))
-				{
-					if (_sprites.addSprite(pixels))
-					{
-						thing.spriteIndex[i] = _sprites.spritesCount;
-						spritesAdded.push(_sprites.spritesCount);
-					}
-				}
-			}
-			
-			if (done)
-			{
-				// Update preview.
-				onGetThing(thing.id, thing.category);
-				if (replaceId != 0)
-				{
-					onGetThingList(thing.id, thing.category);
-				}
-				
-				// Send import message.
-				message = StringUtil.substitute(message, getResourceString("strings", thing.category), thing.id);
-				sendCommand(new MessageCommand(message, "log"));
-				
-				if (spritesAdded.length > 0)
-				{
-					if (spritesAdded.length == 1)
-					{
-						message = StringUtil.substitute(getResourceString("obstrings", "addedSprite"), _sprites.spritesCount);
-					}
-					else
-					{
-						message = StringUtil.substitute(getResourceString("obstrings", "addedSprites"), spritesAdded);
-					}
-					
-					// Set sprite list to last sprite.
-					this.sendSpriteList(_sprites.spritesCount);
-					
-					// Send sprites added message.
-					sendCommand(new MessageCommand(message, "log"));
-				}
-			}
-		}
-		
-		private function onImportThingFiles(files:Array) : void
-		{
-			var list : Array;
-			var length : uint;
-			var i : uint;
-			var loader : ThingDataLoader;
-			
-			list = [];
-			length = files.length;
-			for (i = 0; i < length; i++)
-			{
-				list[i] = new File(files[i]);
-			}
-			
-			sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT,
-				getResourceString("obstrings", "loadingFiles")));
-			
-			loader = new ThingDataLoader();
-			loader.addEventListener(ProgressEvent.PROGRESS, importThingProgressHandler);
-			loader.addEventListener(Event.COMPLETE, importThingCompleteHandler);
-			loader.loadFiles(list);
-		}
-		
-		private function onDuplicateThing(id:uint, category:String) : void
-		{
-			var thing : ThingType;
-			var copy : ThingType;
-			var message : String;
-			
-			if (ThingCategory.getCategory(category) == null)
-			{
-				throw new Error(getResourceString("obstrings", "invalidCategory"));
-			}
-			
-			thing = _things.getThingType(id, category);
-			if (thing == null)
-			{
-				throw new Error(StringUtil.substitute(getResourceString("obstrings", "thingNotFound"),
-					getResourceString("strings", category),
-					id));
-			}
-			
-			copy = ThingUtils.copyThing(thing);
-			if (_things.addThing(copy, category))
-			{
-				// Update preview.
-				onGetThing(copy.id, category);
-				
-				// Send duplicated thing message.
-				message = StringUtil.substitute(getResourceString("obstrings", "duplicatedThing"),
-					getResourceString("strings", category),
-					id,
-					copy.id);
-				sendCommand(new MessageCommand(message, "log"));
-			}
-		}
-		
-		private function onRemoveThing(id:uint, category:String) : void
-		{
-			var message : String;
-			var count : uint;
-			var sendId : uint;
-			
-			if (_things.removeThing(id, category))
-			{
-				count = _things.getCategoryCount(category);
-				sendId = id > count ? count : id;
-				
-				// Update preview and list.
-				onGetThing(sendId, category);
-				onGetThingList(sendId, category);
-				
-				message = StringUtil.substitute(getResourceString("obstrings", "removedThing"),
-					getResourceString("strings", category),
-					id);
-				sendCommand(new MessageCommand(message, "log"));
-			}
-		}
-		
-		private function onFindThing(category:String, properties:Vector.<ThingProperty>) : void
-		{
-			var list : Array;
-			var things : Array;
-			var length : uint;
-			var i : uint;
-			var listItem : ThingListItem;
-			
-			list = [];
-			things = _things.findThingTypeByProperties(category, properties);
-			length = things.length;
-			for (i = 0; i < length; i++)
-			{
-				listItem = new ThingListItem();
-				listItem.thing = things[i];
-				listItem.pixels = getBitmapPixels(listItem.thing);
-				list[i] = listItem;
-			}
-			sendCommand(new FindResultCommand(list));
-		}
-		
-		private function onGetThingList(target:uint, category:String) : void
-		{
-			this.sendThingList(target, category);
-		}
-		
-		private function onGetSpriteList(target:uint) : void
-		{
-			this.sendSpriteList(target);
-		}
-		
-		private function onReplaceSprite(id:uint, pixels:ByteArray) : void
-		{
-			var message : String;
-			
-			if (id == 0) 
-			{
-				throw new ArgumentError(StringUtil.substitute(getResourceString("obstrings", "invalidSpriteId"), id));
-			}
-			
-			if (pixels == null) 
-			{
-				throw new ArgumentError("Parameter pixels cannot be null.");
-			}
-			
-			if (_sprites.replaceSprite(id, pixels))
-			{
-				message = StringUtil.substitute(getResourceString("obstrings", "replacedSprite"), id);
-				sendCommand(new MessageCommand(message, "log"));
-				this.sendSpriteList(id);
-			}
-		}
-		
-		private function onImportSprites(pixelsList:Vector.<ByteArray>) : void
-		{
-			var ids : Array;
-			var pixels : ByteArray;
-			var length : uint;
-			var i : uint;
-			var message : String;
-			
-			if (pixelsList == null) 
-			{
-				throw new ArgumentError("Parameter pixelsList cannot be null.");
-			}
-			
-			// Temporarily remove change events.
-			_sprites.removeEventListener(Event.CHANGE, spritesChangeHandler);
-			
-			ids = [];
-			length = pixelsList.length;
-			for (i = 0; i < length; i++)
-			{
-				if (!checkSpriteLimite())
-				{
-					break;
-				}
-				
-				pixels = pixelsList[i];
-				if (_sprites.addSprite(pixels))
-				{
-					ids[i] = _sprites.spritesCount;
-				}
-			}
-			
-			// Again add change events.
-			_sprites.addEventListener(Event.CHANGE, spritesChangeHandler);
-			
-			length = ids.length;
-			(length > 0)
-			{
-				if (length == 1)
-				{
-					message = StringUtil.substitute(getResourceString("obstrings", "addedSprite"), _sprites.spritesCount);
-				}
-				else
-				{
-					message = StringUtil.substitute(getResourceString("obstrings", "addedSprites"), ids);
-				}
-				
-				sendAssetsInfo();
-				sendSpriteList(_sprites.spritesCount);
-				sendCommand(new MessageCommand(message, "log"));
-			}
-		}
-		
-		private function onNewSprite() : void
-		{
-			var sprite : BitmapData;
-			var message : String;
-			
-			if (!checkSpriteLimite())
-			{
-				return;
-			}
-			
-			sprite = new BitmapData(Sprite.SPRITE_PIXELS, Sprite.SPRITE_PIXELS, true, 0x00000000);
-			if (_sprites.addSprite(sprite.getPixels(sprite.rect)))
-			{
-				message = StringUtil.substitute(getResourceString("obstrings", "addedSprite"), _sprites.spritesCount);
-				this.sendSpriteList(_sprites.spritesCount);
-				sendCommand(new MessageCommand(message, "log"));
-			}
-		}
-		
-		private function onRemoveSprites(list:Vector.<uint>) : void
-		{
-			var length : uint;
-			var i : uint;
-			var id : uint;
-			var message : String;
-			
-			if (list == null)
-			{
-				throw new ArgumentError("Parameter list cannot be null.");
-			}
-			
-			length = list.length;
-			for (i = 0; i < length; i++)
-			{
-				id = list[i];
-				if (id != 0)
-				{
-					_sprites.removeSprite(id);
-				}
-			}
-			
-			id = Math.max(0, list[length - 1] - 1);
-			sendSpriteList(id);
-			
-			if (length > 1)
-			{
-				message = getResourceString("obstrings", "removeSprites");
-			}
-			else 
-			{
-				message = getResourceString("obstrings", "removeSprite");
-			}
-			sendCommand(new MessageCommand(StringUtil.substitute(message, list), "log"));
-		}
-		
-		private function onNeedToReload(enableSpritesU32:Boolean, enableAlphaChannel:Boolean) : void
-		{
-			onLoadAssets(_datFile.nativePath,
-				_sprFile.nativePath,
-				_version.datSignature,
-				_version.sprSignature,
-				enableSpritesU32,
-				enableAlphaChannel);
-		}
-		
-		private function assetsLoadComplete() : void
-		{
-			sendCommand(new HideProgressBarCommand(ProgressBarID.DAT_SPR));
-			sendCommand(new Command(CommandType.LOAD_COMPLETE));
-			sendCommand(new MessageCommand(getResourceString("obstrings", "loadComplete"),
-				getResourceString("strings", "info")));
-		}
-		
-		private function assetsCompileComplete() : void
-		{
-			setSharedProperty("compiled", true);
-			sendCommand(new HideProgressBarCommand(ProgressBarID.DAT_SPR));
-			sendCommand(new MessageCommand(getResourceString("obstrings", "compileComplete"),
-				getResourceString("strings", "info")));
-		}
-		
-		public function sendAssetsInfo() : void
-		{
-			var info : AssetsInfo;
-			
-			if (_things == null || !_things.loaded)
-			{
-				throw new Error(getResourceString("obstrings", "metadataNotLoaded"));
-			}
-			
-			if (_sprites == null || !_sprites.loaded)
-			{
-				throw new Error(getResourceString("obstrings", "spritesNotLoaded"));
-			}
-			
-			info = new AssetsInfo();
-			info.version = _version.value;
-			info.datSignature = _things.signature;
-			info.minItemId = ThingTypeStorage.MIN_ITEM_ID;
-			info.maxItemId = _things.itemsCount;
-			info.minOutfitId = ThingTypeStorage.MIN_OUTFIT_ID;
-			info.maxOutfitId = _things.outfitsCount;
-			info.minEffectId = ThingTypeStorage.MIN_EFFECT_ID;
-			info.maxEffectId = _things.effectsCount;
-			info.minMissileId = ThingTypeStorage.MIN_MISSILE_ID;
-			info.maxMissileId = _things.missilesCount;
-			info.sprSignature = _sprites.signature;
-			info.minSpriteId = 0;
-			info.maxSpriteId = _sprites.spritesCount;
-			info.extended = (_enableSpritesU32 || _version.value >= 960);
-			info.transparency = _enableAlphaChannel;
-			
-			sendCommand(new SetAssetsInfoCommand(info));
-		}
-		
-		private function sendThingList(target:uint, category:String) : void
-		{
-			var first : uint;
-			var last : uint;
-			var min : uint;
-			var max : uint;
-			var list : Vector.<ThingListItem>;
-			var i : uint;
-			var thing : ThingType;
-			var listItem : ThingListItem;
-			var diff : uint;
-			
-			if (_things == null || !_things.loaded)
-			{
-				throw new Error(getResourceString("obstrings", "metadataNotLoaded"));
-			}
-			
-			first = _things.getCategoryMinId(category);
-			last = _things.getCategoryCount(category);
-			min = Math.max(first, ObUtils.hundredFloor(target));
-			diff = (category != ThingCategory.ITEM && min == first) ? 1 : 0;
-			max = Math.min((min - diff) + 99, last);
-			list = new Vector.<ThingListItem>();
-			
-			for (i = min; i <= max; i++)
-			{
-				thing = _things.getThingType(i, category);
-				if (thing == null)
-				{
-					throw new Error(StringUtil.substitute(getResourceString("obstrings", "thingNotFound"),
-						getResourceString("strings", category), i));
-				}
-				
-				listItem = new ThingListItem();
-				listItem.thing = thing;
-				listItem.pixels = getBitmapPixels(thing);
-				list.push(listItem);
-			}
-			
-			sendCommand(new SetThingListCommand(target, min, max, list));
-		}
-		
-		private function sendSpriteList(target:uint) : void
-		{
-			var first : uint;
-			var last : uint;
-			var min : uint;
-			var max : uint;
-			var list : Vector.<SpriteData>;
-			var i : int;
-			var pixels : ByteArray;
-			var spriteData : SpriteData;
-			
-			if (_sprites == null || !_sprites.loaded)
-			{
-				throw new Error(getResourceString("obstrings", "spritesNotLoaded"));
-			}
-			
-			first = 0;
-			last = _sprites.spritesCount;
-			min = Math.max(first, ObUtils.hundredFloor(target));
-			max = Math.min(min + 99, last);
-			list = new Vector.<SpriteData>();
-			
-			for (i = min; i <= max; i++)
-			{
-				pixels = _sprites.getPixels(i);
-				if (pixels == null)
-				{
-					throw new Error(StringUtil.substitute(getResourceString("obstrings", "spriteNotFound"), i));
-				}
-				
-				spriteData = new SpriteData();
-				spriteData.id = i;
-				spriteData.pixels = pixels;
-				list.push(spriteData);
-			}
-			
-			sendCommand(new SetSpriteListCommand(target, min, max, list));
-		}
-		
-		private function sendError(message:String, stack:String = "", id:uint = 0) : void
-		{
-			if (!isNullOrEmpty(message))
-			{
-				sendCommand(new ErrorCommand(message, stack, id));
-			}
-		}
-		
-		private function checkSpriteLimite() : Boolean
-		{
-			if (_sprites.isFull && !_enableSpritesU32)
-			{
-				sendCommand(new MessageCommand(getResourceString("obstrings", "spritesLimitReached"),
-					getResourceString("strings", "warning")));
-				return false;
-			}
-			return true;
-		}
-		
-		private function getBitmapPixels(thing:ThingType) : ByteArray
-		{
-			var size : uint;
-			var width : uint;
-			var height : uint;
-			var layers : uint;
-			var w : uint;
-			var h : uint;
-			var x : uint;
-			var l : uint;
-			var bitmap : BitmapData;
-			var index : uint;
-			var px : int;
-			var py : int;
-			
-			size = Sprite.SPRITE_PIXELS;
-			width = thing.width;
-			height = thing.height;
-			layers = thing.layers;
-			bitmap = new BitmapData(width * size, height * size, true, 0xFF636363);
-			
-			if (thing.category == ThingCategory.OUTFIT)
-			{
-				layers = 1;
-				x = thing.frames > 1 ? 2 : 0;
-			}
-			
-			for (l = 0; l < layers; l++)
-			{
-				for (w = 0; w < width; w++)
-				{
-					for (h = 0; h < height; h++)
-					{
-						index = ThingData.getSpriteIndex(thing, w, h, l, x, 0, 0, 0);
-						px = (width - w - 1) * size;
-						py = (height - h - 1) * size;
-						_sprites.copyPixels(thing.spriteIndex[index], bitmap, px, py);
-					}
-				}
-			}
-			
-			return bitmap.getPixels(bitmap.rect);
-		}
-		
-		private function getThingData(id:uint, category:String) : ThingData
-		{
-			var thing : ThingType;
-			var spriteIndex : Vector.<uint>;
-			var length : uint;
-			var i :uint;
-			var spriteId : uint;
-			var pixels : ByteArray;
-			var spriteData : SpriteData;
-			var sprites : Vector.<SpriteData>;
-			
-			if (ThingCategory.getCategory(category) == null)
-			{
-				throw new Error(getResourceString("obstrings", "invalidCategory"));
-			}
-			
-			thing = _things.getThingType(id,  category);
-			if (thing == null)
-			{
-				throw new Error(StringUtil.substitute(getResourceString("obstrings", "thingNotFound"),
-					getResourceString("strings", category), id));
-			}
-			
-			sprites = new Vector.<SpriteData>();
-			spriteIndex = thing.spriteIndex;
-			length = spriteIndex.length;
-			for (i = 0; i < length; i++)
-			{
-				spriteId = spriteIndex[i];
-				pixels = _sprites.getPixels(spriteId);
-				if (pixels == null)
-				{
-					throw new Error(StringUtil.substitute(getResourceString("obstrings", "spriteNotFound"), spriteId));
-				}
-				
-				spriteData = new SpriteData();
-				spriteData.id = spriteId;
-				spriteData.pixels = pixels;
-				sprites.push(spriteData);
-			}
-			return new ThingData(thing, sprites);
-		}
-		
-		//--------------------------------------
-		// Event Handlers
-		//--------------------------------------
-		
-		protected function thingsCompleteHandler(event:Event) : void
-		{
-			if (_sprites != null && !_sprites.loaded)
-			{
-				_sprites.load(_sprFile, _version, _enableSpritesU32, _enableAlphaChannel);
-			}
-		}
-		
-		protected function thingsChangeHandler(event:Event) : void
-		{
-			setSharedProperty("compiled", false);
-			sendAssetsInfo();
-		}
-		
-		protected function thingsProgressHandler(event:ProgressEvent) : void
-		{
-			sendProgress(ProgressBarID.DAT, event.bytesLoaded, event.bytesTotal);
-		}
-		
-		protected function thingsErrorHandler(event:ErrorEvent) : void
-		{
-			// Try load as extended.
-			if (!_things.loaded && !_enableSpritesU32)
-			{
-				_error = new ErrorCommand(event.text, "", event.errorID);
-				onLoadAssets(_datFile.nativePath,
-					_sprFile.nativePath,
-					_version.datSignature,
-					_version.sprSignature,
-					true,
-					_enableAlphaChannel);
-			}
-			else 
-			{
-				if (_error != null)
-				{
-					sendError(_error.args[0], _error.args[1], _error.args[2]);
-					_error = null;
-				}
-				else 
-				{
-					sendError(event.text, "", event.errorID);
-				}
-			}
-		}
-		
-		protected function importThingProgressHandler(event:ProgressEvent) : void
-		{
-			sendProgress(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal);
-		}
-		
-		protected function importThingCompleteHandler(event:Event) : void
-		{
-			var thingDataList : Vector.<ThingData>;
-			var dataLength : uint;
-			var d : uint;
-			var thing : ThingType;
-			var sprites : Vector.<SpriteData>;
-			var spriteLength : uint;
-			var s : uint;
-			var spriteId : uint;
-			var pixels : ByteArray;
-			var spritesAdded : Array;
-			var message : String;
-			
-			// Close current instance of DefaultProgressBar
-			sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
-			
-			// Open new instance of DefaultProgressBar
-			sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT,
-				getResourceString("obstrings", "importingObjects")));
-			
-			// Temporarily remove change events.
-			_things.removeEventListener(Event.CHANGE, thingsChangeHandler);
-			_sprites.removeEventListener(Event.CHANGE, spritesChangeHandler);
-			
-			thingDataList = ThingDataLoader(event.target).thingDataList;
-			dataLength = thingDataList.length;
-			spritesAdded = [];
-			
-			for (d = 0; d < dataLength; d++)
-			{
-				// Add thing
-				thing = thingDataList[d].thing;
-				if (_things.addThing(thing, thing.category))
-				{
-					// Send import message.
-					message = getResourceString("obstrings", "addedNewThing");
-					message = StringUtil.substitute(message, getResourceString("strings", thing.category), thing.id);
-					sendCommand(new MessageCommand(message, "log"));
-				}
-				
-				// Add sprites
-				sprites = thingDataList[d].sprites;
-				spriteLength = sprites.length;
-				
-				for (s = 0; s < spriteLength; s++)
-				{
-					pixels = sprites[s].pixels;
-					spriteId = thing.spriteIndex[s];
-					
-					// Only add if sprite are not equal.
-					if (!_sprites.compare(spriteId, pixels))
-					{
-						if (_sprites.addSprite(pixels))
-						{
-							thing.spriteIndex[s] = _sprites.spritesCount;
-							spritesAdded.push(_sprites.spritesCount);
-						}
-					}
-				}
-				
-				sendProgress(ProgressBarID.DEFAULT, d, dataLength);
-			}
-			
-			// Again add change events.
-			_things.addEventListener(Event.CHANGE, thingsChangeHandler);
-			_sprites.addEventListener(Event.CHANGE, spritesChangeHandler);
-			
-			// Update all.
-			onGetAssetsInfo();
-			onGetThing(thing.id, thing.category);
-			onGetThingList(thing.id, thing.category);
-			onGetSpriteList(_sprites.spritesCount);
-			
-			// Send sprites ids to log.
-			if (spritesAdded.length > 0)
-			{
-				if (spritesAdded.length == 1)
-				{
-					message = StringUtil.substitute(getResourceString("obstrings", "addedSprite"), _sprites.spritesCount);
-				}
-				else
-				{
-					message = StringUtil.substitute(getResourceString("obstrings", "addedSprites"), spritesAdded);
-				}
-				
-				sendCommand(new MessageCommand(message, "log"));
-			}
-			
-			// Close current instance of DefaultProgressBar
-			sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
-		}
-		
-		protected function thingFindProgressHandler(event:ThingTypeStorageEvent) : void
-		{
-			sendProgress(ProgressBarID.FIND_THING, event.loaded, event.total);
-		}
-		
-		protected function spritesCompleteHandler(event:Event) : void
-		{
-			if (_things != null && _things.loaded)
-			{
-				this.assetsLoadComplete();
-			}
-		}
-		
-		protected function spritesChangeHandler(event:Event) : void
-		{
-			setSharedProperty("compiled", false);
-			sendAssetsInfo();
-		}
-		
-		protected function spritesProgressHandler(event:ProgressEvent) : void
-		{
-			sendProgress(ProgressBarID.SPR, event.bytesLoaded, event.bytesTotal);
-		}
-		
-		protected function spritesErrorHandler(event:ErrorEvent) : void
-		{
-			sendError(event.text, "", event.errorID);
-		}
-	}
+    import flash.display.BitmapData;
+    import flash.events.ErrorEvent;
+    import flash.events.Event;
+    import flash.events.ProgressEvent;
+    import flash.filesystem.File;
+    import flash.geom.Rectangle;
+    import flash.net.registerClassAlias;
+    import flash.utils.ByteArray;
+    import flash.utils.Dictionary;
+    
+    import nail.codecs.ImageCodec;
+    import nail.codecs.ImageFormat;
+    import nail.errors.NullArgumentError;
+    import nail.errors.NullOrEmptyArgumentError;
+    import nail.logging.Log;
+    import nail.objectbuilder.commands.CommandType;
+    import nail.objectbuilder.commands.FindResultCommand;
+    import nail.objectbuilder.commands.HideProgressBarCommand;
+    import nail.objectbuilder.commands.NeedToReloadCommand;
+    import nail.objectbuilder.commands.ProgressBarID;
+    import nail.objectbuilder.commands.ProgressCommand;
+    import nail.objectbuilder.commands.ShowProgressBarCommand;
+    import nail.objectbuilder.commands.files.SetFilesInfoCommand;
+    import nail.objectbuilder.commands.sprites.SetSpriteListCommand;
+    import nail.objectbuilder.commands.things.SetThingDataCommand;
+    import nail.objectbuilder.commands.things.SetThingListCommand;
+    import nail.objectbuilder.utils.ObUtils;
+    import nail.otlib.core.Version;
+    import nail.otlib.events.ThingTypeStorageEvent;
+    import nail.otlib.loaders.PathHelper;
+    import nail.otlib.loaders.SpriteDataLoader;
+    import nail.otlib.loaders.ThingDataLoader;
+    import nail.otlib.sprites.Sprite;
+    import nail.otlib.sprites.SpriteData;
+    import nail.otlib.sprites.SpriteStorage;
+    import nail.otlib.things.ThingCategory;
+    import nail.otlib.things.ThingData;
+    import nail.otlib.things.ThingProperty;
+    import nail.otlib.things.ThingType;
+    import nail.otlib.things.ThingTypeStorage;
+    import nail.otlib.utils.ChangeResult;
+    import nail.otlib.utils.FilesInfo;
+    import nail.otlib.utils.OTFormat;
+    import nail.otlib.utils.ThingListItem;
+    import nail.otlib.utils.ThingUtils;
+    import nail.resources.Resources;
+    import nail.utils.FileUtil;
+    import nail.utils.SaveHelper;
+    import nail.utils.StringUtil;
+    import nail.utils.VectorUtils;
+    import nail.workers.ApplicationWorker;
+    import nail.workers.Command;
+    
+    [ResourceBundle("strings")]
+    
+    public class ObjectBuilderWorker extends ApplicationWorker
+    {
+        //--------------------------------------------------------------------------
+        //
+        // PROPERTIES
+        //
+        //--------------------------------------------------------------------------
+        
+        private var _things:ThingTypeStorage;
+        private var _sprites:SpriteStorage;
+        private var _datFile:File;
+        private var _sprFile:File;
+        private var _version:Version;
+        private var _extended:Boolean;
+        private var _transparency:Boolean;
+        private var _errorMessage:String;
+        private var _compiled:Boolean;
+        private var _isTemporary:Boolean;
+        private var _currentCategory:String;
+        
+        //--------------------------------------
+        // Getters / Setters
+        //--------------------------------------
+        
+        public function get compiled():Boolean { return _compiled; }
+        public function set compiled(value:Boolean):void
+        {
+            if (_compiled != value) {
+                _compiled = value;
+                setSharedProperty("compiled", value);
+            }
+        }
+        
+        public function get isTemporary():Boolean { return _isTemporary; }
+        public function set isTemporary(value:Boolean):void
+        {
+            if (_isTemporary != value) {
+                _isTemporary = value;
+                setSharedProperty("isTemporary", value);
+            }
+        }
+        
+        public function get selectedThingIds():Vector.<uint>
+        {
+            var ids:* = getSharedProperty("selectedThingIds");
+            if (ids !== undefined) {
+                return ids;
+            }
+            return null;
+        }
+        
+        public function set selectedThingIds(value:Vector.<uint>):void
+        {
+            if (value && value.length > 0) {
+                value.sort(Array.NUMERIC | Array.DESCENDING);
+                var category:String = currentCategory;
+                var max:uint = _things.getMaxId(category);
+                if (value[0] > max) {
+                    value = Vector.<uint>([max]);
+                }
+                this.onGetThing(value[0], category);
+                this.sendThingList(value, category);
+            }
+        }
+        
+        public function get selectedSpriteIds():Vector.<uint>
+        {
+            var ids:* = getSharedProperty("selectedSpriteIds");
+            if (ids !== undefined) {
+                return ids;
+            }
+            return null;
+        }
+        
+        public function set selectedSpriteIds(value:Vector.<uint>):void
+        {
+            if (value && value.length > 0) {
+                value.sort(Array.NUMERIC | Array.DESCENDING);
+                if (value[0] > _sprites.spritesCount) {
+                    value = Vector.<uint>([_sprites.spritesCount]);
+                }
+                this.sendSpriteList(value);
+            }
+        }
+        
+        public function get currentCategory():String { return _currentCategory; }
+        
+        //--------------------------------------------------------------------------
+        //
+        // CONSTRUCTOR
+        //
+        //--------------------------------------------------------------------------
+        
+        public function ObjectBuilderWorker()
+        {
+            this.stage.frameRate = 60;
+        }
+        
+        //--------------------------------------------------------------------------
+        //
+        // METHODS
+        //
+        //--------------------------------------------------------------------------
+        
+        //--------------------------------------
+        // Public
+        //--------------------------------------
+        
+        public function onGetThing(id:uint, category:String):void
+        {
+            var thingData:ThingData = getThingData(id, category);
+            if (thingData) {
+                sendCommand(new SetThingDataCommand(thingData));
+                _currentCategory = category;
+            }
+        }
+        
+        public function onGetThingList(id:uint, category:String):void
+        {
+            this.sendThingList(Vector.<uint>([id]), category);
+        }
+        
+        public function onCompile():void
+        {
+            this.onCompileAs(_datFile.nativePath,
+                _sprFile.nativePath,
+                _version.datSignature,
+                _version.sprSignature,
+                _extended,
+                _transparency);
+        }
+        
+        //--------------------------------------
+        // Override Protected
+        //--------------------------------------
+        
+        override public function register():void
+        {
+            // Register classes.
+            registerClassAlias("FilesInfo", FilesInfo);
+            registerClassAlias("ThingType", ThingType);
+            registerClassAlias("ThingData", ThingData);
+            registerClassAlias("ThingProperty", ThingProperty);
+            registerClassAlias("ThingListItem", ThingListItem);
+            registerClassAlias("SpriteData", SpriteData);
+            registerClassAlias("ByteArray", ByteArray);
+            registerClassAlias("LoaderHelper", PathHelper);
+            
+            // File commands
+            registerCallback(CommandType.CREATE_NEW_FILES, onCreateNewFiles);
+            registerCallback(CommandType.LOAD_FILES, onLoadFiles);
+            registerCallback(CommandType.FILES_INFO, onGetFilesInfo);
+            registerCallback(CommandType.COMPILE, onCompile);
+            registerCallback(CommandType.COMPILE_AS, onCompileAs);
+            registerCallback(CommandType.UNLOAD_FILES, onUnloadFiles);
+            
+            // Thing commands
+            registerCallback(CommandType.NEW_THING, onNewThing);
+            registerCallback(CommandType.UPDATE_THING, onUpdateThing);
+            registerCallback(CommandType.IMPORT_THINGS, onImportThings);
+            registerCallback(CommandType.IMPORT_THINGS_FROM_FILES, onImportThingsFromFiles);
+            registerCallback(CommandType.EXPORT_THINGS, onExportThing);
+            registerCallback(CommandType.REPLACE_THINGS, onReplaceThings);
+            registerCallback(CommandType.REPLACE_THINGS_FROM_FILES, onReplaceThingsFromFiles);
+            registerCallback(CommandType.DUPLICATE_THINGS, onDuplicateThing);
+            registerCallback(CommandType.REMOVE_THINGS, onRemoveThings);
+            registerCallback(CommandType.GET_THING, onGetThing);
+            registerCallback(CommandType.GET_THING_LIST, onGetThingList);
+            registerCallback(CommandType.GET_SPRITE_LIST, onGetSpriteList);
+            registerCallback(CommandType.FIND_THING, onFindThing);
+            
+            // Sprite commands
+            registerCallback(CommandType.NEW_SPRITE, onNewSprite);
+            registerCallback(CommandType.IMPORT_SPRITES, onAddSprites);
+            registerCallback(CommandType.IMPORT_SPRITES_FROM_FILES, onImportSpritesFromFiles);
+            registerCallback(CommandType.EXPORT_SPRITES, onExportSprites);
+            registerCallback(CommandType.REPLACE_SPRITES, onReplaceSprites);
+            registerCallback(CommandType.REPLACE_SPRITES_FROM_FILES, onReplaceSpritesFromFiles);
+            registerCallback(CommandType.REMOVE_SPRITES, onRemoveSprites);
+            registerCallback(CommandType.FIND_SPRITES, onFindSprites);
+            
+            // General commands
+            registerCallback(CommandType.NEED_TO_RELOAD, onNeedToReload);
+        }
+        
+        //--------------------------------------
+        // Private
+        //--------------------------------------
+        
+        private function onCreateNewFiles(datSignature:uint,
+                                          sprSignature:uint,
+                                          extended:Boolean,
+                                          transparency:Boolean):void
+        {
+            if (datSignature == 0 || sprSignature == 0) {
+                throw new ArgumentError(Resources.getString("strings", "invalidVersion"));
+            }
+            
+            var version:Version = Version.getVersionBySignatures(datSignature, sprSignature);
+            if (!version) {
+                throw new ArgumentError(Resources.getString("strings", "invalidVersion"));
+            }
+            
+            this.onUnloadFiles();
+            
+            _version = version;
+            _extended = (extended || _version.value >= 960);
+            _transparency = transparency;
+            
+            this.createStorage();
+            
+            // Create sprites.
+            if (!_sprites.createNew(version, _extended, transparency)) {
+                throw new Error(Resources.getString("strings", "notCreateSpr"));
+            }
+            
+            // Create things.
+            if (!_things.createNew(version)) {
+                throw new Error(Resources.getString("strings", "notCreateDat"));
+            }
+            
+            this.compiled = false;
+            this.isTemporary = true;
+            this.assetsLoadComplete();
+            
+            // Update preview.
+            var thing:ThingType = _things.getItemType(ThingTypeStorage.MIN_ITEM_ID);
+            this.onGetThing(thing.id, thing.category);
+            
+            // Send sprites.
+            this.onGetSpriteList(1);
+        }
+        
+        private function createStorage():void
+        {
+            _things = new ThingTypeStorage();
+            _things.addEventListener(Event.COMPLETE, thingsCompleteHandler);
+            _things.addEventListener(Event.CHANGE, thingsChangeHandler);
+            _things.addEventListener(ProgressEvent.PROGRESS, thingsProgressHandler);
+            _things.addEventListener(ThingTypeStorageEvent.FIND_PROGRESS, thingFindProgressHandler);
+            _things.addEventListener(ErrorEvent.ERROR, thingsErrorHandler);
+            
+            _sprites = new SpriteStorage();
+            _sprites.addEventListener(Event.COMPLETE, spritesCompleteHandler);
+            _sprites.addEventListener(Event.CHANGE, spritesChangeHandler);
+            _sprites.addEventListener(ProgressEvent.PROGRESS, spritesProgressHandler);
+            _sprites.addEventListener(ErrorEvent.ERROR, spritesErrorHandler);
+        }
+        
+        private function onLoadFiles(datPath:String,
+                                     sprPath:String,
+                                     datSignature:uint,
+                                     sprSignature:uint,
+                                     extended:Boolean,
+                                     transparency:Boolean):void
+        {
+            if (isNullOrEmpty(datPath)) {
+                throw new NullOrEmptyArgumentError("datPath");
+            }
+            
+            if (isNullOrEmpty(sprPath)) {
+                throw new NullOrEmptyArgumentError("sprPath");
+            }
+            
+            if (datSignature == 0 || sprSignature == 0) {
+                throw new ArgumentError(Resources.getString("strings", "invalidVersion"));
+            }
+            
+            this.onUnloadFiles();
+            
+            _datFile = new File(datPath);
+            _sprFile = new File(sprPath);
+            _version = Version.getVersionBySignatures(datSignature, sprSignature);
+            _extended = (extended || _version.value >= 960);
+            _transparency = transparency;
+            
+            var title:String = Resources.getString("strings", "loading");
+            sendCommand(new ShowProgressBarCommand(ProgressBarID.DAT_SPR, title));
+            
+            createStorage();
+            
+            _things.load(_datFile, _version, _extended);
+        }
+        
+        private function onGetFilesInfo():void
+        {
+            this.sendFilesInfo();
+        }
+        
+        private function onCompileAs(datPath:String,
+                                     sprPath:String,
+                                     datSignature:uint,
+                                     sprSignature:uint,
+                                     extended:Boolean,
+                                     transparency:Boolean):void
+        {
+            if (isNullOrEmpty(datPath)) {
+                throw new NullOrEmptyArgumentError("datPath");
+            }
+            
+            if (isNullOrEmpty(sprPath)) {
+                throw new NullOrEmptyArgumentError("sprPath");
+            }
+            
+            if (datSignature == 0 || sprSignature == 0) {
+                throw new ArgumentError(Resources.getString("strings", "invalidVersion"));
+            }
+            
+            if (!_things || !_things.loaded) {
+                throw new Error(Resources.getString("strings", "metadataNotLoaded"));
+            }
+            
+            if (!_sprites || !_sprites.loaded) {
+                throw new Error(Resources.getString("strings", "spritesNotLoaded"));
+            }
+            
+            var dat:File = new File(datPath);
+            var spr:File = new File(sprPath);
+            var version:Version = Version.getVersionBySignatures(datSignature, sprSignature);
+            var structureChanged:Boolean = (_extended != extended || _transparency != transparency);
+            var title:String = Resources.getString("strings", "compiling");
+            
+            sendCommand(new ShowProgressBarCommand(ProgressBarID.DAT_SPR, title));
+            
+            if (!_things.compile(dat, version, extended) ||
+                !_sprites.compile(spr, version, extended, transparency)) {
+                return;
+            }
+            
+            assetsCompileComplete();
+            
+            if (!_datFile || !_sprFile) {
+                _datFile = dat;
+                _sprFile = spr;
+            }
+            
+            // If extended or alpha channel was changed need to reload.
+            if (FileUtil.compare(dat, _datFile) && FileUtil.compare(spr, _sprFile)) {
+                if (structureChanged)
+                    sendCommand(new NeedToReloadCommand(extended, transparency));
+                else
+                    sendFilesInfo();
+            }
+        }
+        
+        private function onUnloadFiles():void
+        {
+            if (_things) {
+                _things.removeEventListener(Event.COMPLETE, thingsCompleteHandler);
+                _things.removeEventListener(Event.CHANGE, thingsChangeHandler);
+                _things.removeEventListener(ProgressEvent.PROGRESS, thingsProgressHandler);
+                _things.removeEventListener(ThingTypeStorageEvent.FIND_PROGRESS, thingFindProgressHandler);
+                _things.removeEventListener(ErrorEvent.ERROR, thingsErrorHandler);
+                _things = null;
+            }
+            
+            if (_sprites) {
+                _sprites.removeEventListener(Event.COMPLETE, spritesCompleteHandler);
+                _sprites.removeEventListener(Event.CHANGE, spritesChangeHandler);
+                _sprites.removeEventListener(ProgressEvent.PROGRESS, spritesProgressHandler);
+                _sprites.removeEventListener(ErrorEvent.ERROR, spritesErrorHandler);
+                _sprites = null;
+            }
+            
+            _compiled = true;
+            _datFile = null;
+            _sprFile = null;
+            _version = null;
+            _extended = false;
+            _transparency = false;
+            _errorMessage = null;
+            _isTemporary = false;
+        }
+                
+        
+        private function onNewThing(category:String):void
+        {
+            if (!ThingCategory.getCategory(category)) {
+                throw new Error(Resources.getString("strings", "invalidCategory"));
+            }
+            
+            //============================================================================
+            // Add thing
+            
+            var thing:ThingType = ThingUtils.createThing(category);
+            var result:ChangeResult = _things.addThing(thing, category);
+            if (!result.done) {
+                Log.error(result.message);
+                return;
+            }
+            
+            //============================================================================
+            // Send changes
+            
+            // Send thing to preview.
+            onGetThing(thing.id, category);
+            
+            // Send message to log.
+            var message:String = Resources.getString(
+                "strings",
+                "logAdded",
+                toLocale(category),
+                thing.id);
+            
+            Log.info(message);
+        }
+        
+        private function onUpdateThing(thingData:ThingData):void
+        {
+            if (!thingData) {
+                throw new NullArgumentError("thingData");
+            }
+            
+            var result:ChangeResult;
+            var thing:ThingType = thingData.thing;
+            
+            //============================================================================
+            // Update sprites
+            
+            var sprites:Vector.<SpriteData> = thingData.sprites;
+            var length:uint = sprites.length;
+            var spritesIds:Array = [];
+            var addedSpriteList:Array = [];
+            
+            for (var i:uint = 0; i < length; i++) {
+                var spriteData:SpriteData = sprites[i];
+                var id:uint = thing.spriteIndex[i];
+                
+                if (id == uint.MAX_VALUE) {
+                    if (spriteData.isEmpty()) {
+                        thing.spriteIndex[i] = 0;
+                    } else {
+                        result = _sprites.addSprite(spriteData.pixels);
+                        if (!result.done) {
+                            Log.error(result.message);
+                            return;
+                        }
+                        
+                        spriteData = result.list[0];
+                        thing.spriteIndex[i] = spriteData.id;
+                        spritesIds[spritesIds.length] = spriteData.id;
+                        addedSpriteList[addedSpriteList.length] = spriteData;
+                    }
+                } else {
+                    if (!_sprites.hasSpriteId(id)) {
+                        Log.error(Resources.getString("strings", "spriteNotFound", id));
+                        return;
+                    }
+                }
+            }
+            
+            //============================================================================
+            // Update thing
+            
+            result = _things.replaceThing(thing, thing.category, thing.id);
+            if (!result.done) {
+                Log.error(result.message);
+                return;
+            }
+            
+            //============================================================================
+            // Send changes
+            
+            var message:String;
+            
+            // Sprites change message
+            if (spritesIds.length > 0) {
+                onGetSpriteList(_sprites.spritesCount);
+                message = Resources.getString(
+                    "strings",
+                    "logAdded",
+                    toLocale("sprite", spritesIds.length > 1),
+                    spritesIds);
+                
+                Log.info(message);
+            }
+            
+            // Thing change message
+            onGetThing(thingData.id, thingData.category);
+            message = Resources.getString(
+                "strings",
+                "logChanged",
+                toLocale(thing.category),
+                thing.id);
+            
+            Log.info(message);
+        }
+        
+        private function onExportThing(list:Vector.<PathHelper>,
+                                       category:String,
+                                       datSignature:uint,
+                                       sprSignature:uint,
+                                       spriteSheetFlag:uint):void
+        {
+            if (!list) {
+                throw new NullArgumentError("list");
+            }
+            
+            if (!ThingCategory.getCategory(category)) {
+                throw new ArgumentError(Resources.getString("strings", "invalidCategory"));
+            }
+            
+            if (datSignature == 0 || sprSignature == 0) {
+                throw new ArgumentError(Resources.getString("strings", "invalidVersion"));
+            }
+            
+            var length:uint = list.length;
+            if (length == 0) return;
+            
+            //============================================================================
+            // Export things
+            
+            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("strings", "importingObjects")));
+            
+            var version:Version = Version.getVersionBySignatures(datSignature, sprSignature);
+            var helper:SaveHelper = new SaveHelper();
+            var backgoundColor:uint = _transparency ? 0x00FF00FF : 0xFFFF00FF;
+            var bytes:ByteArray;
+            var bitmap:BitmapData;
+            
+            for (var i:uint = 0; i < length; i++) {
+                var pathHelper:PathHelper = list[i];
+                var thingData:ThingData = getThingData(pathHelper.id, category);
+                var file:File = new File(pathHelper.nativePath);
+                var name:String = FileUtil.getName(file);
+                var format:String = file.extension;
+                
+                if (ImageFormat.hasImageFormat(format)) {
+                    bitmap = ThingData.getSpriteSheet(thingData, null, backgoundColor);
+                    bytes = ImageCodec.encode(bitmap, format);
+                    if (spriteSheetFlag != 0) {
+                        helper.addFile(ObUtils.getPatternsString(thingData.thing, spriteSheetFlag), name, "txt", file);
+                    }
+                } else if (format == OTFormat.OBD) {
+                    bytes = ThingData.serialize(thingData, version);
+                }
+                helper.addFile(bytes, name, format, file);
+            }
+            helper.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+            helper.addEventListener(Event.COMPLETE, completeHandler);
+            helper.save();
+            
+            function progressHandler(event:ProgressEvent):void
+            {
+                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal));
+            }
+            
+            function completeHandler(event:Event):void
+            {
+                sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
+            }
+        }
+        
+        private function onReplaceThings(list:Vector.<ThingData>):void
+        {
+            if (!list) {
+                throw new NullArgumentError("list");
+            }
+            
+            var length:uint = list.length;
+            if (length == 0) return;
+            
+            //============================================================================
+            // Add sprites
+            
+            var result:ChangeResult;
+            var spritesIds:Vector.<uint> = new Vector.<uint>();
+            for (var i:uint = 0; i < length; i++) {
+                var thing:ThingType = list[i].thing;
+                var sprites:Vector.<SpriteData> = list[i].sprites;
+                var len:uint = sprites.length;
+                
+                for (var k:uint = 0; k < len; k++) {
+                    var spriteData:SpriteData = sprites[k];
+                    var id:uint = spriteData.id;
+                    if (spriteData.isEmpty()) {
+                        id = 0;
+                    } else if (!_sprites.hasSpriteId(id) || !_sprites.compare(id, spriteData.pixels)) {
+                        result = _sprites.addSprite(spriteData.pixels);
+                        if (!result.done) {
+                            Log.error(result.message);
+                            return;
+                        }
+                        id = _sprites.spritesCount;
+                        spritesIds[spritesIds.length] = id;
+                    }
+                    thing.spriteIndex[k] = id;
+                }
+            }
+            
+            //============================================================================
+            // Replace things
+            
+            var thingsToReplace:Vector.<ThingType> = new Vector.<ThingType>(length, true);
+            var thingsIds:Vector.<uint> = new Vector.<uint>(length, true);
+            for (i = 0; i < length; i++) {
+                thingsToReplace[i] = list[i].thing;
+                thingsIds[i] = list[i].id;
+            }
+            result = _things.replaceThings(thingsToReplace);
+            if (!result.done) {
+                Log.error(result.message);
+                return;
+            }
+            
+            //============================================================================
+            // Send changes
+            
+            var message:String;
+            
+            // Added sprites message
+            if (spritesIds.length > 0) {
+                onGetSpriteList(_sprites.spritesCount);
+                message = Resources.getString(
+                    "strings",
+                    "logAdded",
+                    toLocale("sprite", spritesIds.length > 1),
+                    spritesIds);
+                
+                Log.info(message);
+            }
+            
+            this.selectedThingIds = thingsIds;
+            
+            message = Resources.getString(
+                "strings",
+                "logReplaced",
+                toLocale(currentCategory, thingsIds.length > 1),
+                thingsIds);
+            
+            Log.info(message);
+        }
+        
+        private function onReplaceThingsFromFiles(list:Vector.<PathHelper>):void
+        {
+            if (!list) {
+                throw new NullArgumentError("list");
+            }
+            
+            var length:uint = list.length;
+            if (length == 0) return;
+            
+            //============================================================================
+            // Load things
+            
+            var loader:ThingDataLoader = new ThingDataLoader();
+            loader.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+            loader.addEventListener(Event.COMPLETE, completeHandler);
+            loader.addEventListener(ErrorEvent.ERROR, errorHandler);
+            loader.loadFiles(list);
+            
+            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("strings", "loading")));
+            
+            function progressHandler(event:ProgressEvent):void
+            {
+                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal));
+            }
+            
+            function completeHandler(event:Event):void
+            {
+                sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
+                onReplaceThings(loader.thingDataList);
+            }
+            
+            function errorHandler(event:ErrorEvent):void
+            {
+                sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
+                Log.error(event.text);
+            }
+        }
+        
+        private function onImportThings(list:Vector.<ThingData>):void
+        {
+            if (!list) {
+                throw new NullArgumentError("list");
+            }
+            
+            var length:uint = list.length;
+            if (length == 0) return;
+            
+            //============================================================================
+            // Add sprites
+            
+            var result:ChangeResult;
+            var spritesIds:Vector.<uint> = new Vector.<uint>();
+            for (var i:uint = 0; i < length; i++) {
+                var thing:ThingType = list[i].thing;
+                var sprites:Vector.<SpriteData> = list[i].sprites;
+                var len:uint = sprites.length;
+                
+                for (var k:uint = 0; k < len; k++) {
+                    var spriteData:SpriteData = sprites[k];
+                    var id:uint = spriteData.id;
+                    if (spriteData.isEmpty()) {
+                        id = 0;
+                    } else if (!_sprites.hasSpriteId(id) || !_sprites.compare(id, spriteData.pixels)) {
+                        result = _sprites.addSprite(spriteData.pixels);
+                        if (!result.done) {
+                            Log.error(result.message);
+                            return;
+                        }
+                        id = _sprites.spritesCount;
+                        spritesIds[spritesIds.length] = id;
+                    }
+                    thing.spriteIndex[k] = id;
+                }
+            }
+            
+            //============================================================================
+            // Add things
+            
+            var thingsToAdd:Vector.<ThingType> = new Vector.<ThingType>(length, true);
+            for (i = 0; i < length; i++) {
+                thingsToAdd[i] = list[i].thing;
+            }
+            result = _things.addThings(thingsToAdd);
+            if (!result.done) {
+                Log.error(result.message);
+                return;
+            }
+            
+            var addedThings:Array = result.list;
+            
+            //============================================================================
+            // Send changes
+            
+            var message:String;
+            
+            if (spritesIds.length > 0) {
+                onGetSpriteList(_sprites.spritesCount);
+                message = Resources.getString(
+                    "strings",
+                    "logAdded",
+                    toLocale("sprite", spritesIds.length > 1),
+                    spritesIds);
+                
+                Log.info(message);
+            }
+            
+            var thingsIds:Vector.<uint> = new Vector.<uint>(length, true);
+            for (i = 0; i < length; i++) {
+                thingsIds[i] = addedThings[i].id;
+            }
+            
+            this.selectedThingIds = thingsIds;
+            
+            message = Resources.getString(
+                "strings",
+                "logAdded",
+                toLocale(currentCategory, thingsIds.length > 1),
+                thingsIds);
+            
+            Log.info(message);
+        }
+        
+        private function onImportThingsFromFiles(list:Vector.<PathHelper>):void
+        {
+            if (!list) {
+                throw new NullArgumentError("list");
+            }
+            
+            var length:uint = list.length;
+            if (length == 0) return;
+            
+            //============================================================================
+            // Load things
+            
+            var loader:ThingDataLoader = new ThingDataLoader();
+            loader.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+            loader.addEventListener(Event.COMPLETE, completeHandler);
+            loader.addEventListener(ErrorEvent.ERROR, errorHandler);
+            loader.loadFiles(list);
+            
+            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("strings", "loading")));
+            
+            function progressHandler(event:ProgressEvent):void
+            {
+                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal));
+            }
+            
+            function completeHandler(event:Event):void
+            {
+                sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
+                onImportThings(loader.thingDataList);
+            }
+            
+            function errorHandler(event:ErrorEvent):void
+            {
+                sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
+                Log.error(event.text);
+            }
+        }
+        
+        private function onDuplicateThing(list:Vector.<uint>, category:String):void
+        {
+            if (!list) {
+                throw new NullArgumentError("list");
+            }
+            
+            if (!ThingCategory.getCategory(category)) {
+                throw new Error(Resources.getString("strings", "invalidCategory"));
+            }
+            
+            var length:uint = list.length;
+            if (length == 0) return;
+            
+            //============================================================================
+            // Duplicate things
+            
+            list.sort(Array.NUMERIC);
+            
+            var thingsCopyList:Vector.<ThingType> = new Vector.<ThingType>();
+            
+            for (var i:uint = 0; i < length; i++) {
+                var thing:ThingType = _things.getThingType(list[i], category);
+                if (!thing) {
+                    throw new Error(Resources.getString(
+                        "strings",
+                        "thingNotFound",
+                        Resources.getString("strings", category),
+                        list[i]));
+                }
+                thingsCopyList[i] = thing.clone();
+            }
+            
+            var result:ChangeResult = _things.addThings(thingsCopyList);
+            if (!result.done) {
+                Log.error(result.message);
+                return;
+            }
+            
+            var addedThings:Array = result.list;
+            
+            //============================================================================
+            // Send changes
+            
+            length = addedThings.length;
+            var thingIds:Vector.<uint> = new Vector.<uint>(length, true);
+            for (i = 0; i < length; i++) {
+                thingIds[i] = addedThings[i].id;
+            }
+            
+            this.selectedThingIds = thingIds;
+            
+            thingIds.sort(Array.NUMERIC);
+            var message:String = StringUtil.substitute(Resources.getString(
+                "strings",
+                "logDuplicated"),
+                toLocale(category, thingIds.length > 1),
+                list);
+            
+            Log.info(message);
+        }
+        
+        private function onRemoveThings(list:Vector.<uint>, category:String, removeSprites:Boolean):void
+        {
+            if (!list) {
+                throw new NullArgumentError("list");
+            }
+            
+            if (!ThingCategory.getCategory(category)) {
+                throw new ArgumentError(Resources.getString("strings", "invalidCategory"));
+            }
+            
+            var length:uint = list.length;
+            if (length == 0) return;
+            
+            //============================================================================
+            // Remove things
+            
+            var result:ChangeResult = _things.removeThings(list, category);
+            if (!result.done) {
+                Log.error(result.message);
+                return;
+            }
+            
+            var removedThingList:Array = result.list;
+            
+            //============================================================================
+            // Remove sprites
+            
+            var removedSpriteList:Array;
+            
+            if (removeSprites) {
+                var sprites:Object = {};
+                var id:uint;
+                
+                length = removedThingList.length;
+                for (var i:uint = 0; i < length; i++) {
+                    var spriteIndex:Vector.<uint> = removedThingList[i].spriteIndex;
+                    var len:uint = spriteIndex.length;
+                    for (var k:uint = 0; k < len; k++) {
+                        id = spriteIndex[k];
+                        if (id != 0) {
+                            sprites[id] = id;
+                        }
+                    }
+                }
+                
+                var spriteIds:Vector.<uint> = new Vector.<uint>();
+                for each(id in sprites) {
+                    spriteIds[spriteIds.length] = id;
+                }
+                
+                result = _sprites.removeSprites(spriteIds);
+                if (!result.done) {
+                    Log.error(result.message);
+                    return;
+                }
+                
+                removedSpriteList = result.list;
+            }
+            
+            //============================================================================
+            // Send changes
+            
+            var message:String;
+            
+            length = removedThingList.length;
+            var thingIds:Vector.<uint> = new Vector.<uint>(length, true);
+            for (i = 0; i < length; i++) {
+                thingIds[i] = removedThingList[i].id;
+            }
+            
+            this.selectedThingIds = thingIds;
+            
+            thingIds.sort(Array.NUMERIC);
+            message = Resources.getString(
+                "strings",
+                "logRemoved",
+                toLocale(category, thingIds.length > 1),
+                thingIds);
+            
+            Log.info(message);
+            
+            // Sprites changes
+            if (removeSprites && spriteIds.length != 0) {
+                spriteIds.sort(Array.NUMERIC);
+                onGetSpriteList(spriteIds[0]);
+                message = Resources.getString(
+                    "strings",
+                    "logRemoved",
+                    toLocale("sprite", spriteIds.length > 1),
+                    spriteIds);
+                
+                Log.info(message);
+            }
+        }
+        
+        private function onFindThing(category:String, properties:Vector.<ThingProperty>):void
+        {
+            if (!ThingCategory.getCategory(category)) {
+                throw new ArgumentError(Resources.getString("strings", "invalidCategory"));
+            }
+            
+            if (!properties) {
+                throw new NullArgumentError("properties");
+            }
+            
+            var list:Array = [];
+            var things:Array = _things.findThingTypeByProperties(category, properties);
+            var length:uint = things.length;
+            
+            for (var i:uint = 0; i < length; i++) {
+                var listItem : ThingListItem = new ThingListItem();
+                listItem.thing = things[i];
+                listItem.pixels = getBitmapPixels(listItem.thing);
+                list[i] = listItem;
+            }
+            sendCommand(new FindResultCommand(FindResultCommand.THINGS, list));
+        }
+        
+        private function onGetSpriteList(target:uint):void
+        {
+            this.sendSpriteList(Vector.<uint>([target]));
+        }
+        
+        private function onReplaceSprites(sprites:Vector.<SpriteData>):void
+        {
+            trace("ObjectBuilderWorker.onReplaceSprites(sprites)");
+            
+            if (!sprites) {
+                throw new NullArgumentError("sprites");
+            }
+            
+            var length:uint = sprites.length;
+            if (length == 0) return;
+            
+            //============================================================================
+            // Replace sprites
+            
+            var result:ChangeResult = _sprites.replaceSprites(sprites);
+            if (!result.done) {
+                Log.error(result.message);
+                return;
+            }
+            
+            //============================================================================
+            // Send changes
+            
+            var spriteIds:Vector.<uint> = new Vector.<uint>(length, true);
+            for (var i:uint = 0; i < length; i++) {
+                spriteIds[i] = sprites[i].id;
+            }
+            
+            this.selectedSpriteIds = spriteIds;
+                
+            var message:String = Resources.getString(
+                "strings",
+                "logReplaced",
+                toLocale("sprite", sprites.length > 1),
+                spriteIds);
+            
+            Log.info(message);
+        }
+        
+        private function onReplaceSpritesFromFiles(list:Vector.<PathHelper>):void
+        {
+            if (!list) {
+                throw new NullArgumentError("list");
+            }
+            
+            if (list.length == 0) return;
+            
+            //============================================================================
+            // Load sprites
+            
+            var loader:SpriteDataLoader = new SpriteDataLoader();
+            loader.addEventListener(Event.COMPLETE, completeHandler);
+            loader.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+            loader.loadFiles(list);
+            
+            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("strings", "loading")));
+            
+            function progressHandler(event:ProgressEvent):void
+            {
+                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal));
+            }
+            
+            function completeHandler(event:Event):void
+            {
+                sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
+                onReplaceSprites(loader.spriteDataList);
+            }
+        }
+        
+        private function onAddSprites(sprites:Vector.<ByteArray>):void
+        {
+            if (!sprites) {
+                throw new NullArgumentError("sprites");
+            }
+            
+            if (sprites.length == 0) return;
+            
+            //============================================================================
+            // Add sprites
+            
+            var result:ChangeResult = _sprites.addSprites(sprites);
+            if (!result.done) {
+                Log.error(result.message);
+                return;
+            }
+            
+            var spriteAddedList:Array = result.list;
+            
+            //============================================================================
+            // Send changes to application
+            
+            var ids:Array = [];
+            var length:uint = spriteAddedList.length;
+            for (var i:uint = 0; i < length; i++) {
+                ids[i] = spriteAddedList[i].id;
+            }
+            
+            this.onGetSpriteList(ids[0]);
+            
+            ids.sort(Array.NUMERIC);
+            var message:String = Resources.getString(
+                "strings",
+                "logRemoved",
+                toLocale("sprite", ids.length > 1),
+                ids);
+            
+            Log.info(message);
+        }
+        
+        private function onImportSpritesFromFiles(list:Vector.<PathHelper>):void
+        {
+            if (!list) {
+                throw new NullArgumentError("list");
+            }
+            
+            if (list.length == 0) return;
+            
+            //============================================================================
+            // Load sprites
+            
+            var loader:SpriteDataLoader = new SpriteDataLoader();
+            loader.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+            loader.addEventListener(Event.COMPLETE, completeHandler);
+            loader.addEventListener(ErrorEvent.ERROR, errorHandler);
+            loader.loadFiles(list);
+            
+            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("strings", "loading")));
+            
+            function progressHandler(event:ProgressEvent):void
+            {
+                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal));
+            }
+            
+            function completeHandler(event:Event):void
+            {
+                sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
+                
+                var spriteDataList:Vector.<SpriteData> = loader.spriteDataList;
+                var length:uint = spriteDataList.length;
+                var sprites:Vector.<ByteArray> = new Vector.<ByteArray>(length, true);
+                
+                VectorUtils.sortOn(spriteDataList, "id", Array.NUMERIC | Array.DESCENDING);
+                
+                for (var i:uint = 0; i < length; i++) {
+                    sprites[i] = spriteDataList[i].pixels;
+                }
+                
+                onAddSprites(sprites);
+            }
+            
+            function errorHandler(event:ErrorEvent):void
+            {
+                sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
+                Log.error(event.text);
+            }
+        }
+        
+        private function onExportSprites(list:Vector.<PathHelper>):void
+        {
+            if (!list) {
+                throw new NullArgumentError("list");
+            }
+            
+            var length:uint = list.length;
+            if (length == 0) return;
+            
+            //============================================================================
+            // Save sprites
+            
+            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("strings", "exportingSprites")));
+            
+            var helper:SaveHelper = new SaveHelper();
+            var backgoundColor:uint = _transparency ? 0x00FF00FF : 0xFFFF00FF;
+            
+            for (var i:uint = 0; i < length; i++) {
+                var pathHelper:PathHelper = list[i];
+                var file:File = new File(pathHelper.nativePath);
+                var name:String = FileUtil.getName(file);
+                var format:String = file.extension;
+                
+                if (ImageFormat.hasImageFormat(format) && pathHelper.id != 0) {
+                    var bitmap:BitmapData = _sprites.getBitmap(pathHelper.id, backgoundColor);
+                    if (bitmap) {
+                        var bytes:ByteArray = ImageCodec.encode(bitmap, format);
+                        helper.addFile(bytes, name, format, file);
+                    }
+                }
+            }
+            helper.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+            helper.addEventListener(Event.COMPLETE, completeHandler);
+            helper.save();
+            
+            function progressHandler(event:ProgressEvent):void
+            {
+                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal));
+            }
+            
+            function completeHandler(event:Event):void
+            {
+                sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
+            }
+        }
+        
+        private function onNewSprite():void
+        {
+            if (_sprites.isFull) {
+                Log.error(Resources.getString("strings", "spritesLimitReached"));
+                return;
+            }
+            
+            //============================================================================
+            // Add sprite
+            
+            var rect:Rectangle = new Rectangle(0, 0, Sprite.SPRITE_PIXELS, Sprite.SPRITE_PIXELS);
+            var pixels:ByteArray = new BitmapData(rect.width, rect.height, true, 0).getPixels(rect);
+            var result:ChangeResult = _sprites.addSprite(pixels);
+            if (!result.done) {
+                Log.error(result.message);
+                return;
+            }
+            
+            //============================================================================
+            // Send changes
+            
+            this.onGetSpriteList(_sprites.spritesCount);
+            var message:String = Resources.getString(
+                "strings",
+                "logAdded",
+                Resources.getString("strings", "sprite"),
+                _sprites.spritesCount);
+            Log.info(message);
+        }
+        
+        private function onRemoveSprites(list:Vector.<uint>):void
+        {
+            if (!list) {
+                throw new NullArgumentError("list");
+            }
+            
+            //============================================================================
+            // Removes sprites
+            
+            var result:ChangeResult = _sprites.removeSprites(list);
+            if (!result.done) {
+                Log.error(result.message);
+                return;
+            }
+            
+            //============================================================================
+            // Send changes
+            
+            // Select sprites
+            this.selectedSpriteIds = list;
+            
+            // Send message to log
+            var message:String = Resources.getString(
+                "strings",
+                "logRemoved",
+                toLocale("sprite", list.length > 1),
+                list);
+                
+            Log.info(message);
+        }
+        
+        private function onNeedToReload(enableSpritesU32:Boolean, enableAlphaChannel:Boolean):void
+        {
+            onLoadFiles(_datFile.nativePath,
+                _sprFile.nativePath,
+                _version.datSignature,
+                _version.sprSignature,
+                enableSpritesU32,
+                enableAlphaChannel);
+        }
+        
+        private function onFindSprites(unusedSprites:Boolean, emptySprites:Boolean):void
+        {
+            var spriteFoundList:Array = [];
+            
+            if (unusedSprites || emptySprites) {
+                var length:uint;
+                var i:uint;
+                var spriteData:SpriteData;
+                
+                if (unusedSprites) {
+                    var ids:Vector.<Boolean> = new Vector.<Boolean>(_sprites.spritesCount + 1, true);
+                    var list:Dictionary;
+                    var thing:ThingType;
+                    var sprites:Vector.<uint>;
+                    
+                    // Scan items
+                    list = _things.items;
+                    for each (thing in list) {
+                        sprites = thing.spriteIndex;
+                        length = sprites.length;
+                        for (i = 0; i < length; i++) {
+                            ids[sprites[i]] = true;
+                        }
+                    }
+                    
+                    // Scan outfits
+                    list = _things.outfits;
+                    for each (thing in list) {
+                        sprites = thing.spriteIndex;
+                        length = sprites.length;
+                        for (i = 0; i < length; i++) {
+                            ids[sprites[i]] = true;
+                        }
+                    }
+                    
+                    // Scan effects
+                    list = _things.effects;
+                    for each (thing in list) {
+                        sprites = thing.spriteIndex;
+                        length = sprites.length;
+                        for (i = 0; i < length; i++) {
+                            ids[sprites[i]] = true;
+                        }
+                    }
+                    
+                    // Scan missiles
+                    list = _things.missiles;
+                    for each (thing in list) {
+                        sprites = thing.spriteIndex;
+                        length = sprites.length;
+                        for (i = 0; i < length; i++) {
+                            ids[sprites[i]] = true;
+                        }
+                    }
+                    
+                    length = ids.length;
+                    for (i = 1; i < length; i++) {
+                        if (!ids[i]) {
+                            
+                            if (_sprites.isEmptySprite(i) == false || emptySprites) {
+                                spriteData = new SpriteData();
+                                spriteData.id = i;
+                                spriteData.pixels = _sprites.getPixels(i);
+                                spriteFoundList[spriteFoundList.length] = spriteData;
+                                sendCommand(new ProgressCommand(ProgressBarID.FIND, i, length));
+                            }
+                        }
+                    }
+                } else if (emptySprites) {
+                    
+                    length = _sprites.spritesCount;
+                    for (i = 1; i <= length; i++) {
+                        if (_sprites.isEmptySprite(i)) {
+                            spriteData = new SpriteData();
+                            spriteData.id = i;
+                            spriteData.pixels = _sprites.getPixels(i);
+                            spriteFoundList[spriteFoundList.length] = spriteData;
+                            sendCommand(new ProgressCommand(ProgressBarID.FIND, i, length));
+                        }
+                    }
+                }
+            }
+            
+            sendCommand(new FindResultCommand(FindResultCommand.SPRITES, spriteFoundList));
+        }
+        
+        private function assetsLoadComplete():void
+        {
+            this.compiled = true;
+            sendCommand(new HideProgressBarCommand(ProgressBarID.DAT_SPR));
+            sendCommand(new Command(CommandType.LOAD_COMPLETE));
+            Log.info(Resources.getString("strings", "loadComplete"));
+        }
+        
+        private function assetsCompileComplete():void
+        {
+            this.compiled = true;
+            this.isTemporary = false;
+            sendCommand(new HideProgressBarCommand(ProgressBarID.DAT_SPR));
+            Log.info(Resources.getString("strings", "compileComplete"));
+        }
+        
+        public function sendFilesInfo():void
+        {
+            if (!_things || !_things.loaded) {
+                throw new Error(Resources.getString("strings", "metadataNotLoaded"));
+            }
+            
+            if (!_sprites || !_sprites.loaded) {
+                throw new Error(Resources.getString("strings", "spritesNotLoaded"));
+            }
+            
+            var info:FilesInfo = new FilesInfo();
+            info.version = _version.value;
+            info.datSignature = _things.signature;
+            info.minItemId = ThingTypeStorage.MIN_ITEM_ID;
+            info.maxItemId = _things.itemsCount;
+            info.minOutfitId = ThingTypeStorage.MIN_OUTFIT_ID;
+            info.maxOutfitId = _things.outfitsCount;
+            info.minEffectId = ThingTypeStorage.MIN_EFFECT_ID;
+            info.maxEffectId = _things.effectsCount;
+            info.minMissileId = ThingTypeStorage.MIN_MISSILE_ID;
+            info.maxMissileId = _things.missilesCount;
+            info.sprSignature = _sprites.signature;
+            info.minSpriteId = 0;
+            info.maxSpriteId = _sprites.spritesCount;
+            info.extended = (_extended || _version.value >= 960);
+            info.transparency = _transparency;
+            
+            sendCommand(new SetFilesInfoCommand(info));
+        }
+        
+        private function sendThingList(selectedIds:Vector.<uint>, category:String):void
+        {
+            if (!_things || !_things.loaded) {
+                throw new Error(Resources.getString("strings", "metadataNotLoaded"));
+            }
+            
+            var first:uint = _things.getMinId(category);
+            var last:uint = _things.getMaxId(category);
+            var length:uint = selectedIds.length;
+            
+            if (length > 1) {
+                selectedIds.sort(Array.NUMERIC | Array.DESCENDING);
+                if (selectedIds[length - 1] > last) {
+                    selectedIds = Vector.<uint>([last]);
+                }
+            }
+            
+            var target:uint = length == 0 ? 0 : selectedIds[0];
+            var min:uint = Math.max(first, ObUtils.hundredFloor(target));
+            var diff:uint = (category != ThingCategory.ITEM && min == first) ? 1 : 0;
+            var max:uint = Math.min((min - diff) + 99, last);
+            var list:Vector.<ThingListItem> = new Vector.<ThingListItem>();
+            
+            for (var i:uint = min; i <= max; i++) {
+                var thing:ThingType = _things.getThingType(i, category);
+                if (!thing) {
+                    throw new Error(Resources.getString(
+                        "strings",
+                        "thingNotFound",
+                        Resources.getString("strings", category),
+                        i));
+                }
+                
+                var listItem:ThingListItem = new ThingListItem();
+                listItem.thing = thing;
+                listItem.pixels = getBitmapPixels(thing);
+                list.push(listItem);
+            }
+            
+            sendCommand(new SetThingListCommand(selectedIds, min, max, list));
+        }
+        
+        private function sendSpriteList(selectedIds:Vector.<uint>):void
+        {
+            if (!selectedIds) {
+                throw new NullArgumentError("selectedIds");
+            }
+            
+            if (!_sprites || !_sprites.loaded) {
+                throw new Error(Resources.getString("strings", "spritesNotLoaded"));
+            }
+            
+            var length:uint = selectedIds.length;
+            if (length > 1) {
+                selectedIds.sort(Array.NUMERIC | Array.DESCENDING);
+                if (selectedIds[length - 1] > _sprites.spritesCount) {
+                    selectedIds = Vector.<uint>([_sprites.spritesCount]);
+                }
+            }
+            
+            var target:uint = length == 0 ? 0 : selectedIds[0];
+            var first:uint = 0;
+            var last:uint = _sprites.spritesCount;
+            var min:uint = Math.max(first, ObUtils.hundredFloor(target));
+            var max:uint = Math.min(min + 99, last);
+            var list:Vector.<SpriteData> = new Vector.<SpriteData>();
+            
+            for (var i:uint = min; i <= max; i++) {
+                var pixels:ByteArray = _sprites.getPixels(i);
+                if (!pixels) {
+                    throw new Error(Resources.getString("strings", "spriteNotFound", i));
+                }
+                
+                var spriteData:SpriteData = new SpriteData();
+                spriteData.id = i;
+                spriteData.pixels = pixels;
+                list.push(spriteData);
+            }
+            
+            sendCommand(new SetSpriteListCommand(selectedIds, min, max, list));
+        }
+        
+        private function getBitmapPixels(thing:ThingType):ByteArray
+        {
+            var size:uint = Sprite.SPRITE_PIXELS;
+            var width:uint = thing.width;
+            var height:uint = thing.height;
+            var layers:uint = thing.layers;
+            var bitmap:BitmapData = new BitmapData(width * size, height * size, true, 0xFF636363);
+            var x:uint;
+            
+            if (thing.category == ThingCategory.OUTFIT) {
+                layers = 1;
+                x = thing.frames > 1 ? 2 : 0;
+            }
+            
+            for (var l:uint = 0; l < layers; l++) {
+                for (var w:uint = 0; w < width; w++) {
+                    for (var h:uint = 0; h < height; h++) {
+                        var index:uint = ThingData.getSpriteIndex(thing, w, h, l, x, 0, 0, 0);
+                        var px:int = (width - w - 1) * size;
+                        var py:int = (height - h - 1) * size;
+                        _sprites.copyPixels(thing.spriteIndex[index], bitmap, px, py);
+                    }
+                }
+            }
+            return bitmap.getPixels(bitmap.rect);
+        }
+        
+        private function getThingData(id:uint, category:String):ThingData
+        {
+            if (!ThingCategory.getCategory(category)) {
+                throw new Error(Resources.getString("strings", "invalidCategory"));
+            }
+            
+            var thing:ThingType = _things.getThingType(id,  category);
+            if (!thing) {
+                throw new Error(Resources.getString(
+                    "strings",
+                    "thingNotFound",
+                    Resources.getString("strings", category),
+                    id));
+            }
+            
+            var sprites:Vector.<SpriteData> = new Vector.<SpriteData>();
+            var spriteIndex:Vector.<uint> = thing.spriteIndex;
+            var length:uint = spriteIndex.length;
+            
+            for (var i:uint = 0; i < length; i++) {
+                var spriteId:uint = spriteIndex[i];
+                var pixels:ByteArray = _sprites.getPixels(spriteId);
+                if (!pixels) {
+                    throw new Error(Resources.getString("strings", "spriteNotFound", spriteId));
+                }
+                
+                var spriteData:SpriteData = new SpriteData();
+                spriteData.id = spriteId;
+                spriteData.pixels = pixels;
+                sprites.push(spriteData);
+            }
+            return ThingData.createThingData(thing, sprites);
+        }
+        
+        private function toLocale(bundle:String, plural:Boolean = false):String
+        {
+            return Resources.getString("strings", bundle + (plural ? "s" : "")).toLowerCase();
+        }
+        
+        //--------------------------------------
+        // Event Handlers
+        //--------------------------------------
+        
+        protected function thingsCompleteHandler(event:Event):void
+        {
+            if (_sprites && !_sprites.loaded) {
+                _sprites.load(_sprFile, _version, _extended, _transparency);
+            }
+        }
+        
+        protected function thingsChangeHandler(event:Event):void
+        {
+            this.compiled = false;
+            sendFilesInfo();
+        }
+        
+        protected function thingsProgressHandler(event:ProgressEvent):void
+        {
+            sendCommand(new ProgressCommand(ProgressBarID.DAT, event.bytesLoaded, event.bytesTotal));
+        }
+        
+        protected function thingsErrorHandler(event:ErrorEvent):void
+        {
+            // Try load as extended.
+            if (!_things.loaded && !_extended) {
+                _errorMessage = event.text;
+                onLoadFiles(_datFile.nativePath,
+                    _sprFile.nativePath,
+                    _version.datSignature,
+                    _version.sprSignature,
+                    true,
+                    _transparency);
+            } else {
+                if (_errorMessage) {
+                    Log.error(_errorMessage);
+                    _errorMessage = null;
+                } else {
+                    Log.error(event.text);
+                }
+            }
+        }
+        
+        protected function thingFindProgressHandler(event:ThingTypeStorageEvent):void
+        {
+            sendCommand(new ProgressCommand(ProgressBarID.FIND, event.loaded, event.total));
+        }
+        
+        protected function spritesCompleteHandler(event:Event):void
+        {
+            if (_things && _things.loaded) {
+                this.assetsLoadComplete();
+            }
+        }
+        
+        protected function spritesChangeHandler(event:Event):void
+        {
+            this.compiled = false;
+            sendFilesInfo();
+        }
+        
+        protected function spritesProgressHandler(event:ProgressEvent):void
+        {
+            sendCommand(new ProgressCommand(ProgressBarID.SPR, event.bytesLoaded, event.bytesTotal));
+        }
+        
+        protected function spritesErrorHandler(event:ErrorEvent):void
+        {
+            Log.error(event.text, "", event.errorID);
+        }
+    }
 }
