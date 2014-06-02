@@ -1,0 +1,487 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+///////////////////////////////////////////////////////////////////////////////////
+// 
+//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+// 
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+// 
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+//
+///////////////////////////////////////////////////////////////////////////////////
+-->
+
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:nail="library://ns.nail.com/naillib"
+          minWidth="490"
+          maxWidth="600"
+          minHeight="410"
+          backgroundColor="0x494949"
+          maximizable="false"
+          minimizable="false"
+          showStatusBar="false"
+          fontSize="11"
+          title="@Resource(key='findObject', bundle='strings')"
+          creationComplete="creationCompleteHandler(event)">
+    
+    <s:layout>
+        <s:VerticalLayout/>
+    </s:layout>
+    
+    <fx:Metadata>
+        [ResourceBundle("strings")]
+    </fx:Metadata>
+    
+    <fx:Script>
+        <![CDATA[
+            import mx.collections.ArrayCollection;
+            import mx.core.FlexGlobals;
+            import mx.events.FlexEvent;
+            import mx.events.PropertyChangeEvent;
+            
+            import nail.objectbuilder.commands.FindResultCommand;
+            import nail.objectbuilder.commands.sprites.FindSpritesCommand;
+            import nail.objectbuilder.commands.sprites.GetSpriteListCommand;
+            import nail.objectbuilder.commands.things.FindThingCommand;
+            import nail.objectbuilder.commands.things.GetThingCommand;
+            import nail.objectbuilder.core.IObjectBuilder;
+            import nail.otlib.components.renders.FindResultListRenderer;
+            import nail.otlib.components.renders.SpriteListRenderer;
+            import nail.otlib.sprites.SpriteData;
+            import nail.otlib.things.BindableThingType;
+            import nail.otlib.things.ThingCategory;
+            import nail.otlib.things.ThingProperty;
+            import nail.otlib.utils.ThingListItem;
+            
+            
+            //--------------------------------------------------------------------------
+            //
+            // PROPERTIES
+            //
+            //--------------------------------------------------------------------------
+            
+            [Bindable]
+            private var _thingsCollection:ArrayCollection = new ArrayCollection();
+            
+            [Bindable]
+            private var _spritesCollection:ArrayCollection = new ArrayCollection();
+            
+            private var _bindableThingType:BindableThingType;
+            private var _properties:Dictionary;
+            
+            //--------------------------------------------------------------------------
+            //
+            // METHODS
+            //
+            //--------------------------------------------------------------------------
+            
+            //--------------------------------------
+            // Public
+            //--------------------------------------
+            
+            public function setFindThingResultList(type:uint, list:Array):void
+            {
+                if (type == FindResultCommand.THINGS) {
+                    _thingsCollection.source = list;
+                    thingsList.selectedIndex = -1;
+                } else if (type == FindResultCommand.SPRITES) {
+                    _spritesCollection.source = list;
+                    spritesList.selectedIndex = -1;
+                }
+                progressBar.visible = false;
+            }
+            
+            public function setProgress(loaded:uint, total:uint):void
+            {
+                if (progressBar) {
+                    progressBar.setProgress(loaded, total);
+                    progressBar.label = loaded + " / " + total;
+                }
+            }
+            
+            //--------------------------------------
+            // Private
+            //--------------------------------------
+            
+            private function getCurrentCategory():String
+            {
+                switch (categoryDropDownList.selectedIndex) {
+                    case 0:
+                        return ThingCategory.ITEM;
+                    case 1:
+                        return ThingCategory.OUTFIT;
+                    case 2:
+                        return ThingCategory.EFFECT;
+                    case 3:
+                        return ThingCategory.MISSILE;
+                }
+                return null;
+            }
+            
+            private function findThings():void
+            {
+                if (!_properties) return;
+                
+                var list:Vector.<ThingProperty> = new Vector.<ThingProperty>();
+                
+                for (var property:String in _properties)
+                {
+                    var thingProperty:ThingProperty = new ThingProperty();
+                    thingProperty.property = property;
+                    thingProperty.value = _properties[property];
+                    list.push(thingProperty);
+                }
+                
+                var category:String = getCurrentCategory();
+                if (list.length > 0 && category) {
+                    var app:IObjectBuilder = FlexGlobals.topLevelApplication as IObjectBuilder;
+                    app.sendCommand(new FindThingCommand(category, list));
+                    progressBar.visible = true;
+                }
+            }
+            
+            private function selectThing():void
+            {
+                var listItem:ThingListItem = thingsList.selectedItem as ThingListItem;
+                if (listItem && listItem.thing) {
+                    var app:IObjectBuilder = FlexGlobals.topLevelApplication as IObjectBuilder;
+                    app.sendCommand(new GetThingCommand(listItem.thing.id, listItem.thing.category));
+                }
+            }
+            
+            private function findSprites():void
+            {
+                if (unusedSpritesCheckBox.selected || emptySpritesCheckBox.selected) {
+                    var app:IObjectBuilder = FlexGlobals.topLevelApplication as IObjectBuilder;
+                    app.sendCommand(new FindSpritesCommand(unusedSpritesCheckBox.selected, emptySpritesCheckBox.selected));
+                    progressBar.visible = true;
+                }
+            }
+            
+            private function selectSprite():void
+            {
+                var spriteData:SpriteData = spritesList.selectedItem as SpriteData;
+                if (spriteData) {
+                    var app:IObjectBuilder = FlexGlobals.topLevelApplication as IObjectBuilder;
+                    app.sendCommand(new GetSpriteListCommand(spriteData.id));
+                }
+            }
+            
+            //--------------------------------------
+            // Event Handlers
+            //--------------------------------------
+            
+            protected function creationCompleteHandler(event:FlexEvent):void
+            {
+                _bindableThingType = new BindableThingType();
+                _bindableThingType.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, thingPropertyChangeHandler);
+                _properties = new Dictionary();
+            }
+            
+            protected function findButtonClickHandler(event:MouseEvent):void
+            {
+                if (tabNavigator.selectedIndex == 0)
+                    findThings();
+                else if (tabNavigator.selectedIndex == 1)
+                    findSprites();
+            }
+            
+            protected function selectButtonClickHandler(event:MouseEvent):void
+            {
+                if (tabNavigator.selectedIndex == 0)
+                    selectThing();
+                else if (tabNavigator.selectedIndex == 1)
+                    selectSprite();
+            }
+            
+            protected function thingPropertyChangeHandler(event:PropertyChangeEvent):void
+            {
+                if (event.newValue)
+                    _properties[event.property] = event.newValue;
+                else 
+                    delete _properties[event.property];
+            }
+            
+            protected function doubleClickHandler(event:MouseEvent):void
+            {
+                if (event.target is FindResultListRenderer)
+                    selectThing();
+                else if (event.target is SpriteListRenderer)
+                    selectSprite();
+            }
+            
+        ]]>
+    </fx:Script>
+    
+    <nail:TabNavigator id="tabNavigator"
+                       width="100%"
+                       height="100%">
+        <s:NavigatorContent label="@Resource(key='objects', bundle='strings')"
+                            width="100%"
+                            height="100%">
+            <s:layout>
+                <s:HorizontalLayout paddingLeft="10"
+                                    paddingRight="10"
+                                    paddingTop="10"
+                                    paddingBottom="10"/>
+            </s:layout>
+            <nail:GroupBox label="@Resource(key='properties', bundle='strings')"
+                           width="100%"
+                           height="100%">
+                <s:Scroller width="100%"
+                            height="100%"
+                            verticalScrollPolicy="on">
+                    <s:VGroup width="100%"
+                              height="100%"
+                              gap="0"
+                              paddingLeft="10"
+                              paddingRight="10"
+                              paddingTop="10"
+                              paddingBottom="10">
+                        <s:DropDownList id="categoryDropDownList"
+                                        selectedIndex="0"
+                                        width="100%"
+                                        height="20">
+                            <s:dataProvider>
+                                <s:ArrayList>
+                                    <fx:String>{resourceManager.getString('strings', 'item')}</fx:String>
+                                    <fx:String>{resourceManager.getString('strings', 'outfit')}</fx:String>
+                                    <fx:String>{resourceManager.getString('strings', 'effect')}</fx:String>
+                                    <fx:String>{resourceManager.getString('strings', 'missile')}</fx:String>
+                                </s:ArrayList>
+                            </s:dataProvider>
+                        </s:DropDownList>	
+                        <s:Spacer height="10"/>
+                        <s:CheckBox id="isGroundCheckBox"
+                                    label="@Resource(key='isGround', bundle='strings')"
+                                    change="{_bindableThingType.isGround = isGroundCheckBox.selected;}"/>
+                        <s:CheckBox id="clipCheckBox"
+                                    label="@Resource(key='isOnClip', bundle='strings')"
+                                    toolTip="@Resource(key='toolTip.clip', bundle='strings')"
+                                    change="{_bindableThingType.isGroundBorder = clipCheckBox.selected;}"/>
+                        <s:CheckBox id="bottomCheckBox"
+                                    label="@Resource(key='isOnBottom', bundle='strings')"
+                                    toolTip="@Resource(key='toolTip.bottom', bundle='strings')"
+                                    change="{_bindableThingType.isOnBottom = bottomCheckBox.selected;}"/>
+                        <s:CheckBox id="topCheckBox"
+                                    label="@Resource(key='isOnTop', bundle='strings')"
+                                    toolTip="@Resource(key='toolTip.top', bundle='strings')"
+                                    change="{_bindableThingType.isOnTop = topCheckBox.selected;}"/>
+                        <s:CheckBox id="hasLigthCheckBox"
+                                    label="@Resource(key='hasLight', bundle='strings')"
+                                    change="{_bindableThingType.hasLight = hasLigthCheckBox.selected;}"/>
+                        <s:CheckBox id="automapCheckBox"
+                                    label="@Resource(key='automap', bundle='strings')"
+                                    change="{_bindableThingType.miniMap = automapCheckBox.selected;}"/>
+                        <s:CheckBox id="hasOffsetCheckBox"
+                                    label="@Resource(key='hasOffset', bundle='strings')"
+                                    change="{_bindableThingType.hasOffset = hasOffsetCheckBox.selected;}"/>
+                        <s:CheckBox id="hasElevationCheckBox"
+                                    label="@Resource(key='hasElevation', bundle='strings')"
+                                    change="{_bindableThingType.hasElevation = hasElevationCheckBox.selected;}"/>
+                        <s:CheckBox id="equipCheckBox"
+                                    label="@Resource(key='cloth', bundle='strings')"
+                                    change="{_bindableThingType.cloth = equipCheckBox.selected;}"/>
+                        <s:CheckBox id="marketCheckBox"
+                                    label="@Resource(key='market', bundle='strings')"
+                                    change="{_bindableThingType.isMarketItem = marketCheckBox.selected;}"/>
+                        <s:CheckBox id="writableCheckBox"
+                                    label="@Resource(key='writable', bundle='strings')"
+                                    change="{_bindableThingType.writable = writableCheckBox.selected;}"/>
+                        <s:CheckBox id="writableOnceCheckBox"
+                                    label="@Resource(key='writableOnce', bundle='strings')"
+                                    change="{_bindableThingType.writableOnce = writableOnceCheckBox.selected;}"/>
+                        <s:CheckBox id="actionGroupCheckBox"
+                                    label="@Resource(key='hasAction', bundle='strings')"
+                                    change="{_bindableThingType.hasDefaultAction = actionGroupCheckBox.selected;}"/>
+                        <s:CheckBox id="containerCheckBox"
+                                    label="@Resource(key='container', bundle='strings')"
+                                    change="{_bindableThingType.isContainer = containerCheckBox.selected;}"/>
+                        <s:CheckBox id="stackableCheckBox"
+                                    label="@Resource(key='stackable', bundle='strings')"
+                                    change="{_bindableThingType.stackable = stackableCheckBox.selected;}"/>
+                        <s:CheckBox id="forceUseCheckBox"
+                                    label="@Resource(key='forceUse', bundle='strings')"
+                                    change="{_bindableThingType.forceUse = forceUseCheckBox.selected;}"/>
+                        <s:CheckBox id="multiUseCheckBox"
+                                    label="@Resource(key='multiUse', bundle='strings')"
+                                    change="{_bindableThingType.multiUse = multiUseCheckBox.selected;}"/>
+                        <s:CheckBox id="liquidContainerCheckBox"
+                                    label="@Resource(key='fluidContainer', bundle='strings')"
+                                    change="{_bindableThingType.isFluidContainer = liquidContainerCheckBox.selected;}"/>
+                        <s:CheckBox id="liquidPoolCheckBox"
+                                    label="@Resource(key='fluid', bundle='strings')"
+                                    change="{_bindableThingType.isFluid = liquidPoolCheckBox.selected;}"/>
+                        <s:CheckBox id="unpassableCheckBox" 
+                                    label="@Resource(key='unpassable', bundle='strings')"
+                                    change="{_bindableThingType.isUnpassable = unpassableCheckBox.selected;}"/>
+                        <s:CheckBox id="unmovableCheckBox" 
+                                    label="@Resource(key='unmovable', bundle='strings')"
+                                    change="{_bindableThingType.isUnmoveable = unmovableCheckBox.selected;}"/>
+                        <s:CheckBox id="blockMissileCheckBox"
+                                    label="@Resource(key='blockMissile', bundle='strings')"
+                                    change="{_bindableThingType.blockMissile = blockMissileCheckBox.selected;}"/>
+                        <s:CheckBox id="blockPathfindCheckBox"
+                                    label="@Resource(key='blockPathfinder', bundle='strings')"
+                                    change="{_bindableThingType.blockPathfind = blockPathfindCheckBox.selected;}"/>
+                        <s:CheckBox id="noMoveAnimationCheckBox"
+                                    label="@Resource(key='noMoveAnimation', bundle='strings')"
+                                    change="{_bindableThingType.noMoveAnimation = noMoveAnimationCheckBox.selected;}"/>
+                        <s:CheckBox id="pickupableCheckBox"
+                                    label="@Resource(key='pickupable', bundle='strings')"
+                                    change="{_bindableThingType.pickupable = pickupableCheckBox.selected;}"/>
+                        <s:CheckBox id="hangableCheckBox"
+                                    label="@Resource(key='hangable', bundle='strings')"
+                                    change="{_bindableThingType.hangable = hangableCheckBox.selected;}"/>
+                        <s:CheckBox id="horizontalCheckBox"
+                                    label="@Resource(key='horizontalWall', bundle='strings')"
+                                    change="{_bindableThingType.isHorizontal = horizontalCheckBox.selected;}"/>
+                        <s:CheckBox id="verticalCheckBox"
+                                    label="@Resource(key='verticalWall', bundle='strings')"
+                                    change="{_bindableThingType.isVertical = verticalCheckBox.selected;}"/>
+                        <s:CheckBox id="rotatableCheckBox"
+                                    label="@Resource(key='rotatable', bundle='strings')"
+                                    change="{_bindableThingType.rotatable = rotatableCheckBox.selected;}"/>
+                        <s:CheckBox id="dontHideCheckBox"
+                                    label="@Resource(key='dontHide', bundle='strings')"
+                                    change="{_bindableThingType.dontHide = dontHideCheckBox.selected;}"/>
+                        <s:CheckBox id="translucentCheckBox"
+                                    label="@Resource(key='translucent', bundle='strings')"
+                                    change="{_bindableThingType.isTranslucent = translucentCheckBox.selected;}"/>
+                        <s:CheckBox id="isLyingObjectCheckBox"
+                                    label="@Resource(key='lyingObject', bundle='strings')"
+                                    change="{_bindableThingType.isLyingObject = isLyingObjectCheckBox.selected;}"/>
+                        <s:CheckBox id="animateAlwaysCheckBox"
+                                    label="@Resource(key='animateAlways', bundle='strings')"
+                                    change="{_bindableThingType.animateAlways = animateAlwaysCheckBox.selected;}"/>
+                        <s:CheckBox id="fullGroundCheckBox"
+                                    label="@Resource(key='fullGround', bundle='strings')"
+                                    change="{_bindableThingType.isFullGround = fullGroundCheckBox.selected;}"/>
+                        <s:CheckBox id="ignoreLookCheckBox"
+                                    label="@Resource(key='ignoreLook', bundle='strings')"
+                                    change="{_bindableThingType.ignoreLook = ignoreLookCheckBox.selected;}"/>
+                        <s:CheckBox id="usableCheckBox"
+                                    label="@Resource(key='usable', bundle='strings')"
+                                    change="{_bindableThingType.usable = usableCheckBox.selected;}"/>
+                        <s:CheckBox id="chargesCheckBox"
+                                    label="@Resource(key='hasCharges', bundle='strings')"
+                                    change="{_bindableThingType.hasCharges = chargesCheckBox.selected;}"/>
+                        <s:CheckBox id="floorChangeCheckBox"
+                                    label="@Resource(key='floorChange', bundle='strings')"
+                                    change="{_bindableThingType.floorChange = floorChangeCheckBox.selected;}"/>
+                    </s:VGroup>
+                </s:Scroller>
+            </nail:GroupBox>
+            
+            <nail:GroupBox label="@Resource(key='found', bundle='strings')"
+                           width="100%"
+                           height="100%">
+                <nail:layout>
+                    <s:VerticalLayout gap="10"
+                                      paddingLeft="10"
+                                      paddingTop="10"/>
+                </nail:layout>
+                <s:List id="thingsList"
+                        width="100%"
+                        height="100%"
+                        dataProvider="{_thingsCollection}"
+                        borderVisible="false"
+                        verticalScrollPolicy="on"
+                        doubleClickEnabled="true"
+                        itemRenderer="nail.otlib.components.renders.FindResultListRenderer"
+                        doubleClick="doubleClickHandler(event)"/>
+            </nail:GroupBox>
+        </s:NavigatorContent>
+        <s:NavigatorContent label="@Resource(key='sprites', bundle='strings')"
+                            width="100%"
+                            height="100%">
+            <s:layout>
+                <s:HorizontalLayout paddingLeft="10"
+                                    paddingRight="10"
+                                    paddingTop="10"
+                                    paddingBottom="10"/>
+            </s:layout>
+            
+            <nail:GroupBox label="@Resource(key='properties', bundle='strings')"
+                           width="100%"
+                           height="100%">
+                <s:Scroller width="100%"
+                            height="100%"
+                            verticalScrollPolicy="on">
+                    <s:VGroup width="100%"
+                              height="100%"
+                              gap="0"
+                              paddingLeft="10"
+                              paddingRight="10"
+                              paddingTop="10"
+                              paddingBottom="10">
+                        <s:CheckBox id="unusedSpritesCheckBox"
+                                    label="@Resource(key='unused', bundle='strings')"/>
+                        <s:CheckBox id="emptySpritesCheckBox"
+                                    label="@Resource(key='empty', bundle='strings')"/>
+                    </s:VGroup>
+                </s:Scroller>
+            </nail:GroupBox>
+            
+            <nail:GroupBox label="@Resource(key='found', bundle='strings')"
+                           width="100%"
+                           height="100%">
+                <nail:layout>
+                    <s:VerticalLayout gap="10"
+                                      paddingLeft="10"
+                                      paddingTop="10"/>
+                </nail:layout>
+                <s:List id="spritesList"
+                        width="100%"
+                        height="100%"
+                        dataProvider="{_spritesCollection}"
+                        borderVisible="false"
+                        verticalScrollPolicy="on"
+                        doubleClickEnabled="true"
+                        itemRenderer="nail.otlib.components.renders.SpriteListRenderer"
+                        doubleClick="doubleClickHandler(event)"/>
+            </nail:GroupBox>
+        </s:NavigatorContent>
+    </nail:TabNavigator>
+    
+    <s:HGroup width="100%"
+              paddingLeft="10"
+              paddingRight="10"
+              paddingTop="10"
+              paddingBottom="10"
+              verticalAlign="middle">
+        <s:Button id="findButton"
+                  label="@Resource(key='find', bundle='strings')"
+                  minWidth="70"
+                  click="findButtonClickHandler(event)"/>
+        <s:Button id="selectButton"
+                  label="@Resource(key='select', bundle='strings')"
+                  minWidth="70"
+                  click="selectButtonClickHandler(event)"/>
+        <s:Spacer width="100%"/>
+        <mx:ProgressBar id="progressBar"
+                        width="230"
+                        height="20"
+                        fontSize="11"
+                        fontWeight="normal"
+                        mode="manual"
+                        labelPlacement="center"
+                        visible="false"/>
+    </s:HGroup>
+</s:Window>

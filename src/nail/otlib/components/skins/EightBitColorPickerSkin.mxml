@@ -25,32 +25,55 @@
 ///////////////////////////////////////////////////////////////////////////////////
 -->
 
-<s:SparkButtonSkin xmlns:fx="http://ns.adobe.com/mxml/2009" 
-                   xmlns:s="library://ns.adobe.com/flex/spark" 
-                   xmlns:fb="http://ns.adobe.com/flashbuilder/2009"
-                   minWidth="23"
-                   minHeight="23">
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark" 
+        xmlns:fb="http://ns.adobe.com/flashbuilder/2009"
+         xmlns:components="nail.otlib.components.*"
+        alpha.disabled="0.5"
+        width="30"
+        height="19">
     
-    <!-- host component -->
     <fx:Metadata>
-        <![CDATA[[HostComponent("spark.components.Button")]]]>
+        [HostComponent("nail.otlib.components.EightBitColorPicker")]
     </fx:Metadata>
     
-    <!-- states -->
     <s:states>
-        <s:State name="up" />
-        <s:State name="over" />
-        <s:State name="down" />
+        <s:State name="normal" />
         <s:State name="disabled" />
     </s:states>
     
-    <!-- fill/border -->
-    <s:Rect left="0" right="0" top="0" bottom="0">
+    <s:Rect left="1" right="1" top="1" bottom="1">
         <s:fill>
-            <s:SolidColor color="0xFFFFFF" alpha="0"/>
+            <s:SolidColor color="0xDFDFDF"/>
         </s:fill>
+    </s:Rect>
+    
+    <s:Rect left="2" right="2" top="2" bottom="2">
+        <s:fill>
+            <s:SolidColor id="fillColor"/>
+        </s:fill>
+    </s:Rect>
+    
+    <s:Rect left="0" right="0" top="0" bottom="0">
         <s:stroke>
-            <s:SolidColorStroke color="0xFF00FF" weight="0.1"/>
+            <s:SolidColorStroke color="0x272727"/>
         </s:stroke>
     </s:Rect>
-</s:SparkButtonSkin>
+    
+    <!--- @copy spark.components.SkinnableContainer#contentGroup -->
+    <s:Group id="contentGroup" 
+             left="0"
+             right="0"
+             top="0" 
+             bottom="0"
+             minWidth="0"
+             minHeight="0">
+        <s:layout>
+            <s:BasicLayout/>
+        </s:layout>
+        <s:PopUpAnchor id="popUpArchor"
+                       popUpPosition="below">
+            <components:EightBitColorPanel id="colorPanel"/>
+        </s:PopUpAnchor>
+    </s:Group>
+</s:Skin>

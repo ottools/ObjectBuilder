@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+///////////////////////////////////////////////////////////////////////////////////
+// 
+//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+// 
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+// 
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+//
+///////////////////////////////////////////////////////////////////////////////////
+-->
+
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009" 
+          xmlns:s="library://ns.adobe.com/flex/spark" 
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:nail="library://ns.nail.com/naillib"
+          width="400"
+          height="300"
+          minimizable="false"
+          maximizable="false"
+          resizable="false"
+          showStatusBar="false"
+          backgroundColor="0x494949"
+          fontSize="11"
+          title="@Resource(key='menu.preferences', bundle='strings')"
+          creationComplete="creationCompleteHandler(event)">
+    
+    <s:layout>
+        <s:VerticalLayout gap="10"
+                          horizontalAlign="center"/>
+    </s:layout>
+    
+    <fx:Declarations>
+        <s:RadioButtonGroup id="savePropertiesRadioButtonGroup"
+                            selectedIndex="0"/>
+    </fx:Declarations>
+    
+    <fx:Metadata>
+        [ResourceBundle("strings")]
+    </fx:Metadata>
+    
+    <fx:Script>
+        <![CDATA[
+            import mx.events.FlexEvent;
+            
+            import nail.objectbuilder.core.Icons;
+            import nail.objectbuilder.settings.ObjectBuilderSettings;
+            import nail.objectbuilder.utils.SupportedLanguages;
+            
+            //--------------------------------------------------------------------------
+            //
+            // PROPERTIES
+            //
+            //--------------------------------------------------------------------------
+            
+            [Bindable]
+            private var _settings:ObjectBuilderSettings;
+            private var _settingsChanged:Boolean;
+            
+            //--------------------------------------------------------------------------
+            //
+            // METHODS
+            //
+            //--------------------------------------------------------------------------
+            
+            //--------------------------------------
+            // Protected
+            //--------------------------------------
+            
+            override protected function commitProperties():void
+            {
+                super.commitProperties();
+                
+                if (_settingsChanged) {
+                    setSettings(_settings);
+                    _settingsChanged = false;
+                }
+            }
+            
+            //--------------------------------------
+            // Private
+            //--------------------------------------
+            
+            private function setSettings(settings:ObjectBuilderSettings):void
+            {
+                setLanguage(settings.language);
+                autosaveChangesCheckBox.selected = settings.autosaveThingChanges;
+                extendedCheckBox.selected = settings.extended;
+                transparencyCheckBox.selected = settings.transparency;
+                setSavePropertiesValue(settings.savingSpriteSheet);
+            }
+            
+            private function setLanguage(language:String):void
+            {
+                switch(language) {
+                    case SupportedLanguages.PL_PL:
+                        languageDropDownList.selectedIndex = 1;
+                        break;
+                    case SupportedLanguages.PT_BR:
+                        languageDropDownList.selectedIndex = 2;
+                        break;
+                    default:
+                        languageDropDownList.selectedIndex = 0;
+                        break;
+                }
+            }
+            
+            private function getLanguage():String
+            {
+                switch(languageDropDownList.selectedIndex) {
+                    case 1:
+                        return SupportedLanguages.PL_PL;
+                    case 2:
+                        return SupportedLanguages.PT_BR;
+                }
+                return SupportedLanguages.EN_US;
+            }
+            
+            private function getSavePropertiesValue():Number
+            {
+                if (savePropertiesGroupCheckBox.selected) {
+                    if (onlyPatternsRadioButton.selected)
+                        return 1;
+                    else if (allPropertiesRadioButton.selected)
+                        return 2;
+                }
+                return 0;
+            }
+            
+            private function setSavePropertiesValue(value:Number):void
+            {
+                savePropertiesGroupCheckBox.selected = (value != 0);
+                if (value == 2)
+                    allPropertiesRadioButton.selected = true;
+                else
+                    onlyPatternsRadioButton.selected = true;
+            }
+            
+            //--------------------------------------
+            // Event Handlers
+            //--------------------------------------
+            
+            protected function creationCompleteHandler(event:FlexEvent):void
+            {
+                focusManager.setFocus(cancelButton);
+                focusManager.showFocus();
+            }
+            
+            protected function confirmButtonClickHandler(event:MouseEvent):void
+            {
+                _settings.language = getLanguage();
+                _settings.autosaveThingChanges = autosaveChangesCheckBox.selected;
+                _settings.extended = extendedCheckBox.selected;
+                _settings.transparency = transparencyCheckBox.selected;
+                _settings.savingSpriteSheet = getSavePropertiesValue();
+                close();
+            }
+            
+            //--------------------------------------
+            // Getters / Setters
+            //--------------------------------------
+            
+            public function get settings():ObjectBuilderSettings
+            {
+                return _settings;
+            }
+            
+            public function set settings(value:ObjectBuilderSettings):void
+            {
+                if (_settings != value) {
+                    _settings = value;
+                    _settingsChanged = true;
+                    invalidateProperties();
+                }
+            }
+            
+        ]]>
+    </fx:Script>
+    
+    <nail:TabNavigator width="100%"
+                       height="100%"
+                       tabWidth="130"
+                       focusEnabled="false">
+        
+        <s:NavigatorContent label="@Resource(key='general', bundle='strings')"
+                            width="100%"
+                            height="100%">
+            <s:layout>
+                <s:VerticalLayout paddingLeft="10"
+                                  paddingRight="10"
+                                  paddingTop="20"
+                                  paddingBottom="10"/>
+            </s:layout>
+            <nail:GroupBox width="100%"
+                           label="@Resource(key='language', bundle='strings')">
+                <nail:layout>
+                    <s:VerticalLayout gap="10"
+                                      paddingLeft="10"
+                                      paddingRight="10"
+                                      paddingTop="10"
+                                      paddingBottom="10"/>
+                </nail:layout>
+                <s:DropDownList id="languageDropDownList"
+                                width="100%"
+                                selectedIndex="0">
+                    <s:dataProvider>
+                        <s:ArrayList>
+                            <fx:String>English</fx:String>
+                            <fx:String>Polski</fx:String>
+                            <fx:String>Português</fx:String>
+                        </s:ArrayList>
+                    </s:dataProvider>
+                </s:DropDownList>
+            </nail:GroupBox>
+            
+            <nail:GroupBox width="100%"
+                           label="@Resource(key='edition', bundle='strings')">
+                <nail:layout>
+                    <s:VerticalLayout gap="10"
+                                      paddingLeft="10"
+                                      paddingRight="10"
+                                      paddingTop="10"
+                                      paddingBottom="10"/>
+                </nail:layout>
+                <s:CheckBox id="autosaveChangesCheckBox"
+                            label="@Resource(key='autosaveChanges', bundle='strings')"/>
+            </nail:GroupBox>
+        </s:NavigatorContent>
+        
+        <s:NavigatorContent label="@Resource(key='customClient', bundle='strings')"
+                            width="100%"
+                            height="100%">
+            <s:layout>
+                <s:VerticalLayout paddingLeft="10"
+                                  paddingRight="10"
+                                  paddingTop="20"
+                                  paddingBottom="10"/>
+            </s:layout>
+            <nail:GroupBox width="100%"
+                           label="@Resource(key='openNew', bundle='strings')">
+                <nail:layout>
+                    <s:VerticalLayout gap="8"
+                                      paddingLeft="10"
+                                      paddingRight="10"
+                                      paddingTop="10"
+                                      paddingBottom="10"/>
+                </nail:layout>
+                <s:CheckBox id="extendedCheckBox"
+                            label="@Resource(key='extendedAlwaysSelected', bundle='strings')"/>
+                <s:CheckBox id="transparencyCheckBox"
+                            label="@Resource(key='transparencyAlwaysSelected', bundle='strings')"/>
+            </nail:GroupBox>
+        </s:NavigatorContent>
+        
+        <s:NavigatorContent label="@Resource(key='spriteSheet', bundle='strings')"
+                            width="100%"
+                            height="100%">
+            <s:layout>
+                <s:VerticalLayout paddingLeft="10"
+                                  paddingRight="10"
+                                  paddingTop="20"
+                                  paddingBottom="10"/>
+            </s:layout>
+            <nail:GroupCheckBox id="savePropertiesGroupCheckBox"
+                                width="100%"
+                                label="@Resource(key='saveObjectProperties', bundle='strings')">
+                <nail:layout>
+                    <s:VerticalLayout gap="8"
+                                      paddingLeft="10"
+                                      paddingRight="10"
+                                      paddingTop="10"
+                                      paddingBottom="10"/>
+                </nail:layout>
+                <s:RadioButton id="onlyPatternsRadioButton"
+                               label="@Resource(key='onlyPatterns', bundle='strings')"
+                               groupName="savePropertiesRadioButtonGroup"
+                               enabled="{savePropertiesGroupCheckBox.selected}"/>
+                <s:RadioButton id="allPropertiesRadioButton"
+                               groupName="savePropertiesRadioButtonGroup"
+                               label="@Resource(key='allProperties', bundle='strings')"
+                               enabled="{savePropertiesGroupCheckBox.selected}"/>
+            </nail:GroupCheckBox>
+        </s:NavigatorContent>
+    </nail:TabNavigator>
+    
+    <s:HGroup width="100%"
+              paddingLeft="10"
+              paddingRight="10"
+              paddingBottom="10"
+              verticalAlign="middle"
+              horizontalAlign="right">
+        <s:Button id="infoButton"
+                  width="25"
+                  height="25"
+                  icon="{nail.objectbuilder.core.Icons.INFO}"
+                  focusEnabled="false"
+                  toolTip="@Resource(key='needToRestart', bundle='strings')"
+                  skinClass="nail.components.skins.IconButtonSkin"/>
+        <s:Spacer width="100%"/>
+        <s:Button id="confirmButton"
+                  label="@Resource(key='confirm', bundle='strings')"
+                  enabled="{_settings != null}"
+                  minWidth="70"
+                  click="confirmButtonClickHandler(event)"/>
+        <s:Button id="cancelButton"
+                  label="@Resource(key='cancel', bundle='strings')"
+                  minWidth="70"
+                  click="close()"/>
+    </s:HGroup>
+</s:Window>

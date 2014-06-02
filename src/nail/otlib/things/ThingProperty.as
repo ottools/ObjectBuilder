@@ -1,5 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
 ///////////////////////////////////////////////////////////////////////////////////
 // 
 //  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
@@ -23,34 +21,43 @@
 //  THE SOFTWARE.
 //
 ///////////////////////////////////////////////////////////////////////////////////
--->
 
-<s:SparkButtonSkin xmlns:fx="http://ns.adobe.com/mxml/2009" 
-                   xmlns:s="library://ns.adobe.com/flex/spark" 
-                   xmlns:fb="http://ns.adobe.com/flashbuilder/2009"
-                   minWidth="23"
-                   minHeight="23">
-    
-    <!-- host component -->
-    <fx:Metadata>
-        <![CDATA[[HostComponent("spark.components.Button")]]]>
-    </fx:Metadata>
-    
-    <!-- states -->
-    <s:states>
-        <s:State name="up" />
-        <s:State name="over" />
-        <s:State name="down" />
-        <s:State name="disabled" />
-    </s:states>
-    
-    <!-- fill/border -->
-    <s:Rect left="0" right="0" top="0" bottom="0">
-        <s:fill>
-            <s:SolidColor color="0xFFFFFF" alpha="0"/>
-        </s:fill>
-        <s:stroke>
-            <s:SolidColorStroke color="0xFF00FF" weight="0.1"/>
-        </s:stroke>
-    </s:Rect>
-</s:SparkButtonSkin>
+package nail.otlib.things
+{
+    public class ThingProperty
+    {
+        //--------------------------------------------------------------------------
+        //
+        // PROPERTIES
+        //
+        //--------------------------------------------------------------------------
+        
+        public var property:String;
+        public var value:Object;
+        
+        //--------------------------------------------------------------------------
+        //
+        // CONSTRUCTOR
+        //
+        //--------------------------------------------------------------------------
+        
+        public function ThingProperty()
+        {
+        }
+        
+        //--------------------------------------------------------------------------
+        //
+        // METHODS
+        //
+        //--------------------------------------------------------------------------
+        
+        //--------------------------------------
+        // Public
+        //--------------------------------------
+        
+        public function toString():String
+        {
+            return "[ThingProperty property="+property+", value="+value+"]";
+        }
+    }
+}
