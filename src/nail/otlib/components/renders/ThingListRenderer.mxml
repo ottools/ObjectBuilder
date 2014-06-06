@@ -41,6 +41,7 @@
             import mx.resources.ResourceManager;
             
             import nail.logging.Log;
+            import nail.otlib.components.ListBase;
             import nail.otlib.components.ThingList;
             import nail.otlib.core.otlib_internal;
             import nail.otlib.events.ThingListEvent;
@@ -61,21 +62,27 @@
             
             protected function creationCompleteHandler(event:FlexEvent):void
             {
-                var cm:ContextMenu = createContextMenu();
-                cm.addEventListener(Event.SELECT, contextMenuSelectHandler);
-                cm.addEventListener(Event.DISPLAYING, contextMenuDisplayingHandler);
-                this.contextMenu = cm;
+                if (owner is ListBase && ListBase(owner).contextMenuEnabled) {
+                    var cm:ContextMenu = createContextMenu();
+                    cm.addEventListener(Event.SELECT, contextMenuSelectHandler);
+                    cm.addEventListener(Event.DISPLAYING, contextMenuDisplayingHandler);
+                    this.contextMenu = cm;
+                }
             }
             
             protected function contextMenuDisplayingHandler(event:Event):void
             {
-                ThingList(owner).onContextMenuDisplaying(this.itemIndex, ContextMenu(event.target));
+                if (owner is ThingList) {
+                    ThingList(owner).onContextMenuDisplaying(this.itemIndex, ContextMenu(event.target));
+                }
             }
             
             protected function contextMenuSelectHandler(event:Event):void
             {
-                var type:String = NativeMenuItem(event.target).data as String;
-                ThingList(owner).onContextMenuSelect(this.itemIndex, type);
+                if (owner is ThingList) {
+                    var type:String = NativeMenuItem(event.target).data as String;
+                    ThingList(owner).onContextMenuSelect(this.itemIndex, type);
+                }
             }
             
             protected function dataChangeHandler(event:FlexEvent):void

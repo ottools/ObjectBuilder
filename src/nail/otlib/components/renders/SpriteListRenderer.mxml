@@ -44,6 +44,7 @@
             import mx.resources.IResourceManager;
             import mx.resources.ResourceManager;
             
+            import nail.otlib.components.ListBase;
             import nail.otlib.components.SpriteList;
             import nail.otlib.core.otlib_internal;
             import nail.otlib.events.SpriteListEvent;
@@ -63,7 +64,7 @@
             
             protected function creationCompleteHandler(event:FlexEvent):void
             {
-                if (owner is SpriteList) {
+                if (owner is ListBase && ListBase(owner).contextMenuEnabled) {
                     var cm:ContextMenu = createContextMenu();
                     cm.addEventListener(Event.SELECT, contextMenuSelectHandler);
                     cm.addEventListener(Event.DISPLAYING, contextMenuDisplayingHandler);
