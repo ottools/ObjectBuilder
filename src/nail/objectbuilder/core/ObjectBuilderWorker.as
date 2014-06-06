@@ -97,7 +97,6 @@ package nail.objectbuilder.core
         private var _errorMessage:String;
         private var _compiled:Boolean;
         private var _isTemporary:Boolean;
-        private var _currentCategory:String;
         
         //--------------------------------------
         // Getters / Setters
@@ -120,51 +119,6 @@ package nail.objectbuilder.core
                 setSharedProperty("isTemporary", value);
             }
         }
-        
-        public function get selectedThingIds():Vector.<uint>
-        {
-            var ids:* = getSharedProperty("selectedThingIds");
-            if (ids !== undefined) {
-                return ids;
-            }
-            return null;
-        }
-        
-        public function set selectedThingIds(value:Vector.<uint>):void
-        {
-            if (value && value.length > 0) {
-                value.sort(Array.NUMERIC | Array.DESCENDING);
-                var category:String = currentCategory;
-                var max:uint = _things.getMaxId(category);
-                if (value[0] > max) {
-                    value = Vector.<uint>([max]);
-                }
-                this.onGetThing(value[0], category);
-                this.sendThingList(value, category);
-            }
-        }
-        
-        public function get selectedSpriteIds():Vector.<uint>
-        {
-            var ids:* = getSharedProperty("selectedSpriteIds");
-            if (ids !== undefined) {
-                return ids;
-            }
-            return null;
-        }
-        
-        public function set selectedSpriteIds(value:Vector.<uint>):void
-        {
-            if (value && value.length > 0) {
-                value.sort(Array.NUMERIC | Array.DESCENDING);
-                if (value[0] > _sprites.spritesCount) {
-                    value = Vector.<uint>([_sprites.spritesCount]);
-                }
-                this.sendSpriteList(value);
-            }
-        }
-        
-        public function get currentCategory():String { return _currentCategory; }
         
         //--------------------------------------------------------------------------
         //
@@ -192,7 +146,6 @@ package nail.objectbuilder.core
             var thingData:ThingData = getThingData(id, category);
             if (thingData) {
                 sendCommand(new SetThingDataCommand(thingData));
-                _currentCategory = category;
             }
         }
         
@@ -209,6 +162,30 @@ package nail.objectbuilder.core
                 _version.sprSignature,
                 _extended,
                 _transparency);
+        }
+        
+        public function setSelectedThingIds(value:Vector.<uint>, category:String):void
+        {
+            if (value && value.length > 0) {
+                if (value.length > 1) value.sort(Array.NUMERIC | Array.DESCENDING);
+                var max:uint = _things.getMaxId(category);
+                if (value[0] > max) {
+                    value = Vector.<uint>([max]);
+                }
+                this.onGetThing(value[0], category);
+                this.sendThingList(value, category);
+            }
+        }
+        
+        public function setSelectedSpriteIds(value:Vector.<uint>):void
+        {
+            if (value && value.length > 0) {
+                if (value.length > 1) value.sort(Array.NUMERIC | Array.DESCENDING);
+                if (value[0] > _sprites.spritesCount) {
+                    value = Vector.<uint>([_sprites.spritesCount]);
+                }
+                this.sendSpriteList(value);
+            }
         }
         
         //--------------------------------------
@@ -558,6 +535,7 @@ package nail.objectbuilder.core
             
             // Thing change message
             onGetThing(thingData.id, thingData.category);
+            onGetThingList(thingData.id, thingData.category);
             message = Resources.getString(
                 "strings",
                 "logChanged",
@@ -701,12 +679,13 @@ package nail.objectbuilder.core
                 Log.info(message);
             }
             
-            this.selectedThingIds = thingsIds;
+            var category:String = list[0].thing.category;
+            this.setSelectedThingIds(thingsIds, category);
             
             message = Resources.getString(
                 "strings",
                 "logReplaced",
-                toLocale(currentCategory, thingsIds.length > 1),
+                toLocale(category, thingsIds.length > 1),
                 thingsIds);
             
             Log.info(message);
@@ -823,12 +802,13 @@ package nail.objectbuilder.core
                 thingsIds[i] = addedThings[i].id;
             }
             
-            this.selectedThingIds = thingsIds;
+            var category:String = list[0].thing.category;
+            this.setSelectedThingIds(thingsIds, category);
             
             message = Resources.getString(
                 "strings",
                 "logAdded",
-                toLocale(currentCategory, thingsIds.length > 1),
+                toLocale(category, thingsIds.length > 1),
                 thingsIds);
             
             Log.info(message);
@@ -921,7 +901,7 @@ package nail.objectbuilder.core
                 thingIds[i] = addedThings[i].id;
             }
             
-            this.selectedThingIds = thingIds;
+            this.setSelectedThingIds(thingIds, category);
             
             thingIds.sort(Array.NUMERIC);
             var message:String = StringUtil.substitute(Resources.getString(
@@ -1003,7 +983,7 @@ package nail.objectbuilder.core
                 thingIds[i] = removedThingList[i].id;
             }
             
-            this.selectedThingIds = thingIds;
+            this.setSelectedThingIds(thingIds, category);
             
             thingIds.sort(Array.NUMERIC);
             message = Resources.getString(
@@ -1084,7 +1064,7 @@ package nail.objectbuilder.core
                 spriteIds[i] = sprites[i].id;
             }
             
-            this.selectedSpriteIds = spriteIds;
+            this.setSelectedSpriteIds(spriteIds);
                 
             var message:String = Resources.getString(
                 "strings",
@@ -1308,7 +1288,7 @@ package nail.objectbuilder.core
             // Send changes
             
             // Select sprites
-            this.selectedSpriteIds = list;
+            this.setSelectedSpriteIds(list);
             
             // Send message to log
             var message:String = Resources.getString(

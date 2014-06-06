@@ -49,6 +49,9 @@ package nail.otlib.components
         // Getters / Setters
         //--------------------------------------
         
+        [Bindable("change")]
+        [Bindable("valueCommit")]
+        [Inspectable(category="General", defaultValue="0")]
         public function get selectedId():uint
         {
             if (this.selectedItem) {
@@ -160,6 +163,18 @@ package nail.otlib.components
                     _minId = id < _minId ? id : _minId;
                     _maxId = id > _maxId ? id : _maxId;
                     dataProvider.addItem(object);
+                }
+            }
+        }
+        
+        public function removeSelectedIndices():void
+        {
+            var selectedIndices:Vector.<int> = this.selectedIndices;
+            if (selectedIndices) {
+                selectedIndices.sort(Array.NUMERIC);
+                var length:uint = selectedIndices.length;
+                for (var i:int = length - 1; i >= 0; i--) {
+                    dataProvider.removeItemAt(selectedIndices[i]);
                 }
             }
         }

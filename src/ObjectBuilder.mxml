@@ -33,6 +33,7 @@
                   implements="nail.objectbuilder.core.IObjectBuilder"
                   minWidth="800"
                   minHeight="600"
+                  fontSize="11"
                   showStatusBar="false">
     
     <fx:Declarations>
@@ -586,7 +587,6 @@
                 infoPanel.clear();
                 categoryDropDownList.selectedIndex = 0;
                 thingStepper.value = 0;
-                spriteStepper.value = 0;
                 _logText = "";
             }
             
@@ -888,7 +888,6 @@
                 if (id >= spritesList.minId && id <= spritesList.maxId) {
                     spritesList.ensureIdIsVisible(id);
                     spritesList.selectedId = id;
-                    spriteStepper.value = id;
                 } else {
                     // Request new list by target id.
                     sendCommand(new GetSpriteListCommand(id));
@@ -2175,7 +2174,6 @@
             
             <nail:XNumericStepper id="thingStepper"
                                   width="100%"
-                                  fontSize="11"
                                   change="thingStepperChangeHandler(event)"/>
             
             <s:HGroup width="100%"
@@ -2401,7 +2399,7 @@
             
             <nail:XNumericStepper id="spriteStepper"
                                   width="100%"
-                                  fontSize="11"
+                                  value="{spritesList.selectedId}"
                                   change="spriteStepperChangeHandler(event)"/>
             
             <s:HGroup width="100%"

@@ -29,6 +29,7 @@
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:nail="library://ns.nail.com/naillib"
+          xmlns:components="nail.otlib.components.*"
           minWidth="490"
           maxWidth="600"
           minHeight="410"
@@ -50,19 +51,19 @@
     
     <fx:Script>
         <![CDATA[
-            import mx.collections.ArrayCollection;
             import mx.core.FlexGlobals;
             import mx.events.FlexEvent;
             import mx.events.PropertyChangeEvent;
             
+            import nail.assets.Icons;
             import nail.objectbuilder.commands.FindResultCommand;
             import nail.objectbuilder.commands.sprites.FindSpritesCommand;
             import nail.objectbuilder.commands.sprites.GetSpriteListCommand;
             import nail.objectbuilder.commands.things.FindThingCommand;
             import nail.objectbuilder.commands.things.GetThingCommand;
             import nail.objectbuilder.core.IObjectBuilder;
-            import nail.otlib.components.renders.FindResultListRenderer;
             import nail.otlib.components.renders.SpriteListRenderer;
+            import nail.otlib.components.renders.ThingListRenderer;
             import nail.otlib.sprites.SpriteData;
             import nail.otlib.things.BindableThingType;
             import nail.otlib.things.ThingCategory;
@@ -75,12 +76,6 @@
             // PROPERTIES
             //
             //--------------------------------------------------------------------------
-            
-            [Bindable]
-            private var _thingsCollection:ArrayCollection = new ArrayCollection();
-            
-            [Bindable]
-            private var _spritesCollection:ArrayCollection = new ArrayCollection();
             
             private var _bindableThingType:BindableThingType;
             private var _properties:Dictionary;
@@ -98,13 +93,26 @@
             public function setFindThingResultList(type:uint, list:Array):void
             {
                 if (type == FindResultCommand.THINGS) {
-                    _thingsCollection.source = list;
-                    thingsList.selectedIndex = -1;
+                    thingsList.setListObjects(list);
+                    thingsList.selectedIndex = 0;
                 } else if (type == FindResultCommand.SPRITES) {
-                    _spritesCollection.source = list;
-                    spritesList.selectedIndex = -1;
+                    spritesList.setListObjects(list);
+                    spritesList.selectedIndex = 0;
                 }
                 progressBar.visible = false;
+                
+                var category:String;
+                if (tabNavigator.selectedIndex == 0)
+                    category = getCurrentCategory();
+                else if (tabNavigator.selectedIndex == 1)
+                    category = "sprite";
+                
+                var length:uint = list ? list.length : 0;
+                removeButton.enabled = (length != 0);
+                successFindLabel.text = resourceManager.getString(
+                    "strings",
+                    "successFind",
+                    [length, resourceManager.getString("strings", category + (length == 1 ? "" : "s"))]);
             }
             
             public function setProgress(loaded:uint, total:uint):void
@@ -165,6 +173,12 @@
                 }
             }
             
+            private function removeThings():void
+            {
+                IObjectBuilder(FlexGlobals.topLevelApplication).removeThings(thingsList.selectedIds, getCurrentCategory());
+                thingsList.removeSelectedIndices();
+            }
+            
             private function findSprites():void
             {
                 if (unusedSpritesCheckBox.selected || emptySpritesCheckBox.selected) {
@@ -181,6 +195,12 @@
                     var app:IObjectBuilder = FlexGlobals.topLevelApplication as IObjectBuilder;
                     app.sendCommand(new GetSpriteListCommand(spriteData.id));
                 }
+            }
+            
+            private function removeSprites():void
+            {
+                IObjectBuilder(FlexGlobals.topLevelApplication).removeSpritesIds(spritesList.selectedIds);
+                spritesList.removeSelectedIndices();
             }
             
             //--------------------------------------
@@ -220,10 +240,18 @@
             
             protected function doubleClickHandler(event:MouseEvent):void
             {
-                if (event.target is FindResultListRenderer)
+                if (event.target is ThingListRenderer)
                     selectThing();
                 else if (event.target is SpriteListRenderer)
                     selectSprite();
+            }
+            
+            protected function removeHandler(event:MouseEvent):void
+            {
+                if (tabNavigator.selectedIndex == 0)
+                    removeThings();
+                else if (tabNavigator.selectedIndex == 1)
+                    removeSprites();
             }
             
         ]]>
@@ -397,15 +425,16 @@
                                       paddingLeft="10"
                                       paddingTop="10"/>
                 </nail:layout>
-                <s:List id="thingsList"
-                        width="100%"
-                        height="100%"
-                        dataProvider="{_thingsCollection}"
-                        borderVisible="false"
-                        verticalScrollPolicy="on"
-                        doubleClickEnabled="true"
-                        itemRenderer="nail.otlib.components.renders.FindResultListRenderer"
-                        doubleClick="doubleClickHandler(event)"/>
+                <components:ThingList id="thingsList"
+                                      width="100%"
+                                      height="100%"
+                                      borderVisible="false"
+                                      verticalScrollPolicy="on"
+                                      doubleClickEnabled="true"
+                                      allowMultipleSelection="true"
+                                      contextMenuEnabled="false"
+                                      requireSelection="true"
+                                      doubleClick="doubleClickHandler(event)"/>
             </nail:GroupBox>
         </s:NavigatorContent>
         <s:NavigatorContent label="@Resource(key='sprites', bundle='strings')"
@@ -447,15 +476,16 @@
                                       paddingLeft="10"
                                       paddingTop="10"/>
                 </nail:layout>
-                <s:List id="spritesList"
-                        width="100%"
-                        height="100%"
-                        dataProvider="{_spritesCollection}"
-                        borderVisible="false"
-                        verticalScrollPolicy="on"
-                        doubleClickEnabled="true"
-                        itemRenderer="nail.otlib.components.renders.SpriteListRenderer"
-                        doubleClick="doubleClickHandler(event)"/>
+                <components:SpriteList id="spritesList"
+                                       width="100%"
+                                       height="100%"
+                                       borderVisible="false"
+                                       verticalScrollPolicy="on"
+                                       doubleClickEnabled="true"
+                                       allowMultipleSelection="true"
+                                       contextMenuEnabled="false"
+                                       requireSelection="true"
+                                       doubleClick="doubleClickHandler(event)"/>
             </nail:GroupBox>
         </s:NavigatorContent>
     </nail:TabNavigator>
@@ -469,19 +499,38 @@
         <s:Button id="findButton"
                   label="@Resource(key='find', bundle='strings')"
                   minWidth="70"
+                  height="23"
+                  enabled="{!progressBar.visible}"
                   click="findButtonClickHandler(event)"/>
         <s:Button id="selectButton"
                   label="@Resource(key='select', bundle='strings')"
                   minWidth="70"
+                  height="23"
+                  enabled="{!progressBar.visible}"
                   click="selectButtonClickHandler(event)"/>
+        <nail:ShadowLine height="23"/>
+        <s:Button id="removeButton"
+                  toolTip="@Resource(key='remove', bundle='strings')"
+                  minWidth="19"
+                  width="23"
+                  height="23"
+                  enabled="false"
+                  icon="{nail.assets.Icons.DELETE}"
+                  click="removeHandler(event)"/>
         <s:Spacer width="100%"/>
-        <mx:ProgressBar id="progressBar"
-                        width="230"
-                        height="20"
-                        fontSize="11"
-                        fontWeight="normal"
-                        mode="manual"
-                        labelPlacement="center"
-                        visible="false"/>
+        <s:Group width="230"
+                 height="23">
+            <s:Label id="successFindLabel"
+                     bottom="0"
+                     fontWeight="bold"
+                     verticalCenter="0"/>
+            <mx:ProgressBar id="progressBar"
+                            width="100%"
+                            height="100%"
+                            fontWeight="normal"
+                            mode="manual"
+                            labelPlacement="center"
+                            visible="false"/>
+        </s:Group>
     </s:HGroup>
 </s:Window>
