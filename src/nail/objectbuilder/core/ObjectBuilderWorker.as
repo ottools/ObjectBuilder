@@ -1501,7 +1501,7 @@ package nail.objectbuilder.core
                 list.push(listItem);
             }
             
-            sendCommand(new SetThingListCommand(selectedIds, min, max, list));
+            sendCommand(new SetThingListCommand(selectedIds, list));
         }
         
         private function sendSpriteList(selectedIds:Vector.<uint>):void
@@ -1541,7 +1541,7 @@ package nail.objectbuilder.core
                 list.push(spriteData);
             }
             
-            sendCommand(new SetSpriteListCommand(selectedIds, min, max, list));
+            sendCommand(new SetSpriteListCommand(selectedIds, list));
         }
         
         private function getBitmapPixels(thing:ThingType):ByteArray

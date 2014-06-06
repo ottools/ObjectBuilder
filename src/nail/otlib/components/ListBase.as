@@ -41,6 +41,9 @@ package nail.otlib.components
         
         private var _ensureIdIsVisible:uint = uint.MAX_VALUE;
         private var _scrollSave:ScrollPosition;
+        private var _contextMenuEnabled:Boolean = true;
+        private var _minId:uint;
+        private var _maxId:uint;
         
         //--------------------------------------
         // Getters / Setters
@@ -59,6 +62,22 @@ package nail.otlib.components
             if (selectedId != value) {
                 this.selectedIndex = getIndexById(value);
             }
+        }
+        
+        public function get firstSelectedId():uint
+        {
+            if (selectedIndices && selectedIndices.length > 0) {
+                return dataProvider.getItemAt(selectedIndices[0]).id;
+            }
+            return 0;
+        }
+        
+        public function get lastSelectedId():uint
+        {
+            if (selectedIndices && selectedIndices.length > 0) {
+                return dataProvider.getItemAt(selectedIndices[selectedIndices.length - 1]).id;
+            }
+            return 0;
         }
         
         public function get selectedIds():Vector.<uint>
@@ -91,14 +110,18 @@ package nail.otlib.components
             }
         }
         
-        public function get multipleSelected():Boolean
-        {
-            return (this.selectedIndices.length > 1);
-        }
+        public function get maxId():uint { return _maxId; }
+        public function get minId():uint { return _minId; }
+        public function get multipleSelected():Boolean { return (this.selectedIndices.length > 1); }
+        public function get isEmpty():Boolean { return (dataProvider.length == 0); }
         
-        public function get isEmpty():Boolean
+        [Inspectable(category="General", defaultValue="true")]
+        public function get contextMenuEnabled():Boolean { return _contextMenuEnabled; }
+        public function set contextMenuEnabled(value:Boolean):void
         {
-            return (dataProvider.length == 0);
+            if (_contextMenuEnabled != value) {
+                _contextMenuEnabled = value;
+            }
         }
         
         //--------------------------------------------------------------------------
@@ -125,21 +148,26 @@ package nail.otlib.components
         
         public function setListObjects(list:*):void
         {
+            this.removeAll();
+            
             if (list) {
-                dataProvider.removeAll();
-                
+                _minId = uint.MAX_VALUE;
+                _maxId = 0;
                 var length:uint = list.length;
                 for (var i:uint = 0; i < length; i++) {
-                    var object : IListObject = list[i] as IListObject;
-                    if (object) {
-                        dataProvider.addItem(object);
-                    }
+                    var object:IListObject = list[i];
+                    var id:uint = object.id;
+                    _minId = id < _minId ? id : _minId;
+                    _maxId = id > _maxId ? id : _maxId;
+                    dataProvider.addItem(object);
                 }
             }
         }
         
         public function removeAll():void
         {
+            _minId = 0;
+            _maxId = 0;
             dataProvider.removeAll();
         }
         

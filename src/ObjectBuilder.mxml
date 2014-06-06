@@ -173,10 +173,6 @@
             private var _filesName:String;
             private var _info:FilesInfo;
             private var _selectThingIndex:int;
-            private var _thingMin:uint;
-            private var _thingMax:uint;
-            private var _spriteMin:uint;
-            private var _spriteMax:uint;
             private var _logText:String = "";
             private var _logWindow:LogWindow;
             private var _findThingWindow:FindWindow;
@@ -581,10 +577,6 @@
                 _info = null;
                 _nextThingData = null;
                 _selectThingIndex = -1;
-                _thingMax = 0;
-                _thingMin = 0;
-                _spriteMax = 0;
-                _spriteMin = 0;
                 
                 thingList.removeAll();
                 spritesList.removeAll();
@@ -759,7 +751,7 @@
                 this.thingData = thingData;
             }
             
-            private function onSetThingList(selectedIds:Vector.<uint>, min:uint, max:uint, things:Vector.<ThingListItem>):void
+            private function onSetThingList(selectedIds:Vector.<uint>, things:Vector.<ThingListItem>):void
             {
                 if (!selectedIds) {
                     throw new NullArgumentError("selectedIds");
@@ -769,17 +761,15 @@
                     throw new NullArgumentError("things");
                 }
                 
-                _thingMin = min;
-                _thingMax = max;
-                thingAmountTextInput.text = min + " - " + max;
-                
                 thingList.rememberScroll();
                 thingList.setListObjects(things);
                 thingList.ensureIdIsVisible(selectedIds[0]);
                 thingList.selectedIds = selectedIds;
+                
+                thingAmountTextInput.text = thingList.minId + " - " + thingList.maxId;
             }
             
-            private function onSetSpriteList(selectedIds:Vector.<uint>,  min:uint, max:uint, sprites:Vector.<SpriteData>):void
+            private function onSetSpriteList(selectedIds:Vector.<uint>, sprites:Vector.<SpriteData>):void
             {
                 if (!selectedIds) {
                     throw new NullArgumentError("selectedIds");
@@ -788,9 +778,6 @@
                 if (!sprites) {
                     throw new NullArgumentError("sprites");
                 }
-                
-                _spriteMin = min;
-                _spriteMax = max;
                 
                 spritesList.rememberScroll();
                 spritesList.setListObjects(sprites);
@@ -898,7 +885,7 @@
                 if (!this.loaded || this.spritesList.selectedId == id)  return;
                 
                 // Search index if id is in range of loaded list.
-                if (id >= _spriteMin && id <= _spriteMax) {
+                if (id >= spritesList.minId && id <= spritesList.maxId) {
                     spritesList.ensureIdIsVisible(id);
                     spritesList.selectedId = id;
                     spriteStepper.value = id;
@@ -1156,7 +1143,7 @@
                     this.currentCategory = data.category;
                     
                     // set index if id is in range of loaded thing list.
-                    if (id >= _thingMin && id <= _thingMax) {
+                    if (id >= thingList.minId && id <= thingList.maxId) {
                         thingList.selectedId = id;
                     } else {
                         // request new thing list by target id.
@@ -1841,7 +1828,7 @@
             {
                 if (this.loaded && this.thingData) {
                     var target:uint = Math.max(getMinThingId(), ObUtils.hundredFloor(thingData.id) - 100);
-                    if (target < _thingMin) {
+                    if (target < thingList.minId) {
                         sendCommand(new GetThingCommand(target, this.currentCategory));
                     }
                 }
@@ -1851,7 +1838,7 @@
             {
                 if (loaded && thingData) {
                     var target:uint = Math.min(getMaxThingId(), ObUtils.hundredFloor(thingData.id) + 100);
-                    if (target > _thingMax) {
+                    if (target > thingList.maxId) {
                         sendCommand(new GetThingCommand(target, this.currentCategory));
                     }
                 }

@@ -36,12 +36,9 @@ package nail.objectbuilder.commands.sprites
         //
         //--------------------------------------------------------------------------
         
-        public function SetSpriteListCommand(selectedIds:Vector.<uint>,
-                                             min:uint,
-                                             max:uint,
-                                             sprites:Vector.<SpriteData>)
+        public function SetSpriteListCommand(selectedIds:Vector.<uint>, sprites:Vector.<SpriteData>)
         {
-            super(CommandType.SET_SPRITE_LIST, selectedIds, min, max, sprites);
+            super(CommandType.SET_SPRITE_LIST, selectedIds, sprites);
         }
     }
 }

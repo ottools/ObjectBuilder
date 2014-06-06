@@ -36,12 +36,9 @@ package nail.objectbuilder.commands.things
         //
         //--------------------------------------------------------------------------
         
-        public function SetThingListCommand(selectedIds:Vector.<uint>,
-                                            min:uint,
-                                            max:uint,
-                                            things:Vector.<ThingListItem>)
+        public function SetThingListCommand(selectedIds:Vector.<uint>, things:Vector.<ThingListItem>)
         {
-            super(CommandType.SET_THING_LIST, selectedIds, min, max, things);
+            super(CommandType.SET_THING_LIST, selectedIds, things);
         }
     }
 }
