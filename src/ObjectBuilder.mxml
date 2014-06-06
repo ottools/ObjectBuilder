@@ -1131,19 +1131,21 @@
                 thingView.thingData = data;
                 
                 if (data) {
+                    
+                    this.currentCategory = data.category;
+                    
                     var id:uint = data.id;
-                    thingStepper.value = id;
                     thingStepper.minimum = getMinThingId();
                     thingStepper.maximum = getMaxThingId();
+                    thingStepper.value = id;
                     
                     if (thingTypeEditor.thingData && thingTypeEditor.thingData.id == id) {
                         thingTypeEditor.thingData = data;
                     }
                     
-                    this.currentCategory = data.category;
-                    
                     // set index if id is in range of loaded thing list.
                     if (id >= thingList.minId && id <= thingList.maxId) {
+                        thingList.ensureIdIsVisible(id);
                         thingList.selectedId = id;
                     } else {
                         // request new thing list by target id.
