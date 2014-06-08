@@ -1329,7 +1329,6 @@
                     sendCommand(new GetThingCommand(thingList.selectedId, this.currentCategory));
                 }
                 editThingButton.enabled = !thingList.multipleSelected;
-                this.setSharedProperty("selectedThingId", thingList.selectedId);
             }
             
             protected function categoryDropDownListChangeHandler(event:IndexChangeEvent):void
@@ -1769,7 +1768,6 @@
                     var enable:Boolean = !spritesList.multipleSelected;
                     copySpriteButton.enabled = enable;
                     pasteSpriteButton.enabled = enable;
-                    this.setSharedProperty("selectedSpriteId", this.spritesList.selectedId);
                 }
             }
             
