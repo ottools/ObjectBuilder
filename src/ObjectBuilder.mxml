@@ -194,6 +194,7 @@
             // Getters / Setters 
             //--------------------------------------
             
+            public function get filesInfo():FilesInfo { return _info; }
             public function get loaded():Boolean { return (_info != null); }
             
             public function get compiled():Boolean {

@@ -35,6 +35,7 @@ package nail.objectbuilder.core
     import nail.otlib.sprites.SpriteData;
     import nail.otlib.things.ThingData;
     import nail.otlib.things.ThingType;
+    import nail.otlib.utils.FilesInfo;
     import nail.utils.FileData;
     
     public interface IObjectBuilder extends IApplication
@@ -68,6 +69,7 @@ package nail.objectbuilder.core
         function compileAs():void;
         function unload():void;
         
+        function get filesInfo():FilesInfo;
         function get loaded():Boolean;
         function get compiled():Boolean;
         function get isTemporary():Boolean;
