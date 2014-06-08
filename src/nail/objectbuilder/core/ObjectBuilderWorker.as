@@ -27,7 +27,6 @@ package nail.objectbuilder.core
     import flash.display.BitmapData;
     import flash.events.ErrorEvent;
     import flash.events.Event;
-    import flash.events.ProgressEvent;
     import flash.filesystem.File;
     import flash.geom.Rectangle;
     import flash.net.registerClassAlias;
@@ -52,7 +51,7 @@ package nail.objectbuilder.core
     import nail.objectbuilder.commands.things.SetThingListCommand;
     import nail.objectbuilder.utils.ObUtils;
     import nail.otlib.core.Version;
-    import nail.otlib.events.ThingTypeStorageEvent;
+    import nail.otlib.events.ProgressEvent;
     import nail.otlib.loaders.PathHelper;
     import nail.otlib.loaders.SpriteDataLoader;
     import nail.otlib.loaders.ThingDataLoader;
@@ -295,7 +294,6 @@ package nail.objectbuilder.core
             _things.addEventListener(Event.COMPLETE, thingsCompleteHandler);
             _things.addEventListener(Event.CHANGE, thingsChangeHandler);
             _things.addEventListener(ProgressEvent.PROGRESS, thingsProgressHandler);
-            _things.addEventListener(ThingTypeStorageEvent.FIND_PROGRESS, thingFindProgressHandler);
             _things.addEventListener(ErrorEvent.ERROR, thingsErrorHandler);
             
             _sprites = new SpriteStorage();
@@ -407,7 +405,6 @@ package nail.objectbuilder.core
                 _things.removeEventListener(Event.COMPLETE, thingsCompleteHandler);
                 _things.removeEventListener(Event.CHANGE, thingsChangeHandler);
                 _things.removeEventListener(ProgressEvent.PROGRESS, thingsProgressHandler);
-                _things.removeEventListener(ThingTypeStorageEvent.FIND_PROGRESS, thingFindProgressHandler);
                 _things.removeEventListener(ErrorEvent.ERROR, thingsErrorHandler);
                 _things = null;
             }
@@ -601,7 +598,7 @@ package nail.objectbuilder.core
             
             function progressHandler(event:ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal));
+                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.loaded, event.total));
             }
             
             function completeHandler(event:Event):void
@@ -713,7 +710,7 @@ package nail.objectbuilder.core
             
             function progressHandler(event:ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal));
+                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.loaded, event.total));
             }
             
             function completeHandler(event:Event):void
@@ -836,7 +833,7 @@ package nail.objectbuilder.core
             
             function progressHandler(event:ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal));
+                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.loaded, event.total));
             }
             
             function completeHandler(event:Event):void
@@ -1038,8 +1035,6 @@ package nail.objectbuilder.core
         
         private function onReplaceSprites(sprites:Vector.<SpriteData>):void
         {
-            trace("ObjectBuilderWorker.onReplaceSprites(sprites)");
-            
             if (!sprites) {
                 throw new NullArgumentError("sprites");
             }
@@ -1095,7 +1090,7 @@ package nail.objectbuilder.core
             
             function progressHandler(event:ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal));
+                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.loaded, event.total));
             }
             
             function completeHandler(event:Event):void
@@ -1166,7 +1161,7 @@ package nail.objectbuilder.core
             
             function progressHandler(event:ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal));
+                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.loaded, event.total));
             }
             
             function completeHandler(event:Event):void
@@ -1230,7 +1225,7 @@ package nail.objectbuilder.core
             
             function progressHandler(event:ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal));
+                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.loaded, event.total));
             }
             
             function completeHandler(event:Event):void
@@ -1609,7 +1604,7 @@ package nail.objectbuilder.core
         
         protected function thingsProgressHandler(event:ProgressEvent):void
         {
-            sendCommand(new ProgressCommand(ProgressBarID.DAT, event.bytesLoaded, event.bytesTotal));
+            sendCommand(new ProgressCommand(event.id, event.loaded, event.total));
         }
         
         protected function thingsErrorHandler(event:ErrorEvent):void
@@ -1633,11 +1628,6 @@ package nail.objectbuilder.core
             }
         }
         
-        protected function thingFindProgressHandler(event:ThingTypeStorageEvent):void
-        {
-            sendCommand(new ProgressCommand(ProgressBarID.FIND, event.loaded, event.total));
-        }
-        
         protected function spritesCompleteHandler(event:Event):void
         {
             if (_things && _things.loaded) {
@@ -1653,7 +1643,7 @@ package nail.objectbuilder.core
         
         protected function spritesProgressHandler(event:ProgressEvent):void
         {
-            sendCommand(new ProgressCommand(ProgressBarID.SPR, event.bytesLoaded, event.bytesTotal));
+            sendCommand(new ProgressCommand(event.id, event.loaded, event.total));
         }
         
         protected function spritesErrorHandler(event:ErrorEvent):void

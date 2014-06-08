@@ -27,7 +27,6 @@ package nail.otlib.things
     import flash.events.ErrorEvent;
     import flash.events.Event;
     import flash.events.EventDispatcher;
-    import flash.events.ProgressEvent;
     import flash.filesystem.File;
     import flash.filesystem.FileMode;
     import flash.filesystem.FileStream;
@@ -37,9 +36,10 @@ package nail.otlib.things
     import nail.core.IDisposable;
     import nail.errors.NullArgumentError;
     import nail.logging.Log;
+    import nail.objectbuilder.commands.ProgressBarID;
     import nail.otlib.core.Version;
     import nail.otlib.core.otlib_internal;
-    import nail.otlib.events.ThingTypeStorageEvent;
+    import nail.otlib.events.ProgressEvent;
     import nail.otlib.utils.ChangeResult;
     import nail.otlib.utils.ThingUtils;
     import nail.resources.Resources;
@@ -49,7 +49,7 @@ package nail.otlib.things
     
     [Event(name="complete", type="flash.events.Event")]
     [Event(name="change", type="flash.events.Event")]
-    [Event(name="progress", type="flash.events.ProgressEvent")]
+    [Event(name="progress", type="nail.otlib.events.ProgressEvent")]
     [Event(name="error", type="flash.events.ErrorEvent")]
     [Event(name="findProgress", type="nail.otlib.events.ThingTypeStorageEvent")]
     
@@ -532,8 +532,8 @@ package nail.otlib.things
                     result.push(thing);
                 }
                 
-                if (this.hasEventListener(ThingTypeStorageEvent.FIND_PROGRESS)) {
-                    dispatchEvent(new ThingTypeStorageEvent(ThingTypeStorageEvent.FIND_PROGRESS, thing, current, total));
+                if (this.hasEventListener(ProgressEvent.PROGRESS)) {
+                    dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.FIND, current, total));
                 }
                 current++;
             }
@@ -854,9 +854,9 @@ package nail.otlib.things
                 list[id] = thing;
                 
                 if (dispatchProgress) {
-                    dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS,
-                        false,
-                        false, 
+                    dispatchEvent(new ProgressEvent(
+                        ProgressEvent.PROGRESS,
+                        ProgressBarID.DAT,
                         _progressCount,
                         _thingsCount));
                     _progressCount++;
@@ -905,7 +905,7 @@ package nail.otlib.things
                 }
                 
                 if (dispatchProgress) {
-                    dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, false, false, _progressCount, _thingsCount));
+                    dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.DAT, _progressCount, _thingsCount));
                     _progressCount++;
                 }
             }

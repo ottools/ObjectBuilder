@@ -26,9 +26,7 @@ package nail.otlib.events
 {
     import flash.events.Event;
     
-    import nail.otlib.things.ThingType;
-    
-    public class ThingTypeStorageEvent extends Event
+    public class ProgressEvent extends Event
     {
         //--------------------------------------------------------------------------
         //
@@ -36,7 +34,7 @@ package nail.otlib.events
         //
         //--------------------------------------------------------------------------
         
-        public var thing:ThingType;
+        public var id:uint;
         public var loaded:uint;
         public var total:uint;
         
@@ -46,11 +44,10 @@ package nail.otlib.events
         //
         //--------------------------------------------------------------------------
         
-        public function ThingTypeStorageEvent(type:String, thing:ThingType = null, loaded:uint = 0, total:uint = 0)
+        public function ProgressEvent(type:String, id:uint, loaded:uint = 0, total:uint = 0)
         {
             super(type);
-            
-            this.thing = thing;
+            this.id = id;
             this.loaded = loaded;
             this.total = total;
         }
@@ -67,7 +64,7 @@ package nail.otlib.events
         
         override public function clone():Event
         {
-            return new ThingTypeStorageEvent(this.type, this.thing, this.loaded, this.total);
+            return new ProgressEvent(this.type, this.id, this.loaded, this.total);
         }
         
         //--------------------------------------------------------------------------
@@ -76,6 +73,6 @@ package nail.otlib.events
         //
         //--------------------------------------------------------------------------
         
-        public static const FIND_PROGRESS : String = "findProgress";
+        public static const PROGRESS:String = "progress";
     }
 }

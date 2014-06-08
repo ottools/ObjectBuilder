@@ -28,7 +28,6 @@ package nail.otlib.sprites
     import flash.events.ErrorEvent;
     import flash.events.Event;
     import flash.events.EventDispatcher;
-    import flash.events.ProgressEvent;
     import flash.filesystem.File;
     import flash.filesystem.FileMode;
     import flash.filesystem.FileStream;
@@ -41,8 +40,10 @@ package nail.otlib.sprites
     import nail.core.IDisposable;
     import nail.errors.NullArgumentError;
     import nail.logging.Log;
+    import nail.objectbuilder.commands.ProgressBarID;
     import nail.otlib.core.Version;
     import nail.otlib.core.otlib_internal;
+    import nail.otlib.events.ProgressEvent;
     import nail.otlib.utils.ChangeResult;
     import nail.resources.Resources;
     import nail.utils.FileUtil;
@@ -51,7 +52,7 @@ package nail.otlib.sprites
     
     [Event(name="complete", type="flash.events.Event")]
     [Event(name="change", type="flash.events.Event")]
-    [Event(name="progress", type="flash.events.ProgressEvent")]
+    [Event(name="progress", type="nail.otlib.events.ProgressEvent")]
     [Event(name="error", type="flash.events.ErrorEvent")]
     
     public class SpriteStorage extends EventDispatcher implements IDisposable
@@ -420,7 +421,7 @@ package nail.otlib.sprites
                 if (!equal) {
                     FileUtil.copyToAsync(_file, file);
                 }
-                dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, false, false, _spritesCount, _spritesCount));
+                dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.SPR, _spritesCount, _spritesCount));
                 return true;
             }
             
@@ -450,8 +451,8 @@ package nail.otlib.sprites
                 var addressPosition:uint = stream.position;
                 var offset:uint = (count * 4) + headSize;
                 var dispatchProgess:Boolean = this.hasEventListener(ProgressEvent.PROGRESS);
-                var progressEvent:ProgressEvent = new ProgressEvent(ProgressEvent.PROGRESS);
-                progressEvent.bytesTotal = count;
+                var progressEvent:ProgressEvent = new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.SPR);
+                progressEvent.total = count;
                 
                 for (var i : uint = 1; i <= count; i++) {
                     stream.position = addressPosition;
@@ -481,7 +482,7 @@ package nail.otlib.sprites
                     addressPosition += 4;
                     
                     if (dispatchProgess && (i % 10) == 0) {
-                        progressEvent.bytesLoaded = i;
+                        progressEvent.loaded = i;
                         dispatchEvent(progressEvent);
                     }
                 }
