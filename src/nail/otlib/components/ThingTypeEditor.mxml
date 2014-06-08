@@ -82,6 +82,26 @@
             private var _patternY:uint;
             private var _invalidateThingData:Boolean;
             
+            //--------------------------------------
+            // Getters / Setters 
+            //--------------------------------------
+            
+            public function get bindableThingType():BindableThingType { return _thingBinding; }
+            
+            public function get thingData():ThingData { return _thingData; }
+            public function set thingData(value:ThingData):void
+            {
+                if (_thingData != value) {
+                    _thingData = value;
+                    _thingDataChanged = true;
+                    _changed = false;
+                    invalidateProperties();
+                    dispatchEvent(new ThingEditorEvent(ThingEditorEvent.THING_CHANGE, this.thingData));
+                }
+            }
+            
+            public function get changed():Boolean { return _thingData ? _changed : false; }
+            
             //--------------------------------------------------------------------------
             //
             // METHODS
@@ -427,10 +447,6 @@
                 _point = new Point();
             }
             
-            //--------------------------------------
-            // Event Handlers
-            //--------------------------------------
-            
             protected function buttonDragEnterHandler(event:DragEvent):void
             {
                 var button:Button = event.target as Button;
@@ -490,36 +506,6 @@
             protected function directionButtonClickHandler(event:MouseEvent):void
             {
                 this.selectDirectionButton(event.target as ToggleButton);
-            }
-            
-            //--------------------------------------
-            // Getters / Setters 
-            //--------------------------------------
-            
-            public function get bindableThingType():BindableThingType
-            {
-                return _thingBinding;
-            }
-            
-            public function get thingData():ThingData
-            {
-                return _thingData;
-            }
-            
-            public function set thingData(value:ThingData):void
-            {
-                if (_thingData != value) {
-                    _thingData = value;
-                    _thingDataChanged = true;
-                    _changed = false;
-                    invalidateProperties();
-                    dispatchEvent(new ThingEditorEvent(ThingEditorEvent.THING_CHANGE, this.thingData));
-                }
-            }
-            
-            public function get changed():Boolean
-            {
-                return _thingData ? _changed : false;
             }
             
         ]]>
