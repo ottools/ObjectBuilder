@@ -163,6 +163,8 @@ package nail.otlib.sprites
             if (result.done && hasEventListener(Event.CHANGE)) {
                 dispatchEvent(new Event(Event.CHANGE));
             }
+            
+            _changed = true;
             return result;
         }
         
@@ -176,6 +178,8 @@ package nail.otlib.sprites
             if (result.done && hasEventListener(Event.CHANGE)) {
                 dispatchEvent(new Event(Event.CHANGE));
             }
+            
+            _changed = true;
             return result;
         }
         
@@ -197,6 +201,8 @@ package nail.otlib.sprites
             if (result.done && hasEventListener(Event.CHANGE)) {
                 dispatchEvent(new Event(Event.CHANGE));
             }
+            
+            _changed = true;
             return result;
         }
         
@@ -210,6 +216,8 @@ package nail.otlib.sprites
             if (result.done && hasEventListener(Event.CHANGE)) {
                 dispatchEvent(new Event(Event.CHANGE));
             }
+            
+            _changed = true;
             return result;
         }
         
@@ -223,6 +231,8 @@ package nail.otlib.sprites
             if (result.done && hasEventListener(Event.CHANGE)) {
                 dispatchEvent(new Event(Event.CHANGE));
             }
+            
+            _changed = true;
             return result;
         }
         
@@ -236,6 +246,8 @@ package nail.otlib.sprites
             if (result.done && hasEventListener(Event.CHANGE)) {
                 dispatchEvent(new Event(Event.CHANGE));
             }
+            
+            _changed = true;
             return result;
         }
         
@@ -570,7 +582,6 @@ package nail.otlib.sprites
             // Add sprite to list.
             _sprites[id] = sprite;
             _spritesCount = id;
-            _changed = true;
             
             // Returns the pixels buffer position.
             pixels.position = 0;
@@ -614,7 +625,6 @@ package nail.otlib.sprites
             
             // Add sprite to list.
             _sprites[id] = sprite;
-            _changed = true;
             
             // Return the ByteArray position.
             pixels.position = 0;
@@ -648,12 +658,12 @@ package nail.otlib.sprites
             // Get the removed sprite.
             var removed:Sprite = getSprite(id);
             
-            // Add a blank sprite at index.
-            _sprites[id] = new Sprite(_transparency);
-            _changed = true;
-            
             if (id == _spritesCount && id != 1) {
+                delete _sprites[id];
                 _spritesCount--;
+            } else {
+                // Add a blank sprite at index.
+                _sprites[id] = new Sprite(_transparency);
             }
             
             var data:SpriteData = SpriteData.createSpriteData(id, removed.getPixels());
