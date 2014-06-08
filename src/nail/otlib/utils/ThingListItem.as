@@ -69,11 +69,11 @@ package nail.otlib.utils
         // Public
         //--------------------------------------
         
-        public function getBitmap():BitmapData
+        public function getBitmap(backgroundColor:uint = 0x00000000):BitmapData
         {
             if (pixels && thing && !_bitmap) {
                 pixels.position = 0;
-                _bitmap = new BitmapData(Math.max(32, thing.width * 32), Math.max(32, thing.height * 32), true, 0xFFFF00FF);
+                _bitmap = new BitmapData(Math.max(32, thing.width * 32), Math.max(32, thing.height * 32), true, backgroundColor);
                 if (thing.width != 0 &&
                     thing.height != 0 &&
                     pixels.length == (_bitmap.width * _bitmap.height * 4)) {

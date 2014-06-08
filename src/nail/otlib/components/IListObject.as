@@ -24,8 +24,15 @@
 
 package nail.otlib.components
 {
+    import flash.display.BitmapData;
+
     public interface IListObject
     {
         function get id():uint;
+        
+        /**
+         * @param backgroundColor A 32-bit ARGB color value.
+         */
+        function getBitmap(backgroundColor:uint = 0x00000000):BitmapData;
     }
 }
