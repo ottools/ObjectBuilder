@@ -490,7 +490,7 @@
             {
                 if (this.loaded && this.thingData && this.thingTypeEditor.changed) {
                     if (this.thingTypeEditor.saveChanges()) {
-                        sendCommand(new UpdateThingCommand(thingTypeEditor.thingData));
+                        sendCommand(new UpdateThingCommand(thingTypeEditor.thingData, true));
                     }
                 }
             }
@@ -1296,8 +1296,24 @@
             {
                 if (thingTypeEditor.changed) {
                     if (thingTypeEditor.saveChanges()) {
-                        sendCommand(new UpdateThingCommand(thingTypeEditor.thingData));
+                        var thingData:ThingData = thingTypeEditor.thingData;
+                        if (thingData.sprites[0].id == uint.MAX_VALUE) {
+                            Alert.show(
+                                resourceManager.getString("strings", "wantToReplaceSprites"),
+                                "",
+                                Alert.YES | Alert.NO,
+                                this,
+                                closeHandler);
+                            return;
+                        }
+                        
+                        sendCommand(new UpdateThingCommand(thingData, false));
                     }
+                }
+                
+                function closeHandler(event:CloseEvent):void
+                {
+                    sendCommand(new UpdateThingCommand(thingTypeEditor.thingData, (event.detail == Alert.YES)));
                 }
             }
             

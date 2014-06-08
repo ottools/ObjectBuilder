@@ -72,6 +72,11 @@ package nail.otlib.sprites
         // Public
         //--------------------------------------
         
+        public function toString():String
+        {
+            return "[object ThingData id="+id+"]";
+        }
+        
         /**
          * @param backgroundColor A 32-bit ARGB color value.
          */

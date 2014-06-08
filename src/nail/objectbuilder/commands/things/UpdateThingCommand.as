@@ -24,9 +24,9 @@
 
 package nail.objectbuilder.commands.things
 {
+    import nail.objectbuilder.commands.CommandType;
     import nail.otlib.things.ThingData;
     import nail.workers.Command;
-    import nail.objectbuilder.commands.CommandType;
     
     public class UpdateThingCommand extends Command
     {
@@ -36,9 +36,9 @@ package nail.objectbuilder.commands.things
         //
         //--------------------------------------------------------------------------
         
-        public function UpdateThingCommand(thingData:ThingData)
+        public function UpdateThingCommand(thingData:ThingData, replaceSprites:Boolean)
         {
-            super(CommandType.UPDATE_THING, thingData);
+            super(CommandType.UPDATE_THING, thingData, replaceSprites);
         }
     }
 }

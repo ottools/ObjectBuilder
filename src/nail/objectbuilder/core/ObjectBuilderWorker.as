@@ -460,7 +460,7 @@ package nail.objectbuilder.core
             Log.info(message);
         }
         
-        private function onUpdateThing(thingData:ThingData):void
+        private function onUpdateThing(thingData:ThingData, replaceSprites:Boolean):void
         {
             if (!thingData) {
                 throw new NullArgumentError("thingData");
@@ -469,13 +469,22 @@ package nail.objectbuilder.core
             var result:ChangeResult;
             var thing:ThingType = thingData.thing;
             
+            if (!_things.hasThingType(thing.category, thing.id)) {
+                throw new Error(Resources.getString(
+                    "strings",
+                    "thingNotFound",
+                    toLocale(thing.category),
+                    thing.id));
+            }
+            
             //============================================================================
             // Update sprites
             
             var sprites:Vector.<SpriteData> = thingData.sprites;
             var length:uint = sprites.length;
-            var spritesIds:Array = [];
+            var spritesIds:Vector.<uint> = new Vector.<uint>();
             var addedSpriteList:Array = [];
+            var currentThing:ThingType = _things.getThingType(thing.id, thing.category);
             
             for (var i:uint = 0; i < length; i++) {
                 var spriteData:SpriteData = sprites[i];
@@ -485,7 +494,13 @@ package nail.objectbuilder.core
                     if (spriteData.isEmpty()) {
                         thing.spriteIndex[i] = 0;
                     } else {
-                        result = _sprites.addSprite(spriteData.pixels);
+                        
+                        if (replaceSprites) {
+                            result = _sprites.replaceSprite(currentThing.spriteIndex[i], spriteData.pixels);
+                        } else {
+                            result = _sprites.addSprite(spriteData.pixels);
+                        }
+                        
                         if (!result.done) {
                             Log.error(result.message);
                             return;
@@ -520,14 +535,15 @@ package nail.objectbuilder.core
             
             // Sprites change message
             if (spritesIds.length > 0) {
-                onGetSpriteList(_sprites.spritesCount);
                 message = Resources.getString(
                     "strings",
-                    "logAdded",
+                    replaceSprites ? "logReplaced" : "logAdded",
                     toLocale("sprite", spritesIds.length > 1),
                     spritesIds);
                 
                 Log.info(message);
+                
+                this.setSelectedSpriteIds(spritesIds);
             }
             
             // Thing change message
