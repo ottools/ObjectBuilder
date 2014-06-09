@@ -35,6 +35,12 @@
          fontSize="11"
          creationComplete="creationCompleteHandler(event)">
     
+    <fx:Declarations>
+        <s:RadioButtonGroup id="renderOrder"
+                            enabled="{!groundGroupCheckBox.selected}"
+                            change="renderOrderChangeHandler(event)"/>
+    </fx:Declarations>
+    
     <fx:Metadata>
         [Event(name="thingChange", type="nail.otlib.events.ThingEditorEvent")]
         [Event(name="thingPropertyChange", type="nail.otlib.events.ThingEditorEvent")]
@@ -56,11 +62,12 @@
             import nail.otlib.components.skins.SpriteButtonSkin;
             import nail.otlib.events.ThingEditorEvent;
             import nail.otlib.sprites.Sprite;
+            import nail.otlib.sprites.SpriteData;
             import nail.otlib.things.BindableThingType;
             import nail.otlib.things.ThingCategory;
-            import nail.otlib.things.ThingType;
-            import nail.otlib.sprites.SpriteData;
             import nail.otlib.things.ThingData;
+            import nail.otlib.things.ThingType;
+            import nail.otlib.utils.FilesInfo;
             
             //--------------------------------------------------------------------------
             //
@@ -81,6 +88,8 @@
             private var _patternX:uint;
             private var _patternY:uint;
             private var _invalidateThingData:Boolean;
+            private var _filesInfo:FilesInfo;
+            private var _filesInfoChanged:Boolean;
             
             //--------------------------------------
             // Getters / Setters 
@@ -101,6 +110,16 @@
             }
             
             public function get changed():Boolean { return _thingData ? _changed : false; }
+            
+            public function get filesInfo():FilesInfo { return _filesInfo; }
+            public function set filesInfo(value:FilesInfo):void
+            {
+                if (_filesInfo != value) {
+                    _filesInfo = value;
+                    _filesInfoChanged = true;
+                    invalidateProperties();
+                }
+            }
             
             //--------------------------------------------------------------------------
             //
@@ -167,12 +186,18 @@
                 
                 if (_thingDataChanged) {
                     setThingData(_thingData);
+                    setFilesInfo(_filesInfo)
                     _thingDataChanged = false;
                 }
                 
                 if (_invalidateThingData) {
                     _changed = true;
                     _invalidateThingData = false;
+                }
+                
+                if (_filesInfoChanged) {
+                    setFilesInfo(_filesInfo);
+                    _filesInfoChanged = false;
                 }
             }
             
@@ -212,6 +237,105 @@
                 
                 _changed = false;
                 _loading = false;
+                
+                checkThingOrder();
+            }
+            
+            private function setFilesInfo(info:FilesInfo):void
+            {
+                if (!this.thingData || !info) return;
+                
+                var category:String = thingData.category;
+                var visible:Boolean = (category == ThingCategory.ITEM || category == ThingCategory.OUTFIT);
+                flagsGroupBox.visible = visible;
+                flagsGroupBox.includeInLayout = visible;
+                
+                visible = (category == ThingCategory.OUTFIT);
+                animateAlwaysCheckBox.visible = visible;
+                animateAlwaysCheckBox.includeInLayout = visible;
+                
+                var isItem:Boolean = (category == ThingCategory.ITEM);
+                groundGroupCheckBox.visible = isItem;
+                groundGroupCheckBox.includeInLayout = isItem;
+                automapGroupCheckBox.visible = isItem;
+                automapGroupCheckBox.includeInLayout = isItem;
+                hasElevationGroupCheckBox.visible = isItem;
+                hasElevationGroupCheckBox.includeInLayout = isItem;
+                writeReadGroupCheckBox.visible = isItem;
+                writeReadGroupCheckBox.includeInLayout = isItem;
+                flagsLeftColumn.visible = isItem;
+                flagsLeftColumn.includeInLayout = isItem;
+                pickupableCheckBox.visible = isItem;
+                pickupableCheckBox.includeInLayout = isItem;
+                rotatableCheckBox.visible = isItem;
+                rotatableCheckBox.includeInLayout = isItem;
+                isLyingObjectCheckBox.visible = isItem;
+                isLyingObjectCheckBox.includeInLayout = isItem;
+                fullGroundCheckBox.visible = isItem;
+                fullGroundCheckBox.includeInLayout = isItem;
+                
+                if (info.version >= 755) {
+                    offsetXNumericStepper.minimum = 1;
+                    offsetXNumericStepper.maximum = 32;
+                    offsetYNumericStepper.minimum = 1;
+                    offsetYNumericStepper.maximum = 32;
+                } else {
+                    offsetXNumericStepper.minimum = 8;
+                    offsetXNumericStepper.maximum = 8;
+                    offsetYNumericStepper.minimum = 8;
+                    offsetYNumericStepper.maximum = 8;
+                }
+                
+                visible = (isItem && info.version >= 755);
+                groundBorderRadioButton.enabled = visible;
+                hangableCheckBox.visible = visible;
+                hangableCheckBox.includeInLayout = visible;
+                horizontalCheckBox.visible = visible;
+                horizontalCheckBox.includeInLayout = visible;
+                verticalCheckBox.visible = visible;
+                verticalCheckBox.includeInLayout = visible;
+                
+                visible = (info.version >= 755);
+                patternZLabel.visible = visible;
+                patternZLabel.includeInLayout = visible;
+                patternZNumericStepper.visible = visible;
+                patternZNumericStepper.includeInLayout = visible;
+                
+                visible = (isItem && info.version >= 780);
+                dontHideCheckBox.visible = visible;
+                dontHideCheckBox.includeInLayout = visible;
+                ignoreLookCheckBox.visible = visible;
+                ignoreLookCheckBox.includeInLayout = visible;
+                
+                visible = (isItem && info.version >= 780 && info.version <= 854);
+                chargesCheckBox.visible = visible;
+                chargesCheckBox.includeInLayout = visible;
+                
+                visible = (isItem && info.version >= 710 && info.version <= 854);
+                floorChangeCheckBox.visible = visible;
+                floorChangeCheckBox.includeInLayout = visible;
+                
+                visible = (isItem && info.version >= 860);
+                translucentCheckBox.visible = visible;
+                translucentCheckBox.includeInLayout = visible;
+                
+                visible = (isItem && info.version >= 900);
+                equipGroupCheckBox.visible = visible;
+                equipGroupCheckBox.includeInLayout = visible;
+                
+                visible = (isItem && info.version >= 940);
+                marketGroupCheckBox.visible = visible;
+                marketGroupCheckBox.includeInLayout = visible;
+                
+                visible = (isItem && info.version >= 1010);
+                noMoveAnimationCheckBox.visible = visible;
+                noMoveAnimationCheckBox.includeInLayout = visible;
+                
+                visible = (isItem && info.version >= 1021);
+                actionGroupCheckBox.visible = visible;
+                actionGroupCheckBox.includeInLayout = visible;
+                usableCheckBox.visible = visible;
+                usableCheckBox.includeInLayout = visible;
             }
             
             private function updateViewWithDirection():void
@@ -435,6 +559,18 @@
                 updatePreview();
             }
             
+            private function checkThingOrder():void
+            {
+                if (filesInfo.version > 750 && _thingBinding.isGroundBorder)
+                    renderOrder.selectedIndex = 1;
+                else if (_thingBinding.isOnBottom)
+                    renderOrder.selectedIndex = 2;
+                else if (_thingBinding.isOnTop)
+                    renderOrder.selectedIndex = 3;
+                else 
+                    renderOrder.selectedIndex = 0;
+            }
+            
             //--------------------------------------
             // Event Handlers
             //--------------------------------------
@@ -487,7 +623,7 @@
             {
                 if (!_loading) {
                     _changed = true;
-                    if (event.property) {
+                    if (event.property != null) {
                         var evt:ThingEditorEvent = new ThingEditorEvent(ThingEditorEvent.THING_PROPERTY_CHANGE, this.thingData);
                         evt.property = BindableThingType.toLabel(event.property as String);
                         evt.oldValue = event.oldValue;
@@ -506,6 +642,14 @@
             protected function directionButtonClickHandler(event:MouseEvent):void
             {
                 this.selectDirectionButton(event.target as ToggleButton);
+            }
+            
+            protected function renderOrderChangeHandler(event:Event):void
+            {
+                _thingBinding.isGroundBorder = (renderOrder.selectedIndex == 1);
+                _thingBinding.isOnBottom = (renderOrder.selectedIndex == 2);
+                _thingBinding.isOnTop = (renderOrder.selectedIndex == 3);
+                checkThingOrder();
             }
             
         ]]>
@@ -752,7 +896,8 @@
                                           minimum="1"
                                           value="{_thingBinding.patternY}"
                                           change="{_thingBinding.patternY = patternYNumericStepper.value; textureUpdate(event);}"/>
-                        <s:Label text="{resourceManager.getString('strings', 'patternZ') + ':'}"
+                        <s:Label id="patternZLabel"
+                                 text="{resourceManager.getString('strings', 'patternZ') + ':'}"
                                  verticalAlign="middle"
                                  textAlign="right"/>
                         <s:NumericStepper id="patternZNumericStepper"
@@ -1211,21 +1356,19 @@
                 <s:VGroup id="flagsLeftColumn" 
                           width="100%"
                           height="100%">
-                    <s:CheckBox id="clipCheckBox"
-                                label="@Resource(key='isOnClip', bundle='strings')"
-                                toolTip="@Resource(key='toolTip.clip', bundle='strings')"
-                                selected="{_thingBinding.isGroundBorder}"
-                                change="{_thingBinding.isGroundBorder = clipCheckBox.selected;}"/>
-                    <s:CheckBox id="bottomCheckBox"
-                                label="@Resource(key='isOnBottom', bundle='strings')"
-                                toolTip="@Resource(key='toolTip.bottom', bundle='strings')"
-                                selected="{_thingBinding.isOnBottom}"
-                                change="{_thingBinding.isOnBottom = bottomCheckBox.selected;}"/>
-                    <s:CheckBox id="topCheckBox"
-                                label="@Resource(key='isOnTop', bundle='strings')"
-                                toolTip="@Resource(key='toolTip.top', bundle='strings')"
-                                selected="{_thingBinding.isOnTop}"
-                                change="{_thingBinding.isOnTop = topCheckBox.selected;}"/>
+                    
+                    <s:RadioButton id="commomRadioButton"
+                                   label="@Resource(key='isCommom', bundle='strings')"
+                                   group="{renderOrder}"/>
+                    <s:RadioButton id="groundBorderRadioButton"
+                                   label="@Resource(key='isGroundBorder', bundle='strings')"
+                                   group="{renderOrder}"/>
+                    <s:RadioButton id="onBottomRadioButton"
+                                   label="@Resource(key='isOnBottom', bundle='strings')"
+                                   group="{renderOrder}"/>
+                    <s:RadioButton id="onTopRadioButton"
+                                   label="@Resource(key='isOnTop', bundle='strings')"
+                                   group="{renderOrder}"/>
                     <s:CheckBox id="containerCheckBox"
                                 label="@Resource(key='container', bundle='strings')"
                                 selected="{_thingBinding.isContainer}"

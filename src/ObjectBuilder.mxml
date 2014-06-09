@@ -734,6 +734,7 @@
             {
                 _info = info;
                 infoPanel.setFilesInfo(info);
+                thingTypeEditor.filesInfo = info;
                 
                 if (info) {
                     thingStepper.minimum = getMinThingId();
@@ -1016,79 +1017,6 @@
                 thingTypeEditor.visible = (data != null);
                 confirmButton.enabled = thingTypeEditor.changed;
                 cancelButton.enabled = (data != null);
-                
-                if (this.loaded && data) {
-                    // Hide unused controls to non-item objects.
-                    var visible:Boolean = (data.category == ThingCategory.ITEM);
-                    
-                    thingTypeEditor.groundGroupCheckBox.visible = visible;
-                    thingTypeEditor.groundGroupCheckBox.includeInLayout = visible;
-                    thingTypeEditor.automapGroupCheckBox.visible = visible;
-                    thingTypeEditor.automapGroupCheckBox.includeInLayout = visible;
-                    thingTypeEditor.hasElevationGroupCheckBox.visible = visible;
-                    thingTypeEditor.hasElevationGroupCheckBox.includeInLayout = visible;
-                    thingTypeEditor.equipGroupCheckBox.visible = visible;
-                    thingTypeEditor.equipGroupCheckBox.includeInLayout = visible;
-                    thingTypeEditor.writeReadGroupCheckBox.visible = visible;
-                    thingTypeEditor.writeReadGroupCheckBox.includeInLayout = visible;
-                    thingTypeEditor.flagsLeftColumn.visible = visible;
-                    thingTypeEditor.flagsLeftColumn.includeInLayout = visible;
-                    thingTypeEditor.pickupableCheckBox.visible = visible;
-                    thingTypeEditor.pickupableCheckBox.includeInLayout = visible;
-                    thingTypeEditor.pickupableCheckBox.visible = visible;
-                    thingTypeEditor.pickupableCheckBox.includeInLayout = visible;
-                    thingTypeEditor.hangableCheckBox.visible = visible;
-                    thingTypeEditor.hangableCheckBox.includeInLayout = visible;
-                    thingTypeEditor.horizontalCheckBox.visible = visible;
-                    thingTypeEditor.horizontalCheckBox.includeInLayout = visible;
-                    thingTypeEditor.verticalCheckBox.visible = visible;
-                    thingTypeEditor.verticalCheckBox.includeInLayout = visible;
-                    thingTypeEditor.rotatableCheckBox.visible = visible;
-                    thingTypeEditor.rotatableCheckBox.includeInLayout = visible;
-                    thingTypeEditor.dontHideCheckBox.visible = visible;
-                    thingTypeEditor.dontHideCheckBox.includeInLayout = visible;
-                    thingTypeEditor.translucentCheckBox.visible = visible;
-                    thingTypeEditor.translucentCheckBox.includeInLayout = visible;
-                    thingTypeEditor.isLyingObjectCheckBox.visible = visible;
-                    thingTypeEditor.isLyingObjectCheckBox.includeInLayout = visible;
-                    thingTypeEditor.fullGroundCheckBox.visible = visible;
-                    thingTypeEditor.fullGroundCheckBox.includeInLayout = visible;
-                    thingTypeEditor.ignoreLookCheckBox.visible = visible;
-                    thingTypeEditor.ignoreLookCheckBox.includeInLayout = visible;
-                    thingTypeEditor.animateAlwaysCheckBox.visible = !visible;
-                    thingTypeEditor.animateAlwaysCheckBox.includeInLayout = !visible;
-                    
-                    // Hide 'Market' GroupCheckBox.
-                    visible = (_info.version >= 940 && data.category == ThingCategory.ITEM);
-                    thingTypeEditor.marketGroupCheckBox.visible = visible;
-                    thingTypeEditor.marketGroupCheckBox.includeInLayout = visible;
-                    
-                    // Hide 'No Move Animation' CheckBox by version.
-                    visible = (_info.version >= 1010 && data.category == ThingCategory.ITEM);
-                    thingTypeEditor.noMoveAnimationCheckBox.visible = visible;
-                    thingTypeEditor.noMoveAnimationCheckBox.includeInLayout = visible;
-                    
-                    // Hide 'Action' GroupCheckBox and 'Usable' CheckBox by version.
-                    visible = (_info.version >= 1021 && data.category == ThingCategory.ITEM);
-                    thingTypeEditor.actionGroupCheckBox.visible = visible;
-                    thingTypeEditor.actionGroupCheckBox.includeInLayout = visible;
-                    thingTypeEditor.usableCheckBox.visible = visible;
-                    thingTypeEditor.usableCheckBox.includeInLayout = visible;
-                    
-                    // Charges, Floor Change, Equip and Translucent.
-                    visible = (_info.version <= 854 && data.category == ThingCategory.ITEM);
-                    thingTypeEditor.chargesCheckBox.visible = visible;
-                    thingTypeEditor.chargesCheckBox.includeInLayout = visible;
-                    thingTypeEditor.floorChangeCheckBox.visible = visible;
-                    thingTypeEditor.floorChangeCheckBox.includeInLayout = visible;
-                    
-                    if (_info.version <= 854) {
-                        thingTypeEditor.translucentCheckBox.visible = false;
-                        thingTypeEditor.translucentCheckBox.includeInLayout = false;
-                        thingTypeEditor.equipGroupCheckBox.visible = false;
-                        thingTypeEditor.equipGroupCheckBox.includeInLayout = false;
-                    }
-                }
             }
             
             private function getMinThingId():uint

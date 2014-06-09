@@ -140,12 +140,18 @@ package nail.otlib.things
             bytes.writeUTF(thing.category);  // Write thing category
             
             var done:Boolean;
-            if (version.value <= 854)
+            if (version.value <= 730)
                 done = ThingSerializer.writeProperties1(thing, bytes);
-            else if (version.value <= 986)
+            else if (version.value <= 750)
                 done = ThingSerializer.writeProperties2(thing, bytes);
-            else
+            else if (version.value <= 772)
                 done = ThingSerializer.writeProperties3(thing, bytes);
+            else if (version.value <= 854)
+                done = ThingSerializer.writeProperties4(thing, bytes);
+            else if (version.value <= 986)
+                done = ThingSerializer.writeProperties5(thing, bytes);
+            else
+                done = ThingSerializer.writeProperties6(thing, bytes);
             
             if (!done || !writeSprites(data, bytes)) return null;
             
@@ -174,12 +180,18 @@ package nail.otlib.things
             }
             
             var done:Boolean;
-            if (version.value <= 854)
+            if (version.value <= 730)
                 done = ThingSerializer.readProperties1(thing, bytes);
-            else if (version.value <= 986)
+            else if (version.value <= 750)
                 done = ThingSerializer.readProperties2(thing, bytes);
-            else
+            else if (version.value <= 772)
                 done = ThingSerializer.readProperties3(thing, bytes);
+            else if (version.value <= 854)
+                done = ThingSerializer.readProperties4(thing, bytes);
+            else if (version.value <= 986)
+                done = ThingSerializer.readProperties5(thing, bytes);
+            else
+                done = ThingSerializer.readProperties6(thing, bytes);
             
             if (!done) return null;
             return readThingSprites(thing, bytes);

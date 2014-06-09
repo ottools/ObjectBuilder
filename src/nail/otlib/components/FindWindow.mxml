@@ -300,7 +300,7 @@
                                     label="@Resource(key='isGround', bundle='strings')"
                                     change="{_bindableThingType.isGround = isGroundCheckBox.selected;}"/>
                         <s:CheckBox id="clipCheckBox"
-                                    label="@Resource(key='isOnClip', bundle='strings')"
+                                    label="@Resource(key='isGroundBorder', bundle='strings')"
                                     toolTip="@Resource(key='toolTip.clip', bundle='strings')"
                                     change="{_bindableThingType.isGroundBorder = clipCheckBox.selected;}"/>
                         <s:CheckBox id="bottomCheckBox"

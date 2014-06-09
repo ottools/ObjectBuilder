@@ -820,12 +820,18 @@ package nail.otlib.things
                                              category:String):Boolean
         {
             var type:uint;
-            if (version.value <= 854)
+            if (version.value <= 730)
                 type = 1;
-            else if (version.value <= 986)
+            else if (version.value <= 750)
                 type = 2;
-            else
+            else if (version.value <= 772)
                 type = 3;
+            else if (version.value <= 854)
+                type = 4;
+            else if (version.value <= 986)
+                type = 5;
+            else
+                type = 6;
             
             extended = (extended || version.value >= 960);
             var dispatchProgress:Boolean = this.hasEventListener(ProgressEvent.PROGRESS);
@@ -836,6 +842,7 @@ package nail.otlib.things
                 thing.category = category;
                 
                 switch(type) {
+                    
                     case 1:
                         if (!ThingSerializer.readProperties1(thing, stream)) return false;
                         break;
@@ -845,10 +852,20 @@ package nail.otlib.things
                     case 3:
                         if (!ThingSerializer.readProperties3(thing, stream)) return false;
                         break;
+                    case 4:
+                        if (!ThingSerializer.readProperties4(thing, stream)) return false;
+                        break;
+                    case 5:
+                        if (!ThingSerializer.readProperties5(thing, stream)) return false;
+                        break;
+                    case 6:
+                        if (!ThingSerializer.readProperties6(thing, stream)) return false;
+                        break;
                     default:
                         return false;
                 }
-                if (!ThingSerializer.readSprites(thing, stream, extended)) return false;
+                
+                if (!ThingSerializer.readSprites(thing, stream, extended, type > 2)) return false;
                 
                 list[id] = thing;
                 
@@ -872,12 +889,18 @@ package nail.otlib.things
                                           extended:Boolean):Boolean
         {
             var type:uint;
-            if (version.value <= 854)
+            if (version.value <= 730)
                 type = 1;
-            else if (version.value <= 986)
+            else if (version.value <= 750)
                 type = 2;
-            else
+            else if (version.value <= 772)
                 type = 3;
+            else if (version.value <= 854)
+                type = 4;
+            else if (version.value <= 986)
+                type = 5;
+            else
+                type = 6;
             
             extended = (extended || version.value >= 960);
             var dispatchProgress:Boolean = this.hasEventListener(ProgressEvent.PROGRESS);
@@ -895,10 +918,20 @@ package nail.otlib.things
                         case 3:
                             if (!ThingSerializer.writeProperties3(thing, stream)) return false;
                             break;
+                        case 4:
+                            if (!ThingSerializer.writeProperties4(thing, stream)) return false;
+                            break;
+                        case 5:
+                            if (!ThingSerializer.writeProperties5(thing, stream)) return false;
+                            break;
+                        case 6:
+                            if (!ThingSerializer.writeProperties6(thing, stream)) return false;
+                            break;
                         default:
                             return false;
                     }
-                    if (!ThingSerializer.writeSprites(thing, stream, extended)) return false;
+                    
+                    if (!ThingSerializer.writeSprites(thing, stream, extended, type > 2)) return false;
                 } else {
                     stream.writeByte(ThingSerializer.LAST_FLAG); // Close flags
                 }

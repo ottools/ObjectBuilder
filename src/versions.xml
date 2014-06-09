@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <versions>
+	<version value="710" string="7.10" dat="3DFF4B2A" spr="3DFF4AEB" otb="0"/>
+	<version value="730" string="7.30" dat="411A6233" spr="411A6279" otb="0"/>
+	<version value="740" string="7.40" dat="41BF619C" spr="41B9EA86" otb="1"/>
+	<version value="750" string="7.50" dat="42F81973" spr="42F81949" otb="1"/>
+	<version value="755" string="7.55" dat="437B2B8F" spr="434F9CDE" otb="2"/>
+	<version value="760" string="7.60" dat="439D5A33" spr="439852BE" otb="3"/>
+	<version value="770" string="7.70" dat="439D5A33" spr="439852BE" otb="3"/>
+	<version value="780" string="7.80" dat="44CE4743" spr="44CE4206" otb="4"/>
+	<version value="790" string="7.90" dat="457D854E" spr="457957C8" otb="5"/>
+	<version value="792" string="7.92" dat="459E7B73" spr="45880FE8" otb="6"/>
 	<version value="800" string="8.00" dat="467FD7E6" spr="467F9E74" otb="7"/>
 	<version value="810" string="8.10" dat="475D3747" spr="475D0B01" otb="8"/>
 	<version value="811" string="8.11" dat="47F60E37" spr="47EBB9B2" otb="9"/>
@@ -24,7 +34,6 @@
 	<version value="870" string="8.70" dat="4CFE22C5" spr="4CFD078A" otb="23"/>
 	<version value="871" string="8.71" dat="4D41979E" spr="4D3D65D0" otb="24"/>
 	<version value="872" string="8.72" dat="4DAD1A1A" spr="4DAD1A32" otb="25"/>
-	<version value="873" string="8.73" dat="4DBAA20B" spr="4DAD1A32" otb="26"/>
 	<version value="900" string="9.00" dat="4DBAA20B" spr="4DAD1A32" otb="27"/>
 	<version value="910" string="9.10" dat="4E12DAFF" spr="4E12DB27" otb="28"/>
 	<version value="920" string="9.20" dat="4E807C08" spr="4E807C23" otb="29"/>
