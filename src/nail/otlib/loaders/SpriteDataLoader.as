@@ -33,7 +33,6 @@ package nail.otlib.loaders
     import flash.events.Event;
     import flash.events.EventDispatcher;
     import flash.events.IOErrorEvent;
-    import flash.events.ProgressEvent;
     import flash.filesystem.File;
     import flash.net.URLLoader;
     import flash.net.URLLoaderDataFormat;
@@ -42,12 +41,14 @@ package nail.otlib.loaders
     
     import nail.codecs.ImageFormat;
     import nail.errors.NullArgumentError;
+    import nail.objectbuilder.commands.ProgressBarID;
+    import nail.otlib.events.ProgressEvent;
     import nail.otlib.sprites.Sprite;
     import nail.otlib.sprites.SpriteData;
     import nail.otlib.utils.SpriteUtils;
     import nail.resources.Resources;
     
-    [Event(name="progress", type="flash.events.ProgressEvent")]
+    [Event(name="progress", type="nail.otlib.events.ProgressEvent")]
     [Event(name="complete", type="flash.events.Event")]
     [Event(name="error", type="flash.events.ErrorEvent")]
     
@@ -135,7 +136,7 @@ package nail.otlib.loaders
             _index++;
             
             if (hasEventListener(ProgressEvent.PROGRESS)) {
-                dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, false, false, _index, _files.length));
+                dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.DEFAULT, _index, _files.length));
             }
             
             if (_index >= _files.length) {

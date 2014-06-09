@@ -608,13 +608,13 @@ package nail.objectbuilder.core
                 }
                 helper.addFile(bytes, name, format, file);
             }
-            helper.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+            helper.addEventListener(flash.events.ProgressEvent.PROGRESS, progressHandler);
             helper.addEventListener(Event.COMPLETE, completeHandler);
             helper.save();
             
-            function progressHandler(event:ProgressEvent):void
+            function progressHandler(event:flash.events.ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.loaded, event.total));
+                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal));
             }
             
             function completeHandler(event:Event):void
@@ -726,7 +726,7 @@ package nail.objectbuilder.core
             
             function progressHandler(event:ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.loaded, event.total));
+                sendCommand(new ProgressCommand(event.id, event.loaded, event.total));
             }
             
             function completeHandler(event:Event):void
@@ -849,7 +849,7 @@ package nail.objectbuilder.core
             
             function progressHandler(event:ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.loaded, event.total));
+                sendCommand(new ProgressCommand(event.id, event.loaded, event.total));
             }
             
             function completeHandler(event:Event):void
@@ -1106,7 +1106,7 @@ package nail.objectbuilder.core
             
             function progressHandler(event:ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.loaded, event.total));
+                sendCommand(new ProgressCommand(event.id, event.loaded, event.total));
             }
             
             function completeHandler(event:Event):void
@@ -1177,7 +1177,7 @@ package nail.objectbuilder.core
             
             function progressHandler(event:ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.loaded, event.total));
+                sendCommand(new ProgressCommand(event.id, event.loaded, event.total));
             }
             
             function completeHandler(event:Event):void
@@ -1235,13 +1235,13 @@ package nail.objectbuilder.core
                     }
                 }
             }
-            helper.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+            helper.addEventListener(flash.events.ProgressEvent.PROGRESS, progressHandler);
             helper.addEventListener(Event.COMPLETE, completeHandler);
             helper.save();
             
-            function progressHandler(event:ProgressEvent):void
+            function progressHandler(event:flash.events.ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.loaded, event.total));
+                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal));
             }
             
             function completeHandler(event:Event):void

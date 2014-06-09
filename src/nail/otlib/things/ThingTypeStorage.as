@@ -51,7 +51,6 @@ package nail.otlib.things
     [Event(name="change", type="flash.events.Event")]
     [Event(name="progress", type="nail.otlib.events.ProgressEvent")]
     [Event(name="error", type="flash.events.ErrorEvent")]
-    [Event(name="findProgress", type="nail.otlib.events.ThingTypeStorageEvent")]
     
     public class ThingTypeStorage extends EventDispatcher implements IDisposable
     {
