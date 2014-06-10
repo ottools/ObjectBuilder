@@ -1357,8 +1357,8 @@
                           width="100%"
                           height="100%">
                     
-                    <s:RadioButton id="commomRadioButton"
-                                   label="@Resource(key='isCommom', bundle='strings')"
+                    <s:RadioButton id="commonRadioButton"
+                                   label="@Resource(key='isCommon', bundle='strings')"
                                    group="{renderOrder}"/>
                     <s:RadioButton id="groundBorderRadioButton"
                                    label="@Resource(key='isGroundBorder', bundle='strings')"
