@@ -62,7 +62,7 @@
                 <menuitem label="{resourceManager.getString('strings', 'menu.logWindow')}"  keyEquivalent='L' data="windowOpenLog" icon="nail.assets.Icons_LOG"/>
             </menuitem>	
             <menuitem label="{resourceManager.getString('strings', 'menu.help')}">
-                <menuitem label="{resourceManager.getString('strings', 'menu.helpContents')}" data="helpContents" enabled="false" icon="nail.assets.Icons_HELP"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.helpContents')}" data="helpContents" enabled="true" icon="nail.assets.Icons_HELP"/>
                 <menuitem type="separator"/>
                 <menuitem label="{resourceManager.getString('strings', 'menu.about')}" data="helpAbout" icon="nail.assets.Icons_INFO"/>
             </menuitem>	
