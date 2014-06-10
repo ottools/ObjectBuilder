@@ -13,6 +13,8 @@ Object Builder is a dat and spr files editor.
 
 ### Download
 
+[Object Builder 0.3 Alpha2] (http://www.4shared.com/file/OKmpyiM9ce/ObjectBuilder03Alpha2.html)
+
 [Object Builder 0.2.9] (http://www.4shared.com/file/SUeAUR00ba/ObjectBuilder039.html)
 
 [Object Builder 0.2.8] (http://www.4shared.com/file/JarzzCOaba/ObjectBuilder028.html)
