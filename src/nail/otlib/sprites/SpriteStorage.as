@@ -325,10 +325,11 @@ package nail.otlib.sprites
         
         public function hasSpriteId(id:uint):Boolean
         {
-            if (!_loaded || id == 0 || id > _spritesCount) {
-                return false;
+            if (_loaded && id <= _spritesCount)
+            {
+                return true;
             }
-            return true;
+            return false;
         }
         
         /**
