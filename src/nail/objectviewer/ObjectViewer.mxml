@@ -194,8 +194,8 @@
                 
                 previousButton.enabled = (list && list.length > 1);
                 nextButton.enabled = previousButton.enabled;
-                importButton.enabled = previousButton.enabled;
-                deleteButton.enabled = previousButton.enabled;
+                importButton.enabled = (list && list.length != 0);
+                deleteButton.enabled = importButton.enabled;
                 
                 loadThingData(target);
                 
