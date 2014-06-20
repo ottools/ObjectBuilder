@@ -63,6 +63,7 @@
     
     <fx:Script>
         <![CDATA[
+            import mx.events.DragEvent;
             import mx.events.FlexEvent;
             import mx.events.MenuEvent;
             import mx.events.MoveEvent;
@@ -665,6 +666,12 @@
                 this.createThingData();
             }
             
+            protected function animationsListDragCompleteHandler(event:DragEvent):void
+            {
+                this.createThingData();
+                this.animationsList.refresh();
+            }
+            
             override protected function keyDownHandler(event:KeyboardEvent):void
             {
                 var keyCode:uint = event.keyCode;
@@ -916,7 +923,7 @@
                                            itemRenderer="nail.animationeditor.renders.FrameListRenderer"
                                            duplicate="animationsListDuplicateHandler(event)"
                                            remove="removeSelectedFrames()"
-                                           dragComplete="createThingData()">
+                                           dragComplete="animationsListDragCompleteHandler(event)">
                     <animationeditor:layout>
                         <s:HorizontalLayout verticalAlign="middle"
                                             gap="0"/>
