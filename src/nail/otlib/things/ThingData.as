@@ -25,6 +25,9 @@
 package nail.otlib.things
 {
     import flash.display.BitmapData;
+    import flash.filesystem.File;
+    import flash.filesystem.FileMode;
+    import flash.filesystem.FileStream;
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.utils.ByteArray;
@@ -38,9 +41,10 @@ package nail.otlib.things
     import nail.otlib.core.Version;
     import nail.otlib.geom.Rect;
     import nail.otlib.sprites.Sprite;
-    import nail.utils.StringUtil;
     import nail.otlib.sprites.SpriteData;
+    import nail.otlib.utils.OTFormat;
     import nail.otlib.utils.SpriteUtils;
+    import nail.utils.StringUtil;
     
     public class ThingData
     {
@@ -121,6 +125,19 @@ package nail.otlib.things
             thingData.thing = thing;
             thingData.sprites = sprites;
             return thingData;
+        }
+        
+        public static function createFromFile(file:File):ThingData
+        {
+            if (!file || file.extension != OTFormat.OBD || !file.exists)
+                return null;
+            
+            var bytes:ByteArray = new ByteArray();
+            var stream:FileStream = new FileStream();
+            stream.open(file, FileMode.READ);
+            stream.readBytes(bytes, 0, stream.bytesAvailable);
+            stream.close();
+            return unserialize(bytes);
         }
         
         public static function serialize(data:ThingData, version:Version):ByteArray
