@@ -1,3 +1,9 @@
+### 0.3.1
+
+Features:
+
+* Animation Editor
+
 ### 0.3
 
 Features:
