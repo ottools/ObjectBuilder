@@ -225,8 +225,8 @@
                 
                 _lastValues.setTo(x, y, columns, rows);
                 
-                for (var r:uint = 0; r < rows; r++) {
-                    for (var c:uint = 0; c < columns; c++) {
+                for (var c:uint = 0; c < columns; c++) {
+                    for (var r:uint = 0; r < rows; r++) {
                         rect.x = x + (c * width);
                         rect.y = y + (r * height);
                         
