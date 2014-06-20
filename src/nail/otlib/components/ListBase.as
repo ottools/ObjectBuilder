@@ -127,6 +127,8 @@ package nail.otlib.components
             }
         }
         
+        public function get length():uint { return dataProvider.length; }
+        
         //--------------------------------------------------------------------------
         //
         // CONSTRUCTOR
@@ -203,6 +205,11 @@ package nail.otlib.components
                 return this.dataProvider.getItemIndex(object);
             }
             return -1;
+        }
+        
+        public function getObjectAt(index:int):IListObject
+        {
+            return this.dataProvider.getItemAt(index) as IListObject;
         }
         
         public function rememberScroll():void

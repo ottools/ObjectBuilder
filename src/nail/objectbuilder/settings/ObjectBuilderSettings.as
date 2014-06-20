@@ -66,6 +66,9 @@ package nail.objectbuilder.settings
         public var slicerHeight:Number = 0;
         public var slicerMaximized:Boolean;
         public var slicerLastDirectory:String;
+        public var animationWindowWidth:Number = 0;
+        public var animationWindowHeight:Number = 0;
+        public var animationWindowMaximized:Boolean;
         
         //--------------------------------------------------------------------------
         //
