@@ -9,22 +9,15 @@ Object Builder is a dat and spr files editor.
 
 ### Supported versions:
 
-* 8.00 - 10.38
+* 7.10 - 10.41
 
 ### Download
 
-[Object Builder 0.3 Alpha2] (http://www.4shared.com/file/OKmpyiM9ce/ObjectBuilder03Alpha2.html)
+#### v0.3 CR
+[Object Builder 0.3 CR] (http://www.4shared.com/file/7M3AptiRce/ObjectBuilder03CR.html)	
 
+#### v0.3 ([Adobe AIR] (http://get.adobe.com/air/) is required)	
+[Object Builder 0.3] (http://www.4shared.com/file/iWfi2MZKba/ObjectBuilder03.html) 
+
+#### v0.2.9
 [Object Builder 0.2.9] (http://www.4shared.com/file/SUeAUR00ba/ObjectBuilder039.html)
-
-[Object Builder 0.2.8] (http://www.4shared.com/file/JarzzCOaba/ObjectBuilder028.html)
-
-### Install 
-
-To install the Object Builder you need install Adobe AIR Runtime.
-
-[Adobe AIR] (http://get.adobe.com/air/)
-
-### See Also:
-
-[Object Viewer] (https://github.com/Mignari/ObjectViewer)

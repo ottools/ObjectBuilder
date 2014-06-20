@@ -1,3 +1,15 @@
+### 0.3
+
+Features:
+
+* Support for versions 7.10 - 7.92 & 10.38 - 10.41
+* Find unused sprites.
+* Object and sprite lists allows multiple selection for import/export.
+* Replace multiple objects and sprites.
+* New button for Object Viewer.
+* New button for Slicer.
+* UI improvements.
+
 ### 0.2.9
 
 Features:
