@@ -496,6 +496,7 @@
                     return;
                 
                 this.animationsList.removeSelectedIndices();
+                this.animationsList.refresh();
                 this.createThingData();
             }
             

@@ -235,6 +235,11 @@ package nail.otlib.components
             _ensureIdIsVisible = id;
         }
         
+        public function refresh():void
+        {
+            ArrayCollection(dataProvider).refresh();
+        }
+        
         //--------------------------------------
         // Private
         //--------------------------------------
