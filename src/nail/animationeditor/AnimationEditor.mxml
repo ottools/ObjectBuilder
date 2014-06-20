@@ -79,7 +79,6 @@
             import nail.objectbuilder.utils.ObUtils;
             import nail.otlib.components.ExportWindow;
             import nail.otlib.components.SurfaceCells;
-            import nail.otlib.core.Version;
             import nail.otlib.geom.Size;
             import nail.otlib.sprites.SpriteData;
             import nail.otlib.things.ThingCategory;
@@ -244,8 +243,6 @@
                         }
                     }
                 }
-                
-                this.createThingData();
             }
             
             protected function createThingData():void
@@ -436,12 +433,16 @@
             
             private function setFile(file:File):void
             {
-                if (!file || !ImageFormat.hasImageFormat(file.extension))
+                if (!file || (file.extension != OTFormat.OBD && !ImageFormat.hasImageFormat(file.extension)))
                     return;
                 
                 try
                 {
-                    ImageCodec.decodeFromFile(file, imageReadCallback);
+                    if (file.extension == OTFormat.OBD)
+                        openOBD(file);
+                    else
+                        ImageCodec.decodeFromFile(file, imageReadCallback);
+                    
                     application.settings.setLastDirectory(FileUtil.getDirectory(file));
                 } catch(error:Error) {
                     Alert.show(error.getStackTrace(), resourceManager.getString("strings", "error"), Alert.OK, this);
@@ -451,6 +452,16 @@
                 {
                     setBitmap(bitmap);
                 }
+            }
+            
+            private function openOBD(file:File):void
+            {
+                var thingData:ThingData = ThingData.createFromFile(file);
+                if (!thingData)
+                    return;
+                
+                var bitmap:BitmapData = ThingData.getSpriteSheet(thingData, null, 0);
+                setBitmap(bitmap);
             }
             
             private function setBitmap(bitmap:BitmapData):void
@@ -467,9 +478,11 @@
             private function onOpenFile():void
             {
                 var filters:Array = ObUtils.createImagesFileFilter();
+                filters[0].extension += "*.obd";
+                filters.splice(1, 0, new FileFilter("Object Builder Data (*.OBD)", "*.obd"));
                 var file:File = application.settings.getLastDirectory() || File.userDirectory;
                 file.addEventListener(Event.SELECT, fileSelectHandler);
-                file.browseForOpen(resourceManager.getString("strings", "selectImage"), filters);
+                file.browseForOpen(resourceManager.getString("strings", "selectFile"), filters);
                 
                 function fileSelectHandler(event:Event):void
                 {
@@ -643,6 +656,12 @@
                         animationsList.addObject(list[i].clone());
                     }
                 }
+            }
+            
+            protected function cutButtonClickHandler(event:MouseEvent):void
+            {
+                this.onCutImage();
+                this.createThingData();
             }
             
             override protected function keyDownHandler(event:KeyboardEvent):void
@@ -836,7 +855,7 @@
             <s:Button id="cutButton"
                       label="@Resource(key='crop', bundle='strings')"
                       width="100%"
-                      click="onCutImage()"/>
+                      click="cutButtonClickHandler(event)"/>
         </s:BorderContainer>
         
         <s:VGroup width="100%"
