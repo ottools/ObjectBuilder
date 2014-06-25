@@ -1585,7 +1585,8 @@ package nail.objectbuilder.core
                 var spriteId:uint = spriteIndex[i];
                 var pixels:ByteArray = _sprites.getPixels(spriteId);
                 if (!pixels) {
-                    throw new Error(Resources.getString("strings", "spriteNotFound", spriteId));
+                    Log.error(Resources.getString("strings", "spriteNotFound", spriteId));
+                    pixels = _sprites.alertSprite.getPixels();
                 }
                 
                 var spriteData:SpriteData = new SpriteData();
