@@ -684,7 +684,7 @@ package nail.otlib.sprites
             
             for (var i:uint = 0; i < length; i++) {
                 var id:uint = sprites[i];
-                if (id != 0) {
+                if (id != 0 && hasSpriteId(id)) {
                     var removed:ChangeResult = internalRemoveSprite(id, CHANGE_RESULT_HELPER);
                     if (!removed.done) {
                         return result.update(removedList, false, removed.message);
