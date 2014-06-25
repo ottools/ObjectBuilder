@@ -33,11 +33,8 @@ package nail.otlib.things
     import flash.utils.ByteArray;
     import flash.utils.CompressionAlgorithm;
     import flash.utils.Endian;
-    import flash.utils.IDataInput;
     
     import nail.errors.NullArgumentError;
-    import nail.image.psd.PSDDecoder;
-    import nail.image.psd.PSDLayer;
     import nail.otlib.core.Version;
     import nail.otlib.geom.Rect;
     import nail.otlib.sprites.Sprite;
@@ -352,57 +349,6 @@ package nail.otlib.things
                 * thing.layers + l)
                 * thing.height + h)
                 * thing.width + w;
-        }
-        
-        public static function createFromPSD(bytes:IDataInput):ThingData
-        {
-            if (!bytes) {
-                throw new NullArgumentError("bytes");
-            }
-            
-            var decoder:PSDDecoder = new PSDDecoder();
-            decoder.decode(bytes);
-            
-            var layers:Array = [];//decoder.allLayers;
-            var length:uint = layers.length;
-            var spriteSize:uint = Sprite.SPRITE_PIXELS;
-            
-            var thing:ThingType = new ThingType();
-            thing.category = ThingCategory.ITEM; // Temporary
-            thing.width = uint(decoder.canvasWidth / spriteSize);
-            thing.height = uint(decoder.canvasHeight / spriteSize);
-            
-            if ((thing.width * spriteSize != decoder.canvasWidth) || (thing.height * spriteSize  != decoder.canvasHeight)) {
-                throw new Error("Canvas size is not a multiple of 32.");
-            }
-            
-            thing.layers = 1;
-            thing.frames = length;
-            thing.patternX = 1;
-            thing.patternY = 1;
-            thing.patternZ = 1;
-            thing.exactSize = Math.min(decoder.canvasWidth, decoder.canvasHeight);
-            thing.spriteIndex = new Vector.<uint>(thing.width * thing.height * thing.patternX * thing.patternY * thing.frames);
-            
-            var totalX:int = thing.patternZ * thing.patternX * thing.layers;
-            var totalY:int = thing.frames * thing.patternY;
-            var bitmapWidth:Number = (totalX * thing.width) * spriteSize;
-            var bitmapHeight:Number = (totalY * thing.height) * spriteSize;
-            var spriteSheet:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
-            var fillRect:Rectangle = new Rectangle(0, 0, decoder.canvasWidth, decoder.canvasHeight);
-            
-            RECTANGLE.setTo(0, 0, decoder.canvasWidth, decoder.canvasHeight);
-            POINT.setTo(0, 0);
-            
-            for (var i:uint = 0; i < length; i++) {
-                var layer:PSDLayer = layers[i];
-                fillRect.y = (i * RECTANGLE.height);
-                POINT.x = layer.bounds.x;
-                POINT.y = fillRect.y + layer.bounds.y;
-                spriteSheet.fillRect(fillRect, 0);
-                spriteSheet.copyPixels(layer.bitmap, RECTANGLE, POINT);
-            }
-            return setSpriteSheet(spriteSheet, thing);
         }
         
         static private function copyPixels(data:ThingData, index:uint, bitmap:BitmapData, x:uint, y:uint):void
