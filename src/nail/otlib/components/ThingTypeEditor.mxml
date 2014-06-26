@@ -273,6 +273,8 @@
                 isLyingObjectCheckBox.includeInLayout = isItem;
                 fullGroundCheckBox.visible = isItem;
                 fullGroundCheckBox.includeInLayout = isItem;
+                isLensHelpGroupCheckBox.visible = isItem;
+                isLensHelpGroupCheckBox.includeInLayout = isItem;
                 
                 if (info.version >= 755) {
                     offsetXNumericStepper.minimum = 1;
@@ -1339,6 +1341,50 @@
                             </s:dataProvider>
                         </s:DropDownList>
                     </s:Group>
+                </nail:GroupCheckBox>
+                
+                <!-- Lens Help-->
+                <nail:GroupCheckBox id="isLensHelpGroupCheckBox"
+                                    label="@Resource(key='lensHelp', bundle='strings')"
+                                    width="100%"
+                                    selected="{_thingBinding.isLensHelp}"
+                                    change="{_thingBinding.isLensHelp = isLensHelpGroupCheckBox.selected;}">
+                    <s:HGroup width="100%"
+                              paddingLeft="10"
+                              paddingRight="45"
+                              paddingTop="10"
+                              paddingBottom="10"
+                              verticalAlign="middle"
+                              horizontalAlign="right"
+                              enabled="{isLensHelpGroupCheckBox.selected}">
+                        <s:Label text="{resourceManager.getString('strings', 'type') + ':'}" 
+                                 minWidth="60"
+                                 textAlign="right"/>
+                        <s:DropDownList id="lensHelpDropDownList"
+                                        width="170"
+                                        height="20"
+                                        fontSize="10"
+                                        selectedIndex="{Math.max(0, _thingBinding.lensHelp - 1100)}"
+                                        change="{_thingBinding.lensHelp = lensHelpDropDownList.selectedIndex + 1100;}">
+                            <s:dataProvider>
+                                <s:ArrayList>
+                                    <fx:String>{resourceManager.getString('strings', 'lensHelp.ladders')}</fx:String>
+                                    <fx:String>{resourceManager.getString('strings', 'lensHelp.sewerGrates')}</fx:String>
+                                    <fx:String>{resourceManager.getString('strings', 'lensHelp.dungeonFloor')}</fx:String>
+                                    <fx:String>{resourceManager.getString('strings', 'lensHelp.levers')}</fx:String>
+                                    <fx:String>{resourceManager.getString('strings', 'lensHelp.doors')}</fx:String>
+                                    <fx:String>{resourceManager.getString('strings', 'lensHelp.specialDoors')}</fx:String>
+                                    <fx:String>{resourceManager.getString('strings', 'lensHelp.stairs')}</fx:String>
+                                    <fx:String>{resourceManager.getString('strings', 'lensHelp.mailboxes')}</fx:String>
+                                    <fx:String>{resourceManager.getString('strings', 'lensHelp.depotBoxes')}</fx:String>
+                                    <fx:String>{resourceManager.getString('strings', 'lensHelp.dustbins')}</fx:String>
+                                    <fx:String>{resourceManager.getString('strings', 'lensHelp.stonePiles')}</fx:String>
+                                    <fx:String>{resourceManager.getString('strings', 'lensHelp.signs')}</fx:String>
+                                    <fx:String>{resourceManager.getString('strings', 'lensHelp.booksAndScrolls')}</fx:String>
+                                </s:ArrayList>
+                            </s:dataProvider>
+                        </s:DropDownList>
+                    </s:HGroup>
                 </nail:GroupCheckBox>
             </s:VGroup>
             

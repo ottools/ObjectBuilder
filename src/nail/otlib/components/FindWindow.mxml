@@ -413,6 +413,9 @@
                         <s:CheckBox id="floorChangeCheckBox"
                                     label="@Resource(key='floorChange', bundle='strings')"
                                     change="{_bindableThingType.floorChange = floorChangeCheckBox.selected;}"/>
+                        <s:CheckBox id="lensHelpChangeCheckBox"
+                                    label="@Resource(key='lensHelp', bundle='strings')"
+                                    change="{_bindableThingType.isLensHelp = lensHelpChangeCheckBox.selected;}"/>
                     </s:VGroup>
                 </s:Scroller>
             </nail:GroupBox>
