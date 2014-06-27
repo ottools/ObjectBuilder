@@ -157,7 +157,7 @@ package nail.otlib.loaders
         
         private function loadImageFormat1(file:File, id:uint):void
         {
-            var request:URLRequest = new URLRequest(file.nativePath);
+            var request:URLRequest = new URLRequest(file.url);
             var loader:URLLoader = new URLLoader();
             loader.dataFormat = URLLoaderDataFormat.BINARY;
             loader.addEventListener(Event.COMPLETE, completeHandler);
@@ -185,7 +185,7 @@ package nail.otlib.loaders
         
         private function loadImageFormat2(file:File, id:uint):void
         {
-            var request:URLRequest = new URLRequest(file.nativePath);
+            var request:URLRequest = new URLRequest(file.url);
             var loader:Loader = new Loader();
             loader.contentLoaderInfo.addEventListener(Event.COMPLETE, completeHandler);
             loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, errorHandler);

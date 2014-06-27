@@ -135,7 +135,7 @@ package nail.otlib.loaders
         
         private function loadOBD(file:File, id:uint):void
         {
-            var request:URLRequest = new URLRequest(file.nativePath);
+            var request:URLRequest = new URLRequest(file.url);
             var loader:URLLoader  = new URLLoader();
             loader.dataFormat = URLLoaderDataFormat.BINARY;
             loader.addEventListener(Event.COMPLETE, completeHandler);
