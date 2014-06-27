@@ -119,6 +119,24 @@ package nail.objectbuilder.core
             }
         }
         
+        public function get thingsListAmount():uint
+        {
+            var value:* = getSharedProperty("objectsListAmount");
+            if (value !== undefined) {
+                return value;
+            }
+            return 100;
+        }
+        
+        public function get spritesListAmount():uint
+        {
+            var value:* = getSharedProperty("spritesListAmount");
+            if (value !== undefined) {
+                return value;
+            }
+            return 100;
+        }
+        
         //--------------------------------------------------------------------------
         //
         // CONSTRUCTOR
@@ -1473,7 +1491,7 @@ package nail.objectbuilder.core
             var target:uint = length == 0 ? 0 : selectedIds[0];
             var min:uint = Math.max(first, ObUtils.hundredFloor(target));
             var diff:uint = (category != ThingCategory.ITEM && min == first) ? 1 : 0;
-            var max:uint = Math.min((min - diff) + 99, last);
+            var max:uint = Math.min((min - diff) + (thingsListAmount - 1), last);
             var list:Vector.<ThingListItem> = new Vector.<ThingListItem>();
             
             for (var i:uint = min; i <= max; i++) {
@@ -1517,7 +1535,7 @@ package nail.objectbuilder.core
             var first:uint = 0;
             var last:uint = _sprites.spritesCount;
             var min:uint = Math.max(first, ObUtils.hundredFloor(target));
-            var max:uint = Math.min(min + 99, last);
+            var max:uint = Math.min(min + (spritesListAmount - 1), last);
             var list:Vector.<SpriteData> = new Vector.<SpriteData>();
             
             for (var i:uint = min; i <= max; i++) {

@@ -145,6 +145,7 @@
             import nail.otlib.things.ThingData;
             import nail.otlib.things.ThingProperty;
             import nail.otlib.things.ThingType;
+            import nail.otlib.utils.DialogDetail;
             import nail.otlib.utils.FilesInfo;
             import nail.otlib.utils.OTFormat;
             import nail.otlib.utils.SpriteUtils;
@@ -418,9 +419,18 @@
             {
                 var window:PreferencesWindow = new PreferencesWindow();
                 window.settings = _settings;
+                window.addEventListener(Event.CLOSE, closeHandler);
                 window.open();
                 
                 PopUpWindowManager.addWindow(window);
+                
+                function closeHandler(event:Event):void
+                {
+                    if (window.detail == DialogDetail.CONFIRM) {
+                        setSharedProperty("objectsListAmount", _settings.objectsListAmount);
+                        setSharedProperty("spritesListAmount", _settings.spritesListAmount);
+                    }
+                }
             }
             
             public function compile():void
@@ -742,6 +752,8 @@
                 thingListContainer.width = Math.max(thingListContainer.minWidth, _settings.thingListContainerWidth);
                 spritesContainer.width = Math.max(spritesContainer.minWidth, _settings.spritesContainerWidth);
                 showThingList = _settings.showThingList;
+                setSharedProperty("objectsListAmount", _settings.objectsListAmount);
+                setSharedProperty("spritesListAmount", _settings.spritesListAmount);
             }
             
             override protected function setInvokeArgs(args:Array):void
@@ -1804,7 +1816,7 @@
             protected function previusAmountButtonDownHandler(event:FlexEvent):void
             {
                 if (this.loaded && this.thingData) {
-                    var target:uint = Math.max(getMinThingId(), ObUtils.hundredFloor(thingData.id) - 100);
+                    var target:uint = Math.max(getMinThingId(), ObUtils.hundredFloor(thingData.id) - _settings.objectsListAmount);
                     if (target < thingList.minId) {
                         sendCommand(new GetThingCommand(target, this.currentCategory));
                     }
@@ -1814,7 +1826,7 @@
             protected function nextAmountButtonDownHandler(event:FlexEvent):void
             {
                 if (loaded && thingData) {
-                    var target:uint = Math.min(getMaxThingId(), ObUtils.hundredFloor(thingData.id) + 100);
+                    var target:uint = Math.min(getMaxThingId(), ObUtils.hundredFloor(thingData.id) + _settings.objectsListAmount);
                     if (target > thingList.maxId) {
                         sendCommand(new GetThingCommand(target, this.currentCategory));
                     }

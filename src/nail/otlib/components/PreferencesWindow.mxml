@@ -61,6 +61,7 @@
             import nail.assets.Icons;
             import nail.objectbuilder.settings.ObjectBuilderSettings;
             import nail.objectbuilder.utils.SupportedLanguages;
+            import nail.otlib.utils.DialogDetail;
             
             //--------------------------------------------------------------------------
             //
@@ -71,7 +72,24 @@
             [Bindable]
             private var _settings:ObjectBuilderSettings;
             private var _settingsChanged:Boolean;
+            private var _detail:uint;
             
+            //--------------------------------------
+            // Getters / Setters
+            //--------------------------------------
+            
+            public function get settings():ObjectBuilderSettings { return _settings; }
+            public function set settings(value:ObjectBuilderSettings):void
+            {
+                if (_settings != value) {
+                    _settings = value;
+                    _settingsChanged = true;
+                    invalidateProperties();
+                }
+            }
+            
+            public function get detail():uint { return _detail; }
+                
             //--------------------------------------------------------------------------
             //
             // METHODS
@@ -103,6 +121,8 @@
                 extendedCheckBox.selected = settings.extended;
                 transparencyCheckBox.selected = settings.transparency;
                 setSavePropertiesValue(settings.savingSpriteSheet);
+                objectsAmountSlider.value = settings.objectsListAmount;
+                spritesAmountSlider.value = settings.spritesListAmount;
             }
             
             private function setLanguage(language:String):void
@@ -163,30 +183,15 @@
             
             protected function confirmButtonClickHandler(event:MouseEvent):void
             {
+                _detail = DialogDetail.CONFIRM;
                 _settings.language = getLanguage();
                 _settings.autosaveThingChanges = autosaveChangesCheckBox.selected;
                 _settings.extended = extendedCheckBox.selected;
                 _settings.transparency = transparencyCheckBox.selected;
                 _settings.savingSpriteSheet = getSavePropertiesValue();
+                _settings.objectsListAmount = objectsAmountSlider.value;
+                _settings.spritesListAmount = spritesAmountSlider.value;
                 close();
-            }
-            
-            //--------------------------------------
-            // Getters / Setters
-            //--------------------------------------
-            
-            public function get settings():ObjectBuilderSettings
-            {
-                return _settings;
-            }
-            
-            public function set settings(value:ObjectBuilderSettings):void
-            {
-                if (_settings != value) {
-                    _settings = value;
-                    _settingsChanged = true;
-                    invalidateProperties();
-                }
             }
             
         ]]>
@@ -239,6 +244,32 @@
                 </nail:layout>
                 <s:CheckBox id="autosaveChangesCheckBox"
                             label="@Resource(key='autosaveChanges', bundle='strings')"/>
+            </nail:GroupBox>
+            <nail:GroupBox width="100%"
+                           label="@Resource(key='listAmount', bundle='strings')">
+                <nail:layout>
+                    <s:TileLayout requestedColumnCount="3"
+                                  paddingLeft="10"
+                                  paddingRight="10"
+                                  paddingTop="10"
+                                  paddingBottom="10"/>
+                </nail:layout>
+                <s:HSlider id="objectsAmountSlider"
+                           minimum="100"
+                           maximum="500"
+                           stepSize="50"/>
+                <s:Label text="{objectsAmountSlider.value}"
+                         textAlign="center"/>
+                <s:Label text="@Resource(key='objects', bundle='strings')"
+                         textAlign="left"/>
+                <s:HSlider id="spritesAmountSlider"
+                           minimum="100"
+                           maximum="500"
+                           stepSize="50"/>
+                <s:Label text="{spritesAmountSlider.value}"
+                         textAlign="center"/>
+                <s:Label text="@Resource(key='sprites', bundle='strings')"
+                         textAlign="left"/>
             </nail:GroupBox>
         </s:NavigatorContent>
         

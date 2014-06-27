@@ -69,6 +69,8 @@ package nail.objectbuilder.settings
         public var animationWindowWidth:Number = 0;
         public var animationWindowHeight:Number = 0;
         public var animationWindowMaximized:Boolean;
+        public var objectsListAmount:Number;
+        public var spritesListAmount:Number;
         
         //--------------------------------------------------------------------------
         //
@@ -81,6 +83,8 @@ package nail.objectbuilder.settings
            this.language = SupportedLanguages.EN_US;
            this.maximized = true;
            this.showThingList = true;
+           this.objectsListAmount = 100;
+           this.spritesListAmount = 100;
         }
         
         //--------------------------------------------------------------------------
