@@ -987,7 +987,9 @@
             private function closeLookGenerator():void
             {
                 if (_lookGenerator && !_lookGenerator.closed) {
+                    _lookGenerator.removeEventListener(Event.CLOSE, lookGeneratorCloseHandler);
                     _lookGenerator.close();
+                    _lookGenerator = null;
                 }
             }
             
