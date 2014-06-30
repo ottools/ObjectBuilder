@@ -1047,7 +1047,7 @@
                 bounds.x = (screenBounds.width - bounds.width) * 0.5;
                 bounds.y = (screenBounds.height - bounds.height) * 0.5;
                 var html:HTMLLoader = HTMLLoader.createRootWindow(true, options, true, bounds);
-                html.load(new URLRequest("app:/help/help.html"));
+                html.load(new URLRequest(File.applicationDirectory.resolvePath("help/help.html").url));
             }
             
             private function onAboutApplication():void
