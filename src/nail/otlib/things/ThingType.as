@@ -101,6 +101,7 @@ package nail.otlib.things
         public var hasDefaultAction:Boolean;
         public var defaultAction:uint;
         public var usable:Boolean;
+        public var isAnimation:Boolean;
         
         //--------------------------------------------------------------------------
         //

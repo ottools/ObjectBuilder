@@ -244,6 +244,9 @@ package nail.otlib.things
         [Bindable]
         public var usable:Boolean;
         
+        [Bindable]
+        public var isAnimation:Boolean;
+        
         public var spriteIndex:Vector.<uint>;
         public var sprites:Vector.<SpriteData>;
         

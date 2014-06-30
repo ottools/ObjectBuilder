@@ -876,6 +876,9 @@ package nail.otlib.things
             thing.patternY = input.readUnsignedByte();
             thing.patternZ = readPatternZ ? input.readUnsignedByte() : 1;
             thing.frames = input.readUnsignedByte();
+            if (thing.frames > 1) {
+                thing.isAnimation = true;
+            }
             
             var totalSprites:uint = thing.width * thing.height * thing.layers * thing.patternX * thing.patternY * thing.patternZ * thing.frames;
             if (totalSprites > 4096) {
