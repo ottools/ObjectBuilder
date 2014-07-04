@@ -435,16 +435,16 @@ package nail.objectbuilder.core
                 _sprites = null;
             }
             
-            _compiled = true;
+            this.compiled = true;
+            this.isTemporary = false;
+            
             _datFile = null;
             _sprFile = null;
             _version = null;
             _extended = false;
             _transparency = false;
             _errorMessage = null;
-            _isTemporary = false;
         }
-                
         
         private function onNewThing(category:String):void
         {
