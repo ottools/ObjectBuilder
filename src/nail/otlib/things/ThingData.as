@@ -25,9 +25,12 @@
 package nail.otlib.things
 {
     import flash.display.BitmapData;
+    import flash.display.BitmapDataChannel;
     import flash.filesystem.File;
     import flash.filesystem.FileMode;
     import flash.filesystem.FileStream;
+    import flash.filters.ColorMatrixFilter;
+    import flash.geom.ColorTransform;
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.utils.ByteArray;
@@ -39,8 +42,10 @@ package nail.otlib.things
     import nail.otlib.geom.Rect;
     import nail.otlib.sprites.Sprite;
     import nail.otlib.sprites.SpriteData;
+    import nail.otlib.utils.ColorUtils;
     import nail.otlib.utils.OTFormat;
     import nail.otlib.utils.SpriteUtils;
+    import nail.otlib.utils.ThingUtils;
     import nail.utils.StringUtil;
     
     public class ThingData
@@ -103,6 +108,12 @@ package nail.otlib.things
         
         private static const RECTANGLE:Rectangle = new Rectangle(0, 0, 32, 32);
         private static const POINT:Point = new Point();
+        private static const COLOR_TRANSFORM:ColorTransform = new ColorTransform();
+        private static const MATRIX_FILTER:ColorMatrixFilter = new ColorMatrixFilter([1, -1,    0, 0,
+                                                                                      0, -1,    1, 0,
+                                                                                      0,  0,    1, 1,
+                                                                                      0,  0, -255, 0,
+                                                                                      0, -1,    1, 0]);
         
         public static function createThingData(thing:ThingType, sprites:Vector.<SpriteData>):ThingData
         {
@@ -335,6 +346,116 @@ package nail.otlib.things
             return createThingData(thing, sprites);
         }
         
+        public static function colorizeSpriteSheet(thingData:ThingData,
+                                                   head:uint = 0,
+                                                   body:uint = 0,
+                                                   legs:uint = 0,
+                                                   feet:uint = 0,
+                                                   addons:uint = 0):BitmapData
+        {
+            if (!thingData)
+                return null;
+            
+            var textureRectList:Vector.<Rect> = new Vector.<Rect>();
+            var spriteSheet:BitmapData = getSpriteSheet(thingData, textureRectList);
+            spriteSheet = SpriteUtils.removeMagenta(spriteSheet);
+            
+            var thing:ThingType = thingData.thing;
+            if (thing.layers != 2)
+                return spriteSheet;
+            
+            var width:uint = thing.width;
+            var height:uint = thing.height;
+            var layers:uint = thing.layers;
+            var patternX:uint = thing.patternX;
+            var patternY:uint = thing.patternY;
+            var patternZ:uint = thing.patternZ;
+            var frames:uint = thing.frames;
+            var size:uint = Sprite.SPRITE_PIXELS;
+            var totalX:int = patternZ * patternX * layers;
+            var totalY:int = height;
+            var pixelsWidth:int  = width * size;
+            var pixelsHeight:int = height * size;
+            var bitmapWidth:uint = patternZ * patternX * pixelsWidth;
+            var bitmapHeight:uint = frames * pixelsHeight;
+            var numSprites:uint = layers * patternX * patternY * patternZ * frames;
+            var grayBitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
+            var blendBitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
+            var colorBitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
+            var bitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
+            var bitmapRect:Rectangle = bitmap.rect;
+            var rectList:Vector.<Rect> = new Vector.<Rect>(numSprites, true);
+            var index:uint;
+            var f:uint;
+            var x:uint;
+            var y:uint;
+            var z:uint;
+            
+            for (f = 0; f < frames; f++) {
+                for (z = 0; z < patternZ; z++) {
+                    for (x = 0; x < patternX; x++) {
+                        index = (((f % frames * patternZ + z) * patternY + y) * patternX + x) * layers;
+                        rectList[index] = new Rect((z * patternX + x) * pixelsWidth, f * pixelsHeight, pixelsWidth, pixelsHeight);
+                    }
+                }
+            }
+            
+            for (y = 0; y < patternY; y++) {
+                if (y == 0 || (addons & 1 << (y - 1)) != 0) {
+                    for (f = 0; f < frames; f++) {
+                        for (z = 0; z < patternZ; z++) {
+                            for (x = 0; x < patternX; x++) {
+                                var i:uint = (((f % frames * patternZ + z) * patternY + y) * patternX + x) * layers;
+                                var rect:Rect = textureRectList[i];
+                                RECTANGLE.setTo(rect.x, rect.y, rect.width, rect.height);
+                                
+                                index = (((f * patternZ + z) * patternY) * patternX + x) * layers;
+                                rect = rectList[index];
+                                POINT.setTo(rect.x, rect.y);
+                                grayBitmap.copyPixels(spriteSheet, RECTANGLE, POINT);
+                                
+                                i++;
+                                rect = textureRectList[i];
+                                RECTANGLE.setTo(rect.x, rect.y, rect.width, rect.height);
+                                blendBitmap.copyPixels(spriteSheet, RECTANGLE, POINT);
+                            }
+                        }
+                    }
+                    
+                    POINT.setTo(0, 0);
+                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.BLUE, ColorUtils.HSItoARGB(feet));
+                    blendBitmap.applyFilter(blendBitmap, bitmapRect, POINT, MATRIX_FILTER);
+                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.BLUE, ColorUtils.HSItoARGB(head));
+                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.RED, ColorUtils.HSItoARGB(body));
+                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.GREEN, ColorUtils.HSItoARGB(legs));
+                    bitmap.copyPixels(grayBitmap, bitmapRect, POINT, null, null, true);
+                }
+            }
+            
+            grayBitmap.dispose();
+            blendBitmap.dispose();
+            colorBitmap.dispose();
+            return bitmap;
+        }
+        
+        public static function colorizeOutfit(outfit:ThingData,
+                                              head:uint = 0,
+                                              body:uint = 0,
+                                              legs:uint = 0,
+                                              feet:uint = 0,
+                                              addons:uint = 0):ThingData
+        {
+            if (!outfit || outfit.category != ThingCategory.OUTFIT)
+                return outfit;
+            
+            var spriteSheet:BitmapData = colorizeSpriteSheet(outfit, head, body, legs, feet, addons);
+            var thing:ThingType = outfit.thing.clone();
+            thing.patternY = 1;
+            thing.layers = 1;
+            thing.spriteIndex = ThingUtils.createSpriteIndexList(thing);
+            return setSpriteSheet(spriteSheet, thing);
+        }
+        
         public static function getTextureIndex(thing:ThingType, f:int, x:int, y:int, z:int, l:int):int
         {
             return (((f % thing.frames * thing.patternZ + z) * thing.patternY + y) * thing.patternX + x) * thing.layers + l;
@@ -442,6 +563,24 @@ package nail.otlib.things
                 sprites[i] = spriteData;
             }
             return createThingData(thing, sprites);
+        }
+        
+        private static function setColor(canvas:BitmapData,
+                                         grey:BitmapData,
+                                         blend:BitmapData,
+                                         rect:Rectangle,
+                                         channel:uint,
+                                         color:uint):void
+        {
+            POINT.setTo(0, 0);
+            COLOR_TRANSFORM.redMultiplier = (color >> 16 & 0xFF) / 0xFF;
+            COLOR_TRANSFORM.greenMultiplier = (color >> 8 & 0xFF) / 0xFF;
+            COLOR_TRANSFORM.blueMultiplier = (color & 0xFF) / 0xFF;
+            
+            canvas.copyPixels(grey, rect, POINT);
+            canvas.copyChannel(blend, rect, POINT, channel, BitmapDataChannel.ALPHA);
+            canvas.colorTransform(rect, COLOR_TRANSFORM);
+            grey.copyPixels(canvas, rect, POINT, null, null, true);
         }
     }
 }
