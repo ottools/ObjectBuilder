@@ -96,7 +96,7 @@ package nail.otlib.utils
                     break;
             }
             
-            thing.spriteIndex = new Vector.<uint>(thing.width * thing.height * thing.patternX * thing.patternY * thing.frames);
+            thing.spriteIndex = createSpriteIndexList(thing);
             return thing;
         }
         
@@ -113,10 +113,23 @@ package nail.otlib.utils
             return thing;
         }
         
-        static public function isValid(thing:ThingType):Boolean
+        public static function isValid(thing:ThingType):Boolean
         {
             if (thing && thing.width != 0 && thing.height != 0) return true;
             return false;
+        }
+        
+        public static function createSpriteIndexList(thing:ThingType):Vector.<uint>
+        {
+            if (thing)
+                return new Vector.<uint>(thing.width *
+                                         thing.height *
+                                         thing.patternX *
+                                         thing.patternY *
+                                         thing.patternZ *
+                                         thing.layers *
+                                         thing.frames);
+            return null;
         }
     }
 }
