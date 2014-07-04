@@ -29,6 +29,7 @@
           xmlns:s="library://ns.adobe.com/flex/spark" 
           xmlns:mx="library://ns.adobe.com/flex/mx" 
           xmlns:nail="library://ns.nail.com/naillib"
+          xmlns:components="nail.otlib.components.*"
           width="400"
           height="270"
           resizable="false"
@@ -54,6 +55,7 @@
             import spark.events.TextOperationEvent;
             
             import nail.otlib.core.Version;
+            import nail.otlib.events.FileTextInputEvent;
             
             //--------------------------------------------------------------------------
             //
@@ -178,7 +180,7 @@
                 _sprFile = null;
                 
                 nameTextInput.text = _filesName;
-                directoryTextInput.text = directory ? directory.nativePath : "";
+                directoryTextInput.file = directory;
                 versionsDropDownList.selectedItem = _version;
                 
                 if (directory && !isNullOrEmpty(_filesName)) {
@@ -186,8 +188,8 @@
                     _sprFile = directory.resolvePath(_filesName + ".spr");
                 }
                 
-                confirmButton.enabled = (_datFile != null && _sprFile && _version);
-                extendedCheckBox.enabled = (_version != null && _version.value < 960);
+                confirmButton.enabled = (directory && _datFile && _sprFile && _version);
+                extendedCheckBox.enabled = (_version && _version.value < 960);
             }
             
             //--------------------------------------
@@ -215,18 +217,9 @@
                 }
             }
             
-            protected function directoryTextInputChangeHandler(event:TextOperationEvent):void
+            protected function directorChangeHandler(event:FileTextInputEvent):void
             {
-                var dir:File; 
-                
-                try
-                {
-                    dir = new File(directoryTextInput.text);
-                } catch(error:Error) {
-                    dir = null;
-                }
-                
-                this.directory = dir;
+                this.directory = event.file;
             }
             
             protected function nameTextInputChangeHandler(event:TextOperationEvent):void
@@ -304,10 +297,10 @@
                                     paddingTop="10" 
                                     paddingBottom="10"/>
             </nail:layout>
-            <s:TextInput id="directoryTextInput"
-                         left="0"
-                         width="100%"
-                         change="directoryTextInputChangeHandler(event)"/>
+            <components:FileTextInput id="directoryTextInput"
+                                      left="0"
+                                      width="100%"
+                                      fileChange="directorChangeHandler(event)"/>
             <s:Button id="browseButton"
                       label="@Resource(key='browse', bundle='strings')"
                       height="21"

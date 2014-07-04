@@ -29,6 +29,7 @@
           xmlns:s="library://ns.adobe.com/flex/spark" 
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:nail="library://ns.nail.com/naillib"
+          xmlns:components="nail.otlib.components.*"
           title="@Resource(key='export', bundle='strings')"
           showStatusBar="false"
           backgroundColor="0x494949"
@@ -67,6 +68,7 @@
             
             import nail.codecs.ImageFormat;
             import nail.otlib.core.Version;
+            import nail.otlib.events.FileTextInputEvent;
             import nail.otlib.utils.OTFormat;
             
             //--------------------------------------------------------------------------
@@ -169,7 +171,7 @@
                 }
                 
                 if (_directoryChanged) {
-                    directoryTextInput.text = _directory == null ? "" : _directory.nativePath;
+                    directoryTextInput.file = _directory;
                     _directoryChanged = false;
                     check();
                 }
@@ -233,18 +235,9 @@
                 this.fileName = nameTextInput.text;
             }
             
-            protected function directoryTextInputChangeHandler(event:TextOperationEvent):void
+            protected function directoryChangeHandler(event:FileTextInputEvent):void
             {
-                var dir:File;
-                
-                try
-                {
-                    dir = new File(directoryTextInput.text);
-                } catch(error:Error) {
-                    dir = null;
-                }
-                
-                this.directory = dir;
+                this.directory = event.file;
             }
             
             protected function browseButtonClickHandler(event:MouseEvent):void
@@ -304,11 +297,11 @@
         <s:Label text="{resourceManager.getString('strings', 'outputFolder') + ':'}"
                  fontSize="10"
                  color="0xDFDFDF"/>
-        <s:TextInput id="directoryTextInput"
-                     left="0"
-                     right="65"
-                     top="15"
-                     change="directoryTextInputChangeHandler(event)"/>
+        <components:FileTextInput id="directoryTextInput"
+                                  left="0"
+                                  right="65"
+                                  top="15"
+                                  fileChange="directoryChangeHandler(event)"/>
         <s:Button id="browseButton"
                   label="@Resource(key='browse', bundle='strings')"
                   height="22"
