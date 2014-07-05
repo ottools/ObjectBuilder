@@ -32,6 +32,10 @@
                 dataChange="dataChangeHandler(event)"
                 creationComplete="creationCompleteHandler(event)">
     
+    <fx:Metadata>
+        [ResourceBundle("strings")]
+    </fx:Metadata>
+    
     <fx:Script>
         <![CDATA[
             import mx.events.FlexEvent;
@@ -99,9 +103,9 @@
             static private function createContextMenu():ContextMenu
             {
                 var resource:IResourceManager = ResourceManager.getInstance();
-                var duplicateMenu:ContextMenuItem = new ContextMenuItem(resource.getString("strings", "dulicateFrameButton"));
+                var duplicateMenu:ContextMenuItem = new ContextMenuItem(resource.getString("strings", "duplicateFrame"));
                 duplicateMenu.data = FrameListEvent.DUPLICATE;
-                var removeMenu:ContextMenuItem = new ContextMenuItem(resource.getString("strings", "deleteFrameButton"));
+                var removeMenu:ContextMenuItem = new ContextMenuItem(resource.getString("strings", "deleteFrame"));
                 removeMenu.data = FrameListEvent.REMOVE;
                 var menu:ContextMenu = new ContextMenu();
                 menu.customItems = [duplicateMenu, removeMenu];
