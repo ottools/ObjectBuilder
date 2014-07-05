@@ -34,7 +34,7 @@
           width="800"
           height="600"
           minWidth="600"
-          minHeight="400"
+          minHeight="500"
           fontSize="11"
           backgroundColor="0x494949"
           showStatusBar="false"
@@ -69,7 +69,10 @@
             import mx.events.MoveEvent;
             import mx.managers.DragManager;
             
+            import spark.events.IndexChangeEvent;
+            
             import nail.animationeditor.events.FrameListEvent;
+            import nail.assets.Icons;
             import nail.assets.NailAssets;
             import nail.codecs.ImageCodec;
             import nail.codecs.ImageFormat;
@@ -221,7 +224,7 @@
                 var rows:uint = rowsStepper.value;
                 var rect:Rectangle = new Rectangle(0, 0, width, height);
                 var point:Point = new Point();
-                var list:Vector.<FrameListObject> = new Vector.<FrameListObject>();
+                var list:Vector.<Frame> = new Vector.<Frame>();
                 
                 _lastValues.setTo(x, y, columns, rows);
                 
@@ -240,7 +243,7 @@
                         bmp = SpriteUtils.removeMagenta(bmp);
                         
                         if (!SpriteUtils.isEmpty(bmp)) {
-                            this.animationsList.addObject(new FrameListObject(bmp));
+                            this.framesList.addObject(new Frame(bmp));
                         }
                     }
                 }
@@ -248,7 +251,7 @@
             
             protected function createThingData():void
             {
-                if (animationsList.isEmpty) {
+                if (framesList.isEmpty) {
                     thingView.thingData = null;
                     return;
                 }
@@ -261,7 +264,7 @@
                 thing.width = (width / 32);
                 thing.height = (height / 32);
                 thing.layers = 1;
-                thing.frames = animationsList.length;
+                thing.frames = framesList.length;
                 thing.patternX = 1;
                 thing.patternY = 1;
                 thing.patternZ = 1;
@@ -278,7 +281,7 @@
                 
                 for (var f:uint = 0; f < thing.frames; f++) {
                     
-                    var bmp:BitmapData = animationsList.getObjectAt(f).getBitmap();
+                    var bmp:BitmapData = framesList.getObjectAt(f).getBitmap();
                     for (var w:uint = 0; w < thing.width; w++) {
                         for (var h:uint = 0; h < thing.height; h++) {
                             
@@ -294,7 +297,7 @@
                     }
                 }
                 
-                thingView.thingData = ThingData.createThingData(thing, sprites);
+                this.thingView.thingData = ThingData.createThingData(thing, sprites);
             }
             
             protected function getCurrentCategory():String
@@ -327,7 +330,7 @@
                 _size.width = 32;
                 _size.height = 32;
                 thingView.thingData = null;
-                animationsList.removeAll();
+                framesList.removeAll();
                 controlsContainer.enabled = false;
             }
             
@@ -496,8 +499,8 @@
                 if (!thingView.thingData)
                     return;
                 
-                this.animationsList.removeSelectedIndices();
-                this.animationsList.refresh();
+                this.framesList.removeSelectedIndices();
+                this.framesList.refresh();
                 this.createThingData();
             }
             
@@ -508,6 +511,17 @@
                 function imageDecodeCallback(bitmap:BitmapData):void
                 {
                     setBitmap(bitmap);
+                }
+            }
+            
+            private function duplicateSelectedFrames():void
+            {
+                var list:Vector.<Frame> = framesList.selectedFrames;
+                if (list.length > 0) {
+                    var length:uint = list.length;
+                    for (var i:int = length - 1; i >= 0; i--) {
+                        framesList.addObject(list[i].clone());
+                    }
                 }
             }
             
@@ -584,7 +598,7 @@
             {
                 _size.width = widthStepper.value;
                 _size.height = heightStepper.value;
-                animationsList.removeAll();
+                framesList.removeAll();
                 thingView.thingData = null;
                 update();
             }
@@ -651,13 +665,7 @@
             
             protected function animationsListDuplicateHandler(event:FrameListEvent):void
             {
-                var list:Vector.<FrameListObject> = animationsList.selectedFrames;
-                if (list.length > 0) {
-                    var length:uint = list.length;
-                    for (var i:int = length - 1; i >= 0; i--) {
-                        animationsList.addObject(list[i].clone());
-                    }
-                }
+                duplicateSelectedFrames();
             }
             
             protected function cutButtonClickHandler(event:MouseEvent):void
@@ -669,7 +677,48 @@
             protected function animationsListDragCompleteHandler(event:DragEvent):void
             {
                 this.createThingData();
-                this.animationsList.refresh();
+                this.framesList.refresh();
+            }
+            
+            protected function playButtonChangeHandler(event:Event):void
+            {
+                if (playButton.selected) {
+                    playButton.setStyle("icon", Icons.PAUSE);
+                    playButton.toolTip = resourceManager.getString("strings", "pause");
+                    thingView.play();
+                } else {
+                    playButton.setStyle("icon", Icons.PLAY);
+                    playButton.toolTip = resourceManager.getString("strings", "play");
+                    thingView.pause();
+                }
+            }
+            
+            protected function dulicateFrameButtonClickHandler(event:MouseEvent):void
+            {
+                this.duplicateSelectedFrames();
+            }
+            
+            protected function deleteFrameButtonClickHandler(event:MouseEvent):void
+            {
+                if (!thingView.thingData)
+                    return;
+                
+                this.framesList.removeSelectedIndices();
+                this.framesList.refresh();
+                this.createThingData();
+            }
+            
+            protected function thingViewChangeHandler(event:Event):void
+            {
+                framesList.selectedIndex = thingView.frame;
+            }
+            
+            protected function framesListChangeHandler(event:IndexChangeEvent):void
+            {
+                if (!thingView.thingData)
+                    return;
+                
+                thingView.frame = framesList.selectedIndex;
             }
             
             override protected function keyDownHandler(event:KeyboardEvent):void
@@ -759,9 +808,11 @@
                            label="@Resource(key='preview', bundle='strings')"
                            width="100%"
                            height="100%">
-                <components:ThingView id="thingView"
-                                      horizontalCenter="0"
-                                      verticalCenter="0"/>
+                <components:ThingDataView id="thingView"
+                                          horizontalCenter="0"
+                                          verticalCenter="0"
+                                          change="thingViewChangeHandler(event)"/>
+                
             </nail:GroupBox>
             
             <nail:GroupBox label="@Resource(key='properties', bundle='strings')"
@@ -906,9 +957,12 @@
             </s:BorderContainer>
             
             <s:BorderContainer width="100%"
-                               height="120"
+                               height="155"
                                skinClass="nail.components.skins.BorderContainerSkin">
-                <animationeditor:FrameList id="animationsList"
+                <s:layout>
+                    <s:VerticalLayout gap="0"/>
+                </s:layout>
+                <animationeditor:FrameList id="framesList"
                                            width="100%"
                                            height="100%"
                                            contentBackgroundColor="0x494949"
@@ -923,12 +977,65 @@
                                            itemRenderer="nail.animationeditor.renders.FrameListRenderer"
                                            duplicate="animationsListDuplicateHandler(event)"
                                            remove="removeSelectedFrames()"
-                                           dragComplete="animationsListDragCompleteHandler(event)">
+                                           dragComplete="animationsListDragCompleteHandler(event)"
+                                           change="framesListChangeHandler(event)">
                     <animationeditor:layout>
                         <s:HorizontalLayout verticalAlign="middle"
                                             gap="0"/>
                     </animationeditor:layout>
                 </animationeditor:FrameList>
+                <s:HGroup width="100%"
+                          height="25"
+                          paddingLeft="5"
+                          paddingRight="5"
+                          paddingTop="2"
+                          paddingBottom="2">
+                    <s:Button id="firstFrameButton"
+                              width="19"
+                              height="19"
+                              toolTip="@Resource(key='firstFrame', bundle='strings')"
+                              icon="{Icons.FIRST}"
+                              click="{thingView.fistFrame()}"/>
+                    <s:Button id="previousFrameButton"
+                              width="19"
+                              height="19"
+                              toolTip="@Resource(key='previousFrame', bundle='strings')"
+                              icon="{Icons.PREVIOUS}"
+                              autoRepeat="true"
+                              repeatInterval="200"
+                              buttonDown="{thingView.prevFrame()}"/>
+                    <s:ToggleButton id="playButton"
+                                    width="19"
+                                    height="19"
+                                    toolTip="@Resource(key='play', bundle='strings')"
+                                    icon="{Icons.PLAY}"
+                                    change="playButtonChangeHandler(event)"/>
+                    <s:Button id="nextFrameButton" width="19"
+                              height="19"
+                              toolTip="@Resource(key='nextFrame', bundle='strings')"
+                              icon="{Icons.NEXT}"
+                              autoRepeat="true"
+                              repeatInterval="200"
+                              buttonDown="{thingView.nextFrame()}"/>
+                    <s:Button id="lastFrameButton"
+                              width="19"
+                              height="19"
+                              toolTip="@Resource(key='lastFrame', bundle='strings')"
+                              icon="{Icons.LAST}"
+                              click="{thingView.lastFrame()}"/>
+                    <nail:ShadowLine height="100%"/>
+                    <s:Button id="dulicateFrameButton"
+                              width="19"
+                              height="19"
+                              toolTip="@Resource(key='duplicateFrame', bundle='strings')"
+                              icon="{Icons.DUPLICATE}"
+                              click="dulicateFrameButtonClickHandler(event)"/>
+                    <s:Button id="deleteFrameButton" width="19"
+                              height="19"
+                              toolTip="@Resource(key='deleteFrame', bundle='strings')"
+                              icon="{Icons.DELETE}"
+                              click="deleteFrameButtonClickHandler(event)"/>
+                </s:HGroup>
             </s:BorderContainer>
         </s:VGroup>
     </mx:HDividedBox>

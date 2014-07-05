@@ -456,6 +456,22 @@ package nail.otlib.things
             return setSpriteSheet(spriteSheet, thing);
         }
         
+        public static function setAlpha(thingData:ThingData, alpha:Number):ThingData
+        {
+            if (!thingData) return null;
+            
+            if (isNaN(alpha) || alpha < 0)
+                alpha = 0;
+            else if (alpha > 1)
+                alpha = 1;
+            
+            var colorTransform:ColorTransform = new ColorTransform();
+            colorTransform.alphaMultiplier = alpha;
+            var bitmapData:BitmapData = getSpriteSheet(thingData, null, 0);
+            bitmapData.colorTransform(bitmapData.rect, colorTransform);
+            return setSpriteSheet(bitmapData, thingData.thing);
+        }
+        
         public static function getTextureIndex(thing:ThingType, f:int, x:int, y:int, z:int, l:int):int
         {
             return (((f % thing.frames * thing.patternZ + z) * thing.patternY + y) * thing.patternX + x) * thing.layers + l;

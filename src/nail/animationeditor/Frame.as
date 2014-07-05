@@ -27,8 +27,8 @@ package nail.animationeditor
     import flash.display.BitmapData;
     
     import nail.otlib.components.IListObject;
-    
-    public class FrameListObject implements IListObject
+
+    public class Frame implements IListObject
     {
         //--------------------------------------------------------------------------
         //
@@ -36,7 +36,10 @@ package nail.animationeditor
         //
         //--------------------------------------------------------------------------
         
-        private var _bitmap:BitmapData; 
+        public var minDuration:uint;
+        public var maxDuration:uint;
+        public var opacity:Number;
+        public var bitmap:BitmapData;
         
         //--------------------------------------
         // Getters / Setters
@@ -50,9 +53,12 @@ package nail.animationeditor
         //
         //--------------------------------------------------------------------------
         
-        public function FrameListObject(bitmap:BitmapData)
+        public function Frame(bitmap:BitmapData = null)
         {
-            _bitmap = bitmap;
+            this.minDuration = 0;
+            this.maxDuration = 0;
+            this.opacity = 1.0;
+            this.bitmap = bitmap;
         }
         
         //--------------------------------------------------------------------------
@@ -67,12 +73,17 @@ package nail.animationeditor
         
         public function getBitmap(backgroundColor:uint = 0):BitmapData
         {
-            return _bitmap;
+            return bitmap;
         }
         
-        public function clone():FrameListObject
+        public function clone():Frame
         {
-           return new FrameListObject(_bitmap.clone());
+            var clone:Frame = new Frame();
+            clone.minDuration = this.minDuration;
+            clone.maxDuration = this.maxDuration;
+            clone.opacity = this.opacity;
+            clone.bitmap = this.bitmap ? this.bitmap.clone() : null;
+            return clone;
         }
     }
 }

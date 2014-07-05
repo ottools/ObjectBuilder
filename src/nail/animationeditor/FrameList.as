@@ -29,7 +29,6 @@ package nail.animationeditor
     import nail.animationeditor.events.FrameListEvent;
     import nail.otlib.components.ListBase;
     import nail.otlib.core.otlib_internal;
-    import nail.otlib.events.ThingListEvent;
     
     use namespace otlib_internal;
     
@@ -48,19 +47,19 @@ package nail.animationeditor
         // Getters / Setters
         //--------------------------------------
         
-        public function get selectedFrames():Vector.<FrameListObject>
+        public function get selectedFrames():Vector.<Frame>
         {
-            var result:Vector.<FrameListObject> = new Vector.<FrameListObject>();
+            var result:Vector.<Frame> = new Vector.<Frame>();
             if (this.selectedIndices) {
                 var length:uint = selectedIndices.length;
                 for (var i:uint = 0; i < length; i++) {
-                    result[i] = dataProvider.getItemAt(selectedIndices[i]) as FrameListObject;
+                    result[i] = dataProvider.getItemAt(selectedIndices[i]) as Frame;
                 }
             }
             return result;
         }
         
-        public function set selectedFrames(value:Vector.<FrameListObject>):void
+        public function set selectedFrames(value:Vector.<Frame>):void
         {
             if (value) {
                 var list:Vector.<int> = new Vector.<int>();
@@ -92,7 +91,7 @@ package nail.animationeditor
         //
         //--------------------------------------------------------------------------
         
-        public function addObject(object:FrameListObject):void
+        public function addObject(object:Frame):void
         {
             this.dataProvider.addItem(object);
         }
@@ -105,9 +104,9 @@ package nail.animationeditor
         {
             if (index != -1 && this.dataProvider)
             {
-                var object:FrameListObject = this.dataProvider.getItemAt(index) as FrameListObject;
+                var frame:Frame = this.dataProvider.getItemAt(index) as Frame;
                 
-                if (object) {
+                if (frame) {
                     var event:FrameListEvent;
                     
                     switch(type) {

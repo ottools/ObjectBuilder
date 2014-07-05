@@ -38,8 +38,8 @@
             import mx.resources.IResourceManager;
             import mx.resources.ResourceManager;
             
+            import nail.animationeditor.Frame;
             import nail.animationeditor.FrameList;
-            import nail.animationeditor.FrameListObject;
             import nail.animationeditor.events.FrameListEvent;
             import nail.otlib.components.ListBase;
             import nail.otlib.core.otlib_internal;
@@ -68,9 +68,9 @@
             
             protected function dataChangeHandler(event:FlexEvent):void
             {
-                var object:FrameListObject = data as FrameListObject;
-                if (object) {
-                    imageDisplay.source = object.getBitmap();
+                var frame:Frame = data as Frame;
+                if (frame) {
+                    imageDisplay.source = frame.getBitmap();
                     labelDisplay.text = this.itemIndex.toString();
                 }
             }
@@ -99,9 +99,9 @@
             static private function createContextMenu():ContextMenu
             {
                 var resource:IResourceManager = ResourceManager.getInstance();
-                var duplicateMenu:ContextMenuItem = new ContextMenuItem(resource.getString("strings", "duplicate"));
+                var duplicateMenu:ContextMenuItem = new ContextMenuItem(resource.getString("strings", "dulicateFrameButton"));
                 duplicateMenu.data = FrameListEvent.DUPLICATE;
-                var removeMenu:ContextMenuItem = new ContextMenuItem(resource.getString("strings", "remove"));
+                var removeMenu:ContextMenuItem = new ContextMenuItem(resource.getString("strings", "deleteFrameButton"));
                 removeMenu.data = FrameListEvent.REMOVE;
                 var menu:ContextMenu = new ContextMenu();
                 menu.customItems = [duplicateMenu, removeMenu];

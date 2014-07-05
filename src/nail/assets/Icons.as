@@ -137,5 +137,23 @@ package nail.assets
         
         [Embed(source="../../../assets/show_list_icon.png", mimeType="image/png")]
         public static const SHOW_LIST_ICON:Class;
+        
+        [Embed(source="../../../assets/first.png", mimeType="image/png")]
+        public static const FIRST:Class;
+        
+        [Embed(source="../../../assets/previous.png", mimeType="image/png")]
+        public static const PREVIOUS:Class;
+        
+        [Embed(source="../../../assets/play.png", mimeType="image/png")]
+        public static const PLAY:Class;
+        
+        [Embed(source="../../../assets/pause.png", mimeType="image/png")]
+        public static const PAUSE:Class;
+        
+        [Embed(source="../../../assets/next.png", mimeType="image/png")]
+        public static const NEXT:Class;
+        
+        [Embed(source="../../../assets/last.png", mimeType="image/png")]
+        public static const LAST:Class;
     }
 }
