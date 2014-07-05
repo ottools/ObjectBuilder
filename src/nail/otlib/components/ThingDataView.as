@@ -172,6 +172,8 @@ package nail.otlib.components
                 _maxFrame = thing.frames;
                 _frame = 0;
                 _duration = thing.category == ThingCategory.ITEM ? 400 : 200;
+                this.width = _bitmap.width;
+                this.height = _bitmap.height;
             } else {
                 _textureIndex = null;
                 _spriteSheet = null;
