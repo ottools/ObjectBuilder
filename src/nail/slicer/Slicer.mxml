@@ -60,6 +60,7 @@
             import mx.collections.ArrayCollection;
             import mx.events.MenuEvent;
             import mx.events.MoveEvent;
+            import mx.managers.DragManager;
             
             import nail.assets.NailAssets;
             import nail.codecs.ImageCodec;
@@ -261,6 +262,16 @@
                 _surfaceCells.y = 0;
             }
             
+            protected function importImagesFromFiles(list:Vector.<File>):void
+            {
+                ImageCodec.decodeFromFile(list[0], imageDecodeCallback);
+                
+                function imageDecodeCallback(bitmap:BitmapData):void
+                {
+                    setBitmap(bitmap);
+                }
+            }
+            
             //--------------------------------------
             // Override Protected
             //--------------------------------------
@@ -367,6 +378,39 @@
                     
                     update();
                     surfaceCellsMouseDownHandler(event);
+                }
+            }
+            
+            protected function imageConteinerGroupNativeDragEnterHandler(event:NativeDragEvent):void
+            {
+                if (event.target == imageConteinerGroup) {
+                    if (event.clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) {
+                        NativeDragManager.dropAction = NativeDragActions.LINK;
+                        DragManager.acceptDragDrop(imageConteinerGroup);
+                    }
+                }
+            }
+            
+            protected function imageConteinerGroupNativeDragDropHandler(event:NativeDragEvent):void
+            {
+                var clipboard:Clipboard = event.clipboard;
+                if (clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) {
+                    var dropfiles:Array = clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
+                    
+                    FileUtil.sortFiles(dropfiles, Array.NUMERIC | Array.DESCENDING);
+                    
+                    var length:uint = dropfiles.length;
+                    var list:Vector.<File> = new Vector.<File>();
+                    for (var i:uint = 0; i < length; i++) {
+                        var file:File = dropfiles[i];
+                        if (FileUtil.hasBitmapFormat(file)) {
+                            list[list.length] = file;
+                        }
+                    }
+                }
+                
+                if (list.length > 0) {
+                    importImagesFromFiles(list);
                 }
             }
             
@@ -575,7 +619,9 @@
                          width="100%"
                          height="100%"
                          mouseMove="imageContainerMouseMoveHandler(event)"
-                         mouseDown="imageContainerMouseDownHandler(event)">
+                         mouseDown="imageContainerMouseDownHandler(event)"
+                         nativeDragEnter="imageConteinerGroupNativeDragEnterHandler(event)"
+                         nativeDragDrop="imageConteinerGroupNativeDragDropHandler(event)">
                     
                     <components:CheckerBoard id="checkerboard"
                                              width="{imageControl.width}"
