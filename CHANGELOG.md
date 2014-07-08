@@ -1,3 +1,20 @@
+### 0.3.2
+
+Features:
+
+* Animation controls. Allows navigate to the first, previous, next or last frames.
+* Lens help property. Works like the old option 'Actioned' in other editors.
+* Amount option. Allows to load 100-500 objects/sprites at a time.
+* Find animated objects.
+* Check for application updates.
+* UI improvements.
+
+Bug Fixes:
+
+* Fix import/replace on Mac OS X.
+* Fix rename file on Mac OS X.
+* Fix showing compile question even if nothing has changed.
+
 ### 0.3.1
 
 Features:
