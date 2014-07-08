@@ -626,7 +626,7 @@
                 _updater.updateURL = "https://dl.dropboxusercontent.com/s/ersqqbih5xyqy7e/update.xml";
                 _updater.addEventListener(UpdateEvent.INITIALIZED, updateInitializedHandler);
                 _updater.addEventListener(ErrorEvent.ERROR, updateErrorHandler);
-                _updater.isCheckForUpdateVisible = false;
+                _updater.isCheckForUpdateVisible = true;
                 _updater.isFileUpdateVisible = true;
                 _updater.isInstallUpdateVisible = true;
                 _updater.initialize();
