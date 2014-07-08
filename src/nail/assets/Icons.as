@@ -87,6 +87,9 @@ package nail.assets
         [Embed(source="../../../assets/help.png", mimeType="image/png")]
         public static const HELP:Class;
         
+        [Embed(source="../../../assets/download.png", mimeType="image/png")]
+        public static const DOWNLOAD:Class;
+        
         [Embed(source="../../../assets/info.png", mimeType="image/png")]
         public static const INFO:Class;
         

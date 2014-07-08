@@ -65,6 +65,8 @@
             <menuitem label="{resourceManager.getString('strings', 'menu.help')}">
                 <menuitem label="{resourceManager.getString('strings', 'menu.helpContents')}" data="helpContents" enabled="true" icon="nail.assets.Icons_HELP"/>
                 <menuitem type="separator"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.checkForUpdate')}" data="helpCheckForUpdate" icon="nail.assets.Icons_DOWNLOAD"/>
+                <menuitem type="separator"/>
                 <menuitem label="{resourceManager.getString('strings', 'menu.about')}" data="helpAbout" icon="nail.assets.Icons_INFO"/>
             </menuitem>	
         </fx:XMLList>
@@ -87,6 +89,9 @@
             import mx.managers.DragManager;
             
             import spark.events.IndexChangeEvent;
+            
+            import air.update.ApplicationUpdaterUI;
+            import air.update.events.UpdateEvent;
             
             import nail.animationeditor.AnimationEditor;
             import nail.assets.NailAssets;
@@ -171,6 +176,7 @@
             public const ObjectBuilderWorker:Class;
             
             private var _settings:ObjectBuilderSettings = new ObjectBuilderSettings();
+            private var _updater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
             private var _thingData:ThingData;
             private var _nextThingData:ThingData;
             private var _thingDataChanged:Boolean;
@@ -613,6 +619,17 @@
                 if (_animationWindow) {
                     _animationWindow.close();
                 }
+            }
+            
+            public function checkUpdate():void
+            {
+                _updater.updateURL = "https://dl.dropboxusercontent.com/s/ersqqbih5xyqy7e/update.xml";
+                _updater.addEventListener(UpdateEvent.INITIALIZED, updateInitializedHandler);
+                _updater.addEventListener(ErrorEvent.ERROR, updateErrorHandler);
+                _updater.isCheckForUpdateVisible = false;
+                _updater.isFileUpdateVisible = true;
+                _updater.isInstallUpdateVisible = true;
+                _updater.initialize();
             }
             
             public function clear():void
@@ -1875,6 +1892,16 @@
                 }
             }
             
+            protected function updateInitializedHandler(event:UpdateEvent):void
+            {
+                _updater.checkNow();
+            }
+            
+            protected function updateErrorHandler(event:ErrorEvent):void
+            {
+                Alert.show(event.text);
+            }
+            
             override protected function displayStateChangingHandler(event:NativeWindowDisplayStateEvent):void
             {
                 if (_settings) {
@@ -1996,6 +2023,9 @@
                         break;
                     case "helpContents":
                         this.openHelpWindow();
+                        break;
+                    case "helpCheckForUpdate":
+                        this.checkUpdate();
                         break;
                     case "helpAbout":
                         this.onAboutApplication();
