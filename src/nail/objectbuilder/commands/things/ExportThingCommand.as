@@ -39,7 +39,7 @@ package nail.objectbuilder.commands.things
         
         public function ExportThingCommand(list:Vector.<PathHelper>, category:String, version:Version, spriteSheetFlag:uint)
         {
-            super(CommandType.EXPORT_THINGS, list, category, version.datSignature, version.sprSignature, spriteSheetFlag);
+            super(CommandType.EXPORT_THINGS, list, category, version, spriteSheetFlag);
         }
     }
 }

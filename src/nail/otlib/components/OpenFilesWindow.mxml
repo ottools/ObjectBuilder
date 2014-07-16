@@ -59,11 +59,10 @@
         <![CDATA[
             import mx.events.FlexEvent;
             
-            import spark.events.TextOperationEvent;
-            
             import nail.errors.NullArgumentError;
             import nail.logging.Log;
             import nail.otlib.core.Version;
+            import nail.otlib.core.Versions;
             import nail.otlib.events.FileTextInputEvent;
             import nail.otlib.utils.OTFormat;
             
@@ -257,7 +256,7 @@
                     stream.open(spr, FileMode.READ);
                     stream.endian = Endian.LITTLE_ENDIAN;
                     sprSignature = stream.readUnsignedInt();
-                    version = Version.getVersionBySignatures(datSignature, sprSignature);
+                    version = Versions.instance.getBySignatures(datSignature, sprSignature);
                     
                     if (!version) {
                         unsupportedVersionLabel.text = resourceManager.getString("strings", "unsupportedVersion");

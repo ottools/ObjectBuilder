@@ -39,6 +39,7 @@ package nail.otlib.things
     
     import nail.errors.NullArgumentError;
     import nail.otlib.core.Version;
+    import nail.otlib.core.Versions;
     import nail.otlib.geom.Rect;
     import nail.otlib.sprites.Sprite;
     import nail.otlib.sprites.SpriteData;
@@ -193,10 +194,9 @@ package nail.otlib.things
             bytes.endian = Endian.LITTLE_ENDIAN;
             bytes.uncompress(CompressionAlgorithm.LZMA);
             
-            var version:Version = Version.getVersionByValue( bytes.readUnsignedShort() );
-            if (!version) {
+            var version:Version = Versions.instance.getByValue( bytes.readUnsignedShort() );
+            if (!version)
                 throw new Error("Unsupported version.");
-            }
             
             var thing:ThingType = new ThingType();
             thing.category = ThingCategory.getCategory( bytes.readUTF() );

@@ -142,6 +142,7 @@
             import nail.otlib.components.PreferencesWindow;
             import nail.otlib.components.renders.ThingListRenderer;
             import nail.otlib.core.Version;
+            import nail.otlib.core.Versions;
             import nail.otlib.events.ThingEditorEvent;
             import nail.otlib.geom.Rect;
             import nail.otlib.loaders.PathHelper;
@@ -177,6 +178,7 @@
             
             private var _settings:ObjectBuilderSettings = new ObjectBuilderSettings();
             private var _updater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
+            private var _versions:Versions;
             private var _thingData:ThingData;
             private var _nextThingData:ThingData;
             private var _thingDataChanged:Boolean;
@@ -461,7 +463,7 @@
                 
                 var window:CompileFilesWindow = new CompileFilesWindow();
                 window.directory = _settings.getLastDirectory();
-                window.version = Version.getVersionBySignatures(_info.datSignature, _info.sprSignature);
+                window.version = Versions.instance.getFromFilesInfo(_info);
                 window.extended = _info.extended;
                 window.transparency = _info.transparency;
                 window.filesName = isNullOrEmpty(_filesName) ? "Tibia" : _filesName;
@@ -659,6 +661,7 @@
             {
                 super.register();
                 
+                registerClassAlias("Version", Version);
                 registerClassAlias("ThingType", ThingType);
                 registerClassAlias("FilesInfo", FilesInfo);
                 registerClassAlias("ThingData", ThingData);
@@ -759,6 +762,7 @@
             {
                 super.applicationLoadComplete();
                 
+                this.loadVersionsXML();
                 this.systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
                 
                 if (_settings.maximized) {
@@ -791,6 +795,12 @@
             //--------------------------------------
             // Private
             //--------------------------------------
+            
+            private function loadVersionsXML():void
+            {
+                _versions = new Versions();
+                _versions.load(File.applicationDirectory.resolvePath("versions.xml"));
+            }
             
             public function onSetAssetsInfo(info:FilesInfo):void
             {
@@ -1462,7 +1472,7 @@
                 
                 var version:Version = _settings.getLastExportThingVersion();
                 if (!version) {
-                    version = Version.getVersionBySignatures(_info.datSignature, _info.sprSignature);
+                    version = Versions.instance.getFromFilesInfo(_info);
                 }
                 
                 var window:ExportWindow = new ExportWindow();

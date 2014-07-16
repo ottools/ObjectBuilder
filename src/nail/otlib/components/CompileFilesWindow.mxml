@@ -55,6 +55,7 @@
             import spark.events.TextOperationEvent;
             
             import nail.otlib.core.Version;
+            import nail.otlib.core.Versions;
             import nail.otlib.events.FileTextInputEvent;
             
             //--------------------------------------------------------------------------
@@ -198,7 +199,7 @@
             
             protected function creationCompleteHandler(event:FlexEvent):void
             {
-                versionsDropDownList.dataProvider = new ArrayCollection( Version.getList() );
+                versionsDropDownList.dataProvider = new ArrayCollection( Versions.instance.getList() );
                 versionsDropDownList.selectedItem = _version;
                 focusManager.setFocus(confirmButton);
                 focusManager.showFocus();

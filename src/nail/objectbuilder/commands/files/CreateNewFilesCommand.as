@@ -39,8 +39,7 @@ package nail.objectbuilder.commands.files
         public function CreateNewFilesCommand(version:Version, extended:Boolean, transparency:Boolean)
         {
             super(CommandType.CREATE_NEW_FILES,
-                  version.datSignature,
-                  version.sprSignature,
+                  version,
                   extended, 
                   transparency);
         }

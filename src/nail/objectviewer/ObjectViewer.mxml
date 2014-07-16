@@ -62,6 +62,7 @@
             import nail.components.controls.Alert;
             import nail.objectbuilder.core.IObjectBuilder;
             import nail.otlib.core.Version;
+            import nail.otlib.core.Versions;
             import nail.otlib.loaders.PathHelper;
             import nail.otlib.things.ThingData;
             import nail.otlib.utils.OTFormat;
@@ -228,7 +229,7 @@
                         resourceManager.getString("strings", "type"),
                         resourceManager.getString("strings", thingData.category),
                         resourceManager.getString("strings", "version"),
-                        Version.getVersionByValue(bytes.readUnsignedShort()).valueStr);
+                        Versions.instance.getByValue(bytes.readUnsignedShort()).valueStr);
                     this.descriptionText.textFlow = TextConverter.importToFlow(
                         statusText,
                         TextConverter.TEXT_FIELD_HTML_FORMAT);

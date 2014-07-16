@@ -47,8 +47,7 @@ package nail.objectbuilder.commands.files
             super(CommandType.LOAD_FILES,
                   datFile.nativePath, 
                   sprFile.nativePath,
-                  version.datSignature,
-                  version.sprSignature,
+                  version,
                   extended,
                   transparency);
         }

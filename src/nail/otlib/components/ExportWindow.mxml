@@ -68,6 +68,7 @@
             
             import nail.codecs.ImageFormat;
             import nail.otlib.core.Version;
+            import nail.otlib.core.Versions;
             import nail.otlib.events.FileTextInputEvent;
             import nail.otlib.utils.OTFormat;
             
@@ -78,7 +79,7 @@
             //--------------------------------------------------------------------------
             
             [Bindable]
-            private var _versionCollection:ArrayCollection = new ArrayCollection( Version.getList() );
+            private var _versionCollection:ArrayCollection = new ArrayCollection( Versions.instance.getList() );
             private var _fileName:String;
             private var _fileNameChanged:Boolean;
             private var _directory:File;

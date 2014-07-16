@@ -24,57 +24,28 @@
 
 package nail.otlib.core
 {
-    import flash.filesystem.File;
-    import flash.filesystem.FileMode;
-    import flash.filesystem.FileStream;
-    import flash.utils.Dictionary;
-    
-    import nail.logging.Log;
-    import nail.utils.StringUtil;
-    
     public final class Version
     {
         //--------------------------------------------------------------------------
-        //
         // PROPERTIES
-        //
         //--------------------------------------------------------------------------
         
-        private var _value:uint;
-        private var _valueStr:String;
-        private var _datSignature:uint;
-        private var _sprSignature:uint;
-        private var _otbVersion:uint;
-        
-        //--------------------------------------
-        // Getters / Setters
-        //--------------------------------------
-        
-        public function get value():uint { return _value; }
-        public function get valueStr():String { return _valueStr; }
-        public function get sprSignature():uint { return _sprSignature; }
-        public function get datSignature():uint { return _datSignature; }
-        public function get otbVersion():uint { return _otbVersion; }
+        public var value:uint;
+        public var valueStr:String;
+        public var datSignature:uint;
+        public var sprSignature:uint;
+        public var otbVersion:uint;
         
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
-        public function Version(versionValue:uint, versionString:String, datSignature:uint, sprSignature:uint, otbVersion:uint)
+        public function Version()
         {
-            _value = versionValue;
-            _valueStr = versionString;
-            _datSignature = datSignature;
-            _sprSignature = sprSignature;
-            _otbVersion = otbVersion;
         }
         
         //----------------------------------------------------
-        //
         // METHODS
-        //
         //----------------------------------------------------
         
         //--------------------------------------
@@ -83,114 +54,31 @@ package nail.otlib.core
         
         public function toString():String
         {
-            return _valueStr;
+            return valueStr;
         }
         
         public function equals(version:Version):Boolean
         {
             if (version &&
                 version.value == this.value &&
+                version.valueStr == this.valueStr &&
                 version.datSignature == this.datSignature &&
-                version.sprSignature == this.sprSignature) {
+                version.sprSignature == this.sprSignature &&
+                version.otbVersion == this.otbVersion) {
                 return true;
             }
             return false;
         }
         
-        //----------------------------------------------------
-        //
-        // STATIC
-        //
-        //----------------------------------------------------
-        
-        private static const VERSION_LIST:Dictionary = new Dictionary();
-        
-        static public function load():void
+        public function clone():Version
         {
-            var file:File = File.applicationDirectory.resolvePath("versions.xml");
-            if (!file.exists) return;
-            
-            try
-            {
-                var stream:FileStream = new FileStream();
-                stream.open(file, FileMode.READ);
-                var xml:XML = XML( stream.readUTFBytes(stream.bytesAvailable) );
-                stream.close();
-                
-                if (xml.localName() != "versions")  return;
-                
-                for each (var versionXML:XML in xml.version) {
-                    if (versionXML.hasOwnProperty("@value") &&
-                        versionXML.hasOwnProperty("@string") &&
-                        versionXML.hasOwnProperty("@dat") &&
-                        versionXML.hasOwnProperty("@spr") &&
-                        versionXML.hasOwnProperty("@otb")) {
-                        var value:uint = uint(versionXML.@value);
-                        var string:String = String(versionXML.@string);
-                        var dat:uint = uint(StringUtil.substitute("0x{0}", versionXML.@dat));
-                        var spr:uint = uint(StringUtil.substitute("0x{0}", versionXML.@spr));
-                        var otb:uint = uint(versionXML.@otb);
-                        var version:Version = new Version(value, string, dat, spr, otb);
-                        VERSION_LIST[string] = version;
-                    }
-                }
-            } catch(error:Error) {
-                Log.error(error.message, error.getStackTrace(), error.errorID);
-            }
-        }
-        load();
-        
-        public static function getList():Array
-        {
-            var list:Array = [];
-            for each (var version:Version in VERSION_LIST) {
-                list[list.length] = version;
-            }
-            
-            if (list.length > 1) {
-                list.sortOn("value", Array.NUMERIC | Array.DESCENDING);
-            }
-            return list;
-        }
-        
-        public static function getVersionByValue(value:uint):Version
-        {
-            for each (var version:Version in VERSION_LIST) {
-                if (version.value == value) {
-                    return version;
-                }
-            }
-            return null;
-        }
-        
-        public static function getVersionByString(value:String):Version
-        {
-            if (!isNullOrEmpty(value)) {
-                if (VERSION_LIST[value] !== undefined) {
-                    return Version(VERSION_LIST[value]);
-                }
-            }
-            return null;
-        }
-        
-        public static function getVersionBySignatures(datSignature:uint, sprSignature:uint):Version
-        {
-            for each (var version:Version in VERSION_LIST) {
-                if (version.sprSignature == sprSignature && version.datSignature == datSignature) {
-                    return version;
-                }
-            }
-            return null;
-        }
-        
-        public static function getVersionByOtb(otb:uint):Version
-        {
-            for each (var version:Version in VERSION_LIST) {
-                if (version.otbVersion == otb) {
-                    return version;
-                }
-            }
-            return null;
+            var version:Version = new Version();
+            version.value = this.value;
+            version.valueStr = this.valueStr;
+            version.datSignature = this.datSignature;
+            version.sprSignature = this.sprSignature;
+            version.otbVersion = this.otbVersion;
+            return version;
         }
     }
 }

@@ -35,6 +35,7 @@
     <fx:Script>
         <![CDATA[
             import nail.otlib.core.Version;
+            import nail.otlib.core.Versions;
             import nail.otlib.utils.FilesInfo;
             
             //--------------------------------------------------------------------------
@@ -50,7 +51,7 @@
             public function setFilesInfo(info:FilesInfo):void
             {
                 if (info) {
-                    var version:Version = Version.getVersionBySignatures(info.datSignature, info.sprSignature);
+                    var version:Version = Versions.instance.getBySignatures(info.datSignature, info.sprSignature);
                     filesVersionLabel.text = version.toString();
                     datSignatureLabel.text = info.datSignature.toString(16).toUpperCase();
                     itemsCountLabel.text = info.maxItemId.toString();

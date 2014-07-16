@@ -175,8 +175,7 @@ package nail.objectbuilder.core
         {
             this.onCompileAs(_datFile.nativePath,
                 _sprFile.nativePath,
-                _version.datSignature,
-                _version.sprSignature,
+                _version,
                 _extended,
                 _transparency);
         }
@@ -212,6 +211,7 @@ package nail.objectbuilder.core
         override public function register():void
         {
             // Register classes.
+            registerClassAlias("Version", Version);
             registerClassAlias("FilesInfo", FilesInfo);
             registerClassAlias("ThingType", ThingType);
             registerClassAlias("ThingData", ThingData);
@@ -262,19 +262,10 @@ package nail.objectbuilder.core
         // Private
         //--------------------------------------
         
-        private function onCreateNewFiles(datSignature:uint,
-                                          sprSignature:uint,
-                                          extended:Boolean,
-                                          transparency:Boolean):void
+        private function onCreateNewFiles(version:Version, extended:Boolean, transparency:Boolean):void
         {
-            if (datSignature == 0 || sprSignature == 0) {
-                throw new ArgumentError(Resources.getString("strings", "invalidVersion"));
-            }
-            
-            var version:Version = Version.getVersionBySignatures(datSignature, sprSignature);
-            if (!version) {
-                throw new ArgumentError(Resources.getString("strings", "invalidVersion"));
-            }
+            if (!version)
+                throw new NullArgumentError("version");
             
             this.onUnloadFiles();
             
@@ -323,28 +314,24 @@ package nail.objectbuilder.core
         
         private function onLoadFiles(datPath:String,
                                      sprPath:String,
-                                     datSignature:uint,
-                                     sprSignature:uint,
+                                     version:Version,
                                      extended:Boolean,
                                      transparency:Boolean):void
         {
-            if (isNullOrEmpty(datPath)) {
+            if (isNullOrEmpty(datPath))
                 throw new NullOrEmptyArgumentError("datPath");
-            }
             
-            if (isNullOrEmpty(sprPath)) {
+            if (isNullOrEmpty(sprPath))
                 throw new NullOrEmptyArgumentError("sprPath");
-            }
             
-            if (datSignature == 0 || sprSignature == 0) {
-                throw new ArgumentError(Resources.getString("strings", "invalidVersion"));
-            }
+            if (!version)
+                throw new NullArgumentError("version");
             
             this.onUnloadFiles();
             
             _datFile = new File(datPath);
             _sprFile = new File(sprPath);
-            _version = Version.getVersionBySignatures(datSignature, sprSignature);
+            _version = version;
             _extended = (extended || _version.value >= 960);
             _transparency = transparency;
             
@@ -363,34 +350,27 @@ package nail.objectbuilder.core
         
         private function onCompileAs(datPath:String,
                                      sprPath:String,
-                                     datSignature:uint,
-                                     sprSignature:uint,
+                                     version:Version,
                                      extended:Boolean,
                                      transparency:Boolean):void
         {
-            if (isNullOrEmpty(datPath)) {
+            if (isNullOrEmpty(datPath))
                 throw new NullOrEmptyArgumentError("datPath");
-            }
             
-            if (isNullOrEmpty(sprPath)) {
+            if (isNullOrEmpty(sprPath))
                 throw new NullOrEmptyArgumentError("sprPath");
-            }
             
-            if (datSignature == 0 || sprSignature == 0) {
-                throw new ArgumentError(Resources.getString("strings", "invalidVersion"));
-            }
+            if (!version)
+                throw new NullArgumentError("version");
             
-            if (!_things || !_things.loaded) {
+            if (!_things || !_things.loaded)
                 throw new Error(Resources.getString("strings", "metadataNotLoaded"));
-            }
             
-            if (!_sprites || !_sprites.loaded) {
+            if (!_sprites || !_sprites.loaded)
                 throw new Error(Resources.getString("strings", "spritesNotLoaded"));
-            }
             
             var dat:File = new File(datPath);
             var spr:File = new File(sprPath);
-            var version:Version = Version.getVersionBySignatures(datSignature, sprSignature);
             var structureChanged:Boolean = (_extended != extended || _transparency != transparency);
             var title:String = Resources.getString("strings", "compiling");
             
@@ -578,21 +558,17 @@ package nail.objectbuilder.core
         
         private function onExportThing(list:Vector.<PathHelper>,
                                        category:String,
-                                       datSignature:uint,
-                                       sprSignature:uint,
+                                       version:Version,
                                        spriteSheetFlag:uint):void
         {
-            if (!list) {
+            if (!list)
                 throw new NullArgumentError("list");
-            }
             
-            if (!ThingCategory.getCategory(category)) {
+            if (!ThingCategory.getCategory(category))
                 throw new ArgumentError(Resources.getString("strings", "invalidCategory"));
-            }
             
-            if (datSignature == 0 || sprSignature == 0) {
-                throw new ArgumentError(Resources.getString("strings", "invalidVersion"));
-            }
+            if (!version)
+                throw new NullArgumentError("version");
             
             var length:uint = list.length;
             if (length == 0) return;
@@ -602,7 +578,6 @@ package nail.objectbuilder.core
             
             sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("strings", "exportingObjects")));
             
-            var version:Version = Version.getVersionBySignatures(datSignature, sprSignature);
             var helper:SaveHelper = new SaveHelper();
             var backgoundColor:uint = _transparency ? 0x00FF00FF : 0xFFFF00FF;
             var bytes:ByteArray;
@@ -1333,8 +1308,7 @@ package nail.objectbuilder.core
         {
             onLoadFiles(_datFile.nativePath,
                 _sprFile.nativePath,
-                _version.datSignature,
-                _version.sprSignature,
+                _version,
                 enableSpritesU32,
                 enableAlphaChannel);
         }
@@ -1649,8 +1623,7 @@ package nail.objectbuilder.core
                 _errorMessage = event.text;
                 onLoadFiles(_datFile.nativePath,
                     _sprFile.nativePath,
-                    _version.datSignature,
-                    _version.sprSignature,
+                    _version,
                     true,
                     _transparency);
             } else {

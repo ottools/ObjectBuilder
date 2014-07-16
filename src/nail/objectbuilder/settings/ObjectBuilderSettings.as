@@ -29,6 +29,7 @@ package nail.objectbuilder.settings
     import nail.codecs.ImageFormat;
     import nail.objectbuilder.utils.SupportedLanguages;
     import nail.otlib.core.Version;
+    import nail.otlib.core.Versions;
     import nail.otlib.utils.OTFormat;
     import nail.settings.Settings;
     import nail.utils.FileUtil;
@@ -157,7 +158,7 @@ package nail.objectbuilder.settings
         
         public function getLastExportThingVersion():Version
         {
-            return Version.getVersionBySignatures(datSignature, sprSignature);
+            return Versions.instance.getBySignatures(datSignature, sprSignature);
         }
         
         public function setLastExportThingVersion(version:Version):void
