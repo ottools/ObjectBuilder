@@ -64,6 +64,7 @@ package nail.otlib.components
         // Getters / Setters
         //--------------------------------------
         
+        [Bindable]
         public function get thingData():ThingData { return _thingData; }
         public function set thingData(value:ThingData):void
         {

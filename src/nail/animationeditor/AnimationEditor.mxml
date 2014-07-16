@@ -63,6 +63,11 @@
     
     <fx:Script>
         <![CDATA[
+            
+            import com.worlize.gif.GIFDecoder;
+            import com.worlize.gif.GIFFrame;
+            import com.worlize.gif.events.GIFDecoderEvent;
+            
             import mx.events.DragEvent;
             import mx.events.FlexEvent;
             import mx.events.MenuEvent;
@@ -444,6 +449,8 @@
                 {
                     if (file.extension == OTFormat.OBD)
                         openOBD(file);
+                    else if (file.extension == ImageFormat.GIF)
+                        openGif(file);
                     else
                         ImageCodec.decodeFromFile(file, imageReadCallback);
                     
@@ -468,6 +475,17 @@
                 setBitmap(bitmap);
             }
             
+            private function openGif(file:File):void
+            {
+                var stream:FileStream = new FileStream();
+                stream.open(file, FileMode.READ);
+                
+                var decoder:GIFDecoder = new GIFDecoder();
+                decoder.addEventListener(GIFDecoderEvent.DECODE_COMPLETE, gifDecoderCompleteHandler);
+                decoder.decodeBytes(stream);
+                stream.close();
+            }
+            
             private function setBitmap(bitmap:BitmapData):void
             {
                 _bitmap = bitmap;
@@ -475,8 +493,6 @@
                 
                 resetControls();
                 update();
-                
-                controlsContainer.enabled = (bitmap != null);
             }
             
             private function onOpenFile():void
@@ -721,6 +737,23 @@
                 thingView.frame = framesList.selectedIndex;
             }
             
+            protected function gifDecoderCompleteHandler(event:GIFDecoderEvent):void
+            {
+                var gifFrames:Vector.<GIFFrame> = GIFDecoder(event.target).frames;
+                var frames:Vector.<Frame> = new Vector.<Frame>();
+                var length:uint = gifFrames.length;
+                for (var i:uint = 0; i < length; i++) {
+                    var frame:GIFFrame = gifFrames[i];
+                    var f:Frame = new Frame(frame.bitmapData);
+                    frames[frames.length] = f;
+                }
+                
+                _size.width = gifFrames[0].width;
+                _size.height = gifFrames[0].height;
+                framesList.setListObjects(frames);
+                createThingData();
+            }
+            
             override protected function keyDownHandler(event:KeyboardEvent):void
             {
                 var keyCode:uint = event.keyCode;
@@ -790,11 +823,11 @@
     <mx:HDividedBox width="100%"
                     height="100%">
         <s:BorderContainer id="controlsContainer"
-                           minWidth="200"
+                           minWidth="245"
                            maxWidth="300"
                            width="300"
                            height="100%"
-                           enabled="false"
+                           enabled="{thingView.thingData != null}"
                            skinClass="nail.components.skins.BorderContainerSkin">
             <s:layout>
                 <s:VerticalLayout paddingLeft="5"
@@ -825,6 +858,7 @@
                                       horizontalAlign="right"/>
                 </nail:layout>
                 <s:TileGroup requestedColumnCount="2"
+                             columnWidth="100"
                              verticalAlign="middle">
                     <s:Label text="{resourceManager.getString('strings', 'category') + ':'}"
                              textAlign="right"/>
