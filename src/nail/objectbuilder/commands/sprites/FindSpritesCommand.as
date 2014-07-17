@@ -30,9 +30,7 @@ package nail.objectbuilder.commands.sprites
     public class FindSpritesCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function FindSpritesCommand(unusedSprites:Boolean, emptySprites:Boolean)

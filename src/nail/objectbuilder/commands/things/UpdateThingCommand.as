@@ -31,9 +31,7 @@ package nail.objectbuilder.commands.things
     public class UpdateThingCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function UpdateThingCommand(thingData:ThingData, replaceSprites:Boolean)

@@ -44,9 +44,7 @@ package nail.objectbuilder.utils
     public final class ObUtils
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ObUtils()
@@ -55,9 +53,7 @@ package nail.objectbuilder.utils
         }
         
         //--------------------------------------------------------------------------
-        //
         // STATIC
-        //
         //--------------------------------------------------------------------------
         
         public static function toLocale(category:String):String

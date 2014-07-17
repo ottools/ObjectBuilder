@@ -29,9 +29,7 @@ package nail.otlib.geom
     public class Direction
     {
         //--------------------------------------------------------------------------
-        //
         // PROPERTIES
-        //
         //--------------------------------------------------------------------------
         
         private var _value:uint;
@@ -45,9 +43,7 @@ package nail.otlib.geom
         public function get type():String { return _type; }
         
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function Direction(value:uint, type:String)
@@ -61,9 +57,7 @@ package nail.otlib.geom
         }
         
         //--------------------------------------------------------------------------
-        //
         // METHODS
-        //
         //--------------------------------------------------------------------------
         
         //--------------------------------------
@@ -81,7 +75,7 @@ package nail.otlib.geom
         //
         //----------------------------------------------------
         
-        static private var created:Boolean;
+        private static var created:Boolean;
         
         public static const NORTH:Direction = new Direction(0, "north");
         public static const EAST:Direction = new Direction(1, "east"); 
@@ -98,10 +92,10 @@ package nail.otlib.geom
         }
         
         //--------------------------------------
-        // Static Public
+        // public static
         //--------------------------------------
         
-        static public function toDirection(value:uint):Direction
+        public static function toDirection(value:uint):Direction
         {
             switch (value) {
                 case 0:

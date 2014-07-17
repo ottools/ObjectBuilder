@@ -31,9 +31,7 @@ package nail.objectbuilder.commands.files
     public class CreateNewFilesCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function CreateNewFilesCommand(version:Version, extended:Boolean, transparency:Boolean)

@@ -33,9 +33,7 @@ package nail.objectbuilder.commands.files
     public class LoadFilesCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function LoadFilesCommand(datFile:File,

@@ -31,9 +31,7 @@ package nail.objectbuilder.commands.sprites
     public class SetSpriteListCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function SetSpriteListCommand(selectedIds:Vector.<uint>, sprites:Vector.<SpriteData>)

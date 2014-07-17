@@ -29,9 +29,7 @@ package nail.otlib.things
     public final class ClothSlot
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ClothSlot()
@@ -40,21 +38,19 @@ package nail.otlib.things
         }
         
         //--------------------------------------------------------------------------
-        //
         // STATIC
-        //
         //--------------------------------------------------------------------------
         
-        static public const TWO_HAND_WEAPON : uint = 1;
-        static public const HELMET : uint = 2;
-        static public const AMULET : uint = 3;
-        static public const BACKPACK : uint = 4;
-        static public const ARMOR : uint = 5;
-        static public const SHIELD : uint = 6;
-        static public const ONE_HAND_WEAPON : uint = 7;
-        static public const LEGS : uint = 8;
-        static public const BOOTS : uint = 9;
-        static public const RING : uint = 10;
-        static public const ARROW : uint = 11;
+        public static const TWO_HAND_WEAPON:uint = 1;
+        public static const HELMET:uint = 2;
+        public static const AMULET:uint = 3;
+        public static const BACKPACK:uint = 4;
+        public static const ARMOR:uint = 5;
+        public static const SHIELD:uint = 6;
+        public static const ONE_HAND_WEAPON:uint = 7;
+        public static const LEGS:uint = 8;
+        public static const BOOTS:uint = 9;
+        public static const RING:uint = 10;
+        public static const ARROW:uint = 11;
     }
 }

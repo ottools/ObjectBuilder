@@ -155,7 +155,7 @@ package mx.controls.menuClasses
         //----------------------------------
         
         [Bindable("__NoChangeEvent__")]
-        public var keyEquivalent : String;
+        public var keyEquivalent:String;
         
     }
 }

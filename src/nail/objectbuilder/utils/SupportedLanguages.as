@@ -29,9 +29,7 @@ package nail.objectbuilder.utils
     public final class SupportedLanguages
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function SupportedLanguages()
@@ -40,9 +38,7 @@ package nail.objectbuilder.utils
         }
         
         //--------------------------------------------------------------------------
-        //
         // STATIC
-        //
         //--------------------------------------------------------------------------
         
         public static const EN_US:String = "en_US";

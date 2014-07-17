@@ -29,9 +29,7 @@ package nail.objectbuilder.commands
     public class ProgressCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ProgressCommand(id:uint, value:uint, total:uint)

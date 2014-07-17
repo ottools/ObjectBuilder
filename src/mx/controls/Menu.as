@@ -1608,14 +1608,14 @@ package mx.controls
             return menuListData;  
         }
         
-        public function itemToKeyEquivalent(data:Object) : String
+        public function itemToKeyEquivalent(data:Object):String
         {
-            var key : String;
+            var key:String;
             
             if (data == null)
                 return "";
             
-            var keyEquivalentField : String = "@keyEquivalent";
+            var keyEquivalentField:String = "@keyEquivalent";
             
             if (data is XML)
             {

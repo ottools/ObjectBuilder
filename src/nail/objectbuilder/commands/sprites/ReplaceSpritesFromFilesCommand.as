@@ -31,9 +31,7 @@ package nail.objectbuilder.commands.sprites
     public class ReplaceSpritesFromFilesCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ReplaceSpritesFromFilesCommand(files:Vector.<PathHelper>)

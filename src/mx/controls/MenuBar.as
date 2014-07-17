@@ -865,12 +865,12 @@ package mx.controls
         /**
          *  @private
          */
-        private var _keyEquivalentField : String = "";
+        private var _keyEquivalentField:String = "";
         
         [Bindable("keyEquivalentChanged")]
         [Inspectable(category="Data")]
         
-        public function get keyEquivalentField() : String
+        public function get keyEquivalentField():String
         {
             return _keyEquivalentField;
         }
@@ -878,7 +878,7 @@ package mx.controls
         /**
          *  @private
          */
-        public function set keyEquivalentField(value:String) : void
+        public function set keyEquivalentField(value:String):void
         {
             if (_keyEquivalentField != value)
             {

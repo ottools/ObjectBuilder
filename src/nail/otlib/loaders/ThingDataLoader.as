@@ -46,9 +46,7 @@ package nail.otlib.loaders
     public class ThingDataLoader extends EventDispatcher
     {
         //--------------------------------------------------------------------------
-        //
         // PROPERTIES
-        //
         //--------------------------------------------------------------------------
         
         private var _thingDataList:Vector.<ThingData>;
@@ -63,9 +61,7 @@ package nail.otlib.loaders
         public function get length():uint { return _files ? _files.length : 0; }
         
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ThingDataLoader()
@@ -73,9 +69,7 @@ package nail.otlib.loaders
         }
         
         //--------------------------------------------------------------------------
-        //
         // METHODS
-        //
         //--------------------------------------------------------------------------
         
         //--------------------------------------

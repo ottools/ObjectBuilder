@@ -29,9 +29,7 @@ package nail.objectbuilder.commands
     public class ShowProgressBarCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ShowProgressBarCommand(id:uint, title:String = "")

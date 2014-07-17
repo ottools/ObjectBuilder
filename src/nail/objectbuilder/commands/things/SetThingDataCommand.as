@@ -31,9 +31,7 @@ package nail.objectbuilder.commands.things
     public class SetThingDataCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function SetThingDataCommand(thingData:ThingData)

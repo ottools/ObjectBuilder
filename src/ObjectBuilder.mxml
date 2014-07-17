@@ -168,9 +168,7 @@
             use namespace nail_internal;
             
             //--------------------------------------------------------------------------
-            //
             // PROPERTIES
-            //
             //--------------------------------------------------------------------------
             
             [Embed(source="../workerswfs/nail/objectbuilder/core/ObjectBuilderWorker.swf", mimeType="application/octet-stream")]
@@ -259,9 +257,7 @@
             public function get settings():ObjectBuilderSettings { return _settings; }
             
             //--------------------------------------------------------------------------
-            //
             // METHODS
-            //
             //--------------------------------------------------------------------------
             
             //--------------------------------------
@@ -472,7 +468,7 @@
                 
                 PopUpWindowManager.addWindow(window);
                 
-                function windowCloseHandler(event:Event) : void
+                function windowCloseHandler(event:Event):void
                 {
                     _settings.setLastDirectory(window.directory);
                     
@@ -868,7 +864,7 @@
                     this,
                     alertCloseHandler);
                 
-                function alertCloseHandler(event:CloseEvent) : void
+                function alertCloseHandler(event:CloseEvent):void
                 {
                     if (event.detail == Alert.YES) {
                         sendCommand(new NeedToReloadCommand(extended, transparency));
@@ -1951,7 +1947,7 @@
             
             override protected function keyDownHandler(event:KeyboardEvent):void
             {
-                var code : uint = event.keyCode;
+                var code:uint = event.keyCode;
                 if (event.ctrlKey && !event.shiftKey) {
                     switch (code) {
                         case Keyboard.N:

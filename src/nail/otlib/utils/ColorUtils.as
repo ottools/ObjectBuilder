@@ -29,9 +29,7 @@ package nail.otlib.utils
     public final class ColorUtils
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ColorUtils()
@@ -40,9 +38,7 @@ package nail.otlib.utils
         }
         
         //--------------------------------------------------------------------------
-        //
         // STATIC
-        //
         //--------------------------------------------------------------------------
         
         public static function toARGB(color:uint, alpha:uint = 0xFF):uint
@@ -149,7 +145,7 @@ package nail.otlib.utils
         
         public static function HSItoARGB(color:uint):uint
         {
-            const rgb : uint = HSItoRGB(color);
+            const rgb:uint = HSItoRGB(color);
             return toARGB(rgb);
         }
         

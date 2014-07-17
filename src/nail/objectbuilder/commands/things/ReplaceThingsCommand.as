@@ -31,9 +31,7 @@ package nail.objectbuilder.commands.things
     public class ReplaceThingsCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ReplaceThingsCommand(list:Vector.<ThingData>)

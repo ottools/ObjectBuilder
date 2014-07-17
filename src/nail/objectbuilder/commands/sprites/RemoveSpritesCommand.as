@@ -30,9 +30,7 @@ package nail.objectbuilder.commands.sprites
     public class RemoveSpritesCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function RemoveSpritesCommand(list:Vector.<uint>)

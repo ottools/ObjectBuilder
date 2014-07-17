@@ -29,9 +29,7 @@ package nail.objectbuilder.commands
     public class HideProgressBarCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function HideProgressBarCommand(id:uint)

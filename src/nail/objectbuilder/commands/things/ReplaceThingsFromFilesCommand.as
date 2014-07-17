@@ -31,9 +31,7 @@ package nail.objectbuilder.commands.things
     public class ReplaceThingsFromFilesCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ReplaceThingsFromFilesCommand(list:Vector.<PathHelper>)

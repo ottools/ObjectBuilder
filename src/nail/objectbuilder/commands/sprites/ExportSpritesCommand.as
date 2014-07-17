@@ -31,9 +31,7 @@ package nail.objectbuilder.commands.sprites
     public class ExportSpritesCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ExportSpritesCommand(list:Vector.<PathHelper>)

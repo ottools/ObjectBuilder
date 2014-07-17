@@ -30,9 +30,7 @@ package nail.objectbuilder.commands.files
     public class UnloadFilesCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function UnloadFilesCommand()

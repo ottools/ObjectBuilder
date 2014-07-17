@@ -31,9 +31,7 @@ package nail.objectbuilder.commands.things
     public class ImportThingsFromFilesCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ImportThingsFromFilesCommand(list:Vector.<PathHelper>)

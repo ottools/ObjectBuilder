@@ -30,9 +30,7 @@ package nail.objectbuilder.commands.things
     public class GetThingListCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function GetThingListCommand(target:uint, category:String)

@@ -31,9 +31,7 @@ package nail.objectbuilder.commands.files
     public class SetFilesInfoCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function SetFilesInfoCommand(info:FilesInfo)

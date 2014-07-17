@@ -30,9 +30,7 @@ package nail.objectbuilder.commands.sprites
     public class GetSpriteListCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function GetSpriteListCommand(target:uint)

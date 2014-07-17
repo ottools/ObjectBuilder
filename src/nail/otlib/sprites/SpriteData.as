@@ -35,9 +35,7 @@ package nail.otlib.sprites
     public class SpriteData implements IListObject
     {
         //--------------------------------------------------------------------------
-        //
         // PROPERTIES
-        //
         //--------------------------------------------------------------------------
         
         private var _id:uint;
@@ -53,9 +51,7 @@ package nail.otlib.sprites
         public function set pixels(value:ByteArray):void { _pixels = value; }
         
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function SpriteData()
@@ -63,9 +59,7 @@ package nail.otlib.sprites
         }
         
         //--------------------------------------------------------------------------
-        //
         // METHODS
-        //
         //--------------------------------------------------------------------------
         
         //--------------------------------------
@@ -125,9 +119,7 @@ package nail.otlib.sprites
         }
         
         //--------------------------------------------------------------------------
-        //
         // STATIC
-        //
         //--------------------------------------------------------------------------
         
         private static const RECTANGLE:Rectangle = new Rectangle(0, 0, Sprite.SPRITE_PIXELS, Sprite.SPRITE_PIXELS);

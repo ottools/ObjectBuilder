@@ -52,9 +52,7 @@ package nail.otlib.things
     public class ThingData
     {
         //--------------------------------------------------------------------------
-        //
         // PROPERTIES
-        //
         //--------------------------------------------------------------------------
         
         public var thing:ThingType;
@@ -66,12 +64,10 @@ package nail.otlib.things
         
         public function get id():uint { return thing ? thing.id : 0; }
         public function get category():String { return thing ? thing.category : null; }
-        public function get length() : uint { return sprites ? sprites.length : 0; }
+        public function get length():uint { return sprites ? sprites.length : 0; }
         
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ThingData()
@@ -79,9 +75,7 @@ package nail.otlib.things
         }
         
         //--------------------------------------------------------------------------
-        //
         // METHODS
-        //
         //--------------------------------------------------------------------------
         
         //--------------------------------------
@@ -102,9 +96,7 @@ package nail.otlib.things
         }
         
         //--------------------------------------------------------------------------
-        //
         // STATIC
-        //
         //--------------------------------------------------------------------------
         
         private static const RECTANGLE:Rectangle = new Rectangle(0, 0, 32, 32);
@@ -488,7 +480,7 @@ package nail.otlib.things
                 * thing.width + w;
         }
         
-        static private function copyPixels(data:ThingData, index:uint, bitmap:BitmapData, x:uint, y:uint):void
+        private static function copyPixels(data:ThingData, index:uint, bitmap:BitmapData, x:uint, y:uint):void
         {
             if (index < data.length) {
                 var spriteData:SpriteData = data.sprites[index];

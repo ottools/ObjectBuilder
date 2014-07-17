@@ -37,9 +37,7 @@ package nail.objectbuilder.settings
     public class ObjectBuilderSettings extends Settings
     {
         //--------------------------------------------------------------------------
-        //
         // PROPERTIES
-        //
         //--------------------------------------------------------------------------
         
         public var lastDirectory:String;
@@ -74,9 +72,7 @@ package nail.objectbuilder.settings
         public var spritesListAmount:Number;
         
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ObjectBuilderSettings()
@@ -89,9 +85,7 @@ package nail.objectbuilder.settings
         }
         
         //--------------------------------------------------------------------------
-        //
         // METHODS
-        //
         //--------------------------------------------------------------------------
         
         //--------------------------------------

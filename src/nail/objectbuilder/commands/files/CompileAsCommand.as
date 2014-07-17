@@ -33,9 +33,7 @@ package nail.objectbuilder.commands.files
     public class CompileAsCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function CompileAsCommand(datFile:File,

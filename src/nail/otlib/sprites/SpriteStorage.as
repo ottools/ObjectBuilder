@@ -58,9 +58,7 @@ package nail.otlib.sprites
     public class SpriteStorage extends EventDispatcher implements IDisposable
     {
         //--------------------------------------------------------------------------
-        //
         // PROPERTIES
-        //
         //--------------------------------------------------------------------------
         
         private var _file:File;
@@ -94,9 +92,7 @@ package nail.otlib.sprites
         public function get alertSprite():Sprite { return _alertSprite; }
         
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function SpriteStorage()
@@ -107,9 +103,7 @@ package nail.otlib.sprites
         }
         
         //--------------------------------------------------------------------------
-        //
         // METHODS
-        //
         //--------------------------------------------------------------------------
         
         //--------------------------------------
@@ -371,7 +365,7 @@ package nail.otlib.sprites
             {
                 _stream.position = ((index - 1) * 4) + _headSize;
                 
-                var spriteAddress : uint  = _stream.readUnsignedInt();
+                var spriteAddress:uint  = _stream.readUnsignedInt();
                 if (spriteAddress == 0) return null;
                 
                 _stream.position = spriteAddress;
@@ -455,7 +449,7 @@ package nail.otlib.sprites
                 var progressEvent:ProgressEvent = new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.SPR);
                 progressEvent.total = count;
                 
-                for (var i : uint = 1; i <= count; i++) {
+                for (var i:uint = 1; i <= count; i++) {
                     stream.position = addressPosition;
                     
                     var sprite:Sprite = getSprite(i);
@@ -573,7 +567,7 @@ package nail.otlib.sprites
             var id:uint = ++_spritesCount;
             var sprite:Sprite = new Sprite(_transparency);
             if (!sprite.setBytes(pixels, _transparency)) {
-                var message : String = Resources.getString(
+                var message:String = Resources.getString(
                     "strings",
                     "failedToAdd",
                     Resources.getString("strings", "sprite"),
@@ -745,9 +739,7 @@ package nail.otlib.sprites
         }
         
         //--------------------------------------------------------------------------
-        //
         // STATIC
-        //
         //--------------------------------------------------------------------------
         
         private static const HEAD_SIZE_U16:uint = 6;

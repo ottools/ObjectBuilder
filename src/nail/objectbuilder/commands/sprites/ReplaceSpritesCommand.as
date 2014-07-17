@@ -31,9 +31,7 @@ package nail.objectbuilder.commands.sprites
     public class ReplaceSpritesCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ReplaceSpritesCommand(list:Vector.<SpriteData>)

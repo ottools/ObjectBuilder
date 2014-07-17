@@ -31,9 +31,7 @@ package nail.objectbuilder.commands.sprites
     public class ImportSpritesFromFileCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ImportSpritesFromFileCommand(list:Vector.<PathHelper>)

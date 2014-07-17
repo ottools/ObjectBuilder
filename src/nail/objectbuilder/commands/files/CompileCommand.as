@@ -30,9 +30,7 @@ package nail.objectbuilder.commands.files
     public class CompileCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function CompileCommand()

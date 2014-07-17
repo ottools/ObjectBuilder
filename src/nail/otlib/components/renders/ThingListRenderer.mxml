@@ -51,9 +51,7 @@
             use namespace otlib_internal;
             
             //--------------------------------------------------------------------------
-            //
             // METHODS
-            //
             //--------------------------------------------------------------------------
             
             //--------------------------------------
@@ -105,12 +103,10 @@
             }
             
             //--------------------------------------------------------------------------
-            //
             // STATIC
-            //
             //--------------------------------------------------------------------------
             
-            static private function createContextMenu():ContextMenu
+            private static function createContextMenu():ContextMenu
             {
                 var resource:IResourceManager = ResourceManager.getInstance();
                 var replaceMenu:ContextMenuItem = new ContextMenuItem(resource.getString("strings", "replace"));

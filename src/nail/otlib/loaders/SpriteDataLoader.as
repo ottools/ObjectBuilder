@@ -55,9 +55,7 @@ package nail.otlib.loaders
     public class SpriteDataLoader extends EventDispatcher
     {
         //--------------------------------------------------------------------------
-        //
         // PROPERTIES
-        //
         //--------------------------------------------------------------------------
         
         private var _spriteDataList:Vector.<SpriteData>;
@@ -73,9 +71,7 @@ package nail.otlib.loaders
         public function get length():uint { return _files ? _files.length : 0; }
         
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function SpriteDataLoader()
@@ -83,9 +79,7 @@ package nail.otlib.loaders
         }
         
         //--------------------------------------------------------------------------
-        //
         // METHODS
-        //
         //--------------------------------------------------------------------------
         
         //--------------------------------------

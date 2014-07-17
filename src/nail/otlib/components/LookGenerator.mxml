@@ -61,21 +61,17 @@
             import nail.otlib.utils.BindableLookType;
             
             //--------------------------------------------------------------------------
-            //
             // PROPERTIES
-            //
             //--------------------------------------------------------------------------
             
             [Bindable]
             private var _lookType : BindableLookType;
             
             //--------------------------------------------------------------------------
-            //
             // METHODS
-            //
             //--------------------------------------------------------------------------
             
-            private function updateXML() : void
+            private function updateXML():void
             {
                 var xml : XML;
                 xml = _lookType.serialize();
@@ -86,13 +82,13 @@
             // Event Handlers
             //--------------------------------------
             
-            protected function creationCompleteHandler(event:FlexEvent) : void
+            protected function creationCompleteHandler(event:FlexEvent):void
             {
                 _lookType = new BindableLookType();
                 _lookType.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, lookTypePropertyChange);
             }
             
-            protected function lookTypeNumericStepperChangeHandler(event:Event) : void
+            protected function lookTypeNumericStepperChangeHandler(event:Event):void
             {
                 if (lookAsItemCheckBox.selected)
                 {
@@ -107,9 +103,9 @@
                 updateXML();
             }
             
-            protected function lookAsItemCheckBoxChangeHandler(event:Event) : void
+            protected function lookAsItemCheckBoxChangeHandler(event:Event):void
             {
-                var value : uint;
+                var value:uint;
                 
                 if (lookAsItemCheckBox.selected)
                 {
@@ -126,14 +122,14 @@
                 }
             }
             
-            protected function lookTypePropertyChange(event:PropertyChangeEvent) : void
+            protected function lookTypePropertyChange(event:PropertyChangeEvent):void
             {
                 updateXML();
             }
             
-            protected function copyButtonClickHandler(event:MouseEvent) : void
+            protected function copyButtonClickHandler(event:MouseEvent):void
             {
-                var xmlString : String;
+                var xmlString:String;
                 
                 if (isNullOrEmpty(xmlDisplay.text))
                 {
@@ -156,9 +152,9 @@
                 }
             }
             
-            protected function pasteButtonClickHandler(event:MouseEvent) : void
+            protected function pasteButtonClickHandler(event:MouseEvent):void
             {
-                var xmlString : String;
+                var xmlString:String;
                 var xml : XML;
                 
                 if (Clipboard.generalClipboard.hasFormat(ClipboardFormats.TEXT_FORMAT))

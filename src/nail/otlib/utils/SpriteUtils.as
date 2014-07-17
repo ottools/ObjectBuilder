@@ -36,9 +36,7 @@ package nail.otlib.utils
     public final class SpriteUtils
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function SpriteUtils()
@@ -47,9 +45,7 @@ package nail.otlib.utils
         }
         
         //--------------------------------------------------------------------------
-        //
         // STATIC
-        //
         //--------------------------------------------------------------------------
         
         public static function removeMagenta(sprite:BitmapData):BitmapData

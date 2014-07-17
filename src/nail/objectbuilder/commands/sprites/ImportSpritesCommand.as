@@ -32,9 +32,7 @@ package nail.objectbuilder.commands.sprites
     public class ImportSpritesCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ImportSpritesCommand(sprites:Vector.<ByteArray>)

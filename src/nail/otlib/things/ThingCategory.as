@@ -30,9 +30,7 @@ package nail.otlib.things
     public final class ThingCategory
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ThingCategory(value:String)
@@ -41,17 +39,15 @@ package nail.otlib.things
         }
         
         //--------------------------------------------------------------------------
-        //
         // STATIC
-        //
         //--------------------------------------------------------------------------
         
-        static public const ITEM:String = "item";
-        static public const OUTFIT:String = "outfit";
-        static public const EFFECT:String = "effect";
-        static public const MISSILE:String = "missile";
+        public static const ITEM:String = "item";
+        public static const OUTFIT:String = "outfit";
+        public static const EFFECT:String = "effect";
+        public static const MISSILE:String = "missile";
         
-        static public function getCategory(value:String):String
+        public static function getCategory(value:String):String
         {
             if (!isNullOrEmpty(value)) {
                 value = StringUtil.toKeyString(value);

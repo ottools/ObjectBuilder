@@ -29,9 +29,7 @@ package nail.objectbuilder.commands
     public class NeedToReloadCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function NeedToReloadCommand(extended:Boolean, transparency:Boolean)

@@ -29,9 +29,7 @@ package nail.objectbuilder.commands
     public final class CommandType
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function CommandType()
@@ -40,50 +38,48 @@ package nail.objectbuilder.commands
         }
         
         //--------------------------------------------------------------------------
-        //
         // STATIC
-        //
         //--------------------------------------------------------------------------
         
-        static public const CREATE_NEW_FILES:String = "createNewFiles";
-        static public const LOAD_FILES:String = "loadFiles";
-        static public const UNLOAD_FILES:String = "unloadFiles";
-        static public const FILES_INFO:String = "filesInfo";
-        static public const LOAD_COMPLETE:String = "loadComplete";
-        static public const COMPILE:String = "compile";
-        static public const COMPILE_AS:String = "compileAs";
+        public static const CREATE_NEW_FILES:String = "createNewFiles";
+        public static const LOAD_FILES:String = "loadFiles";
+        public static const UNLOAD_FILES:String = "unloadFiles";
+        public static const FILES_INFO:String = "filesInfo";
+        public static const LOAD_COMPLETE:String = "loadComplete";
+        public static const COMPILE:String = "compile";
+        public static const COMPILE_AS:String = "compileAs";
         
-        static public const NEW_THING:String = "newThing";
-        static public const IMPORT_THINGS:String = "importThings";
-        static public const IMPORT_THINGS_FROM_FILES:String = "importThingsFromFiles";
-        static public const EXPORT_THINGS:String = "exportThings";
-        static public const DUPLICATE_THINGS:String = "duplicateThings";
-        static public const REPLACE_THINGS:String = "replaceThings";
-        static public const REPLACE_THINGS_FROM_FILES:String = "replaceThingsFromFiles";
-        static public const REMOVE_THINGS:String = "removeThings";
-        static public const UPDATE_THING:String = "updateThing";
-        static public const GET_THING:String = "getThing";
-        static public const SET_THING:String = "setThing";
-        static public const GET_THING_LIST:String = "getThingList";
-        static public const SET_THING_LIST:String = "setThingList";
-        static public const FIND_THING:String = "findThing";
-        static public const FIND_RESULT:String = "findResult";
+        public static const NEW_THING:String = "newThing";
+        public static const IMPORT_THINGS:String = "importThings";
+        public static const IMPORT_THINGS_FROM_FILES:String = "importThingsFromFiles";
+        public static const EXPORT_THINGS:String = "exportThings";
+        public static const DUPLICATE_THINGS:String = "duplicateThings";
+        public static const REPLACE_THINGS:String = "replaceThings";
+        public static const REPLACE_THINGS_FROM_FILES:String = "replaceThingsFromFiles";
+        public static const REMOVE_THINGS:String = "removeThings";
+        public static const UPDATE_THING:String = "updateThing";
+        public static const GET_THING:String = "getThing";
+        public static const SET_THING:String = "setThing";
+        public static const GET_THING_LIST:String = "getThingList";
+        public static const SET_THING_LIST:String = "setThingList";
+        public static const FIND_THING:String = "findThing";
+        public static const FIND_RESULT:String = "findResult";
         
-        static public const NEW_SPRITE:String = "newSprite";
-        static public const IMPORT_SPRITES:String = "importSprites";
-        static public const IMPORT_SPRITES_FROM_FILES:String = "importSpritesFromFiles";
-        static public const REPLACE_SPRITES:String = "replaceSprites";
-        static public const REPLACE_SPRITES_FROM_FILES:String = "replaceSpritesFromFiles";
-        static public const REMOVE_SPRITES:String = "removeSprites";
-        static public const EXPORT_SPRITES:String = "exportSprites";
-        static public const GET_SPRITE_LIST:String = "getSpriteList";
-        static public const SET_SPRITE_LIST:String = "setSpriteList";
-        static public const FIND_SPRITES:String = "findSprites";
+        public static const NEW_SPRITE:String = "newSprite";
+        public static const IMPORT_SPRITES:String = "importSprites";
+        public static const IMPORT_SPRITES_FROM_FILES:String = "importSpritesFromFiles";
+        public static const REPLACE_SPRITES:String = "replaceSprites";
+        public static const REPLACE_SPRITES_FROM_FILES:String = "replaceSpritesFromFiles";
+        public static const REMOVE_SPRITES:String = "removeSprites";
+        public static const EXPORT_SPRITES:String = "exportSprites";
+        public static const GET_SPRITE_LIST:String = "getSpriteList";
+        public static const SET_SPRITE_LIST:String = "setSpriteList";
+        public static const FIND_SPRITES:String = "findSprites";
         
-        static public const PROGRESS:String = "progress";
-        static public const SHOW_PROGRESS_BAR:String = "showProgressBar";
-        static public const HIDE_PROGRESS_BAR:String = "hideProgressBar";
-        static public const ERROR:String = "error";
-        static public const NEED_TO_RELOAD:String = "needToReload";
+        public static const PROGRESS:String = "progress";
+        public static const SHOW_PROGRESS_BAR:String = "showProgressBar";
+        public static const HIDE_PROGRESS_BAR:String = "hideProgressBar";
+        public static const ERROR:String = "error";
+        public static const NEED_TO_RELOAD:String = "needToReload";
     }
 }

@@ -32,9 +32,7 @@ package nail.objectbuilder.commands.things
     public class ExportThingCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ExportThingCommand(list:Vector.<PathHelper>, category:String, version:Version, spriteSheetFlag:uint)

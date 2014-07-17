@@ -28,9 +28,7 @@ package nail.otlib.components
     public class ScrollPosition
     {
         //--------------------------------------------------------------------------
-        //
         // PROPERTIES
-        //
         //--------------------------------------------------------------------------
         
         public var horizontalPosition:Number = 0;
@@ -39,9 +37,7 @@ package nail.otlib.components
         public var lastVisible:IListObject;
         
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ScrollPosition()

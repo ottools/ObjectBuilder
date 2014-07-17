@@ -41,9 +41,7 @@ package nail.otlib.things
     public class BindableThingType extends EventDispatcher
     {
         //--------------------------------------------------------------------------
-        //
         // PROPERTIES
-        //
         //--------------------------------------------------------------------------
         
         [Bindable]
@@ -251,9 +249,7 @@ package nail.otlib.things
         public var sprites:Vector.<SpriteData>;
         
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function BindableThingType()
@@ -261,9 +257,7 @@ package nail.otlib.things
         }
         
         //--------------------------------------------------------------------------
-        //
         // METHODS
-        //
         //--------------------------------------------------------------------------
         
         //--------------------------------------
@@ -296,8 +290,8 @@ package nail.otlib.things
             var description : XMLList = describeType(this)..accessor;
             for each (var property : XML in description) {
                
-                var name : String = property.@name;
-                var type : String = property.@type;
+                var name:String = property.@name;
+                var type:String = property.@type;
                 
                 if (type == "Boolean")
                     this[name] = false;
@@ -365,16 +359,14 @@ package nail.otlib.things
         
         public function updateSpriteCount():void
         {
-            var spriteCount : uint = this.width * this.height * this.layers * this.patternX * this.patternY * this.patternZ * this.frames;
+            var spriteCount:uint = this.width * this.height * this.layers * this.patternX * this.patternY * this.patternZ * this.frames;
             this.spriteIndex.length = spriteCount;
             this.sprites.length = spriteCount;
             dispatchEvent(new PropertyChangeEvent(PropertyChangeEvent.PROPERTY_CHANGE));
         }
         
         //--------------------------------------------------------------------------
-        //
         // STATIC
-        //
         //--------------------------------------------------------------------------
         
         private static const PROPERTY_LABEL:Dictionary = new Dictionary();

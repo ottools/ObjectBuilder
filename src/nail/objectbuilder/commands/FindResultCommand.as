@@ -29,9 +29,7 @@ package nail.objectbuilder.commands
     public class FindResultCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function FindResultCommand(type:uint, list:Array)
@@ -40,9 +38,7 @@ package nail.objectbuilder.commands
         }
         
         //--------------------------------------------------------------------------
-        //
         // STATIC
-        //
         //--------------------------------------------------------------------------
         
         public static const THINGS:uint = 1;

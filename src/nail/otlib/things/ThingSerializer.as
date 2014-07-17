@@ -34,9 +34,7 @@ package nail.otlib.things
     public final class ThingSerializer
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ThingSerializer()
@@ -45,9 +43,7 @@ package nail.otlib.things
         }
         
         //--------------------------------------------------------------------------
-        //
         // STATIC
-        //
         //--------------------------------------------------------------------------
         
         private static const STRING_CHARSET:String = "iso-8859-1";
@@ -886,7 +882,7 @@ package nail.otlib.things
             }
             
             thing.spriteIndex = new Vector.<uint>(totalSprites);
-            for (var i : uint = 0; i < totalSprites; i++) {
+            for (var i:uint = 0; i < totalSprites; i++) {
                 if (extended)
                     thing.spriteIndex[i] = input.readUnsignedInt();
                 else 

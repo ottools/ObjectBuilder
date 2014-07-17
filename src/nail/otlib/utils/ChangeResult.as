@@ -27,9 +27,7 @@ package nail.otlib.utils
     public class ChangeResult
     {
         //--------------------------------------------------------------------------
-        //
         // PROPERTIES
-        //
         //--------------------------------------------------------------------------
         
         public var list:Array;
@@ -37,9 +35,7 @@ package nail.otlib.utils
         public var message:String;
         
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ChangeResult(list:Array = null, done:Boolean = false, message:String = null)
@@ -50,9 +46,7 @@ package nail.otlib.utils
         }
         
         //--------------------------------------------------------------------------
-        //
         // METHODS
-        //
         //--------------------------------------------------------------------------
         
         public function update(list:Array = null, done:Boolean = false, message:String = null):ChangeResult

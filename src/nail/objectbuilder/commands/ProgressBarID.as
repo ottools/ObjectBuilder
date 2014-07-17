@@ -29,9 +29,7 @@ package nail.objectbuilder.commands
     public final class ProgressBarID
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ProgressBarID()
@@ -40,15 +38,13 @@ package nail.objectbuilder.commands
         }
         
         //--------------------------------------------------------------------------
-        //
         // STATIC
-        //
         //--------------------------------------------------------------------------
         
-        static public const DAT : uint = 1;
-        static public const SPR : uint = 2;
-        static public const DAT_SPR : uint = 3;
-        static public const DEFAULT : uint = 4;
-        static public const FIND : uint = 5;
+        public static const DAT:uint = 1;
+        public static const SPR:uint = 2;
+        public static const DAT_SPR:uint = 3;
+        public static const DEFAULT:uint = 4;
+        public static const FIND:uint = 5;
     }
 }

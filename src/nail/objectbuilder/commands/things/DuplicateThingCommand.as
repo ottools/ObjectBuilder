@@ -30,9 +30,7 @@ package nail.objectbuilder.commands.things
     public class DuplicateThingCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function DuplicateThingCommand(ids:Vector.<uint>, category:String)

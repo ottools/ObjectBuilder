@@ -438,7 +438,7 @@ package mx.controls.menuClasses
          */
         override protected function commitProperties():void
         {
-            var index : int;
+            var index:int;
             
             super.commitProperties();
             
@@ -872,7 +872,7 @@ package mx.controls.menuClasses
          *  @param childIndex The index of where to add the child.
          *  If -1, the text field is appended to the end of the list.
          */
-        mx_internal function createKeyEquivalentLabel(childIndex:int) : void
+        mx_internal function createKeyEquivalentLabel(childIndex:int):void
         {
             if (keyEquivalent == null)
             {

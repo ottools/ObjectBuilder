@@ -31,9 +31,7 @@ package nail.objectbuilder.commands.things
     public class FindThingCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function FindThingCommand(category:String, properties:Vector.<ThingProperty>)

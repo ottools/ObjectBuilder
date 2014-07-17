@@ -31,9 +31,7 @@ package nail.objectbuilder.commands.things
     public class SetThingListCommand extends Command
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function SetThingListCommand(selectedIds:Vector.<uint>, things:Vector.<ThingListItem>)

@@ -34,9 +34,7 @@ package nail.otlib.utils
     public final class ThingUtils
     {
         //--------------------------------------------------------------------------
-        //
         // CONSTRUCTOR
-        //
         //--------------------------------------------------------------------------
         
         public function ThingUtils()
@@ -45,9 +43,7 @@ package nail.otlib.utils
         }
         
         //--------------------------------------------------------------------------
-        //
         // STATIC
-        //
         //--------------------------------------------------------------------------
         
         public static function copyThing(thing:ThingType):ThingType

@@ -65,9 +65,7 @@
             import nail.otlib.core.Versions;
             
             //--------------------------------------------------------------------------
-            //
             // PROPERTIES
-            //
             //--------------------------------------------------------------------------
             
             private var _version:Version;
@@ -103,7 +101,7 @@
             }
             
             public function get transparency():Boolean { return _transparencyChannel; }
-            public function set transparency(value:Boolean) : void
+            public function set transparency(value:Boolean):void
             {
                 if (value != _transparencyChannel)
                 {
@@ -114,9 +112,7 @@
             }
             
             //--------------------------------------------------------------------------
-            //
             // METHODS
-            //
             //--------------------------------------------------------------------------
             
             //--------------------------------------
@@ -162,7 +158,7 @@
                 this.version = versionsDropDownList.selectedItem as Version;
             }
             
-            protected function enableU32CheckBoxChangeHandler(event:Event) : void
+            protected function enableU32CheckBoxChangeHandler(event:Event):void
             {
                 this.extended = extendedCheckBox.selected;
             }
