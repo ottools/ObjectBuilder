@@ -758,7 +758,6 @@
             {
                 super.applicationLoadComplete();
                 
-                this.loadVersionsXML();
                 this.systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
                 
                 if (_settings.maximized) {
@@ -1915,6 +1914,12 @@
                 }
             }
             
+			override protected function applicationPreinitializeHandler(event:FlexEvent):void
+            {
+                super.applicationPreinitializeHandler(event);
+                loadVersionsXML();
+            }
+			
             override protected function applicationClosingHandler(event:Event):void
             {
                 this.closeLogWindow();
