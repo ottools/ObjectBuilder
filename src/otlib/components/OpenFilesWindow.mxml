@@ -30,7 +30,7 @@
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:nail="library://ns.nail.com/naillib"
           xmlns:components="nail.otlib.components.*"
-          width="400"
+          width="500"
           height="360"
           resizable="false"
           minimizable="false"
@@ -59,12 +59,16 @@
         <![CDATA[
             import mx.events.FlexEvent;
             
-            import nail.errors.NullArgumentError;
+            import nail.assets.Icons;
             import nail.logging.Log;
             import nail.otlib.core.Version;
             import nail.otlib.core.Versions;
             import nail.otlib.events.FileTextInputEvent;
+            import nail.otlib.utils.DialogDetail;
             import nail.otlib.utils.OTFormat;
+            
+            import otlib.utils.FilesInfo;
+            import otlib.utils.FilesInfoLoader;
             
             //--------------------------------------------------------------------------
             // PROPERTIES
@@ -72,8 +76,8 @@
             
             [Bindable]
             private var _loading:Boolean;
-            private var _directory:File;
-            private var _directoryChanged:Boolean;
+            private var _clientDirectory:File;
+            private var _clientDirectoryChanged:Boolean;
             private var _sprFile:File;
             private var _datFile:File;
             private var _version:Version;
@@ -81,9 +85,10 @@
             private var _extendedChanged:Boolean;
             private var _transparency:Boolean;
             private var _transparencyChanged:Boolean;
-            private var _cancel:Boolean = true;
             private var _creationComplete:Boolean;
             private var _tmpDirectory:File;
+            private var _info:FilesInfo;
+            private var _detail:uint;
             
             //--------------------------------------
             // Getters / Setters 
@@ -93,14 +98,14 @@
             public function get datFile():File { return _datFile; }
             public function get version():Version { return _version; }
             
-            public function get directory():File { return _directory; }
-            public function set directory(value:File):void
+            public function get clientDirectory():File { return _clientDirectory; }
+            public function set clientDirectory(value:File):void
             {
                 if (!_creationComplete) {
                     _tmpDirectory = value;
-                } else if (_directory != value) {
-                    _directory = value;
-                    _directoryChanged = true;
+                } else if (_clientDirectory != value) {
+                    _clientDirectory = value;
+                    _clientDirectoryChanged = true;
                     invalidateProperties();
                 }
             }
@@ -125,6 +130,8 @@
                 }
             }
             
+            public function get detail():uint { return _detail; }
+            
             //--------------------------------------------------------------------------
             // METHODS
             //--------------------------------------------------------------------------
@@ -137,19 +144,19 @@
             {
                 super.commitProperties();
                 
-                if (_directoryChanged) {
-                    openFiles(_directory);
-                    _directoryChanged = false;
+                if (_clientDirectoryChanged) {
+                    setClientDirectory(_clientDirectory);
+                    _clientDirectoryChanged = false;
                 }
                 
                 if (_extendedChanged) {
-                    enableU32CheckBox.selected = _extended;
-                    openFiles(_directory);
+                    extendedCheckBox.selected = _extended;
+                    setClientDirectory(_clientDirectory);
                     _extendedChanged = false;
                 }
                 
                 if (_transparencyChanged) {
-                    enableAlphaChannelCheckBox.selected = _transparency;
+                    transparencyCheckBox.selected = _transparency;
                     _transparencyChanged = false;
                 }
             }
@@ -158,30 +165,29 @@
             // Private
             //--------------------------------------
             
-            private function openFiles(directory:File):void
+            private function setClientDirectory(directory:File):void
             {
                 _loading = true;
                 resetInfo();
                 
                 if (!directory || !directory.exists) {
-                    browseButton.enabled = true;
-                    enableU32CheckBox.enabled = false;
+                    clientBrowseButton.enabled = true;
+                    extendedCheckBox.enabled = false;
                     return;
                 }
                 
-                directoryTextInput.file = directory;
+                clientDirectoryTextInput.file = directory;
                 
                 var dat:File;
                 var spr:File;
+                
                 var file:File = directory.resolvePath("Tibia.dat");
-                if (file.exists) {
+                if (file.exists)
                     dat = file;
-                }
                 
                 file = directory.resolvePath("Tibia.spr");
-                if (file.exists) {
+                if (file.exists)
                     spr = file;
-                }	
                 
                 // Search renamed spr/dat files on directory.
                 if (!spr || !dat) {
@@ -189,114 +195,83 @@
                     var length:uint = list.length;
                     for (var i:uint = 0; i < length; i++) {
                         file = list[i];
-                        if (!spr && file.extension == OTFormat.SPR) {
+                        if (!spr && file.extension == OTFormat.SPR)
                             spr = file;
-                        }
                         
-                        if (!dat && file.extension == OTFormat.DAT) {
+                        if (!dat && file.extension == OTFormat.DAT)
                             dat = file;
-                        }
                         
-                        if (spr && dat) break;
+                        if (spr && dat)
+                            break;
                     }
                 }
                 
                 if (dat && spr)
                     loadFiles(dat, spr);
-                else
-                    unsupportedVersionLabel.text = resourceManager.getString("strings", "clientFilesNotFound");
-                
-                _loading = false;
+                else {
+                    _loading = false;
+                    setErrorText( resourceManager.getString("strings", "clientFilesNotFound") );
+                }
             }
             
             private function loadFiles(dat:File, spr:File):void
             {
-                if (!spr) {
-                    throw new NullArgumentError("spr");
-                }
+                var loader:FilesInfoLoader = new FilesInfoLoader();
+                loader.addEventListener(Event.COMPLETE, completeHandler);
+                loader.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+                loader.addEventListener(ErrorEvent.ERROR, errorHandler);
+                loader.load(dat, spr, this.extended);
                 
-                if (!dat) {
-                    throw new NullArgumentError("dat");
-                }
+                progressBar.visible = true;
+                progressBar.includeInLayout = true;
                 
-                var stream:FileStream;
-                var sprSignature:uint;
-                var spritesCount:uint;
-                var datSignature:uint;
-                var itemsCount:uint;
-                var outfitsCount:uint;
-                var effectsCount:uint;
-                var missilesCount:uint;
-                var version:Version;
-                
-                try
+                function completeHandler(event:Event):void
                 {
-                    stream = new FileStream();
-                    stream.open(dat, FileMode.READ);
-                    stream.endian = Endian.LITTLE_ENDIAN;
-                    datSignature = stream.readUnsignedInt();
-                    itemsCount = stream.readUnsignedShort();
-                    outfitsCount = stream.readUnsignedShort();
-                    effectsCount = stream.readUnsignedShort();
-                    missilesCount = stream.readUnsignedShort();	
-                    stream.close();
-                } catch(error:Error) {
-                    Log.error(error.message, error.getStackTrace(), error.errorID);
-                    this.close();
-                    return;
+                    _loading = false;
+                    progressBar.visible = false;
+                    progressBar.includeInLayout = false;
+                    progressBar.setProgress(0, 1);
+                    
+                    var info:FilesInfo = loader.filesInfo;
+                    clientVersionLabel.text = info.clientVersionStr;
+                    datSignatureLabel.text = info.datSignature.toString(16).toUpperCase();
+                    itemsCountLabel.text = info.maxItemId.toString();
+                    outfitsCountLabel.text = info.maxOutfitId.toString();
+                    effectsCountLabel.text = info.maxEffectId.toString();
+                    missilesCountLabel.text = info.maxMissileId.toString();
+                    sprSignatureLabel.text = info.sprSignature.toString(16).toUpperCase();
+                    spritesCountLabel.text = info.maxSpriteId.toString();
+                    extendedCheckBox.enabled = (info.clientVersion != 0 && info.clientVersion < 960);
+                    enableLoadButton(true);
+                    
+                    _datFile = dat;
+                    _sprFile = spr;
+                    _version = Versions.instance.getBySignatures(info.datSignature, info.sprSignature);
                 }
                 
-                try
+                function progressHandler(event:ProgressEvent):void
                 {
-                    stream = new FileStream();
-                    stream.open(spr, FileMode.READ);
-                    stream.endian = Endian.LITTLE_ENDIAN;
-                    sprSignature = stream.readUnsignedInt();
-                    version = Versions.instance.getBySignatures(datSignature, sprSignature);
-                    
-                    if (!version) {
-                        unsupportedVersionLabel.text = resourceManager.getString("strings", "unsupportedVersion");
-                        datSignatureLabel.text = datSignature.toString(16).toUpperCase();
-                        sprSignatureLabel.text = sprSignature.toString(16).toUpperCase();
-                        enableU32CheckBox.enabled = false;
-                        return;
-                    }
-                    
-                    if (extended || version.value >= 960) {
-                        spritesCount = stream.readUnsignedInt();
-                        enableU32CheckBox.selected = true;
-                    } else {
-                        enableU32CheckBox.enabled = true;
-                        spritesCount = stream.readUnsignedShort();
-                    }
-                    stream.close();
-                } catch(error:Error) {
-                    Log.error(error.message, error.getStackTrace(), error.errorID);
-                    this.close();
-                    return;
+                    progressBar.setProgress(event.bytesLoaded, event.bytesTotal);
                 }
                 
-                _datFile = dat;
-                _sprFile = spr;
-                _version = version;
-                
-                assetsVersionLabel.text = version.valueStr;
-                sprSignatureLabel.text = sprSignature.toString(16).toUpperCase();
-                spritesCountLabel.text = spritesCount.toString();
-                datSignatureLabel.text = datSignature.toString(16).toUpperCase();
-                itemsCountLabel.text = itemsCount.toString();
-                outfitsCountLabel.text = outfitsCount.toString();
-                effectsCountLabel.text = effectsCount.toString();
-                missilesCountLabel.text = missilesCount.toString();
-                loadButton.enabled = true;
-                enableU32CheckBox.enabled = (_version.value < 960);
+                function errorHandler(event:ErrorEvent):void
+                {
+                    _loading = false;
+                    _datFile = null;
+                    _sprFile = null;
+                    _version = null;
+                    progressBar.visible = false;
+                    progressBar.includeInLayout = false;
+                    progressBar.setProgress(0, 1);
+                    setErrorText(event.text);
+                    enableLoadButton(false);
+                }
             }
             
             private function resetInfo():void
             {
                 var empty:String = "";
-                assetsVersionLabel.text = empty;
-                unsupportedVersionLabel.text = empty;
+                clientVersionLabel.text = empty;
                 sprSignatureLabel.text = empty;
                 spritesCountLabel.text = empty;
                 datSignatureLabel.text = empty;
@@ -305,10 +280,39 @@
                 effectsCountLabel.text = empty;
                 missilesCountLabel.text = empty;
                 loadButton.enabled = false;
-                enableU32CheckBox.enabled = false;
+                extendedCheckBox.enabled = false;
                 _sprFile = null;
                 _datFile = null;
                 _version = null;
+                _loading = false;
+                
+                setErrorText(null);
+                enableLoadButton(false);
+            }
+            
+            private function setErrorText(text:String):void
+            {
+                var hasError:Boolean = !isNullOrEmpty(text);
+                errorIcon.visible = hasError;
+                errorIcon.includeInLayout = hasError;
+                errorLabel.text = text;
+                errorLabel.visible = hasError;
+                errorLabel.includeInLayout = hasError;
+                
+                if (hasError && focusManager.getFocus() === loadButton) {
+                    focusManager.setFocus(cancelButton);
+                    focusManager.showFocus();
+                }
+            }
+            
+            private function enableLoadButton(enabled:Boolean):void
+            {
+                loadButton.enabled = enabled;
+                
+                if (enabled) {
+                    focusManager.setFocus(loadButton);
+                    focusManager.showFocus();
+                }
             }
             
             //--------------------------------------
@@ -320,7 +324,7 @@
                 _creationComplete = true;
                 
                 if (_tmpDirectory) {
-                    this.directory = _tmpDirectory;
+                    this.clientDirectory = _tmpDirectory;
                     _tmpDirectory = null;
                 }
                 
@@ -328,58 +332,78 @@
                 focusManager.showFocus();
             }
             
-            protected function browseButtonClickHandler(event:MouseEvent):void
+            protected function clientBrowseButtonClickHandler(event:MouseEvent):void
             {
-                var path:String = _directory ? _directory.nativePath : File.documentsDirectory.nativePath;
+                var path:String = _clientDirectory ? _clientDirectory.nativePath : File.documentsDirectory.nativePath;
                 var dir:File = new File(path);
                 dir.addEventListener(Event.SELECT, fileSelectHandler);
                 dir.browseForDirectory(resourceManager.getString("strings", "selectFolder"));
                 
                 function fileSelectHandler(event:Event):void
                 {
-                    directory = dir;
+                    clientDirectory = dir;
                 }
             }
             
-            protected function directoryChangeHandler(event:FileTextInputEvent):void
+            protected function clientDirectoryChangeHandler(event:FileTextInputEvent):void
             {
                 if (event.file && event.file.exists && event.file.isDirectory)
-                    this.directory = event.file;
+                    this.clientDirectory = event.file;
                 else 
                     resetInfo();
             }
             
-            protected function enableU32CheckBoxChangeHandler(event:Event):void
+            protected function extendedCheckBoxChangeHandler(event:Event):void
             {
-                this.extended = enableU32CheckBox.selected;
+                this.extended = extendedCheckBox.selected;
             }
             
-            protected function enableAlphaChannelCheckBoxChangeHandler(event:Event):void
+            protected function transparencyCheckBoxChangeHandler(event:Event):void
             {
-                this.transparency = enableAlphaChannelCheckBox.selected;
+                this.transparency = transparencyCheckBox.selected;
+            }
+            
+            protected function datStreamCompleteHandler(event:Event):void
+            {
+                try
+                {
+                    _info = new FilesInfo();
+                    var stream:FileStream = event.target as FileStream;
+                    _info.datSignature = stream.readUnsignedInt();
+                    _info.maxItemId = stream.readUnsignedShort();
+                    _info.maxOutfitId = stream.readUnsignedShort();
+                    _info.maxEffectId = stream.readUnsignedShort();
+                    _info.maxMissileId = stream.readUnsignedShort();
+                    stream.close();
+                } catch(error:Error) {
+                    Log.error(error.message, error.getStackTrace(), error.errorID);
+                    this.close();
+                    return;
+                }
             }
             
             protected function loadButtonClickHandler(event:MouseEvent):void
             {
-                _cancel = false;
+                _detail = DialogDetail.CONFIRM;
                 this.close();
             }
             
             protected function cancelButtonClickHandler(event:MouseEvent):void
             {
+                _detail = DialogDetail.CANCEL;
                 this.close();
             }
             
             protected function windowClosingHandler(event:Event):void
             {
-                if (_cancel) {
+                if (_detail == DialogDetail.CANCEL)
                     resetInfo();
-                }
             }
             
         ]]>
     </fx:Script>
     
+    <!-- client files directory -->
     <s:Group width="100%">
         <s:layout>
             <s:VerticalLayout gap="2"/>
@@ -389,18 +413,18 @@
                  color="0xDFDFDF"/>
         <s:HGroup width="100%"
                   height="100%">
-            <components:FileTextInput id="directoryTextInput"
+            <components:FileTextInput id="clientDirectoryTextInput"
                                       width="100%"
-                                      fileChange="directoryChangeHandler(event)"/>
-            <s:Button id="browseButton"
+                                      fileChange="clientDirectoryChangeHandler(event)"/>
+            <s:Button id="clientBrowseButton"
                       label="@Resource(key='browse', bundle='strings')"
                       height="21"
                       enabled="{!_loading}"
-                      click="browseButtonClickHandler(event)"/>
+                      click="clientBrowseButtonClickHandler(event)"/>
         </s:HGroup>
     </s:Group>
     
-    <!-- Version -->
+    <!-- client version -->
     <nail:GroupBox width="100%"
                    label="@Resource(key='version', bundle='strings')">
         <nail:layout>
@@ -411,20 +435,18 @@
                                 paddingTop="10" 
                                 paddingBottom="10"/>
         </nail:layout>
-        <s:Label id="assetsVersionLabel"/>
-        <s:Label id="unsupportedVersionLabel"
-                 color="0xFF0000"/>
+        <s:Label id="clientVersionLabel"/>
         <s:Spacer width="100%"/>
-        <s:CheckBox id="enableU32CheckBox"
+        <s:CheckBox id="extendedCheckBox"
                     label="@Resource(key='extended', bundle='strings')"
                     enabled="false"
-                    change="enableU32CheckBoxChangeHandler(event)"/>
-        <s:CheckBox id="enableAlphaChannelCheckBox"
+                    change="extendedCheckBoxChangeHandler(event)"/>
+        <s:CheckBox id="transparencyCheckBox"
                     label="@Resource(key='transparency', bundle='strings')"
-                    change="enableAlphaChannelCheckBoxChangeHandler(event)"/>
+                    change="transparencyCheckBoxChangeHandler(event)"/>
     </nail:GroupBox>
     
-    <!-- Dat -->
+    <!-- dat -->
     <nail:GroupBox width="100%" label="DAT">
         <nail:layout>
             <s:TileLayout requestedColumnCount="2"
@@ -447,9 +469,9 @@
         <s:Label id="effectsCountLabel"/>
         <s:Label text="{resourceManager.getString('strings', 'missiles') + ':'}"/>
         <s:Label id="missilesCountLabel"/>
-    </nail:GroupBox>	
+    </nail:GroupBox>
     
-    <!-- Spr -->
+    <!-- spr -->
     <nail:GroupBox width="100%" label="SPR">
         <nail:layout>
             <s:TileLayout requestedColumnCount="2"
@@ -466,10 +488,32 @@
         <s:Label text="{resourceManager.getString('strings', 'sprites') + ':'}"/>
         <s:Label id="spritesCountLabel"/>
     </nail:GroupBox>
+    
     <nail:ShadowLine width="100%"/>
+    
     <s:HGroup width="100%"
+              height="23"
               verticalAlign="middle"
-              horizontalAlign="right">
+              horizontalAlign="right"
+              gap="10">
+        <s:Image id="errorIcon"
+                 visible="false"
+                 source="{Icons.ERROR}"/>
+        <nail:ShadowLabel id="errorLabel"
+                          color="0xEC5151"
+                          shadowColor="0x272727"
+                          visible="false"
+                          includeInLayout="false"/>
+        <mx:ProgressBar id="progressBar"
+                        mode="manual"
+                        label="@Resource(key='loading', bundle='strings')"
+                        width="200"
+                        height="20"
+                        fontWeight="normal"
+                        visible="false"
+                        includeInLayout="false"
+                        labelPlacement="center"/>
+        <s:Spacer width="100%"/>
         <s:Button id="loadButton"
                   label="@Resource(key='load', bundle='strings')"
                   minWidth="70"

@@ -35,7 +35,7 @@ package nail.objectbuilder.core
     import nail.otlib.sprites.SpriteData;
     import nail.otlib.things.ThingData;
     import nail.otlib.things.ThingType;
-    import nail.otlib.utils.FilesInfo;
+    import otlib.utils.FilesInfo;
     import nail.utils.FileData;
     
     public interface IObjectBuilder extends IApplication

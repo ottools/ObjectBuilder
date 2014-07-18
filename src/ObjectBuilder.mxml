@@ -138,7 +138,6 @@
             import nail.otlib.components.LogWindow;
             import nail.otlib.components.LookGenerator;
             import nail.otlib.components.NewFilesWindow;
-            import nail.otlib.components.OpenFilesWindow;
             import nail.otlib.components.PreferencesWindow;
             import nail.otlib.components.renders.ThingListRenderer;
             import nail.otlib.core.Version;
@@ -152,7 +151,7 @@
             import nail.otlib.things.ThingProperty;
             import nail.otlib.things.ThingType;
             import nail.otlib.utils.DialogDetail;
-            import nail.otlib.utils.FilesInfo;
+            import otlib.utils.FilesInfo;
             import nail.otlib.utils.OTFormat;
             import nail.otlib.utils.SpriteUtils;
             import nail.otlib.utils.ThingListItem;
@@ -164,6 +163,8 @@
             import nail.utils.StringUtil;
             import nail.utils.WindowUtil;
             import nail.workers.Command;
+            
+            import otlib.components.OpenFilesWindow;
             
             use namespace nail_internal;
             
@@ -282,14 +283,14 @@
                 
                 if (PopUpWindowManager.currentWindow is OpenFilesWindow) {
                     window = OpenFilesWindow(PopUpWindowManager.currentWindow);
-                    window.directory = directory || _settings.getLastDirectory();
+                    window.clientDirectory = directory || _settings.getLastDirectory();
                     window.extended = _settings.extended;
                     window.transparency = _settings.transparency;
                 }
                 else 
                 {
                     window = new OpenFilesWindow();
-                    window.directory = directory || _settings.getLastDirectory();
+                    window.clientDirectory = directory || _settings.getLastDirectory();
                     window.extended = _settings.extended;
                     window.transparency = _settings.transparency;
                     window.addEventListener(Event.CLOSE, windowCloseHandler);
@@ -300,9 +301,11 @@
                 
                 function windowCloseHandler(event:Event):void
                 {
-                    _settings.setLastDirectory(window.datFile);
-                    
-                    if (window.datFile && window.sprFile && window.version) {
+                    if (window.detail == DialogDetail.CONFIRM &&
+                        window.datFile &&
+                        window.sprFile &&
+                        window.version) {
+                        _settings.setLastDirectory(window.datFile);
                         _filesName = FileUtil.getName(window.datFile);
                         loadFiles(window.datFile, window.sprFile, window.version, window.extended, window.transparency);
                     }
@@ -1914,12 +1917,12 @@
                 }
             }
             
-			override protected function applicationPreinitializeHandler(event:FlexEvent):void
+            override protected function applicationPreinitializeHandler(event:FlexEvent):void
             {
                 super.applicationPreinitializeHandler(event);
                 loadVersionsXML();
             }
-			
+            
             override protected function applicationClosingHandler(event:Event):void
             {
                 this.closeLogWindow();

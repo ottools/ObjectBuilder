@@ -36,7 +36,7 @@
         <![CDATA[
             import nail.otlib.core.Version;
             import nail.otlib.core.Versions;
-            import nail.otlib.utils.FilesInfo;
+            import otlib.utils.FilesInfo;
             
             //--------------------------------------------------------------------------
             // METHODS

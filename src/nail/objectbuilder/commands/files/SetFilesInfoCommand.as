@@ -24,7 +24,7 @@
 
 package nail.objectbuilder.commands.files
 {
-    import nail.otlib.utils.FilesInfo;
+    import otlib.utils.FilesInfo;
     import nail.workers.Command;
     import nail.objectbuilder.commands.CommandType;
     

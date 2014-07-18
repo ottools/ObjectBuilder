@@ -22,7 +22,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.otlib.utils
+package otlib.utils
 {
     public class FilesInfo
     {
@@ -30,7 +30,8 @@ package nail.otlib.utils
         // PROPERTIES
         //--------------------------------------------------------------------------
         
-        public var version:uint;
+        public var clientVersion:uint;
+        public var clientVersionStr:String;
         public var datSignature:uint;
         public var minItemId:uint;
         public var maxItemId:uint;

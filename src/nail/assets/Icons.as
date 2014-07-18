@@ -154,5 +154,8 @@ package nail.assets
         
         [Embed(source="../../../assets/last.png", mimeType="image/png")]
         public static const LAST:Class;
+        
+        [Embed(source="../../../assets/error.png", mimeType="image/png")]
+        public static const ERROR:Class;
     }
 }

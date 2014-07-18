@@ -34,7 +34,7 @@ package nail.otlib.core
     import nail.errors.FileNotFoundError;
     import nail.errors.NullArgumentError;
     import nail.errors.SingletonClassError;
-    import nail.otlib.utils.FilesInfo;
+    import otlib.utils.FilesInfo;
     import nail.utils.StringUtil;
 
     public class Versions extends EventDispatcher
@@ -139,7 +139,7 @@ package nail.otlib.core
         public function getFromFilesInfo(info:FilesInfo):Version
         {
             for each (var version:Version in _list) {
-                if (version.value == info.version &&
+                if (version.value == info.clientVersion &&
                     version.datSignature == info.datSignature &&
                     version.sprSignature == info.sprSignature)
                     return version;

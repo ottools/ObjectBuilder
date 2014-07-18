@@ -64,7 +64,7 @@ package nail.objectbuilder.core
     import nail.otlib.things.ThingType;
     import nail.otlib.things.ThingTypeStorage;
     import nail.otlib.utils.ChangeResult;
-    import nail.otlib.utils.FilesInfo;
+    import otlib.utils.FilesInfo;
     import nail.otlib.utils.OTFormat;
     import nail.otlib.utils.ThingListItem;
     import nail.otlib.utils.ThingUtils;
@@ -1420,7 +1420,8 @@ package nail.objectbuilder.core
             }
             
             var info:FilesInfo = new FilesInfo();
-            info.version = _version.value;
+            info.clientVersion = _version.value;
+            info.clientVersionStr = _version.valueStr;
             info.datSignature = _things.signature;
             info.minItemId = ThingTypeStorage.MIN_ITEM_ID;
             info.maxItemId = _things.itemsCount;
