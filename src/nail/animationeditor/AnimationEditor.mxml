@@ -332,7 +332,6 @@
                 _size.height = 32;
                 thingView.thingData = null;
                 framesList.removeAll();
-                controlsContainer.enabled = false;
             }
             
             protected function onExportThingData():void
@@ -823,7 +822,6 @@
                            maxWidth="300"
                            width="300"
                            height="100%"
-                           enabled="{thingView.thingData != null}"
                            skinClass="nail.components.skins.BorderContainerSkin">
             <s:layout>
                 <s:VerticalLayout paddingLeft="5"
