@@ -51,6 +51,7 @@ package nail.objectbuilder.core
     import nail.objectbuilder.commands.things.SetThingListCommand;
     import nail.objectbuilder.utils.ObUtils;
     import nail.otlib.core.Version;
+    import nail.otlib.core.Versions;
     import nail.otlib.events.ProgressEvent;
     import nail.otlib.loaders.PathHelper;
     import nail.otlib.loaders.SpriteDataLoader;
@@ -64,7 +65,6 @@ package nail.objectbuilder.core
     import nail.otlib.things.ThingType;
     import nail.otlib.things.ThingTypeStorage;
     import nail.otlib.utils.ChangeResult;
-    import otlib.utils.FilesInfo;
     import nail.otlib.utils.OTFormat;
     import nail.otlib.utils.ThingListItem;
     import nail.otlib.utils.ThingUtils;
@@ -75,6 +75,8 @@ package nail.objectbuilder.core
     import nail.utils.VectorUtils;
     import nail.workers.ApplicationWorker;
     import nail.workers.Command;
+    
+    import otlib.utils.FilesInfo;
     
     [ResourceBundle("strings")]
     
@@ -141,6 +143,7 @@ package nail.objectbuilder.core
         
         public function ObjectBuilderWorker()
         {
+            Versions.instance.load(File.applicationDirectory.resolvePath("versions.xml"));
             this.stage.frameRate = 60;
         }
         
