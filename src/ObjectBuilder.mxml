@@ -151,7 +151,6 @@
             import nail.otlib.things.ThingProperty;
             import nail.otlib.things.ThingType;
             import nail.otlib.utils.DialogDetail;
-            import otlib.utils.FilesInfo;
             import nail.otlib.utils.OTFormat;
             import nail.otlib.utils.SpriteUtils;
             import nail.otlib.utils.ThingListItem;
@@ -165,6 +164,7 @@
             import nail.workers.Command;
             
             import otlib.components.OpenFilesWindow;
+            import otlib.utils.FilesInfo;
             
             use namespace nail_internal;
             
@@ -883,7 +883,7 @@
             
             private function onCreateNew():void
             {
-                var window : NewFilesWindow = new NewFilesWindow();
+                var window:NewFilesWindow = new NewFilesWindow();
                 window.extended = _settings.extended;
                 window.transparency = _settings.transparency;
                 window.addEventListener(Event.CLOSE, windowCloseHandler);
@@ -893,9 +893,8 @@
                 
                 function windowCloseHandler (event:Event):void
                 {
-                    if (window.version) {
+                    if (window.detail == DialogDetail.CONFIRM && window.version)
                         createFiles(window.version, window.extended, window.transparency);
-                    }
                 }
             }
             

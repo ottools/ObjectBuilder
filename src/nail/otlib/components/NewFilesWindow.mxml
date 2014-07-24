@@ -63,6 +63,8 @@
             
             import nail.otlib.core.Version;
             import nail.otlib.core.Versions;
+            import nail.otlib.utils.DialogDetail;
+            
             
             //--------------------------------------------------------------------------
             // PROPERTIES
@@ -74,7 +76,7 @@
             private var _extendedChanged:Boolean;
             private var _transparencyChannel:Boolean;
             private var _transparencyChanged:Boolean;
-            private var _confirm:Boolean;
+            private var _detail:uint;
             
             //--------------------------------------
             // Getters / Setters 
@@ -111,6 +113,8 @@
                 }
             }
             
+            public function get detail():uint { return _detail; }
+            
             //--------------------------------------------------------------------------
             // METHODS
             //--------------------------------------------------------------------------
@@ -127,6 +131,7 @@
                     versionsDropDownList.selectedItem = _version;
                     confirmButton.enabled = (_version != null);
                     extendedCheckBox.enabled = (_version != null && _version.value < 960);
+                    extendedCheckBox.selected = (_extended || (_version && _version.value >= 960));
                     _versionChanged = false;
                 }
                 
@@ -158,27 +163,32 @@
                 this.version = versionsDropDownList.selectedItem as Version;
             }
             
-            protected function enableU32CheckBoxChangeHandler(event:Event):void
+            protected function extendedCheckBoxChangeHandler(event:Event):void
             {
                 this.extended = extendedCheckBox.selected;
             }
             
-            protected function enableAlphaChannelCheckBoxChangeHandler(event:Event):void
+            protected function transparencyCheckBoxChangeHandler(event:Event):void
             {
                 this.transparency = transparencyCheckBox.selected;
             }
             
             protected function confirmButtonClickHandler(event:MouseEvent):void
             {
-                _confirm = true;
+                _detail = DialogDetail.CONFIRM;
+                this.close();
+            }
+            
+            protected function cancelButtonClickHandler(event:MouseEvent):void
+            {
+                _detail = DialogDetail.CANCEL;
                 this.close();
             }
             
             protected function closingHandler(event:Event):void
             {
-                if (!_confirm) {
+                if (_detail == DialogDetail.CANCEL)
                     _version = null;
-                }
             }
             
         ]]>
@@ -190,7 +200,8 @@
                                 paddingLeft="10"
                                 paddingRight="10"
                                 paddingTop="10"
-                                paddingBottom="10"/>
+                                paddingBottom="10"
+                                verticalAlign="middle"/>
         </nail:layout>
         <s:DropDownList id="versionsDropDownList"
                         width="100%"
@@ -198,10 +209,10 @@
                         change="versionsDropDownListChangeHandler(event)"/>
         <s:CheckBox id="extendedCheckBox"
                     label="@Resource(key='extended', bundle='strings')"
-                    change="enableU32CheckBoxChangeHandler(event)"/>
+                    change="extendedCheckBoxChangeHandler(event)"/>
         <s:CheckBox id="transparencyCheckBox"
                     label="@Resource(key='transparency', bundle='strings')"
-                    change="enableAlphaChannelCheckBoxChangeHandler(event)"/>
+                    change="transparencyCheckBoxChangeHandler(event)"/>
     </nail:GroupBox>
     <nail:ShadowLine width="100%"/>
     <s:HGroup width="100%"
@@ -215,6 +226,6 @@
         <s:Button id="cancelButton"
                   label="@Resource(key='cancel', bundle='strings')"
                   minWidth="70"
-                  click="close()"/>
+                  click="cancelButtonClickHandler(event)"/>
     </s:HGroup>
 </s:Window>
