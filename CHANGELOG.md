@@ -1,3 +1,9 @@
+### 0.3.3
+
+Bug Fixes:
+
+* Fix flags swapped in the versions 7.55 - 7.72
+
 ### 0.3.2
 
 Features:
