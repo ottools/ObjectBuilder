@@ -50,8 +50,8 @@ package nail.otlib.things
         public static const ON_TOP:uint = 0x03;
         public static const CONTAINER:uint = 0x04;
         public static const STACKABLE:uint = 0x05;
-        public static const MULTI_USE:uint = 0x06;
-        public static const FORCE_USE:uint = 0x07;
+        public static const FORCE_USE:uint = 0x06;
+        public static const MULTI_USE:uint = 0x07;
         public static const WRITABLE:uint = 0x08;
         public static const WRITABLE_ONCE:uint = 0x09;
         public static const FLUID_CONTAINER:uint = 0x0A;
