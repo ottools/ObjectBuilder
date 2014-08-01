@@ -30,6 +30,7 @@
                   xmlns:mx="library://ns.adobe.com/flex/mx"
                   xmlns:nail="library://ns.nail.com/naillib"
                   xmlns:components="nail.otlib.components.*"
+                  xmlns:otlib="otlib.components.*"
                   implements="nail.objectbuilder.core.IObjectBuilder"
                   minWidth="800"
                   minHeight="600"
@@ -436,6 +437,8 @@
                     if (window.detail == DialogDetail.CONFIRM) {
                         setSharedProperty("objectsListAmount", _settings.objectsListAmount);
                         setSharedProperty("spritesListAmount", _settings.spritesListAmount);
+                        thingStepper.amount = _settings.objectsListAmount;
+                        spriteStepper.amount = _settings.spritesListAmount;
                     }
                 }
             }
@@ -773,6 +776,8 @@
                 showThingList = _settings.showThingList;
                 setSharedProperty("objectsListAmount", _settings.objectsListAmount);
                 setSharedProperty("spritesListAmount", _settings.spritesListAmount);
+                thingStepper.amount = _settings.objectsListAmount;
+                spriteStepper.amount = _settings.spritesListAmount;
             }
             
             override protected function setInvokeArgs(args:Array):void
@@ -837,8 +842,6 @@
                 thingList.setListObjects(things);
                 thingList.ensureIdIsVisible(selectedIds[0]);
                 thingList.selectedIds = selectedIds;
-                
-                thingAmountTextInput.text = thingList.minId + " - " + thingList.maxId;
             }
             
             private function onSetSpriteList(selectedIds:Vector.<uint>, sprites:Vector.<SpriteData>):void
@@ -1839,26 +1842,6 @@
                 _findThingWindow = null;
             }
             
-            protected function previusAmountButtonDownHandler(event:FlexEvent):void
-            {
-                if (this.loaded && this.thingData) {
-                    var target:uint = Math.max(getMinThingId(), ObUtils.hundredFloor(thingData.id) - _settings.objectsListAmount);
-                    if (target < thingList.minId) {
-                        sendCommand(new GetThingCommand(target, this.currentCategory));
-                    }
-                }
-            }
-            
-            protected function nextAmountButtonDownHandler(event:FlexEvent):void
-            {
-                if (loaded && thingData) {
-                    var target:uint = Math.min(getMaxThingId(), ObUtils.hundredFloor(thingData.id) + _settings.objectsListAmount);
-                    if (target > thingList.maxId) {
-                        sendCommand(new GetThingCommand(target, this.currentCategory));
-                    }
-                }
-            }
-            
             protected function errorAlertCloseHandler(event:CloseEvent):void
             {
                 _errorAlert = null;
@@ -2221,72 +2204,13 @@
                                       horizontalCenter="0"
                                       verticalCenter="0"/>
             </nail:GroupBox>
-            
-            <nail:XNumericStepper id="thingStepper"
-                                  width="100%"
-                                  change="thingStepperChangeHandler(event)"/>
-            
-            <s:HGroup width="100%"
-                      horizontalAlign="center"
-                      verticalAlign="middle"
-                      gap="3">
-                <s:Button id="replaceThingButton"
-                          toolTip="@Resource(key='replace', bundle='strings')"
-                          minWidth="19"
-                          width="100%"
-                          height="19"
-                          icon="{nail.assets.Icons.REPLACE}"
-                          click="replaceThingHandler(event)"/>
-                <s:Button id="importThingButton"
-                          toolTip="@Resource(key='import', bundle='strings')"
-                          minWidth="19"
-                          width="100%"
-                          height="19"
-                          icon="{nail.assets.Icons.IMPORT}"
-                          click="importThingHandler(event)"/>
-                <s:Button id="exportThingButton"
-                          toolTip="@Resource(key='export', bundle='strings')"
-                          minWidth="19"
-                          width="100%"
-                          height="19"
-                          icon="{nail.assets.Icons.EXPORT}"
-                          click="exportThingHandler(event)"/>
-                <s:Button id="editThingButton"
-                          toolTip="@Resource(key='edit', bundle='strings')"
-                          minWidth="19"
-                          width="100%"
-                          height="19"
-                          icon="{nail.assets.Icons.EDIT}"
-                          click="editThingHandler(event)"/>
-                <s:Button id="duplicateThingButton"
-                          toolTip="@Resource(key='duplicate', bundle='strings')"
-                          minWidth="19"
-                          width="100%"
-                          height="19"
-                          icon="{nail.assets.Icons.DUPLICATE}"
-                          click="duplicateThingHandler(event)"/>
-                <s:Button id="newThingButton"
-                          toolTip="@Resource(key='new', bundle='strings')"
-                          minWidth="19"
-                          width="100%"
-                          height="19"
-                          icon="{nail.assets.Icons.NEW}"
-                          click="newThingHandler(event)"/>
-                <s:Button id="removeThingButton"
-                          toolTip="@Resource(key='remove', bundle='strings')"
-                          minWidth="19"
-                          width="100%"
-                          height="19"
-                          icon="{nail.assets.Icons.DELETE}"
-                          click="removeThingHandler(event)"/>
-            </s:HGroup>
         </s:BorderContainer>
         
         <!-- thing list container -->
         <s:BorderContainer id="thingListContainer"
-                           minWidth="165"
+                           minWidth="190"
                            maxWidth="280"
-                           width="165"
+                           width="190"
                            height="100%"
                            fontSize="11"
                            includeInLayout="false"
@@ -2295,9 +2219,9 @@
                 <s:VerticalLayout horizontalAlign="center"
                                   paddingRight="5"
                                   paddingLeft="5"
-                                  paddingTop="10"
-                                  paddingBottom="10"
-                                  gap="10"/>
+                                  paddingTop="5"
+                                  paddingBottom="5"
+                                  gap="5"/>
             </s:layout>
             
             <nail:GroupBox id="objectListGroupBox"
@@ -2318,6 +2242,7 @@
                                       horizontalScrollPolicy="off"
                                       doubleClickEnabled="true"
                                       allowMultipleSelection="true"
+                                      requireSelection="true"
                                       replace="replaceThingHandler(event)"
                                       export="exportThingHandler(event)"
                                       duplicate="duplicateThingHandler(event)"
@@ -2329,30 +2254,56 @@
                                       nativeDragDrop="thingDataNativeDragDropHandler(event)"/>
             </nail:GroupBox>
             
+            <otlib:AmountNumericStepper id="thingStepper"
+                                        width="100%"
+                                        value="{thingList.selectedId}"
+                                        change="thingStepperChangeHandler(event)"/>
             <s:HGroup width="100%"
                       horizontalAlign="center"
                       verticalAlign="middle"
-                      gap="1">
-                <s:Button id="previusAmountButton"
-                          width="20"
-                          height="20"
-                          autoRepeat="true"
-                          repeatInterval="300"
-                          icon="{nail.assets.NailAssets.PREVIOUS}"
-                          buttonDown="previusAmountButtonDownHandler(event)"/>
-                <s:TextInput id="thingAmountTextInput"
-                             width="100%"
-                             height="20"
-                             editable="false"
-                             textAlign="center"
-                             skinClass="nail.components.skins.NumericStepperTextInputSkin"/>
-                <s:Button id="nextAmountButton"
-                          width="20"
-                          height="20"
-                          autoRepeat="true"
-                          repeatInterval="300"
-                          icon="{nail.assets.NailAssets.NEXT}"
-                          buttonDown="nextAmountButtonDownHandler(event)"/>
+                      gap="3">
+                <s:Button id="replaceThingButton"
+                          toolTip="@Resource(key='replace', bundle='strings')"
+                          width="19"
+                          height="19"
+                          icon="{nail.assets.Icons.REPLACE}"
+                          click="replaceThingHandler(event)"/>
+                <s:Button id="importThingButton"
+                          toolTip="@Resource(key='import', bundle='strings')"
+                          width="19"
+                          height="19"
+                          icon="{nail.assets.Icons.IMPORT}"
+                          click="importThingHandler(event)"/>
+                <s:Button id="exportThingButton"
+                          toolTip="@Resource(key='export', bundle='strings')"
+                          width="19"
+                          height="19"
+                          icon="{nail.assets.Icons.EXPORT}"
+                          click="exportThingHandler(event)"/>
+                <s:Button id="editThingButton"
+                          toolTip="@Resource(key='edit', bundle='strings')"
+                          width="19"
+                          height="19"
+                          icon="{nail.assets.Icons.EDIT}"
+                          click="editThingHandler(event)"/>
+                <s:Button id="duplicateThingButton"
+                          toolTip="@Resource(key='duplicate', bundle='strings')"
+                          width="19"
+                          height="19"
+                          icon="{nail.assets.Icons.DUPLICATE}"
+                          click="duplicateThingHandler(event)"/>
+                <s:Button id="newThingButton"
+                          toolTip="@Resource(key='new', bundle='strings')"
+                          width="19"
+                          height="19"
+                          icon="{nail.assets.Icons.NEW}"
+                          click="newThingHandler(event)"/>
+                <s:Button id="removeThingButton"
+                          toolTip="@Resource(key='remove', bundle='strings')"
+                          width="19"
+                          height="19"
+                          icon="{nail.assets.Icons.DELETE}"
+                          click="removeThingHandler(event)"/>
             </s:HGroup>
         </s:BorderContainer>
         
@@ -2406,18 +2357,18 @@
         
         <!-- sprites container -->
         <s:BorderContainer id="spritesContainer"
-                           minWidth="165"
+                           minWidth="190"
                            maxWidth="250"
-                           width="165"
+                           width="190"
                            height="100%"
                            skinClass="nail.components.skins.BorderContainerSkin">
             <s:layout>
                 <s:VerticalLayout horizontalAlign="center"
                                   paddingRight="5"
                                   paddingLeft="5"
-                                  paddingTop="10"
-                                  paddingBottom="10"
-                                  gap="10"/>
+                                  paddingTop="5"
+                                  paddingBottom="5"
+                                  gap="5"/>
             </s:layout>	
             
             <nail:GroupBox label="@Resource(key='sprites', bundle='strings')"
@@ -2437,6 +2388,7 @@
                                        dragEnabled="true"
                                        fontSize="11"
                                        borderAlpha="0"
+                                       requireSelection="true"
                                        change="spritesListChangeHandler(event)"
                                        copy="onCopySprite()"
                                        paste="onPasteSprite()"
@@ -2447,61 +2399,54 @@
                                        nativeDragDrop="spritesListNativeDragDropHandler(event)"/>
             </nail:GroupBox>
             
-            <nail:XNumericStepper id="spriteStepper"
-                                  width="100%"
-                                  value="{spritesList.selectedId}"
-                                  change="spriteStepperChangeHandler(event)"/>
+            <otlib:AmountNumericStepper id="spriteStepper"
+                                        width="100%"
+                                        value="{spritesList.selectedId}"
+                                        change="spriteStepperChangeHandler(event)"/>
             
             <s:HGroup width="100%"
-                      horizontalAlign="right"
+                      horizontalAlign="center"
                       verticalAlign="middle"
                       gap="3">
                 <s:Button id="replaceSpriteButton"
                           toolTip="@Resource(key='replace', bundle='strings')"
-                          minWidth="19"
-                          width="100%"
+                          width="19"
                           height="19"
                           icon="{nail.assets.Icons.REPLACE}"
                           click="replaceSpriteHandler(event)"/>
                 <s:Button id="importSpriteButton"
                           toolTip="@Resource(key='import', bundle='strings')"
-                          minWidth="19"
-                          width="100%"
+                          width="19"
                           height="19"
                           icon="{nail.assets.Icons.IMPORT}"
                           click="importSpriteHandler(event)"/>
                 <s:Button id="exportSpriteButton"
                           toolTip="@Resource(key='export', bundle='strings')"
-                          minWidth="19"
-                          width="100%"
+                          width="19"
                           height="19"
                           icon="{nail.assets.Icons.EXPORT}"
                           click="exportSpriteHandler(event)"/>
                 <s:Button id="copySpriteButton"
                           toolTip="@Resource(key='copy', bundle='strings')"
-                          minWidth="19"
-                          width="100%"
+                          width="19"
                           height="19"
                           icon="{nail.assets.Icons.COPY}"
                           click="onCopySprite()"/>
                 <s:Button id="pasteSpriteButton"
                           toolTip="@Resource(key='paste', bundle='strings')"
-                          minWidth="19"
-                          width="100%"
+                          width="19"
                           height="19"
                           icon="{nail.assets.Icons.PASTE}"
                           click="onPasteSprite()"/>
                 <s:Button id="newSpriteButton"
                           toolTip="@Resource(key='new', bundle='strings')"
-                          minWidth="19"
-                          width="100%"
+                          width="19"
                           height="19"
                           icon="{nail.assets.Icons.NEW}"
                           click="newSpriteButtonClickHandler(event)"/>
                 <s:Button id="removeSpriteButton"
                           toolTip="@Resource(key='remove', bundle='strings')"
-                          minWidth="19"
-                          width="100%"
+                          width="19"
                           height="19"
                           icon="{nail.assets.Icons.DELETE}"
                           click="removeSpriteHandler(event)"/>

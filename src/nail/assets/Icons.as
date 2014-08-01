@@ -143,6 +143,9 @@ package nail.assets
         [Embed(source="../../../assets/previous.png", mimeType="image/png")]
         public static const PREVIOUS:Class;
         
+        [Embed(source="../../../assets/back.png", mimeType="image/png")]
+        public static const BACK:Class;
+        
         [Embed(source="../../../assets/play.png", mimeType="image/png")]
         public static const PLAY:Class;
         
