@@ -73,7 +73,7 @@
         </fx:XMLList>
     </fx:Declarations>
     
-    <fx:Style source="css/style.css"/>
+    <fx:Style source="../css/style.css"/>
     
     <fx:Metadata>
         [ResourceBundle("strings")]
