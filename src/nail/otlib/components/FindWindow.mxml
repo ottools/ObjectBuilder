@@ -415,6 +415,14 @@
                         <s:CheckBox id="isAnimationCheckBox"
                                     label="@Resource(key='isAnimation', bundle='strings')"
                                     change="{_bindableThingType.isAnimation = isAnimationCheckBox.selected;}"/>
+                        <s:HGroup verticalAlign="middle"
+                                  width="100%"
+                                  paddingTop="5">
+                            <s:Label text="{resourceManager.getString('strings', 'name') + ':'}"/>
+                            <s:TextInput id="thingNameTextInput"
+                                         width="100%"
+                                         change="{_bindableThingType.marketName = thingNameTextInput.text}"/>
+                        </s:HGroup>
                     </s:VGroup>
                 </s:Scroller>
             </nail:GroupBox>

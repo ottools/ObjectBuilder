@@ -44,6 +44,7 @@ package nail.otlib.things
     import nail.otlib.utils.ThingUtils;
     import nail.resources.Resources;
     import nail.utils.FileUtil;
+    import nail.utils.StringUtil;
     
     use namespace otlib_internal;
     
@@ -501,18 +502,28 @@ package nail.otlib.things
             
             var length:uint = properties.length;
             
-            for each (var thing:ThingType in list)
-            {
+            for each (var thing:ThingType in list) {
                 var equals:Boolean = true;
-                for (var i:uint = 0; i < length; i++)
-                {
+                
+                for (var i:uint = 0; i < length; i++) {
+                    
                     var thingProperty:ThingProperty = properties[i];
                     var property:String = thingProperty.property;
-                    if (!property ||
-                        !thing.hasOwnProperty(property) ||
-                        thingProperty.value != thing[property]) {
-                        equals = false;
-                        break;
+                    if (property != null && thing.hasOwnProperty(property)) {
+                        
+                        if (property == "marketName" && thing[property] != null && thingProperty.value != null)
+                        {
+                            var name1:String = StringUtil.toKeyString( String(thingProperty.value) );
+                            var name2:String = StringUtil.toKeyString(thing[property]);
+                            if (name2.indexOf(name1) == -1) {
+                                equals = false;
+                                break;
+                            }
+                            
+                        } else if (thingProperty.value != thing[property]) {
+                            equals = false;
+                            break;
+                        }
                     }
                 }
                 
