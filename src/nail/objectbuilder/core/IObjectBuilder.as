@@ -77,8 +77,12 @@ package nail.objectbuilder.core
         function set thingData(value:ThingData):void;
         function get currentCategory():String;
         function set currentCategory(value:String):void;
-        function get showThingList():Boolean;
-        function set showThingList(value:Boolean):void;
+        function get showPreviewPanel():Boolean;
+        function set showPreviewPanel(value:Boolean):void;
+        function get showThingsPanel():Boolean;
+        function set showThingsPanel(value:Boolean):void;
+        function get showSpritesPanel():Boolean;
+        function set showSpritesPanel(value:Boolean):void;
         function get settings():ObjectBuilderSettings;
     }
 }

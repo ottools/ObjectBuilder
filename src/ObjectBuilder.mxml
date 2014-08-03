@@ -51,7 +51,9 @@
                 <menuitem label="{resourceManager.getString('strings', 'menu.exit')}"  keyEquivalent='Q' data="fileExit"/>
             </menuitem>
             <menuitem label="{resourceManager.getString('strings', 'menu.view')}">
-                <menuitem label="{resourceManager.getString('strings', 'menu.showObjectList')}" type="check" data="viewShowObjectList"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.showPreviewPanel')}" type="check" data="viewShowInfoAndPreview"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.showObjectsPanel')}" type="check" data="viewShowObjectList"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.showSpritesPanel')}" type="check" data="viewShowSpriteList"/>
             </menuitem>
             <menuitem label="{resourceManager.getString('strings', 'menu.tools')}">
                 <menuitem label="{resourceManager.getString('strings', 'find')}"  keyEquivalent='F' data="toolsFind" icon="nail.assets.Icons_BINOCULARS"/>
@@ -192,8 +194,10 @@
             private var _animationWindow:AnimationEditor;
             private var _autosave:Boolean;
             private var _autosaveChanged:Boolean;
-            private var _showThingList:Boolean;
-            private var _showThingListChanged:Boolean;
+            private var _showPreviewPanel:Boolean = true;
+            private var _showThingsPanel:Boolean = true;
+            private var _showSpritesPanel:Boolean = true;
+            private var _showPanelChanged:Boolean;
             private var _datSprProgressBar:DatSprProgressBar;
             private var _defaultProgressBar:DefaultProgressBar;
             private var _errorAlert:Alert;
@@ -236,12 +240,32 @@
                 }
             }
             
-            public function get showThingList():Boolean { return _showThingList; }
-            public function set showThingList(value:Boolean):void
+            public function get showPreviewPanel():Boolean { return _showPreviewPanel; }
+            public function set showPreviewPanel(value:Boolean):void
             {
-                if (_showThingList != value) {
-                    _showThingList = value;
-                    _showThingListChanged = true;
+                if (_showPreviewPanel != value) {
+                    _showPreviewPanel = value;
+                    _showPanelChanged = true;
+                    invalidateProperties();
+                }
+            }
+            
+            public function get showThingsPanel():Boolean { return _showThingsPanel; }
+            public function set showThingsPanel(value:Boolean):void
+            {
+                if (_showThingsPanel != value) {
+                    _showThingsPanel = value;
+                    _showPanelChanged = true;
+                    invalidateProperties();
+                }
+            }
+            
+            public function get showSpritesPanel():Boolean { return _showSpritesPanel; }
+            public function set showSpritesPanel(value:Boolean):void
+            {
+                if (_showSpritesPanel != value) {
+                    _showSpritesPanel = value;
+                    _showPanelChanged = true;
                     invalidateProperties();
                 }
             }
@@ -726,12 +750,18 @@
                     _autosaveChanged = false;
                 }
                 
-                if (_showThingListChanged) {
-                    menuXML[1].menuitem[0].@toggled = _showThingList; // View > Show Object List
-                    thingListContainer.includeInLayout = _showThingList;
-                    showThingListButton.selected = _showThingList;
-                    _settings.showThingList = _showThingList;
-                    _showThingListChanged = false;
+                if (_showPanelChanged) {
+                    menuXML[1].menuitem[0].@toggled = _showPreviewPanel; // View > Show Object List
+                    menuXML[1].menuitem[1].@toggled = _showThingsPanel; // View > Show Info and Preview
+                    menuXML[1].menuitem[2].@toggled = _showSpritesPanel; // View > Show Sprite List
+                    previewPanel.visible = _showPreviewPanel;
+                    previewPanel.includeInLayout = _showPreviewPanel;
+                    thingsPanel.visible = _showThingsPanel;
+                    thingsPanel.includeInLayout = _showThingsPanel;
+                    spritesPanel.visible = _showSpritesPanel;
+                    spritesPanel.includeInLayout = _showSpritesPanel;
+                    showThingsPanelButton.selected = _showThingsPanel;
+                    _showPanelChanged = false;
                 }
                 
                 if (_categoryChanged) {
@@ -770,10 +800,12 @@
                     this.maximize();
                 }
                 
-                previewContainer.width = Math.max(previewContainer.minWidth, _settings.previewContainerWidth);
-                thingListContainer.width = Math.max(thingListContainer.minWidth, _settings.thingListContainerWidth);
-                spritesContainer.width = Math.max(spritesContainer.minWidth, _settings.spritesContainerWidth);
-                showThingList = _settings.showThingList;
+                previewPanel.width = Math.max(previewPanel.minWidth, _settings.previewContainerWidth);
+                thingsPanel.width = Math.max(thingsPanel.minWidth, _settings.thingListContainerWidth);
+                spritesPanel.width = Math.max(spritesPanel.minWidth, _settings.spritesContainerWidth);
+                showPreviewPanel = _settings.showPreviewPanel;
+                showThingsPanel = _settings.showThingsPanel;
+                showSpritesPanel = _settings.showSpritesPanel;
                 setSharedProperty("objectsListAmount", _settings.objectsListAmount);
                 setSharedProperty("spritesListAmount", _settings.spritesListAmount);
                 thingStepper.amount = _settings.objectsListAmount;
@@ -1158,10 +1190,12 @@
             
             private function saveWindowState():void
             {
-                _settings.previewContainerWidth = previewContainer.width;
-                _settings.thingListContainerWidth = thingListContainer.width;
-                _settings.spritesContainerWidth = spritesContainer.width;
-                _settings.showThingList = showThingList;
+                _settings.previewContainerWidth = previewPanel.width;
+                _settings.thingListContainerWidth = thingsPanel.width;
+                _settings.spritesContainerWidth = spritesPanel.width;
+                _settings.showPreviewPanel = showPreviewPanel;
+                _settings.showThingsPanel = showThingsPanel;
+                _settings.showSpritesPanel = showSpritesPanel;
             }
             
             private function showDatSprProgressBar(title:String):void
@@ -1996,8 +2030,14 @@
                     case "fileExit":
                         this.close();
                         break;
+                    case "viewShowInfoAndPreview":
+                        this.showPreviewPanel = !this.showPreviewPanel;
+                        break;
                     case "viewShowObjectList":
-                        this.showThingList = !this.showThingList;
+                        this.showThingsPanel = !this.showThingsPanel;
+                        break;
+                    case "viewShowSpriteList":
+                        this.showSpritesPanel = !this.showSpritesPanel;
                         break;
                     case "toolsFind":
                         this.openFindWindow();
@@ -2149,7 +2189,7 @@
                     top="65">
         
         <!-- info/view container -->
-        <s:BorderContainer id="previewContainer"
+        <s:BorderContainer id="previewPanel"
                            minWidth="165"
                            maxWidth="280"
                            width="165"
@@ -2186,12 +2226,13 @@
                         </s:ArrayList>
                     </s:dataProvider>
                 </s:DropDownList>
-                <s:ToggleButton id="showThingListButton"
+                <s:ToggleButton id="showThingsPanelButton"
                                 toolTip="@Resource(key='showObjectList', bundle='strings')"
                                 width="20"
                                 height="20"
+                                selected="true"
                                 icon="{nail.assets.Icons.SHOW_LIST_ICON}"
-                                change="{showThingList = showThingListButton.selected;}"/>
+                                change="{showThingsPanel = showThingsPanelButton.selected;}"/>
             </s:HGroup>
             
             <nail:GroupBox id="thingViewGroup"
@@ -2207,13 +2248,12 @@
         </s:BorderContainer>
         
         <!-- thing list container -->
-        <s:BorderContainer id="thingListContainer"
+        <s:BorderContainer id="thingsPanel"
                            minWidth="190"
                            maxWidth="280"
                            width="190"
                            height="100%"
                            fontSize="11"
-                           includeInLayout="false"
                            skinClass="nail.components.skins.BorderContainerSkin">
             <s:layout>
                 <s:VerticalLayout horizontalAlign="center"
@@ -2356,7 +2396,7 @@
         </s:Group>
         
         <!-- sprites container -->
-        <s:BorderContainer id="spritesContainer"
+        <s:BorderContainer id="spritesPanel"
                            minWidth="190"
                            maxWidth="250"
                            width="190"

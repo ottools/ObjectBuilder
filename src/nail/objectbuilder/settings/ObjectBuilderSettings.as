@@ -47,12 +47,14 @@ package nail.objectbuilder.settings
         public var datSignature:int;
         public var sprSignature:int;
         public var autosaveThingChanges:Boolean;
-        public var maximized:Boolean;
+        public var maximized:Boolean = true;
         public var previewContainerWidth:Number = 0;
         public var thingListContainerWidth:Number = 0;
         public var spritesContainerWidth:Number = 0;
-        public var showThingList:Boolean;
-        public var language:String;
+        public var showPreviewPanel:Boolean = true;
+        public var showThingsPanel:Boolean = true;
+        public var showSpritesPanel:Boolean = true;
+        public var language:String = SupportedLanguages.EN_US;
         public var extended:Boolean;
         public var transparency:Boolean;
         public var savingSpriteSheet:Number = 0;
@@ -68,8 +70,8 @@ package nail.objectbuilder.settings
         public var animationWindowWidth:Number = 0;
         public var animationWindowHeight:Number = 0;
         public var animationWindowMaximized:Boolean;
-        public var objectsListAmount:Number;
-        public var spritesListAmount:Number;
+        public var objectsListAmount:Number = 100;
+        public var spritesListAmount:Number = 100;
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
@@ -77,11 +79,6 @@ package nail.objectbuilder.settings
         
         public function ObjectBuilderSettings()
         {
-           this.language = SupportedLanguages.EN_US;
-           this.maximized = true;
-           this.showThingList = true;
-           this.objectsListAmount = 100;
-           this.spritesListAmount = 100;
         }
         
         //--------------------------------------------------------------------------
