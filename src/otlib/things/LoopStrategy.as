@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // 
-//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
+//  Copyright (c) 2014 <nailsonnego@gmail.com>
 // 
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -22,39 +22,25 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.animationeditor
+package otlib.things
 {
-    import flash.display.BitmapData;
-    
-    import nail.otlib.components.IListObject;
-    
-    import otlib.things.FrameDuration;
-    
-    public class Frame implements IListObject
+    import nail.resources.Resources;
+
+    public class LoopStrategy implements IFrameStrategy
     {
         //--------------------------------------------------------------------------
         // PROPERTIES
         //--------------------------------------------------------------------------
         
-        public var opacity:Number;
-        public var bitmap:BitmapData;
-        public var duration:FrameDuration;
-        
-        //--------------------------------------
-        // Getters / Setters
-        //--------------------------------------
-        
-        public function get id():uint { return uint.MAX_VALUE; }
+        public var loopCount:uint;
+        public var currentLoop:uint;
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function Frame(bitmap:BitmapData = null, duration:FrameDuration = null)
+        public function LoopStrategy()
         {
-            this.opacity = 1.0;
-            this.bitmap = bitmap;
-            this.duration = duration;
         }
         
         //--------------------------------------------------------------------------
@@ -65,18 +51,36 @@ package nail.animationeditor
         // Public
         //--------------------------------------
         
-        public function getBitmap(backgroundColor:uint = 0):BitmapData
+        public function toString():String
         {
-            return bitmap;
+            return Resources.getString("strings", "loop");
         }
         
-        public function clone():Frame
+        public function nextFrame(currentFrame:uint, framesCount:uint):uint
         {
-            var clone:Frame = new Frame();
-            clone.opacity = this.opacity;
-            clone.bitmap = this.bitmap ? this.bitmap.clone() : null;
-            clone.duration = this.duration ? this.duration.clone() : null;
+            var frame:uint = currentFrame + 1;
+            if (frame < framesCount)
+                return frame;
+            
+            if (currentLoop < (loopCount - 1) || loopCount == 0) {
+                currentLoop++;
+                return 0;
+            }
+            
+            return currentFrame;
+        }
+        
+        public function clone():IFrameStrategy
+        {
+            var clone:LoopStrategy = new LoopStrategy();
+            clone.loopCount = this.loopCount;
+            clone.currentLoop = this.currentLoop;
             return clone;
+        }
+        
+        public function reset():void
+        {
+            currentLoop = 0;
         }
     }
 }

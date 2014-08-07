@@ -1,0 +1,59 @@
+======================================================================
+OBD (Object Builder Data) file structure.
+======================================================================
+File version: 2.0
+Endian: Little endian byte order
+Compression algorithm: LZMA
+======================================================================
+
+Length - Value
+
+[1] - Obd file major version (0 - 99)
+[1] - Obd file minor version (0 - 99)
+[2] - Client version
+[1] - Object category (1 = Item, 2 = Outfit, 3 = Effect, 4 = Missile)
+
+[n] - Object properties
+
+-------- Texture patterns -----------------
+                                          |
+[1] - Width                               |
+[1] - Height                              |
+                                          |
+-If width or height are greater than 1 -  |
+                                       |  |
+[1] - Exact size                       |  |
+                                       |  |
+----------------------------------------  |
+                                          |
+[1] - Layers                              |
+[1] - Pattern X                           |
+[1] - Pattern Y                           |
+[1] - Pattern Z                           |
+[1] - Frames                              |
+                                          |
+----- If frames are greater than 1 -----  |
+                                       |  |
+[1] - Animation type                   |  |
+[4] - Frame strategy                   |  |
+[1] - Start frame                      |  |
+                                       |  |
+-------- For each frame -------------  |  |
+                                    |  |  |
+[4] - Minimum frame duration        |  |  |
+[4] - Maximum frame duration        |  |  |
+                                    |  |  |
+-------------------------------------  |  |
+                                       |  |
+----------------------------------------  |
+                                          |
+-------- For each sprite -------------    |
+                                     |    |
+[4] - Last id used by this sprite    |    |
+[4096] - Sprite ARGB 32-bit pixels   |    |
+                                     |    |
+--------------------------------------    |
+                                          |
+-------------------------------------------
+
+======================================================================

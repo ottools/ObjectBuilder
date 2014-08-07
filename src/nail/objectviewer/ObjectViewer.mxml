@@ -29,7 +29,7 @@
           xmlns:s="library://ns.adobe.com/flex/spark" 
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:nail="library://ns.nail.com/naillib"
-          xmlns:components="nail.otlib.components.*"
+          xmlns:otlib="otlib.components.*"
           minWidth="500"
           minHeight="400"
           showStatusBar="false"
@@ -61,9 +61,9 @@
             import nail.assets.NailAssets;
             import nail.components.controls.Alert;
             import nail.objectbuilder.core.IObjectBuilder;
-            import nail.otlib.core.Version;
             import nail.otlib.core.Versions;
             import nail.otlib.loaders.PathHelper;
+            import nail.otlib.things.ThingCategory;
             import nail.otlib.things.ThingData;
             import nail.otlib.utils.OTFormat;
             import nail.utils.FileUtil;
@@ -151,7 +151,7 @@
                 var directory:File = FileUtil.getDirectory(fileTarget);
                 
                 // Checks if new directory and current directory are equal.
-                if (_fileList && _lastDirectory && FileUtil.compare(_lastDirectory, directory)) {
+                if (_fileList && _lastDirectory && FileUtil.equals(_lastDirectory, directory)) {
                     setFileList(fileTarget, _fileList);
                     return;
                 }
@@ -218,6 +218,12 @@
                     var thingData:ThingData = ThingData.unserialize(bytes);
                     bytes.position = 0;
                     
+                    // Skip Otb version
+                    if (bytes.readUnsignedByte() == ThingData.OBD_MAJOR_VERSION)
+                        bytes.readUnsignedByte();
+                    else 
+                        bytes.position = 0;
+                    
                     var statusText:String = StringUtil.substitute(
                         STATUS,
                         resourceManager.getString("strings", "name"),
@@ -225,11 +231,24 @@
                         resourceManager.getString("strings", "type"),
                         resourceManager.getString("strings", thingData.category),
                         resourceManager.getString("strings", "version"),
-                        Versions.instance.getByValue(bytes.readUnsignedShort()).valueStr);
+                        Versions.instance.getByValue( bytes.readUnsignedShort() ).valueStr);
+                    
                     this.descriptionText.textFlow = TextConverter.importToFlow(
                         statusText,
                         TextConverter.TEXT_FIELD_HTML_FORMAT);
+                    
                     this.thingView.thingData = thingData;
+                    
+                    if (thingData.category == ThingCategory.OUTFIT) {
+                        thingView.patternX = 2;
+                        thingView.drawBlendLayer = false;
+                    } else {
+                        thingView.patternX = 0;
+                        thingView.drawBlendLayer = true;
+                    }
+                    
+                    thingView.play();
+                    
                 } catch(error:Error) {
                     Alert.show(error.getStackTrace(), resourceManager.getString("strings", "error"), Alert.OK, this);
                 }
@@ -363,7 +382,7 @@
               height="100%"
               horizontalAlign="center"
               verticalAlign="middle">
-        <components:ThingView id="thingView"/>
+        <otlib:ThingDataView id="thingView"/>
     </s:HGroup>
     
     <s:HGroup width="100%"

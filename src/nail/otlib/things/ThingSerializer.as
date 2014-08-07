@@ -31,6 +31,9 @@ package nail.otlib.things
     import nail.otlib.sprites.Sprite;
     import nail.resources.Resources;
     
+    import otlib.things.Animator;
+    import otlib.things.FrameDuration;
+    
     public final class ThingSerializer
     {
         //--------------------------------------------------------------------------
@@ -857,8 +860,14 @@ package nail.otlib.things
         /**
          * Read sprites.
          */
-        public static function readSprites(thing:ThingType, input:IDataInput, extended:Boolean, readPatternZ:Boolean):Boolean
+        public static function readSprites(thing:ThingType,
+                                           input:IDataInput,
+                                           extended:Boolean,
+                                           readPatternZ:Boolean,
+                                           readFrameDuration:Boolean):Boolean
         {
+            var i:uint;
+            
             thing.width = input.readUnsignedByte();
             thing.height = input.readUnsignedByte();
             
@@ -874,6 +883,33 @@ package nail.otlib.things
             thing.frames = input.readUnsignedByte();
             if (thing.frames > 1) {
                 thing.isAnimation = true;
+                
+                var animationMode:uint;
+                var frameStrategy:int;
+                var startFrame:int;
+                var frameDurations:Vector.<FrameDuration> = new Vector.<FrameDuration>(thing.frames, true);
+                
+                if (readFrameDuration) {
+                    animationMode = input.readUnsignedByte();
+                    frameStrategy = input.readInt();
+                    startFrame = input.readByte();
+                    
+                    for (i = 0; i < thing.frames; i++)
+                        frameDurations[i] = new FrameDuration(input.readUnsignedInt(), input.readUnsignedInt());
+                        
+                } else {
+                    
+                    var duration:uint = FrameDuration.getDefaultDuration(thing.category);
+                    
+                    for (i = 0; i < thing.frames; i++)
+                        frameDurations[i] = new FrameDuration(duration, duration);
+                }
+                
+                thing.animator = Animator.create(thing.frames,
+                                                 startFrame,
+                                                 frameStrategy,
+                                                 animationMode,
+                                                 frameDurations);
             }
             
             var totalSprites:uint = thing.width * thing.height * thing.layers * thing.patternX * thing.patternY * thing.patternZ * thing.frames;
@@ -882,7 +918,7 @@ package nail.otlib.things
             }
             
             thing.spriteIndex = new Vector.<uint>(totalSprites);
-            for (var i:uint = 0; i < totalSprites; i++) {
+            for (i = 0; i < totalSprites; i++) {
                 if (extended)
                     thing.spriteIndex[i] = input.readUnsignedInt();
                 else 
@@ -1340,8 +1376,14 @@ package nail.otlib.things
         /**
          * Write sprites.
          */
-        public static function writeSprites(thing:ThingType, output:IDataOutput, extended:Boolean, writePatternZ:Boolean):Boolean
+        public static function writeSprites(thing:ThingType,
+                                            output:IDataOutput,
+                                            extended:Boolean,
+                                            writePatternZ:Boolean,
+                                            writeFrameDuration:Boolean):Boolean
         {
+            var i:uint;
+            
             output.writeByte(thing.width);  // Write width	
             output.writeByte(thing.height); // Write height	
             
@@ -1355,9 +1397,23 @@ package nail.otlib.things
             if (writePatternZ) output.writeByte(thing.patternZ); // Write pattern Z
             output.writeByte(thing.frames);   // Write frames
             
+            if (thing.isAnimation && writeFrameDuration) {
+                var animator:Animator = thing.animator;
+                output.writeByte(animator.animationMode);   // Write animation type
+                output.writeInt(animator.frameStrategy);    // Write frame strategy
+                output.writeByte(animator.startFrame);      // Write start frame
+                
+                var frameDurations:Vector.<FrameDuration> = animator.frameDurations;
+                length = frameDurations.length;
+                for (i = 0; i < length; i++) {
+                    output.writeUnsignedInt(frameDurations[i].minimum); // Write minimum duration
+                    output.writeUnsignedInt(frameDurations[i].maximum); // Write maximum duration
+                }
+            }
+            
             var spriteIndex:Vector.<uint> = thing.spriteIndex;
             var length:uint = spriteIndex.length;
-            for (var i:uint = 0; i < length; i++) {
+            for (i = 0; i < length; i++) {
                 // Write sprite index
                 if (extended)
                     output.writeUnsignedInt(spriteIndex[i]); 

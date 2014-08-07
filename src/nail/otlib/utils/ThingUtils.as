@@ -24,12 +24,15 @@
 
 package nail.otlib.utils
 {
-    import flash.utils.describeType;
-    
     import nail.errors.AbstractClassError;
     import nail.otlib.things.ThingCategory;
     import nail.otlib.things.ThingType;
     import nail.resources.Resources;
+    
+    import otlib.things.AnimationMode;
+    import otlib.things.Animator;
+    import otlib.things.FrameDuration;
+    import otlib.things.FrameStrategyType;
     
     public final class ThingUtils
     {
@@ -46,28 +49,12 @@ package nail.otlib.utils
         // STATIC
         //--------------------------------------------------------------------------
         
-        public static function copyThing(thing:ThingType):ThingType
+        public static function createThing(category:String,
+                                           id:uint = 0,
+                                           createFrameDuration:Boolean = false):ThingType
         {
-            if (!thing) return null;
-            
-            var newThing:ThingType = new ThingType();
-            var description:XMLList = describeType(thing)..variable;
-            for each (var property:XML in description) {
-                var name:String = property.@name;
-                newThing[name] = thing[name];
-            }
-            
-            if (thing.spriteIndex) {
-                newThing.spriteIndex = thing.spriteIndex.concat();
-            }
-            return newThing;
-        }
-        
-        public static function createThing(category:String, id:uint = 0):ThingType
-        {
-            if (!ThingCategory.getCategory(category)) {
+            if (!ThingCategory.getCategory(category))
                 throw new Error(Resources.getString("strings", "invalidCategory"));
-            }
             
             var thing:ThingType = new ThingType();
             thing.category = category;
@@ -83,8 +70,21 @@ package nail.otlib.utils
             
             switch(category) {
                 case ThingCategory.OUTFIT:
+                    
                     thing.patternX = 4;
                     thing.frames = 3;
+                    thing.isAnimation = true;
+                    
+                    var frameDurations:Vector.<FrameDuration> = new Vector.<FrameDuration>(thing.frames, true);
+                    frameDurations[0] = new FrameDuration(300, 300);
+                    frameDurations[1] = new FrameDuration(300, 300);
+                    frameDurations[2] = new FrameDuration(300, 300);
+                    
+                    thing.animator = Animator.create(thing.frames,
+                                                     0,
+                                                     FrameStrategyType.PING_PONG,
+                                                     AnimationMode.SYNCHRONOUS,
+                                                     frameDurations);
                     break;
                 case ThingCategory.MISSILE:
                     thing.patternX = 3;

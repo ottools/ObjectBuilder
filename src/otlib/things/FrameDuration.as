@@ -22,39 +22,40 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.animationeditor
+package otlib.things
 {
-    import flash.display.BitmapData;
-    
-    import nail.otlib.components.IListObject;
-    
-    import otlib.things.FrameDuration;
-    
-    public class Frame implements IListObject
+    import nail.otlib.things.ThingCategory;
+
+    public class FrameDuration
     {
         //--------------------------------------------------------------------------
         // PROPERTIES
         //--------------------------------------------------------------------------
         
-        public var opacity:Number;
-        public var bitmap:BitmapData;
-        public var duration:FrameDuration;
+        public var minimum:uint;
+        public var maximum:uint;
         
         //--------------------------------------
         // Getters / Setters
         //--------------------------------------
         
-        public function get id():uint { return uint.MAX_VALUE; }
+        public function get duration():uint
+        {
+            if (minimum == maximum)
+                return minimum;
+            
+            var value:int = maximum - minimum;
+            return minimum + Math.round(Math.random() * value);
+        }
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function Frame(bitmap:BitmapData = null, duration:FrameDuration = null)
+        public function FrameDuration(minimum:uint = 0, maximum:uint = 0)
         {
-            this.opacity = 1.0;
-            this.bitmap = bitmap;
-            this.duration = duration;
+            this.minimum = minimum;
+            this.maximum = maximum;
         }
         
         //--------------------------------------------------------------------------
@@ -65,18 +66,33 @@ package nail.animationeditor
         // Public
         //--------------------------------------
         
-        public function getBitmap(backgroundColor:uint = 0):BitmapData
+        public function toString():String
         {
-            return bitmap;
+            return "[object FrameDuration minimum=" + minimum + ", maximum=" + maximum + "]";
         }
         
-        public function clone():Frame
+        public function clone():FrameDuration
         {
-            var clone:Frame = new Frame();
-            clone.opacity = this.opacity;
-            clone.bitmap = this.bitmap ? this.bitmap.clone() : null;
-            clone.duration = this.duration ? this.duration.clone() : null;
-            return clone;
+            return new FrameDuration(this.minimum, this.maximum);
+        }
+        
+        //--------------------------------------------------------------------------
+        // STATIC
+        //--------------------------------------------------------------------------
+        
+        public static function getDefaultDuration(category:String):uint
+        {
+            switch(category) {
+                case ThingCategory.ITEM:
+                    return 500;
+                case ThingCategory.OUTFIT:
+                    return 300;
+                case ThingCategory.EFFECT:
+                    return 100;
+                case ThingCategory.MISSILE:
+                    return 0;
+            }
+            return 0;
         }
     }
 }

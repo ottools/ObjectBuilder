@@ -49,6 +49,12 @@ package nail.otlib.things
     import nail.otlib.utils.ThingUtils;
     import nail.utils.StringUtil;
     
+    import otlib.things.AnimationMode;
+    import otlib.things.Animator;
+    import otlib.things.FrameDuration;
+    import otlib.things.FrameStrategyType;
+    import otlib.utils.OutfitData;
+    
     public class ThingData
     {
         //--------------------------------------------------------------------------
@@ -62,9 +68,10 @@ package nail.otlib.things
         // Getters / Setters 
         //--------------------------------------
         
-        public function get id():uint { return thing ? thing.id : 0; }
-        public function get category():String { return thing ? thing.category : null; }
-        public function get length():uint { return sprites ? sprites.length : 0; }
+        public function get id():uint { return thing.id; }
+        public function get category():String { return thing.category; }
+        public function get length():uint { return sprites.length; }
+        public function get animator():Animator { return thing.animator; }
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
@@ -85,10 +92,11 @@ package nail.otlib.things
         public function clone():ThingData
         {
             var spritesCopy:Vector.<SpriteData> = new Vector.<SpriteData>();
+            
             var length:uint = sprites.length;
-            for (var i:uint = 0; i < length; i++) {
+            for (var i:uint = 0; i < length; i++)
                 spritesCopy[i] = sprites[i].clone();
-            }
+            
             var thingData:ThingData = new ThingData();
             thingData.thing = this.thing.clone();
             thingData.sprites = spritesCopy;
@@ -98,6 +106,9 @@ package nail.otlib.things
         //--------------------------------------------------------------------------
         // STATIC
         //--------------------------------------------------------------------------
+        
+        public static const OBD_MAJOR_VERSION:uint = 2;
+        public static const OBD_MINOR_VERSION:uint = 0;
         
         private static const RECTANGLE:Rectangle = new Rectangle(0, 0, 32, 32);
         private static const POINT:Point = new Point();
@@ -143,19 +154,20 @@ package nail.otlib.things
         
         public static function serialize(data:ThingData, version:Version):ByteArray
         {
-            if (!data) {
+            if (!data)
                 throw new NullArgumentError("data");
-            }
             
-            if (!data) {
+            if (!version)
                 throw new NullArgumentError("version");
-            }
             
             var thing:ThingType = data.thing;
             var bytes:ByteArray = new ByteArray();
             bytes.endian = Endian.LITTLE_ENDIAN;
-            bytes.writeShort(version.value); // Write client version
-            bytes.writeUTF(thing.category);  // Write thing category
+            
+            bytes.writeByte(OBD_MAJOR_VERSION);                         // Write major file version
+            bytes.writeByte(OBD_MINOR_VERSION);                         // Write minor file version
+            bytes.writeShort(version.value);                            // Write client version
+            bytes.writeByte(ThingCategory.getValue(thing.category));    // Write thing category
             
             var done:Boolean;
             if (version.value <= 730)
@@ -179,22 +191,35 @@ package nail.otlib.things
         
         public static function unserialize(bytes:ByteArray):ThingData
         {
-            if (!bytes) {
+            if (!bytes)
                 throw new NullArgumentError("bytes");
-            }
             
+            bytes.position = 0;
             bytes.endian = Endian.LITTLE_ENDIAN;
             bytes.uncompress(CompressionAlgorithm.LZMA);
             
-            var version:Version = Versions.instance.getByValue( bytes.readUnsignedShort() );
+            var version:Version;
+            var category:String;
+            var newObd:Boolean = (bytes.readUnsignedByte() == OBD_MAJOR_VERSION);
+            
+            if (newObd) {
+                bytes.readUnsignedByte(); // Reads obd minor version.
+                version = Versions.instance.getByValue( bytes.readUnsignedShort() );
+                category = ThingCategory.getCategoryByValue( bytes.readUnsignedByte() );
+            } else {
+                bytes.position = 0;
+                version = Versions.instance.getByValue( bytes.readUnsignedShort() );
+                category = ThingCategory.getCategory( bytes.readUTF() );
+            }
+            
             if (!version)
                 throw new Error("Unsupported version.");
             
-            var thing:ThingType = new ThingType();
-            thing.category = ThingCategory.getCategory( bytes.readUTF() );
-            if (!thing.category) {
+            if (category == null)
                 throw new Error("Invalid thing category.");
-            }
+            
+            var thing:ThingType = new ThingType();
+            thing.category = category;
             
             var done:Boolean;
             if (version.value <= 730)
@@ -211,6 +236,10 @@ package nail.otlib.things
                 done = ThingSerializer.readProperties6(thing, bytes);
             
             if (!done) return null;
+            
+            if (newObd)
+                return readSprites(thing, bytes);
+            
             return readThingSprites(thing, bytes);
         }
         
@@ -218,9 +247,8 @@ package nail.otlib.things
                                               textureIndex:Vector.<Rect> = null,
                                               backgroundColor:uint = 0xFFFF00FF):BitmapData
         {
-            if (data == null) {
+            if (!data)
                 throw new NullArgumentError("data");
-            }
             
             var thing:ThingType = data.thing;
             var width:uint = thing.width;
@@ -255,9 +283,8 @@ package nail.otlib.things
                                 var fx:int = (index % totalX) * pixelsWidth;
                                 var fy:int = Math.floor(index / totalX) * pixelsHeight;
                                 
-                                if (textureIndex) {
+                                if (textureIndex)
                                     textureIndex[index] = new Rect(fx, fy, pixelsWidth, pixelsHeight);
-                                }
                                 
                                 for (var w:uint = 0; w < width; w++) {
                                     for (var h:uint = 0; h < height; h++) {
@@ -339,17 +366,17 @@ package nail.otlib.things
         }
         
         public static function colorizeSpriteSheet(thingData:ThingData,
-                                                   head:uint = 0,
-                                                   body:uint = 0,
-                                                   legs:uint = 0,
-                                                   feet:uint = 0,
-                                                   addons:uint = 0):BitmapData
+                                                   outfitData:OutfitData,
+                                                   backgroundColor:uint = 0xFFFF00FF):BitmapData
         {
             if (!thingData)
-                return null;
+                throw NullArgumentError("thingData");
+            
+            if (!outfitData)
+                throw NullArgumentError("outfitData");
             
             var textureRectList:Vector.<Rect> = new Vector.<Rect>();
-            var spriteSheet:BitmapData = getSpriteSheet(thingData, textureRectList);
+            var spriteSheet:BitmapData = getSpriteSheet(thingData, textureRectList, backgroundColor);
             spriteSheet = SpriteUtils.removeMagenta(spriteSheet);
             
             var thing:ThingType = thingData.thing;
@@ -393,7 +420,7 @@ package nail.otlib.things
             }
             
             for (y = 0; y < patternY; y++) {
-                if (y == 0 || (addons & 1 << (y - 1)) != 0) {
+                if (y == 0 || (outfitData.addons & 1 << (y - 1)) != 0) {
                     for (f = 0; f < frames; f++) {
                         for (z = 0; z < patternZ; z++) {
                             for (x = 0; x < patternX; x++) {
@@ -415,11 +442,11 @@ package nail.otlib.things
                     }
                     
                     POINT.setTo(0, 0);
-                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.BLUE, ColorUtils.HSItoARGB(feet));
+                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.BLUE, ColorUtils.HSItoARGB(outfitData.feet));
                     blendBitmap.applyFilter(blendBitmap, bitmapRect, POINT, MATRIX_FILTER);
-                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.BLUE, ColorUtils.HSItoARGB(head));
-                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.RED, ColorUtils.HSItoARGB(body));
-                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.GREEN, ColorUtils.HSItoARGB(legs));
+                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.BLUE, ColorUtils.HSItoARGB(outfitData.head));
+                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.RED, ColorUtils.HSItoARGB(outfitData.body));
+                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.GREEN, ColorUtils.HSItoARGB(outfitData.legs));
                     bitmap.copyPixels(grayBitmap, bitmapRect, POINT, null, null, true);
                 }
             }
@@ -431,16 +458,13 @@ package nail.otlib.things
         }
         
         public static function colorizeOutfit(outfit:ThingData,
-                                              head:uint = 0,
-                                              body:uint = 0,
-                                              legs:uint = 0,
-                                              feet:uint = 0,
-                                              addons:uint = 0):ThingData
+                                              outfitData:OutfitData,
+                                              backgroundColor:uint = 0xFFFF00FF):ThingData
         {
-            if (!outfit || outfit.category != ThingCategory.OUTFIT)
+            if (!outfit || outfit.category != ThingCategory.OUTFIT || !outfitData)
                 return outfit;
             
-            var spriteSheet:BitmapData = colorizeSpriteSheet(outfit, head, body, legs, feet, addons);
+            var spriteSheet:BitmapData = colorizeSpriteSheet(outfit, outfitData, backgroundColor);
             var thing:ThingType = outfit.thing.clone();
             thing.patternY = 1;
             thing.layers = 1;
@@ -499,36 +523,127 @@ package nail.otlib.things
         private static function writeSprites(data:ThingData, bytes:ByteArray):Boolean
         { 
             var thing:ThingType = data.thing;
+            
             bytes.writeByte(thing.width);  // Write width
             bytes.writeByte(thing.height); // Write height
             
-            if (thing.width > 1 || thing.height > 1) {
+            if (thing.width > 1 || thing.height > 1)
                 bytes.writeByte(thing.exactSize); // Write exact size
+            
+            bytes.writeByte(thing.layers);          // Write layers
+            bytes.writeByte(thing.patternX);        // Write pattern X
+            bytes.writeByte(thing.patternY);        // Write pattern Y
+            bytes.writeByte(thing.patternZ || 1);   // Write pattern Z
+            bytes.writeByte(thing.frames);          // Write frames
+            
+            var length:uint;
+            var i:uint;
+            
+            if (thing.isAnimation) {
+                
+                var animator:Animator = thing.animator;
+                bytes.writeByte(animator.animationMode); // Write animation type
+                bytes.writeInt(animator.frameStrategy);  // Write frame Strategy
+                bytes.writeByte(animator.startFrame);    // Write start frame
+                
+                var frameDuration:Vector.<FrameDuration> = animator.frameDurations;
+                length = frameDuration.length;
+                for (i = 0; i < length; i++) {
+                    bytes.writeUnsignedInt(frameDuration[i].minimum); // Write minimum duration
+                    bytes.writeUnsignedInt(frameDuration[i].maximum); // Write maximum duration
+                }
             }
             
-            bytes.writeByte(thing.layers);   // Write layers
-            bytes.writeByte(thing.patternX); // Write pattern X
-            bytes.writeByte(thing.patternY); // Write pattern Y
-            bytes.writeByte(thing.patternZ); // Write pattern Z
-            bytes.writeByte(thing.frames);   // Write frames
-            
             var spriteList:Vector.<uint> = thing.spriteIndex;
-            var length:uint = spriteList.length;
-            for (var i:uint = 0; i < length; i++) {
+            length = spriteList.length;
+            for (i = 0; i < length; i++) {
                 var spriteId:uint = spriteList[i];
+                
                 var spriteData:SpriteData = data.sprites[i];
-                if (!spriteData || !spriteData.pixels) {
+                if (!spriteData || !spriteData.pixels)
                     throw new Error(StringUtil.substitute("Invalid sprite id.", spriteId));
-                }
+                
                 var pixels:ByteArray = spriteData.pixels;
                 pixels.position = 0;
+                
+                if (pixels.bytesAvailable != 4096)
+                    throw new Error(StringUtil.substitute("Invalid pixels length."));
+                
                 bytes.writeUnsignedInt(spriteId);
-                bytes.writeUnsignedInt(pixels.length);
                 bytes.writeBytes(pixels, 0, pixels.bytesAvailable);
             }
             return true;
         }
         
+        private static function readSprites(thing:ThingType, bytes:ByteArray):ThingData
+        {
+            thing.width  = bytes.readUnsignedByte();
+            thing.height = bytes.readUnsignedByte();
+            
+            if (thing.width > 1 || thing.height > 1)
+                thing.exactSize = bytes.readUnsignedByte();
+            else 
+                thing.exactSize = Sprite.SPRITE_PIXELS;
+            
+            thing.layers = bytes.readUnsignedByte();
+            thing.patternX = bytes.readUnsignedByte();
+            thing.patternY = bytes.readUnsignedByte();
+            thing.patternZ = bytes.readUnsignedByte() || 1;
+            thing.frames = bytes.readUnsignedByte();
+            
+            var totalSprites:uint = thing.getTotalSprites();
+            if (totalSprites > 4096)
+                throw new Error("Thing has more than 4096 sprites.");
+            
+            var i:uint;
+            
+            if (thing.frames > 1) {
+                thing.isAnimation = true;
+                
+                var animationType:uint = bytes.readUnsignedByte();  // Read animation type
+                var frameStrategy:int = bytes.readInt();            // Read frame Strategy
+                var startFrame:uint = bytes.readByte();             // Read start frame
+                var frameDurations:Vector.<FrameDuration> = new Vector.<FrameDuration>(thing.frames, true);
+                
+                for (i = 0; i < thing.frames; i++) {
+                    // Read minimum and maximum frame duration
+                    frameDurations[i] = new FrameDuration(bytes.readUnsignedInt(), bytes.readUnsignedInt());
+                }
+                
+                thing.animator = Animator.create(thing.frames,
+                                                 startFrame,
+                                                 frameStrategy,
+                                                 animationType,
+                                                 frameDurations);
+            }
+            
+            thing.spriteIndex = new Vector.<uint>(totalSprites);
+            var sprites:Vector.<SpriteData> = new Vector.<SpriteData>(totalSprites);
+            
+            for (i = 0; i < totalSprites; i++) {
+                var spriteId:uint = bytes.readUnsignedInt();
+                thing.spriteIndex[i] = spriteId;
+                
+                var pixels:ByteArray = new ByteArray();
+                pixels.endian = Endian.BIG_ENDIAN;
+                
+                bytes.readBytes(pixels, 0, 4096);
+                pixels.position = 0;
+                
+                var spriteData:SpriteData = new SpriteData();
+                spriteData.id = spriteId;
+                spriteData.pixels = pixels;
+                sprites[i] = spriteData;
+            }
+            
+            return createThingData(thing, sprites);
+        }
+        
+        /**
+         * @private
+         * 
+         * Reads old OBD files. It will be removed in future revision.
+         */
         private static function readThingSprites(thing:ThingType, bytes:ByteArray):ThingData
         {
             thing.width  = bytes.readUnsignedByte();
@@ -545,20 +660,38 @@ package nail.otlib.things
             thing.patternZ = bytes.readUnsignedByte();
             thing.frames = bytes.readUnsignedByte();
             
-            var totalSprites:uint = thing.width * thing.height * thing.layers * thing.patternX * thing.patternY * thing.patternZ * thing.frames;
-            if (totalSprites > 4096) {
+            var totalSprites:uint = thing.getTotalSprites();
+            if (totalSprites > 4096)
                 throw new Error("Thing has more than 4096 sprites.");
+            
+            var i:uint;
+            
+            if (thing.frames > 1) {
+                thing.isAnimation = true;
+                
+                var animationType:uint = thing.category == ThingCategory.ITEM ? 1 : 0;
+                var frameStrategy:int = thing.category == ThingCategory.EFFECT ? 1 : 0;
+                var frameDurations:Vector.<FrameDuration> = new Vector.<FrameDuration>(thing.frames, true);
+                var duration:uint = FrameDuration.getDefaultDuration(thing.category);
+                
+                for (i = 0; i < thing.frames; i++)
+                    frameDurations[i] = new FrameDuration(duration, duration);
+                
+                thing.animator = Animator.create(thing.frames,
+                                                 0,
+                                                 frameStrategy,
+                                                 animationType,
+                                                 frameDurations);
             }
             
             thing.spriteIndex = new Vector.<uint>(totalSprites);
             var sprites:Vector.<SpriteData> = new Vector.<SpriteData>(totalSprites);
             
-            for (var i:uint = 0; i < totalSprites; i++) {
+            for (i = 0; i < totalSprites; i++) {
                 var spriteId:uint = bytes.readUnsignedInt();
                 var length:uint = bytes.readUnsignedInt();
-                if (length > bytes.bytesAvailable) {
+                if (length > bytes.bytesAvailable)
                     throw new Error("Not enough data.");
-                }
                 
                 thing.spriteIndex[i] = spriteId;
                 var pixels:ByteArray = new ByteArray();

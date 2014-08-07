@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // 
-//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
+//  Copyright (c) 2014 <nailsonnego@gmail.com>
 // 
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -22,39 +22,31 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.animationeditor
+package otlib.utils
 {
-    import flash.display.BitmapData;
-    
-    import nail.otlib.components.IListObject;
-    
-    import otlib.things.FrameDuration;
-    
-    public class Frame implements IListObject
+    public class OutfitData
     {
         //--------------------------------------------------------------------------
         // PROPERTIES
         //--------------------------------------------------------------------------
         
-        public var opacity:Number;
-        public var bitmap:BitmapData;
-        public var duration:FrameDuration;
-        
-        //--------------------------------------
-        // Getters / Setters
-        //--------------------------------------
-        
-        public function get id():uint { return uint.MAX_VALUE; }
+        public var head:uint;
+        public var body:uint;
+        public var legs:uint;
+        public var feet:uint;
+        public var addons:uint;
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function Frame(bitmap:BitmapData = null, duration:FrameDuration = null)
+        public function OutfitData(head:uint = 0, body:uint = 0, legs:uint = 0, feet:uint = 0, addons:uint = 0)
         {
-            this.opacity = 1.0;
-            this.bitmap = bitmap;
-            this.duration = duration;
+            this.head = head;
+            this.body = body;
+            this.legs = legs;
+            this.feet = feet;
+            this.addons = addons;
         }
         
         //--------------------------------------------------------------------------
@@ -65,18 +57,29 @@ package nail.animationeditor
         // Public
         //--------------------------------------
         
-        public function getBitmap(backgroundColor:uint = 0):BitmapData
+        public function setTo(head:uint = 0, body:uint = 0, legs:uint = 0, feet:uint = 0, addons:uint = 0):OutfitData
         {
-            return bitmap;
+            this.head = head;
+            this.body = body;
+            this.legs = legs;
+            this.feet = feet;
+            this.addons = addons;
+            return this;
         }
         
-        public function clone():Frame
+        public function setFrom(data:OutfitData):OutfitData
         {
-            var clone:Frame = new Frame();
-            clone.opacity = this.opacity;
-            clone.bitmap = this.bitmap ? this.bitmap.clone() : null;
-            clone.duration = this.duration ? this.duration.clone() : null;
-            return clone;
+            this.head = data.head;
+            this.body = data.body;
+            this.legs = data.legs;
+            this.feet = data.feet;
+            this.addons = data.addons;
+            return this;
+        }
+        
+        public function clone():OutfitData
+        {
+            return new OutfitData(this.head, this.body, this.legs, this.feet, this.addons);
         }
     }
 }

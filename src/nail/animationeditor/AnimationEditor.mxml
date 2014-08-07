@@ -31,10 +31,9 @@
           xmlns:nail="library://ns.nail.com/naillib"
           xmlns:components="nail.otlib.components.*"
           xmlns:animationeditor="nail.animationeditor.*"
-          width="800"
-          height="600"
-          minWidth="600"
-          minHeight="500"
+          xmlns:otlib="otlib.components.*"
+          minWidth="800"
+          minHeight="600"
           fontSize="11"
           backgroundColor="0x494949"
           showStatusBar="false"
@@ -63,7 +62,6 @@
     
     <fx:Script>
         <![CDATA[
-            
             import com.worlize.gif.GIFDecoder;
             import com.worlize.gif.GIFFrame;
             import com.worlize.gif.events.GIFDecoderEvent;
@@ -98,6 +96,11 @@
             import nail.utils.FileUtil;
             import nail.utils.SaveHelper;
             import nail.utils.StringUtil;
+            
+            import otlib.things.AnimationMode;
+            import otlib.things.Animator;
+            import otlib.things.FrameDuration;
+            import otlib.things.FrameStrategyType;
             
             //--------------------------------------------------------------------------
             // PROPERTIES
@@ -215,8 +218,6 @@
             
             protected function onCutImage():void
             {
-                if (!this.hasImage) return;
-                
                 var x:int = offsetXStepper.value;
                 var y:int = offsetYStepper.value;
                 var width:uint = _size.width;
@@ -279,9 +280,29 @@
                 var sprites:Vector.<SpriteData> = new Vector.<SpriteData>(spriteCount);
                 var id:uint = uint.MAX_VALUE;
                 var rect:Rectangle = new Rectangle(0, 0, 32, 32);
+                var f:uint;
                 
-                for (var f:uint = 0; f < thing.frames; f++) {
+                if (thing.frames > 1) {
                     
+                    var frameDurations:Vector.<FrameDuration> = new Vector.<FrameDuration>(thing.frames, true);
+                    var defaultDuration:uint = FrameDuration.getDefaultDuration(thing.category);
+                    
+                    for (f = 0; f < thing.frames; f++) {
+                        var frame:Frame = framesList.getObjectAt(f) as Frame;
+                        if (frame && frame.duration)
+                            frameDurations[f] = frame.duration;
+                        else 
+                            frameDurations[f] = new FrameDuration(defaultDuration, defaultDuration);
+                    }
+                    
+                    thing.animator = Animator.create(thing.frames,
+                                                     0,
+                                                     FrameStrategyType.LOOP,
+                                                     AnimationMode.SYNCHRONOUS,
+                                                     frameDurations);
+                }
+                
+                for (f = 0; f < thing.frames; f++) {
                     var bmp:BitmapData = framesList.getObjectAt(f).getBitmap();
                     for (var w:uint = 0; w < thing.width; w++) {
                         for (var h:uint = 0; h < thing.height; h++) {
@@ -681,6 +702,8 @@
             
             protected function cutButtonClickHandler(event:MouseEvent):void
             {
+                if (!this.hasImage) return;
+                
                 this.onCutImage();
                 this.createThingData();
             }
@@ -693,15 +716,10 @@
             
             protected function playButtonChangeHandler(event:Event):void
             {
-                if (playButton.selected) {
-                    playButton.setStyle("icon", Icons.PAUSE);
-                    playButton.toolTip = resourceManager.getString("strings", "pause");
+                if (playButton.selected)
                     thingView.play();
-                } else {
-                    playButton.setStyle("icon", Icons.PLAY);
-                    playButton.toolTip = resourceManager.getString("strings", "play");
+                else
                     thingView.pause();
-                }
             }
             
             protected function dulicateFrameButtonClickHandler(event:MouseEvent):void
@@ -739,8 +757,16 @@
                 var length:uint = gifFrames.length;
                 for (var i:uint = 0; i < length; i++) {
                     var frame:GIFFrame = gifFrames[i];
+                    
+                    var duration:uint;
+                    if (frame.delayMs != 0)
+                        duration = Math.min(frame.delayMs, 500);
+                    else 
+                        duration = FrameDuration.getDefaultDuration( getCurrentCategory() );
+                    
                     var f:Frame = new Frame(frame.bitmapData);
-                    frames[frames.length] = f;
+                    f.duration = new FrameDuration(duration, duration);
+                    frames[i] = f;
                 }
                 
                 _size.width = gifFrames[0].width;
@@ -835,10 +861,10 @@
                            label="@Resource(key='preview', bundle='strings')"
                            width="100%"
                            height="100%">
-                <components:ThingDataView id="thingView"
-                                          horizontalCenter="0"
-                                          verticalCenter="0"
-                                          change="thingViewChangeHandler(event)"/>
+                <otlib:ThingDataView id="thingView"
+                                     horizontalCenter="0"
+                                     verticalCenter="0"
+                                     change="thingViewChangeHandler(event)"/>
                 
             </nail:GroupBox>
             
@@ -1032,12 +1058,10 @@
                               autoRepeat="true"
                               repeatInterval="200"
                               buttonDown="{thingView.prevFrame()}"/>
-                    <s:ToggleButton id="playButton"
-                                    width="19"
-                                    height="19"
-                                    toolTip="@Resource(key='play', bundle='strings')"
-                                    icon="{Icons.PLAY}"
-                                    change="playButtonChangeHandler(event)"/>
+                    <otlib:PlayButton id="playButton"
+                                      width="19"
+                                      height="19"
+                                      change="playButtonChangeHandler(event)"/>
                     <s:Button id="nextFrameButton" width="19"
                               height="19"
                               toolTip="@Resource(key='nextFrame', bundle='strings')"

@@ -97,7 +97,7 @@
             import air.update.events.UpdateEvent;
             
             import nail.animationeditor.AnimationEditor;
-            import nail.assets.NailAssets;
+            import nail.assets.Icons;
             import nail.components.controls.AboutWindow;
             import nail.components.controls.Alert;
             import nail.core.nail_internal;
@@ -167,6 +167,10 @@
             import nail.workers.Command;
             
             import otlib.components.OpenFilesWindow;
+            import otlib.things.Animator;
+            import otlib.things.FrameDuration;
+            import otlib.things.LoopStrategy;
+            import otlib.things.PingPongStrategy;
             import otlib.utils.FilesInfo;
             
             use namespace nail_internal;
@@ -696,6 +700,11 @@
                 registerClassAlias("ThingProperty", ThingProperty);
                 registerClassAlias("ThingListItem", ThingListItem);
                 registerClassAlias("LoaderHelper", PathHelper);
+                registerClassAlias("FrameDuration", FrameDuration);
+                registerClassAlias("PingPongStrategy", PingPongStrategy);
+                registerClassAlias("LoopStrategy", LoopStrategy);
+                registerClassAlias("Animator", Animator);
+                
                 registerCallback(CommandType.PROGRESS, onProgress);
                 registerCallback(CommandType.SHOW_PROGRESS_BAR, onShowProgressBar);
                 registerCallback(CommandType.HIDE_PROGRESS_BAR, onHideProgressBar);
@@ -1159,23 +1168,32 @@
                 return 0;
             }
             
-            private function setThingData(data:ThingData):void
+            private function setThingData(thingData:ThingData):void
             {
-                _thingData = data;
-                thingView.thingData = data;
+                _thingData = thingData;
+                thingView.thingData = thingData;
                 
-                if (data) {
+                if (thingData) {
                     
-                    this.currentCategory = data.category;
+                    if (thingData.category == ThingCategory.OUTFIT) {
+                        thingView.patternX = 2;
+                        thingView.drawBlendLayer = false;
+                    } else {
+                        thingView.patternX = 0;
+                        thingView.drawBlendLayer = true;
+                    }
                     
-                    var id:uint = data.id;
+                    thingView.play();
+                    
+                    this.currentCategory = thingData.category;
+                    
+                    var id:uint = thingData.id;
                     thingStepper.minimum = getMinThingId();
                     thingStepper.maximum = getMaxThingId();
                     thingStepper.value = id;
                     
-                    if (thingTypeEditor.thingData && thingTypeEditor.thingData.id == id) {
-                        thingTypeEditor.thingData = data;
-                    }
+                    if (thingTypeEditor.thingData && thingTypeEditor.thingData.id == id)
+                        thingTypeEditor.thingData = thingData;
                     
                     // set index if id is in range of loaded thing list.
                     if (id >= thingList.minId && id <= thingList.maxId) {
@@ -1183,7 +1201,7 @@
                         thingList.selectedId = id;
                     } else {
                         // request new thing list by target id.
-                        sendCommand(new GetThingListCommand(id, data.category));
+                        sendCommand(new GetThingListCommand(id, thingData.category));
                     }
                 }
             }
@@ -2200,9 +2218,9 @@
                 <s:VerticalLayout horizontalAlign="center"
                                   paddingRight="5"
                                   paddingLeft="5"
-                                  paddingTop="10"
-                                  paddingBottom="10"
-                                  gap="10"/>
+                                  paddingTop="5"
+                                  paddingBottom="5"
+                                  gap="5"/>
             </s:layout>
             
             <components:FilesInfoPanel id="infoPanel"
@@ -2241,9 +2259,9 @@
                            height="100%"
                            nativeDragEnter="thingDataNativeDragEnterHandler(event)"
                            nativeDragDrop="thingDataNativeDragDropHandler(event)">
-                <components:ThingView id="thingView"
-                                      horizontalCenter="0"
-                                      verticalCenter="0"/>
+                <otlib:ThingDataView id="thingView"
+                                     horizontalCenter="0"
+                                     verticalCenter="0"/>
             </nail:GroupBox>
         </s:BorderContainer>
         
@@ -2358,15 +2376,15 @@
             <s:BorderContainer width="100%"
                                height="100%"
                                skinClass="nail.components.skins.BorderContainerSkin">
-                <components:ThingTypeEditor id="thingTypeEditor"
-                                            width="100%"
-                                            height="100%"
-                                            visible="false"
-                                            thingChange="thingChangedHandler(event)"
-                                            thingPropertyChange="thingPropertyChangedHandler(event)"
-                                            spriteDoubleClick="thingSpriteDoubleClickHandler(event)"
-                                            nativeDragEnter="thingEditorDragEnterHandler(event)"
-                                            nativeDragDrop="thingEditorDragDropHandler(event)"/>
+                <otlib:ThingTypeEditor id="thingTypeEditor"
+                                       width="100%"
+                                       height="100%"
+                                       visible="false"
+                                       thingChange="thingChangedHandler(event)"
+                                       thingPropertyChange="thingPropertyChangedHandler(event)"
+                                       spriteDoubleClick="thingSpriteDoubleClickHandler(event)"
+                                       nativeDragEnter="thingEditorDragEnterHandler(event)"
+                                       nativeDragDrop="thingEditorDragDropHandler(event)"/>
             </s:BorderContainer>
             
             <s:BorderContainer width="100%"

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // 
-//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
+//  Copyright (c) 2014 <nailsonnego@gmail.com>
 // 
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -22,61 +22,46 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.animationeditor
+package otlib.components
 {
-    import flash.display.BitmapData;
+    import spark.components.ToggleButton;
     
-    import nail.otlib.components.IListObject;
+    import nail.assets.Icons;
     
-    import otlib.things.FrameDuration;
-    
-    public class Frame implements IListObject
+    public class PlayButton extends ToggleButton
     {
+        
         //--------------------------------------------------------------------------
         // PROPERTIES
         //--------------------------------------------------------------------------
-        
-        public var opacity:Number;
-        public var bitmap:BitmapData;
-        public var duration:FrameDuration;
         
         //--------------------------------------
         // Getters / Setters
         //--------------------------------------
         
-        public function get id():uint { return uint.MAX_VALUE; }
+        override public function set selected(value:Boolean):void
+        {
+            if (selected == value) return;
+            
+            super.selected = value;
+            
+            if (value) {
+                setStyle("icon", Icons.PAUSE);
+                toolTip = resourceManager.getString("strings", "pause");
+            } else {
+                setStyle("icon", Icons.PLAY);
+                toolTip = resourceManager.getString("strings", "play");
+            }
+        }
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function Frame(bitmap:BitmapData = null, duration:FrameDuration = null)
+        public function PlayButton()
         {
-            this.opacity = 1.0;
-            this.bitmap = bitmap;
-            this.duration = duration;
-        }
-        
-        //--------------------------------------------------------------------------
-        // METHODS
-        //--------------------------------------------------------------------------
-        
-        //--------------------------------------
-        // Public
-        //--------------------------------------
-        
-        public function getBitmap(backgroundColor:uint = 0):BitmapData
-        {
-            return bitmap;
-        }
-        
-        public function clone():Frame
-        {
-            var clone:Frame = new Frame();
-            clone.opacity = this.opacity;
-            clone.bitmap = this.bitmap ? this.bitmap.clone() : null;
-            clone.duration = this.duration ? this.duration.clone() : null;
-            return clone;
+            super();
+            setStyle("icon", Icons.PLAY);
         }
     }
 }

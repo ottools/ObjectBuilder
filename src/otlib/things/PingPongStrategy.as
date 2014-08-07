@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // 
-//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
+//  Copyright (c) 2014 <nailsonnego@gmail.com>
 // 
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -22,39 +22,25 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.animationeditor
+package otlib.things
 {
-    import flash.display.BitmapData;
-    
-    import nail.otlib.components.IListObject;
-    
-    import otlib.things.FrameDuration;
-    
-    public class Frame implements IListObject
+    import nail.resources.Resources;
+
+    public class PingPongStrategy implements IFrameStrategy
     {
         //--------------------------------------------------------------------------
         // PROPERTIES
         //--------------------------------------------------------------------------
         
-        public var opacity:Number;
-        public var bitmap:BitmapData;
-        public var duration:FrameDuration;
-        
-        //--------------------------------------
-        // Getters / Setters
-        //--------------------------------------
-        
-        public function get id():uint { return uint.MAX_VALUE; }
+        private var _currentDirection:uint;
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function Frame(bitmap:BitmapData = null, duration:FrameDuration = null)
+        public function PingPongStrategy()
         {
-            this.opacity = 1.0;
-            this.bitmap = bitmap;
-            this.duration = duration;
+            super();
         }
         
         //--------------------------------------------------------------------------
@@ -65,18 +51,37 @@ package nail.animationeditor
         // Public
         //--------------------------------------
         
-        public function getBitmap(backgroundColor:uint = 0):BitmapData
+        public function toString():String
         {
-            return bitmap;
+            return Resources.getString("strings", "pingPong");
         }
         
-        public function clone():Frame
+        public function nextFrame(currentFrame:uint, framesCount:uint):uint
         {
-            var clone:Frame = new Frame();
-            clone.opacity = this.opacity;
-            clone.bitmap = this.bitmap ? this.bitmap.clone() : null;
-            clone.duration = this.duration ? this.duration.clone() : null;
+            var count:int = _currentDirection == FRAME_FORWARD ? 1 : -1;
+            var frame:int = currentFrame + count;
+            
+            if (currentFrame + count < 0 || frame >= framesCount) {
+                _currentDirection = _currentDirection == FRAME_FORWARD ? FRAME_BACKWARD : FRAME_FORWARD;
+                count = count * -1;
+            }
+            
+            return currentFrame + count;
+        }
+        
+        public function clone():IFrameStrategy
+        {
+            var clone:PingPongStrategy = new PingPongStrategy();
+            clone._currentDirection = _currentDirection;
             return clone;
         }
+        
+        public function reset():void
+        {
+            _currentDirection = FRAME_FORWARD;
+        }
+        
+        private static const FRAME_FORWARD:uint = 0;
+        private static const FRAME_BACKWARD:uint = 1;
     }
 }

@@ -64,5 +64,37 @@ package nail.otlib.things
             }
             return null;
         }
+        
+        public static function getCategoryByValue(value:uint):String
+        {
+            switch (value) {
+                case 1:
+                    return ITEM;
+                case 2:
+                    return OUTFIT;
+                case 3:
+                    return EFFECT;
+                case 4:
+                    return MISSILE;
+            }
+            return null;
+        }
+        
+        public static function getValue(category:String):uint
+        {
+            if (!isNullOrEmpty(category)) {
+                switch (category) {
+                    case "item":
+                        return 1;
+                    case "outfit":
+                        return 2;
+                    case "effect":
+                        return 3;
+                    case "missile":
+                        return 4;
+                }
+            }
+            return 0;
+        }
     }
 }

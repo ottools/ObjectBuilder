@@ -30,6 +30,7 @@
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:nail="library://ns.nail.com/naillib"
          xmlns:components="nail.otlib.components.*"
+         xmlns:otlib="otlib.components.*"
          minWidth="300"
          minHeight="0"
          fontSize="11"
@@ -58,6 +59,7 @@
             import mx.managers.DragManager;
             
             import spark.components.Button;
+            import spark.events.IndexChangeEvent;
             
             import nail.otlib.components.skins.SpriteButtonSkin;
             import nail.otlib.events.ThingEditorEvent;
@@ -67,7 +69,15 @@
             import nail.otlib.things.ThingCategory;
             import nail.otlib.things.ThingData;
             import nail.otlib.things.ThingType;
+            
+            import otlib.things.AnimationMode;
+            import otlib.things.Animator;
+            import otlib.things.FrameDuration;
+            import otlib.things.IFrameStrategy;
+            import otlib.things.LoopStrategy;
+            import otlib.things.PingPongStrategy;
             import otlib.utils.FilesInfo;
+            import otlib.utils.OutfitData;
             
             //--------------------------------------------------------------------------
             // PROPERTIES
@@ -88,6 +98,8 @@
             private var _invalidateThingData:Boolean;
             private var _filesInfo:FilesInfo;
             private var _filesInfoChanged:Boolean;
+            private var _previewMode:Boolean;
+            private var _lastAnimationFrame:uint;
             
             //--------------------------------------
             // Getters / Setters 
@@ -156,6 +168,16 @@
                     animationCountLabel.text = (animationSlider.value + 1) + '/' + (animationSlider.maximum + 1);
                     addonCountLabel.text = (addonsSlider.value + 1) + '/' + (addonsSlider.maximum + 1);
                     mountCountLabel.text = (mountSlider.value + 1) + '/' + (mountSlider.maximum + 1);
+                    thingView.patternX = _patternX;
+                    thingView.patternY = _patternY;
+                    thingView.patternZ = mountSlider.value;
+                    thingView.drawBlendLayer = blendLayerCheckBox.selected;
+                    
+                    var frameDuration:FrameDuration = _thingBinding.getFrameDuration(animationSlider.value);
+                    if (frameDuration) {
+                        minimumNumericStepper.value = frameDuration.minimum;
+                        maximumNumericStepper.value = frameDuration.maximum;
+                    }
                     
                     if (_thingData.category == ThingCategory.OUTFIT || _thingData.category == ThingCategory.MISSILE) {
                         addonGroup.visible = (_thingData.category == ThingCategory.OUTFIT && patternYNumericStepper.value > 1);
@@ -204,6 +226,8 @@
             private function setThingData(thingData:ThingData):void
             {
                 _loading = true;
+                _lastAnimationFrame = 0;
+                thingView.thingData = thingData;
                 
                 _thingBinding.reset();
                 blendLayerCheckBox.selected = false;
@@ -211,8 +235,10 @@
                 mountSlider.value = 0;
                 addonsSlider.value = 0;
                 addonGroup.visible = false;
+                setPreviewMode(false);
                 
                 if (thingData) {
+                    
                     var isOutfit:Boolean = (thingData.category == ThingCategory.OUTFIT);
                     var isMissile:Boolean = (thingData.category == ThingCategory.MISSILE);
                     directionGroup.visible = (isOutfit || isMissile);
@@ -224,6 +250,22 @@
                     cropSizeNumericStepper.maximum = Math.max(thingData.thing.width * 32, thingData.thing.height * 32);
                     
                     _thingBinding.copyFrom(thingData);
+                    
+                    var nextFrameStrategy:IFrameStrategy = _thingBinding.getNextFrameStrategy();
+                    if (nextFrameStrategy) {
+                        if (nextFrameStrategy is PingPongStrategy) 
+                            frameStrategyDropDownList.selectedIndex = 0;
+                        else if (nextFrameStrategy is LoopStrategy)
+                            frameStrategyDropDownList.selectedIndex = 1;
+                    }
+                    
+                    if (_thingBinding.getAnimationMode() == AnimationMode.ASYNCHRONOUS)
+                        animationModeDropDownList.selectedIndex = 0;
+                    else 
+                        animationModeDropDownList.selectedIndex = 1;
+                    
+                    repeatDropDownList.selectedIndex = _thingBinding.getLoopCount();
+                    startFrameNumericStepper.value = _thingBinding.getStartFrame();
                     
                     if (isOutfit || isMissile)
                         selectDirectionButton(bottomCenterButton);
@@ -555,6 +597,7 @@
                         _patternY = 0;
                         break;
                 }
+                
                 updatePreview();
             }
             
@@ -568,6 +611,42 @@
                     renderOrder.selectedIndex = 3;
                 else 
                     renderOrder.selectedIndex = 0;
+            }
+            
+            private function setPreviewMode(enabled:Boolean):void
+            {
+                var thingData:ThingData;
+                
+                _previewMode = enabled;
+                if (_previewMode) {
+                    thingData = _thingBinding.toThingData();
+                    thingView.outfitData = new OutfitData(0, 0, 0, 0, addonsSlider.value);
+                    _lastAnimationFrame = animationSlider.value;
+                } else {
+                    setAnimationSlide(_lastAnimationFrame);
+                }
+                
+                if (_previewMode != playAnimationButton.selected)
+                    playAnimationButton.selected = _previewMode;
+                
+                thingView.thingData = thingData;
+                thingView.visible = _previewMode;
+                if (_previewMode) thingView.play();
+                
+                bitmapView.visible = !_previewMode;
+                animationSlider.mouseChildren = !_previewMode;
+                mountGroup.enabled = !_previewMode;
+                addonGroup.enabled = !_previewMode;
+                patternsTileGroup.enabled = !_previewMode;
+                minimumGroup.enabled = !_previewMode;
+                maximumGroup.enabled = !_previewMode;
+                animationTileGroup.enabled = !_previewMode;
+            }
+            
+            private function setAnimationSlide(value:uint):void
+            {
+                animationSlider.value = value;
+                animationCountLabel.text = (value + 1) + '/' + (animationSlider.maximum + 1);
             }
             
             //--------------------------------------
@@ -585,7 +664,7 @@
             protected function buttonDragEnterHandler(event:DragEvent):void
             {
                 var button:Button = event.target as Button;
-                if (_thingBinding && button) {
+                if (!_previewMode && _thingBinding && button) {
                     DragManager.acceptDragDrop(button);
                     button.alpha = 1;
                 }
@@ -651,11 +730,74 @@
                 checkThingOrder();
             }
             
+            protected function minimumNumericStepperChangeHandler(event:Event):void
+            {
+                if (minimumNumericStepper.value > maximumNumericStepper.value)
+                    maximumNumericStepper.value = minimumNumericStepper.value;
+                
+                _thingBinding.setFrameDuration(animationSlider.value, minimumNumericStepper.value, maximumNumericStepper.value);
+            }
+            
+            protected function maximumNumericStepperChangeHandler(event:Event):void
+            {
+                if (maximumNumericStepper.value < minimumNumericStepper.value)
+                    minimumNumericStepper.value = maximumNumericStepper.value;
+                
+                _thingBinding.setFrameDuration(animationSlider.value, minimumNumericStepper.value, maximumNumericStepper.value);
+            }
+            
+            protected function playAnimationButtonClickHandler(event:MouseEvent):void
+            {
+                setPreviewMode(playAnimationButton.selected);
+            }
+            
+            protected function thingViewFrameChangeHandler(event:Event):void
+            {
+                if (_previewMode)
+                    setAnimationSlide(thingView.frame);
+            }
+            
+            protected function thingViewAnimationCompleteHandler(event:Event):void
+            {
+                setPreviewMode(false);
+            }
+            
+            protected function animationModeDropDownListChangeHandler(event:IndexChangeEvent):void
+            {
+                _thingBinding.setAnimationMode(animationModeDropDownList.selectedIndex);
+            }
+            
+            protected function frameStrategyDropDownListChangeHandler(event:IndexChangeEvent):void
+            {
+                var animatior:Animator = _thingBinding.animator;
+                
+                var strategy:IFrameStrategy;
+                if (frameStrategyDropDownList.selectedIndex == 0)
+                    strategy = new PingPongStrategy();
+                else {
+                    strategy = new LoopStrategy();
+                    LoopStrategy(strategy).loopCount = Math.max(0, repeatDropDownList.selectedIndex);
+                }
+                
+                _thingBinding.setNextFrameStrategy(strategy);
+            }
+            
+            protected function repeatDropDownListChangeHandler(event:IndexChangeEvent):void
+            {
+                _thingBinding.setLoopCount(repeatDropDownList.selectedIndex);
+            }
+            
+            protected function startFrameNumericStepperChangeHandler(event:Event):void
+            {
+                _thingBinding.setStartFrame(startFrameNumericStepper.value);
+            }
+            
         ]]>
     </fx:Script>
     
     <nail:TabNavigator width="100%"
-                       height="100%">
+                       height="100%"
+                       change="{setPreviewMode(false);}">
         <s:NavigatorContent label="@Resource(key='texture', bundle='strings')"
                             width="100%"
                             height="100%">
@@ -695,7 +837,7 @@
                                                 top="0"
                                                 left="0"
                                                 toolTip="@Resource(key='northwest', bundle='strings')"
-                                                icon="@Embed('../../../../assets/arrow_top_left.png')"
+                                                icon="@Embed('../../../assets/arrow_top_left.png')"
                                                 skinClass="nail.otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="topCenterButton"
@@ -704,7 +846,7 @@
                                                 top="0"
                                                 horizontalCenter="0"
                                                 toolTip="@Resource(key='north', bundle='strings')"
-                                                icon="@Embed('../../../../assets/arrow_up.png')"
+                                                icon="@Embed('../../../assets/arrow_up.png')"
                                                 skinClass="nail.otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="topRightButton"
@@ -713,7 +855,7 @@
                                                 top="0"
                                                 right="0"
                                                 toolTip="@Resource(key='northeast', bundle='strings')"
-                                                icon="@Embed('../../../../assets/arrow_top_right.png')"
+                                                icon="@Embed('../../../assets/arrow_top_right.png')"
                                                 skinClass="nail.otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="middleRightButton"
@@ -722,7 +864,7 @@
                                                 verticalCenter="0"
                                                 right="0"
                                                 toolTip="@Resource(key='east', bundle='strings')"
-                                                icon="@Embed('../../../../assets/arrow_right.png')"
+                                                icon="@Embed('../../../assets/arrow_right.png')"
                                                 skinClass="nail.otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="bottomRightButton"
@@ -731,7 +873,7 @@
                                                 bottom="0"
                                                 right="0"
                                                 toolTip="@Resource(key='southeast', bundle='strings')"
-                                                icon="@Embed('../../../../assets/arrow_bottom_right.png')"
+                                                icon="@Embed('../../../assets/arrow_bottom_right.png')"
                                                 skinClass="nail.otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="bottomCenterButton"
@@ -740,7 +882,7 @@
                                                 bottom="0"
                                                 horizontalCenter="0"
                                                 toolTip="@Resource(key='south', bundle='strings')"
-                                                icon="@Embed('../../../../assets/arrow_down.png')"
+                                                icon="@Embed('../../../assets/arrow_down.png')"
                                                 skinClass="nail.otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="bottomLeftButton"
@@ -749,7 +891,7 @@
                                                 bottom="0"
                                                 left="0"
                                                 toolTip="@Resource(key='southwest', bundle='strings')"
-                                                icon="@Embed('../../../../assets/arrow_bottom_left.png')"
+                                                icon="@Embed('../../../assets/arrow_bottom_left.png')"
                                                 skinClass="nail.otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="middleLeftButton"
@@ -758,19 +900,28 @@
                                                 bottom="0"
                                                 verticalCenter="0"
                                                 toolTip="@Resource(key='west', bundle='strings')"
-                                                icon="@Embed('../../../../assets/arrow_left.png')"
+                                                icon="@Embed('../../../assets/arrow_left.png')"
                                                 skinClass="nail.otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                             </s:Group>
                             
                             <s:Group verticalCenter="0" 
                                      horizontalCenter="0">
-                                <s:Rect left="0" right="0" top="0" bottom="0">
+                                <s:Rect width="{bitmapView.width}"
+                                        height="{bitmapView.height}"
+                                        visible="{bitmapView.visible}">
                                     <s:fill>
                                         <s:SolidColor color="0x636363"/>
                                     </s:fill>
                                 </s:Rect>
+                                
                                 <s:Image id="bitmapView"/>
+                                
+                                <otlib:ThingDataView id="thingView"
+                                                     visible="false"
+                                                     change="thingViewFrameChangeHandler(event)"
+                                                     complete="thingViewAnimationCompleteHandler(event)"/>
+                                
                                 <s:Group id="buttonsContainer"
                                          updateComplete="drawCropSize()"
                                          width="{bitmapView.width}"
@@ -786,7 +937,7 @@
                         
                         <s:Spacer height="5"/>
                         
-                        <s:HGroup width="100%"
+                        <s:HGroup id="animationGroup" width="100%"
                                   verticalAlign="middle"
                                   horizontalAlign="right"
                                   visible="{_thingBinding.frames > 1}">
@@ -796,12 +947,44 @@
                                                       change="updatePreview()"/>
                             <s:Label id="animationCountLabel"
                                      minWidth="40"/>
+                            
+                            <otlib:PlayButton id="playAnimationButton"
+                                              width="20"
+                                              height="20"
+                                              click="playAnimationButtonClickHandler(event)"/>
+                        </s:HGroup>
+                        
+                        <s:HGroup id="minimumGroup" width="100%"
+                                  verticalAlign="middle"
+                                  horizontalAlign="right"
+                                  paddingRight="72"
+                                  visible="{_thingBinding.frames > 1}">
+                            <s:Label text="{resourceManager.getString('strings', 'minimumDuration') + ':'}"/>
+                            <s:NumericStepper id="minimumNumericStepper"
+                                              width="100"
+                                              minimum="0"
+                                              maximum="500"
+                                              change="minimumNumericStepperChangeHandler(event)"/>
+                        </s:HGroup>
+                        
+                        <s:HGroup id="maximumGroup" width="100%"
+                                  verticalAlign="middle"
+                                  horizontalAlign="right"
+                                  paddingRight="72"
+                                  visible="{_thingBinding.frames > 1}">
+                            <s:Label text="{resourceManager.getString('strings', 'maximumDuration') + ':'}"/>
+                            <s:NumericStepper id="maximumNumericStepper"
+                                              width="100"
+                                              minimum="0"
+                                              maximum="500"
+                                              change="maximumNumericStepperChangeHandler(event)"/>
                         </s:HGroup>
                         
                         <s:HGroup id="addonGroup"
                                   width="100%"
                                   verticalAlign="middle"
                                   horizontalAlign="right"
+                                  paddingRight="27"
                                   visible="false">
                             <s:Label text="{resourceManager.getString('strings', 'addons') + ':'}"/>
                             <components:PatternSlider id="addonsSlider"
@@ -811,9 +994,11 @@
                                      minWidth="40"/>
                         </s:HGroup>
                         
-                        <s:HGroup width="100%"
+                        <s:HGroup id="mountGroup"
+                                  width="100%"
                                   verticalAlign="middle"
                                   horizontalAlign="right"
+                                  paddingRight="27"
                                   visible="{_thingBinding.patternZ > 1}">
                             <s:Label text="{resourceManager.getString('strings', 'mount') + ':'}"/>
                             <components:PatternSlider id="mountSlider"
@@ -842,7 +1027,7 @@
                                    label="@Resource(key='patterns', bundle='strings')"
                                    width="100%">
                         
-                        <s:TileGroup right="35"
+                        <s:TileGroup id="patternsTileGroup" right="35"
                                      requestedColumnCount="2"
                                      paddingLeft="10"
                                      paddingRight="10"
@@ -915,6 +1100,77 @@
                                               maximum="60"
                                               value="{_thingBinding.frames}"
                                               change="{_thingBinding.frames = framesNumericStepper.value; textureUpdate(event);}"/>
+                        </s:TileGroup>
+                    </nail:GroupBox>
+                    
+                    <!-- animation -->
+                    <nail:GroupBox label="@Resource(key='animation', bundle='strings')"
+                                   width="100%"
+                                   visible="{_thingBinding.frames > 1}"
+                                   includeInLayout="{_thingBinding.frames > 1}">
+                        <s:TileGroup id="animationTileGroup" 
+                                     right="35"
+                                     requestedColumnCount="2"
+                                     paddingLeft="10"
+                                     paddingRight="10"
+                                     paddingTop="10"
+                                     paddingBottom="10">
+                            
+                            <s:Label text="{resourceManager.getString('strings', 'animationMode') + ':'}"
+                                     verticalAlign="middle"
+                                     textAlign="right"/>
+                            <s:DropDownList id="animationModeDropDownList"
+                                            requireSelection="true"
+                                            width="170"
+                                            change="animationModeDropDownListChangeHandler(event)">
+                                <s:dataProvider>
+                                    <s:ArrayList>
+                                        <fx:String>{resourceManager.getString('strings', 'synchronous')}</fx:String>
+                                        <fx:String>{resourceManager.getString('strings', 'asynchronous')}</fx:String>
+                                    </s:ArrayList>
+                                </s:dataProvider>
+                            </s:DropDownList>
+                            
+                            <s:Label text="{resourceManager.getString('strings', 'frameStrategy') + ':'}"
+                                     verticalAlign="middle"
+                                     textAlign="right"/>
+                            <s:DropDownList id="frameStrategyDropDownList"
+                                            requireSelection="true"
+                                            width="170"
+                                            change="frameStrategyDropDownListChangeHandler(event)">
+                                <s:dataProvider>
+                                    <s:ArrayList>
+                                        <fx:String>{resourceManager.getString('strings', 'pingPong')}</fx:String>
+                                        <fx:String>{resourceManager.getString('strings', 'loop')}</fx:String>
+                                    </s:ArrayList>
+                                </s:dataProvider>
+                            </s:DropDownList>
+                            
+                            <s:Label text="{resourceManager.getString('strings', 'repeat') + ':'}"
+                                     verticalAlign="middle"
+                                     textAlign="right"/>
+                            <s:DropDownList id="repeatDropDownList"
+                                            requireSelection="true"
+                                            width="170"
+                                            enabled="{frameStrategyDropDownList.selectedIndex == 1}"
+                                            change="repeatDropDownListChangeHandler(event)">
+                                <s:dataProvider>
+                                    <s:ArrayList>
+                                        <fx:String>{resourceManager.getString('strings', 'always')}</fx:String>
+                                        <fx:String>{resourceManager.getString('strings', 'once')}</fx:String>
+                                        <fx:String>{resourceManager.getString('strings', 'twice')}</fx:String>
+                                    </s:ArrayList>
+                                </s:dataProvider>
+                            </s:DropDownList>
+                            
+                            <s:Label text="{resourceManager.getString('strings', 'startFrame') + ':'}"
+                                     verticalAlign="middle"
+                                     textAlign="right"/>
+                            <s:NumericStepper id="startFrameNumericStepper"
+                                              width="70"
+                                              minimum="-1"
+                                              maximum="{_thingBinding.frames - 1}"
+                                              change="startFrameNumericStepperChangeHandler(event)"/>
                         </s:TileGroup>
                     </nail:GroupBox>
                 </s:Group>

@@ -33,7 +33,6 @@ package nail.otlib.things
     import flash.utils.Dictionary;
     import flash.utils.Endian;
     
-    import nail.core.IDisposable;
     import nail.errors.NullArgumentError;
     import nail.logging.Log;
     import nail.objectbuilder.commands.ProgressBarID;
@@ -53,7 +52,7 @@ package nail.otlib.things
     [Event(name="progress", type="nail.otlib.events.ProgressEvent")]
     [Event(name="error", type="flash.events.ErrorEvent")]
     
-    public class ThingTypeStorage extends EventDispatcher implements IDisposable
+    public class ThingTypeStorage extends EventDispatcher
     {
         //--------------------------------------------------------------------------
         // PROPERTIES
@@ -870,7 +869,7 @@ package nail.otlib.things
                         return false;
                 }
                 
-                if (!ThingSerializer.readSprites(thing, stream, extended, type > 2)) return false;
+                if (!ThingSerializer.readSprites(thing, stream, extended, type > 2, version.value >= 1050)) return false;
                 
                 list[id] = thing;
                 
@@ -936,7 +935,9 @@ package nail.otlib.things
                             return false;
                     }
                     
-                    if (!ThingSerializer.writeSprites(thing, stream, extended, type > 2)) return false;
+                    if (!ThingSerializer.writeSprites(thing, stream, extended, type > 2, version.value >= 1050))
+                        return false;
+                    
                 } else {
                     stream.writeByte(ThingSerializer.LAST_FLAG); // Close flags
                 }

@@ -24,7 +24,10 @@
 
 package nail.otlib.things
 {
-    import nail.otlib.utils.ThingUtils;
+    import flash.utils.describeType;
+    
+    import otlib.things.Animator;
+    import otlib.things.FrameDuration;
     
     public class ThingType
     {
@@ -100,6 +103,7 @@ package nail.otlib.things
         public var defaultAction:uint;
         public var usable:Boolean;
         public var isAnimation:Boolean;
+        public var animator:Animator;
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
@@ -122,9 +126,33 @@ package nail.otlib.things
             return "[object ThingType category=" + this.category + ", id=" + this.id + "]";
         }
         
+        public function getTotalSprites():uint
+        {
+            return this.width *
+                   this.height *
+                   this.patternX *
+                   this.patternY *
+                   this.patternZ *
+                   this.frames *
+                   this.layers;
+        }
+        
         public function clone():ThingType
         {
-            return ThingUtils.copyThing(this);
+            var newThing:ThingType = new ThingType();
+            var description:XMLList = describeType(this)..variable;
+            for each (var property:XML in description) {
+                var name:String = property.@name;
+                newThing[name] = this[name];
+            }
+            
+            if (this.spriteIndex)
+                newThing.spriteIndex = this.spriteIndex.concat();
+            
+            if (this.animator)
+                newThing.animator = this.animator.clone();
+            
+            return newThing;
         }
     }
 }

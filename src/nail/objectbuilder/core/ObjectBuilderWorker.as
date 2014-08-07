@@ -76,6 +76,10 @@ package nail.objectbuilder.core
     import nail.workers.ApplicationWorker;
     import nail.workers.Command;
     
+    import otlib.things.Animator;
+    import otlib.things.FrameDuration;
+    import otlib.things.LoopStrategy;
+    import otlib.things.PingPongStrategy;
     import otlib.utils.FilesInfo;
     
     [ResourceBundle("strings")]
@@ -217,6 +221,10 @@ package nail.objectbuilder.core
             registerClassAlias("SpriteData", SpriteData);
             registerClassAlias("ByteArray", ByteArray);
             registerClassAlias("LoaderHelper", PathHelper);
+            registerClassAlias("FrameDuration", FrameDuration);
+            registerClassAlias("PingPongStrategy", PingPongStrategy);
+            registerClassAlias("LoopStrategy", LoopStrategy);
+            registerClassAlias("Animator", Animator);
             
             // File commands
             registerCallback(CommandType.CREATE_NEW_FILES, onCreateNewFiles);
@@ -386,7 +394,7 @@ package nail.objectbuilder.core
             }
             
             // If extended or alpha channel was changed need to reload.
-            if (FileUtil.compare(dat, _datFile) && FileUtil.compare(spr, _sprFile)) {
+            if (FileUtil.equals(dat, _datFile) && FileUtil.equals(spr, _sprFile)) {
                 if (structureChanged)
                     sendCommand(new NeedToReloadCommand(extended, transparency));
                 else

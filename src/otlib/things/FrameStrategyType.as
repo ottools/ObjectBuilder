@@ -22,61 +22,26 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.animationeditor
+package otlib.things
 {
-    import flash.display.BitmapData;
-    
-    import nail.otlib.components.IListObject;
-    
-    import otlib.things.FrameDuration;
-    
-    public class Frame implements IListObject
+    import nail.errors.AbstractClassError;
+
+    public final class FrameStrategyType
     {
-        //--------------------------------------------------------------------------
-        // PROPERTIES
-        //--------------------------------------------------------------------------
-        
-        public var opacity:Number;
-        public var bitmap:BitmapData;
-        public var duration:FrameDuration;
-        
-        //--------------------------------------
-        // Getters / Setters
-        //--------------------------------------
-        
-        public function get id():uint { return uint.MAX_VALUE; }
-        
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function Frame(bitmap:BitmapData = null, duration:FrameDuration = null)
+        public function FrameStrategyType()
         {
-            this.opacity = 1.0;
-            this.bitmap = bitmap;
-            this.duration = duration;
+            throw new AbstractClassError(FrameStrategyType);
         }
         
         //--------------------------------------------------------------------------
-        // METHODS
+        // STATIC
         //--------------------------------------------------------------------------
         
-        //--------------------------------------
-        // Public
-        //--------------------------------------
-        
-        public function getBitmap(backgroundColor:uint = 0):BitmapData
-        {
-            return bitmap;
-        }
-        
-        public function clone():Frame
-        {
-            var clone:Frame = new Frame();
-            clone.opacity = this.opacity;
-            clone.bitmap = this.bitmap ? this.bitmap.clone() : null;
-            clone.duration = this.duration ? this.duration.clone() : null;
-            return clone;
-        }
+        public static const PING_PONG:int = -1;
+        public static const LOOP:int = 0;
     }
 }

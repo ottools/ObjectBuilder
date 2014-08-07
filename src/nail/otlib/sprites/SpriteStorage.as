@@ -37,7 +37,6 @@ package nail.otlib.sprites
     import flash.utils.Dictionary;
     import flash.utils.Endian;
     
-    import nail.core.IDisposable;
     import nail.errors.NullArgumentError;
     import nail.logging.Log;
     import nail.objectbuilder.commands.ProgressBarID;
@@ -55,7 +54,7 @@ package nail.otlib.sprites
     [Event(name="progress", type="nail.otlib.events.ProgressEvent")]
     [Event(name="error", type="flash.events.ErrorEvent")]
     
-    public class SpriteStorage extends EventDispatcher implements IDisposable
+    public class SpriteStorage extends EventDispatcher
     {
         //--------------------------------------------------------------------------
         // PROPERTIES
@@ -405,7 +404,7 @@ package nail.otlib.sprites
             if (!_loaded) return false;
             
             extended = (extended || version.value >= 960);
-            var equal:Boolean = FileUtil.compare(_file, file);
+            var equal:Boolean = FileUtil.equals(_file, file);
             var stream:FileStream;
             
             // If is unmodified and the version is equal only save raw bytes.

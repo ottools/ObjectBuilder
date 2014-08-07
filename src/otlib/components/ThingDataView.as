@@ -22,7 +22,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.otlib.components
+package otlib.components
 {
     import flash.display.BitmapData;
     import flash.events.Event;
@@ -37,7 +37,13 @@ package nail.otlib.components
     import nail.otlib.things.ThingData;
     import nail.otlib.things.ThingType;
     
+    import otlib.things.Animator;
+    import otlib.things.FrameDuration;
+    import otlib.utils.OutfitData;
+    
     [Event(name="change", type="flash.events.Event")]
+    [Event(name="complete", type="flash.events.Event")]
+    
     public class ThingDataView extends UIComponent
     {
         //--------------------------------------------------------------------------
@@ -45,6 +51,7 @@ package nail.otlib.components
         //--------------------------------------------------------------------------
         
         private var _thingData:ThingData;
+        private var _proposedThingData:ThingData;
         private var _thingDataChanged:Boolean;
         private var _spriteSheet:BitmapData;
         private var _textureIndex:Vector.<Rect>;
@@ -54,24 +61,38 @@ package nail.otlib.components
         private var _frame:int;
         private var _maxFrame:int;
         private var _playing:Boolean;
-        private var _duration:uint;
         private var _lastTime:Number;
         private var _time:Number;
+        private var _patternX:uint;
+        private var _patternY:uint;
+        private var _patternZ:uint;
+        private var _layer:uint;
+        private var _outfitData:OutfitData;
+        private var _drawBlendLayer:Boolean;
         
         //--------------------------------------
         // Getters / Setters
         //--------------------------------------
         
         [Bindable]
-        public function get thingData():ThingData { return _thingData; }
+        public function get thingData():ThingData { return _proposedThingData ? _proposedThingData : _thingData; }
         public function set thingData(value:ThingData):void
         {
             if (_thingData != value) {
-                _thingData = value;
+                _proposedThingData = value;
                 _thingDataChanged = true;
                 invalidateProperties();
             }
         }
+        
+        public function get patternX():uint { return _patternX; }
+        public function set patternX(value:uint):void { _patternX = value; }
+        
+        public function get patternY():uint { return _patternY; }
+        public function set patternY(value:uint):void { _patternY = value; }
+        
+        public function get patternZ():uint { return _patternZ; }
+        public function set patternZ(value:uint):void { _patternZ = value; }
         
         public function get frame():int { return _frame; }
         public function set frame(value:int):void
@@ -85,6 +106,12 @@ package nail.otlib.components
                     dispatchEvent(new Event(Event.CHANGE));
             }
         }
+        
+        public function get outfitData():OutfitData { return _outfitData; }
+        public function set outfitData(value:OutfitData):void { _outfitData = value; }
+        
+        public function get drawBlendLayer():Boolean { return _drawBlendLayer; }
+        public function set drawBlendLayer(value:Boolean):void { _drawBlendLayer = value; }
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
@@ -131,7 +158,8 @@ package nail.otlib.components
         
         public function play():void
         {
-            _playing = true;
+            if (thingData && thingData.thing.isAnimation)
+                _playing = true;
         }
         
         public function pause():void
@@ -139,6 +167,19 @@ package nail.otlib.components
             _playing = false;
         }
         
+        public function stop():void
+        {
+            _playing = false;
+            this.frame = 0;
+        }
+        
+        public function getFrameDuration(index:int):FrameDuration
+        {
+            if (thingData && thingData.thing.animator)
+                return thingData.thing.animator.frameDurations[index];
+            
+            return null;
+        }
         //--------------------------------------
         // Override Protected
         //--------------------------------------
@@ -148,7 +189,8 @@ package nail.otlib.components
             super.commitProperties();
             
             if (_thingDataChanged) {
-                setThingData(_thingData);
+                setThingData(_proposedThingData);
+                _proposedThingData = null;
                 _thingDataChanged = false;
             }
         }
@@ -160,13 +202,19 @@ package nail.otlib.components
         private function setThingData(thingData:ThingData):void
         {
             if (thingData) {
-                var thing:ThingType = thingData.thing;
+                
+                if (thingData.category == ThingCategory.OUTFIT) {
+                    if (thingData.thing.animator)
+                        thingData.thing.animator.skipFirstFrame = true;
+                    
+                    thingData = ThingData.colorizeOutfit(thingData, _outfitData);
+                }
+                
                 _textureIndex = new Vector.<Rect>();
                 _spriteSheet = ThingData.getSpriteSheet(thingData, _textureIndex, 0);
-                _bitmap = new BitmapData(thing.width * 32, thing.height * 32);
-                _maxFrame = thing.frames;
+                _bitmap = new BitmapData(thingData.thing.width * 32, thingData.thing.height * 32);
+                _maxFrame = thingData.thing.frames;
                 _frame = 0;
-                _duration = thing.category == ThingCategory.ITEM ? 400 : 200;
                 this.width = _bitmap.width;
                 this.height = _bitmap.height;
             } else {
@@ -178,6 +226,8 @@ package nail.otlib.components
                 _playing = false;
             }
             
+            _thingData = thingData;
+            
             draw();
         }
         
@@ -186,10 +236,31 @@ package nail.otlib.components
             graphics.clear();
             
             if (_spriteSheet) {
-                var rect:Rect = _textureIndex[_frame];
                 
+                var thing:ThingType = thingData.thing;
+                
+                var index:int = ThingData.getTextureIndex(thing,
+                                                          _frame,
+                                                          _patternX % thing.patternX,
+                                                          0,
+                                                          _patternZ % thing.patternZ,
+                                                          0);
+                var rect:Rect = _textureIndex[index];
                 _rectangle.setTo(rect.x, rect.y, rect.width, rect.height);
                 _bitmap.copyPixels(_spriteSheet, _rectangle, _point);
+                
+                if (_drawBlendLayer && thing.layers > 1) {
+                    index = ThingData.getTextureIndex(thing,
+                                                      _frame,
+                                                      _patternX % thing.patternX,
+                                                      0,
+                                                      _patternZ % thing.patternZ,
+                                                      1 % thing.layers);
+                    
+                    rect = _textureIndex[index];
+                    _rectangle.setTo(rect.x, rect.y, rect.width, rect.height);
+                    _bitmap.copyPixels(_spriteSheet, _rectangle, _point, null, null, true);
+                }
                 
                 graphics.beginBitmapFill(_bitmap);
                 graphics.drawRect(0, 0, rect.width, rect.height);
@@ -205,26 +276,24 @@ package nail.otlib.components
         protected function addedToStageHandler(event:Event):void
         {
             this.removeEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
-            this.addEventListener(Event.REMOVED_FROM_STAGE, removedFromStageHandler);
             this.addEventListener(Event.ENTER_FRAME, enterFramehandler);
-        }
-        
-        protected function removedFromStageHandler(event:Event):void
-        {
-            this.removeEventListener(Event.REMOVED_FROM_STAGE, removedFromStageHandler);
-            this.removeEventListener(Event.ENTER_FRAME, enterFramehandler);
         }
         
         protected function enterFramehandler(event:Event):void
         {
-            if (!_playing)
+            if (!_playing || !thingData)
                 return;
             
             var elapsed:Number = getTimer();
-            _time = (elapsed - _lastTime);
-            if (_time >= _duration) {
-                nextFrame();
-                _lastTime = elapsed;
+            var animator:Animator = thingData.thing.animator;
+            if (animator) {
+                animator.update(elapsed);
+                if (animator.isComplete) {
+                    pause();
+                    dispatchEvent(new Event(Event.COMPLETE));
+                }
+                
+                this.frame = animator.frame;
             }
         }
     }
