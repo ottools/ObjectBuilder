@@ -29,7 +29,7 @@
                 xmlns:s="library://ns.adobe.com/flex/spark"
                 xmlns:mx="library://ns.adobe.com/flex/mx"
                 xmlns:nail="library://ns.nail.com/naillib"
-                minHeight="38"
+                height="41"
                 fontSize="11"
                 creationComplete="creationCompleteHandler(event)"
                 dataChange="dataChangeHandler(event)">
@@ -169,6 +169,8 @@
                 </s:stroke>
             </s:Rect>
             <s:Image id="imageDisplay"
+                     width="32"
+                     height="32"
                      horizontalCenter="0"
                      verticalCenter="0"/>
         </s:Group>
