@@ -49,10 +49,8 @@ package nail.otlib.things
     import nail.otlib.utils.ThingUtils;
     import nail.utils.StringUtil;
     
-    import otlib.things.AnimationMode;
     import otlib.things.Animator;
     import otlib.things.FrameDuration;
-    import otlib.things.FrameStrategyType;
     import otlib.utils.OutfitData;
     
     public class ThingData
@@ -258,7 +256,7 @@ package nail.otlib.things
             var patternY:uint = thing.patternY;
             var patternZ:uint = thing.patternZ;
             var frames:uint = thing.frames;
-            var size:uint = Sprite.SPRITE_PIXELS;
+            var size:uint = Sprite.DEFAULT_SIZE;
             
             // -----< Measure and create bitmap>-----
             var totalX:int = patternZ * patternX * layers;
@@ -324,7 +322,7 @@ package nail.otlib.things
             var patternY:uint = thing.patternY;
             var patternZ:uint = thing.patternZ;
             var frames:uint = thing.frames;
-            var size:uint = Sprite.SPRITE_PIXELS;
+            var size:uint = Sprite.DEFAULT_SIZE;
             var totalX:int = patternZ * patternX * layers;
             var pixelsWidth:int  = width * size;
             var pixelsHeight:int = height * size;
@@ -390,7 +388,7 @@ package nail.otlib.things
             var patternY:uint = thing.patternY;
             var patternZ:uint = thing.patternZ;
             var frames:uint = thing.frames;
-            var size:uint = Sprite.SPRITE_PIXELS;
+            var size:uint = Sprite.DEFAULT_SIZE;
             var totalX:int = patternZ * patternX * layers;
             var totalY:int = height;
             var pixelsWidth:int  = width * size;
@@ -583,7 +581,7 @@ package nail.otlib.things
             if (thing.width > 1 || thing.height > 1)
                 thing.exactSize = bytes.readUnsignedByte();
             else 
-                thing.exactSize = Sprite.SPRITE_PIXELS;
+                thing.exactSize = Sprite.DEFAULT_SIZE;
             
             thing.layers = bytes.readUnsignedByte();
             thing.patternX = bytes.readUnsignedByte();
@@ -652,7 +650,7 @@ package nail.otlib.things
             if (thing.width > 1 || thing.height > 1)
                 thing.exactSize = bytes.readUnsignedByte();
             else 
-                thing.exactSize = Sprite.SPRITE_PIXELS;
+                thing.exactSize = Sprite.DEFAULT_SIZE;
             
             thing.layers = bytes.readUnsignedByte();
             thing.patternX = bytes.readUnsignedByte();

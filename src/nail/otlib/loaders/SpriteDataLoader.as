@@ -200,7 +200,7 @@ package nail.otlib.loaders
         
         private function create(id:uint, bitmap:BitmapData):void
         {
-            if (bitmap.width != Sprite.SPRITE_PIXELS || bitmap.height != Sprite.SPRITE_PIXELS) {
+            if (bitmap.width != Sprite.DEFAULT_SIZE || bitmap.height != Sprite.DEFAULT_SIZE) {
                 _cancel = true;
                 dispatchEvent(new ErrorEvent(
                     ErrorEvent.ERROR,

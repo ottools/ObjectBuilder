@@ -874,7 +874,7 @@ package nail.otlib.things
             if (thing.width > 1 || thing.height > 1)
                 thing.exactSize = input.readUnsignedByte();
             else 
-                thing.exactSize = Sprite.SPRITE_PIXELS;
+                thing.exactSize = Sprite.DEFAULT_SIZE;
             
             thing.layers = input.readUnsignedByte();
             thing.patternX = input.readUnsignedByte();

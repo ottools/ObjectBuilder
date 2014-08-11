@@ -157,7 +157,7 @@
             {
                 if (!this.hasImage) return;
                 
-                var size:uint = nail.otlib.sprites.Sprite.SPRITE_PIXELS;
+                var size:uint = nail.otlib.sprites.Sprite.DEFAULT_SIZE;
                 _surfaceCells.cellWidth = size;
                 _surfaceCells.cellHeight = size;
                 _surfaceCells.columns = columnsStepper.value;
@@ -206,8 +206,8 @@
                 
                 var x:int = offsetXStepper.value;
                 var y:int = offsetYStepper.value;
-                var width:uint = nail.otlib.sprites.Sprite.SPRITE_PIXELS;
-                var height:uint = nail.otlib.sprites.Sprite.SPRITE_PIXELS;
+                var width:uint = nail.otlib.sprites.Sprite.DEFAULT_SIZE;
+                var height:uint = nail.otlib.sprites.Sprite.DEFAULT_SIZE;
                 var columns:uint = columnsStepper.value;
                 var rows:uint = rowsStepper.value;
                 

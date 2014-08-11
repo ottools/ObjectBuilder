@@ -387,7 +387,7 @@
                 
                 var width:uint = _thingBinding.width;
                 var height:uint = _thingBinding.height;
-                var size:uint = nail.otlib.sprites.Sprite.SPRITE_PIXELS;
+                var size:uint = nail.otlib.sprites.Sprite.DEFAULT_SIZE;
                 var bitmapWidth:Number = Math.max(size, width * size);
                 var bitmapHeight:Number = Math.max(size, height * size);
                 var bitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0x00FF00FF);
@@ -427,7 +427,7 @@
                 var layers:uint = _thingBinding.layers;
                 var patternX:uint = _thingBinding.patternX;
                 var patternY:uint = _thingBinding.patternY;
-                var size:uint = nail.otlib.sprites.Sprite.SPRITE_PIXELS;
+                var size:uint = nail.otlib.sprites.Sprite.DEFAULT_SIZE;
                 var bitmapWidth:Number  = Math.max(size, (patternX * width) * size);
                 var bitmapHeight:Number = Math.max(size, (patternY * height) * size);
                 var pixelsWidth:int = width * size;

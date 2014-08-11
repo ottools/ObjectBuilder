@@ -1258,7 +1258,7 @@ package nail.objectbuilder.core
             //============================================================================
             // Add sprite
             
-            var rect:Rectangle = new Rectangle(0, 0, Sprite.SPRITE_PIXELS, Sprite.SPRITE_PIXELS);
+            var rect:Rectangle = new Rectangle(0, 0, Sprite.DEFAULT_SIZE, Sprite.DEFAULT_SIZE);
             var pixels:ByteArray = new BitmapData(rect.width, rect.height, true, 0).getPixels(rect);
             var result:ChangeResult = _sprites.addSprite(pixels);
             if (!result.done) {
@@ -1535,7 +1535,7 @@ package nail.objectbuilder.core
         
         private function getBitmapPixels(thing:ThingType):ByteArray
         {
-            var size:uint = Sprite.SPRITE_PIXELS;
+            var size:uint = Sprite.DEFAULT_SIZE;
             var width:uint = thing.width;
             var height:uint = thing.height;
             var layers:uint = thing.layers;

@@ -72,8 +72,8 @@ package nail.otlib.utils
             var totalX:uint = thing.patternZ * thing.patternX * thing.layers;
             var totalY:uint = thing.frames * thing.patternY;
             var rect:Rect = new Rect();
-            rect.width = (totalX * thing.width) * Sprite.SPRITE_PIXELS;
-            rect.height = (totalY * thing.height) * Sprite.SPRITE_PIXELS;
+            rect.width = (totalX * thing.width) * Sprite.DEFAULT_SIZE;
+            rect.height = (totalY * thing.height) * Sprite.DEFAULT_SIZE;
             return rect;
         }
     }

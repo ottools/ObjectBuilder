@@ -24,56 +24,62 @@
 
 package nail.otlib.sprites
 {
+    import flash.display.BitmapData;
+    import flash.geom.Rectangle;
     import flash.utils.ByteArray;
     import flash.utils.Endian;
     
+    import nail.errors.NullArgumentError;
+    
+    /**
+     * The Sprite class represents an image with 32x32 pixels.
+     */
     public class Sprite
     {
         //--------------------------------------------------------------------------
         // PROPERTIES
         //--------------------------------------------------------------------------
         
-        private var _bytes:ByteArray;
-        private var _size:uint;
-        private var _alphaEnabled:Boolean;
-        private var _empty:Boolean;
+        private var _id:uint;
+        private var _transparent:Boolean;
+        private var _compressedPixels:ByteArray;
+        private var _bitmap:BitmapData;
         
         //--------------------------------------
         // Getters / Setters
         //--------------------------------------
         
-        public function get bytes():ByteArray { return _bytes; }
-        public function get size():uint { return _size; }
-        public function set size(value:uint):void { _size = value; }
+        /** The id of the sprite. This value specifies the index in the spr file. **/
+        public function get id():uint { return _id; }
+        public function set id(value:uint):void { _id = value; }
         
-        public function get empty():Boolean { return _empty; }
-        public function set empty(value:Boolean):void {
-            if (_empty != value) {
-                _empty = value;
-                if (_empty) {
-                    _bytes.length = 0;
-                    _size = 0;
-                }
+        /** Specifies whether the sprite supports per-pixel transparency. **/
+        public function get transparent():Boolean { return _transparent; }
+        public function set transparent(value:Boolean):void {
+            if (_transparent != value) {
+                
+                var pixels:ByteArray = getPixels();
+                _transparent = value;
+                setPixels( pixels );
             }
         }
         
-        public function get alphaEnabled():Boolean { return _alphaEnabled; }
-        public function set alphaEnabled(value:Boolean):void {
-            if (_alphaEnabled != value) {
-                setBytes(getPixels(), value);
-            }
-        }
+        /** Indicates if the sprite does not have colored pixels. **/
+        public function get isEmpty():Boolean { return (_compressedPixels.length == 0); }
+        
+        internal function get length():uint { return _compressedPixels.length;}
+        internal function get compressedPixels():ByteArray { return _compressedPixels; }
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function Sprite(alphaEnabled:Boolean = false)
+        public function Sprite(id:uint, transparent:Boolean)
         {
-            _bytes = new ByteArray();
-            _bytes.endian = Endian.LITTLE_ENDIAN;
-            _alphaEnabled = alphaEnabled;
-            _empty = true;
+            _id = id;
+            _transparent = transparent;
+            _compressedPixels = new ByteArray();
+            _compressedPixels.endian = Endian.LITTLE_ENDIAN;
         }
         
         //--------------------------------------------------------------------------
@@ -84,29 +90,118 @@ package nail.otlib.sprites
         // Public
         //--------------------------------------
         
-        public function setBytes(pixels:ByteArray, useAlpha:Boolean):Boolean
+        /**
+         * Returns the <code>id</code> string representation of the <code>Sprite</code>.
+         */
+        public function toString():String
         {
-            var length:uint = pixels.length / 4;
-            if (length != 1024) return false;
+            return _id.toString();
+        }
+        
+        public function getPixels():ByteArray
+        {
+            return uncompressPixels();
+        }
+        
+        public function setPixels(pixels:ByteArray):Boolean
+        {
+            if (!pixels)
+                throw new NullArgumentError("pixels");
             
-            _bytes.clear();
+            if (pixels.length != SPRITE_DATA_SIZE)
+                throw new Error("Invalid sprite pixels length");
+            
+            return compressPixels(pixels);
+        }
+        
+        public function getBitmap():BitmapData
+        {
+            if (_bitmap)
+                return _bitmap;
+            
+            var pixels:ByteArray = getPixels();
+            if (!pixels)
+                return null;
+            
+            _bitmap = new BitmapData(DEFAULT_SIZE, DEFAULT_SIZE, true);
+            _bitmap.setPixels(RECTANGLE, pixels);
+            return _bitmap;
+        }
+        
+        public function setBitmap(bitmap:BitmapData):Boolean
+        {
+            if (!bitmap)
+                throw new NullArgumentError("bitmap");
+            
+            if (bitmap.width != DEFAULT_SIZE || bitmap.height != DEFAULT_SIZE)
+                throw new Error("Invalid sprite bitmap size");
+            
+            if (!compressPixels( bitmap.getPixels(RECTANGLE) ))
+                return false;
+            
+            _bitmap = bitmap.clone();
+            return true;
+        }
+        
+        public function clone():Sprite
+        {
+            var sprite:Sprite = new Sprite(_id, _transparent);
+            
+            _compressedPixels.position = 0;
+            _compressedPixels.readBytes(sprite._compressedPixels);
+            
+            sprite._bitmap = _bitmap;
+            return sprite;
+        }
+        
+        public function clear():void
+        {
+            if (_compressedPixels)
+                _compressedPixels.clear();
+            
+            if (_bitmap)
+                _bitmap.fillRect(RECTANGLE, 0x00FF00FF);
+        }
+        
+        public function dispose():void
+        {
+            if (_compressedPixels)
+                _compressedPixels.clear();
+            
+            if (_bitmap) {
+                _bitmap.dispose();
+                _bitmap = null;
+            }
+            
+            _id = 0;
+        }
+        
+        //--------------------------------------
+        // Private
+        //--------------------------------------
+        
+        private function compressPixels(pixels:ByteArray):Boolean
+        {
+            _compressedPixels.clear();
             pixels.position = 0;
             
             var index:uint;
             var color:uint;
-            var transparent:Boolean = true;
+            var transparentPixel:Boolean = true;
             var alphaCount:uint;
             var chunkSize:uint;
             var coloredPos:uint;
             var finishOffset:uint;
+            var length:uint = pixels.length / 4;
             
             while (index < length) {
+                
                 chunkSize = 0;
                 while (index < length) {
                     pixels.position = index * 4;
                     color = pixels.readUnsignedInt();
-                    transparent = (color == 0);
-                    if (!transparent) break;
+                    transparentPixel = (color == 0);
+                    if (!transparentPixel) break;
                     alphaCount++;
                     chunkSize++;
                     index++;
@@ -116,119 +211,58 @@ package nail.otlib.sprites
                 if (alphaCount < length) {
                     // Already at the end
                     if(index < length) {
-                        _bytes.writeShort(chunkSize);          // Write transparent pixels
-                        coloredPos = _bytes.position;          // Save colored position 
-                        _bytes.position = _bytes.position + 2; // Skip colored short
+                        _compressedPixels.writeShort(chunkSize); // Write transparent pixels
+                        coloredPos = _compressedPixels.position; // Save colored position 
+                        _compressedPixels.position += 2; // Skip colored short
                         chunkSize = 0;
                         
                         while(index < length) {
                             pixels.position = index * 4;
                             color = pixels.readUnsignedInt();
-                            transparent = (color == 0);
-                            if (transparent) break;
+                            transparentPixel = (color == 0);
+                            if (transparentPixel) break;
                             
-                            _bytes.writeByte(color >> 16 & 0xFF);              // Write red
-                            _bytes.writeByte(color >> 8 & 0xFF);               // Write green
-                            _bytes.writeByte(color & 0xFF);                    // Write blue
-                            if (useAlpha) bytes.writeByte(color >> 24 & 0xFF); // Write Alpha
+                            _compressedPixels.writeByte(color >> 16 & 0xFF); // Write red
+                            _compressedPixels.writeByte(color >> 8 & 0xFF); // Write green
+                            _compressedPixels.writeByte(color & 0xFF); // Write blue
+                            if (_transparent) _compressedPixels.writeByte(color >> 24 & 0xFF); // Write Alpha
                             
                             chunkSize++;
                             index++; 
                         }
                         
-                        finishOffset = _bytes.position;
-                        _bytes.position = coloredPos; // Go back to chunksize indicator
-                        _bytes.writeShort(chunkSize); // Write colored pixels
-                        _bytes.position = finishOffset;
+                        finishOffset = _compressedPixels.position;
+                        _compressedPixels.position = coloredPos; // Go back to chunksize indicator
+                        _compressedPixels.writeShort(chunkSize); // Write colored pixels
+                        _compressedPixels.position = finishOffset;
                     }
                 }
             }
             
-            _size = bytes.length;
-            _empty = false;
-            _alphaEnabled = useAlpha;
             return true;
         }
         
-        public function getPixels():ByteArray
-        {
-            if (_alphaEnabled) {
-                return getPixelsWithAlpha();
-            }
-            
-            _bytes.position = 0;
-            
-            var read:uint;
-            var write:uint;
-            var transparentPixels:uint;
-            var coloredPixels:uint;
-            var i:uint;
-            var pixels:ByteArray = new ByteArray();
-            
-            for (read = 0; read < _size; read += 4 + (3 * coloredPixels)) {
-                transparentPixels = _bytes.readUnsignedShort();
-                coloredPixels = _bytes.readUnsignedShort();
-                
-                for (i = 0; i < transparentPixels; i++) {
-                    pixels[write++] = 0x00; // Alpha
-                    pixels[write++] = 0x00; // Red
-                    pixels[write++] = 0x00; // Green
-                    pixels[write++] = 0x00; // Blue
-                }
-                
-                for (i = 0; i < coloredPixels; i++) {
-                    pixels[write++] = 0xFF; // Alpha
-                    pixels[write++] = _bytes.readUnsignedByte(); // Red
-                    pixels[write++] = _bytes.readUnsignedByte(); // Green
-                    pixels[write++] = _bytes.readUnsignedByte(); // Blue
-                }
-            }
-            
-            while(write < SPRITE_DATA_SIZE) {
-                pixels[write++] = 0x00; // Alpha
-                pixels[write++] = 0x00; // Red
-                pixels[write++] = 0x00; // Green
-                pixels[write++] = 0x00; // Blue	
-            }
-            return pixels;
-        }
-        
-        public function clone():Sprite
-        {
-            var sprite:Sprite = new Sprite();
-            
-            _bytes.position = 0;
-            _bytes.readBytes(sprite._bytes);
-            
-            sprite._bytes.position = 0;
-            sprite._size = _size;
-            sprite._empty = _empty;
-            sprite._alphaEnabled = _alphaEnabled;
-            return sprite;
-        }
-        
-        //--------------------------------------
-        // Private
-        //--------------------------------------
-        
-        private function getPixelsWithAlpha():ByteArray
+        private function uncompressPixels():ByteArray
         {
             var read:uint;
             var write:uint;
             var transparentPixels:uint;
             var coloredPixels:uint;
-            var i:int;
             var alpha:uint;
             var red:uint;
             var green:uint;
             var blue:uint;
+            var channels:uint = _transparent ? 4 : 3;
+            var length:uint = _compressedPixels.length;
+            var i:int;
             
-            _bytes.position = 0;
+            _compressedPixels.position = 0;
             var pixels:ByteArray = new ByteArray();
             
-            for (read = 0; read < _size; read += 4 + (4 * coloredPixels)) {
-                transparentPixels = _bytes.readUnsignedShort();
-                coloredPixels = _bytes.readUnsignedShort();
+            for (read = 0; read < length; read += 4 + (channels * coloredPixels)) {
+                
+                transparentPixels = _compressedPixels.readUnsignedShort();
+                coloredPixels = _compressedPixels.readUnsignedShort();
                 
                 for (i = 0; i < transparentPixels; i++) {
                     pixels[write++] = 0x00; // Alpha
@@ -238,15 +272,15 @@ package nail.otlib.sprites
                 }
                 
                 for (i = 0; i < coloredPixels; i++) {
-                    red = _bytes.readUnsignedByte();   // Red
-                    green = _bytes.readUnsignedByte(); // Green
-                    blue = _bytes.readUnsignedByte();  // Blue
-                    alpha = _bytes.readUnsignedByte(); // Alpha
+                    red = _compressedPixels.readUnsignedByte(); // Red
+                    green = _compressedPixels.readUnsignedByte(); // Green
+                    blue = _compressedPixels.readUnsignedByte(); // Blue
+                    alpha = _transparent ? _compressedPixels.readUnsignedByte() : 0xFF; // Alpha
                     
                     pixels[write++] = alpha; // Alpha
-                    pixels[write++] = red;   // Red
+                    pixels[write++] = red; // Red
                     pixels[write++] = green; // Green
-                    pixels[write++] = blue;  // Blue
+                    pixels[write++] = blue; // Blue
                 }
             }
             
@@ -256,6 +290,7 @@ package nail.otlib.sprites
                 pixels[write++] = 0x00; // Green
                 pixels[write++] = 0x00; // Blue	
             }
+            
             return pixels;
         }
         
@@ -263,10 +298,9 @@ package nail.otlib.sprites
         // STATIC
         //--------------------------------------------------------------------------
         
-        public static const SPRITE_PIXELS:uint = 32;
-        public static const SPRITE_DATA_SIZE:uint = 4096; // SPRITE_PIXELS * SPRITE_PIXELS * 4 bytes;
+        public static const DEFAULT_SIZE:uint = 32;
+        public static const SPRITE_DATA_SIZE:uint = 4096; // DEFAULT_WIDTH * DEFAULT_HEIGHT * 4 channels;
         
-        [Embed(source="../../../../assets/alert_sprite.png")]
-        public static const ALERT_IMAGE:Class;
+        private static const RECTANGLE:Rectangle = new Rectangle(0, 0, DEFAULT_SIZE, DEFAULT_SIZE);
     }
 }

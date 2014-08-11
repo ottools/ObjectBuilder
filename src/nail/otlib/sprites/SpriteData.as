@@ -83,7 +83,7 @@ package nail.otlib.sprites
                 {
                     pixels.position = 0;
                     BITMAP.setPixels(RECTANGLE, pixels);
-                    bitmap = new BitmapData(Sprite.SPRITE_PIXELS, Sprite.SPRITE_PIXELS, true, backgroundColor);
+                    bitmap = new BitmapData(Sprite.DEFAULT_SIZE, Sprite.DEFAULT_SIZE, true, backgroundColor);
                     bitmap.copyPixels(BITMAP, RECTANGLE, POINT, null, null, true);
                 } catch(error:Error) {
                     return null;
@@ -122,9 +122,9 @@ package nail.otlib.sprites
         // STATIC
         //--------------------------------------------------------------------------
         
-        private static const RECTANGLE:Rectangle = new Rectangle(0, 0, Sprite.SPRITE_PIXELS, Sprite.SPRITE_PIXELS);
+        private static const RECTANGLE:Rectangle = new Rectangle(0, 0, Sprite.DEFAULT_SIZE, Sprite.DEFAULT_SIZE);
         private static const POINT:Point = new Point();
-        private static const BITMAP:BitmapData = new BitmapData(Sprite.SPRITE_PIXELS, Sprite.SPRITE_PIXELS, true, 0xFFFF00FF);
+        private static const BITMAP:BitmapData = new BitmapData(Sprite.DEFAULT_SIZE, Sprite.DEFAULT_SIZE, true, 0xFFFF00FF);
         
         public static function createSpriteData(id:uint = 0, pixels:ByteArray = null):SpriteData
         {

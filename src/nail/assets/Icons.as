@@ -160,5 +160,8 @@ package nail.assets
         
         [Embed(source="../../../assets/error.png", mimeType="image/png")]
         public static const ERROR:Class;
+        
+        [Embed(source="../../../assets/alert_sprite.png")]
+        public static const ALERT_IMAGE:Class;
     }
 }

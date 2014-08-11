@@ -37,6 +37,7 @@ package nail.otlib.sprites
     import flash.utils.Dictionary;
     import flash.utils.Endian;
     
+    import nail.assets.Icons;
     import nail.errors.NullArgumentError;
     import nail.logging.Log;
     import nail.objectbuilder.commands.ProgressBarID;
@@ -96,7 +97,7 @@ package nail.otlib.sprites
         
         public function SpriteStorage()
         {
-            _rect = new Rectangle(0, 0, Sprite.SPRITE_PIXELS, Sprite.SPRITE_PIXELS);
+            _rect = new Rectangle(0, 0, Sprite.DEFAULT_SIZE, Sprite.DEFAULT_SIZE);
             _bitmap = new BitmapData(_rect.width, _rect.height, true, 0xFFFF00FF);
             _point = new Point();
         }
@@ -137,11 +138,11 @@ package nail.otlib.sprites
             _spritesCount = 1;
             _headSize = (extended || version.value >= 960) ? HEAD_SIZE_U32 : HEAD_SIZE_U16;
             _transparency = transparency;
-            _blankSprite = new Sprite();
+            _blankSprite = new Sprite(0, transparency);
             _alertSprite = createAlertSprite(transparency);
             _sprites = new Dictionary();
             _sprites[0] = _blankSprite;
-            _sprites[1] = _blankSprite;
+            _sprites[1] = new Sprite(1, transparency);
             _changed = true;
             _loaded = true;
             return true;
@@ -259,6 +260,7 @@ package nail.otlib.sprites
                 if (!sprite) {
                     sprite = _blankSprite;
                 }
+                
                 return sprite;
             }
             return null;
@@ -309,7 +311,7 @@ package nail.otlib.sprites
                 _point.setTo(0, 0);
                 _bitmap.setPixels(_rect, pixels);
                 
-                var bmp:BitmapData = new BitmapData(Sprite.SPRITE_PIXELS, Sprite.SPRITE_PIXELS, true, backgroundColor);
+                var bmp:BitmapData = new BitmapData(Sprite.DEFAULT_SIZE, Sprite.DEFAULT_SIZE, true, backgroundColor);
                 bmp.copyPixels(_bitmap, _rect, _point, null, null, true);
                 return bmp;
             }
@@ -343,11 +345,11 @@ package nail.otlib.sprites
             
             if (hasSpriteId(id)) {
                 pixels.position = 0;
-                var bmp1:BitmapData = new BitmapData(Sprite.SPRITE_PIXELS, Sprite.SPRITE_PIXELS, true, 0xFFFF00FF);
+                var bmp1:BitmapData = new BitmapData(Sprite.DEFAULT_SIZE, Sprite.DEFAULT_SIZE, true, 0xFFFF00FF);
                 bmp1.setPixels(bmp1.rect, pixels);
                 var otherPixels:ByteArray = this.getPixels(id);
                 otherPixels.position = 0;
-                var bmp2:BitmapData = new BitmapData(Sprite.SPRITE_PIXELS, Sprite.SPRITE_PIXELS, true, 0xFFFF00FF);
+                var bmp2:BitmapData = new BitmapData(Sprite.DEFAULT_SIZE, Sprite.DEFAULT_SIZE, true, 0xFFFF00FF);
                 bmp2.setPixels(bmp2.rect, otherPixels);
                 return (bmp1.compare(bmp2) == 0);
             }
@@ -372,15 +374,13 @@ package nail.otlib.sprites
                 _stream.readUnsignedByte(); // Skip green
                 _stream.readUnsignedByte(); // Skip blue
                 
-                var sprite:Sprite = new Sprite(_transparency);
+                var sprite:Sprite = new Sprite(index, _transparency);
                 var pixelDataSize:uint = _stream.readUnsignedShort();
                 
                 if (pixelDataSize != 0) {
-                    _stream.readBytes(sprite.bytes, 0, pixelDataSize);
+                    _stream.readBytes(sprite.compressedPixels, 0, pixelDataSize);
                 }
                 
-                sprite.size = pixelDataSize;
-                sprite.empty = (pixelDataSize == 0);
                 return sprite;
             } 
             catch(error:Error)
@@ -453,21 +453,21 @@ package nail.otlib.sprites
                     
                     var sprite:Sprite = getSprite(i);
                     
-                    if(sprite.empty) {
+                    if(sprite.isEmpty) {
                         stream.writeUnsignedInt(0); // Write address
                     } else {
-                        sprite.alphaEnabled = transparency;
-                        sprite.bytes.position = 0;
+                        sprite.transparent = transparency;
+                        sprite.compressedPixels.position = 0;
                         
                         stream.writeUnsignedInt(offset); // Write address
                         stream.position = offset;
                         stream.writeByte(0xFF);          // Write red
                         stream.writeByte(0x00);          // Write blue
                         stream.writeByte(0xFF);          // Write green
-                        stream.writeShort(sprite.size);  // Write sprite data size
+                        stream.writeShort(sprite.length);  // Write sprite data size
                         
-                        if (sprite.size > 0) {
-                            stream.writeBytes(sprite.bytes, 0, sprite.size);
+                        if (sprite.length > 0) {
+                            stream.writeBytes(sprite.compressedPixels, 0, sprite.length);
                         }
                         
                         offset = stream.position;
@@ -519,7 +519,7 @@ package nail.otlib.sprites
             if (_loaded && id <= _spritesCount) {
                 if (_sprites[id] !== undefined) {
                     var sprite:Sprite = Sprite(_sprites[id]);
-                    if (sprite) return sprite.empty;
+                    if (sprite) return sprite.isEmpty;
                 } else {
                     _stream.position = ((id - 1) * 4) + _headSize;
                     var spriteAddress:uint = _stream.readUnsignedInt();
@@ -564,8 +564,8 @@ package nail.otlib.sprites
             }
             
             var id:uint = ++_spritesCount;
-            var sprite:Sprite = new Sprite(_transparency);
-            if (!sprite.setBytes(pixels, _transparency)) {
+            var sprite:Sprite = new Sprite(id, _transparency);
+            if (!sprite.setPixels(pixels)) {
                 var message:String = Resources.getString(
                     "strings",
                     "failedToAdd",
@@ -605,8 +605,8 @@ package nail.otlib.sprites
         {
             result = result ? result : new ChangeResult();
             
-            var sprite:Sprite = new Sprite(_transparency);
-            if (!sprite.setBytes(pixels, _transparency)) {
+            var sprite:Sprite = new Sprite(id, _transparency);
+            if (!sprite.setPixels(pixels)) {
                 var message:String = Resources.getString(
                     "strings",
                     "failedToReplace",
@@ -658,7 +658,7 @@ package nail.otlib.sprites
                 _spritesCount--;
             } else {
                 // Add a blank sprite at index.
-                _sprites[id] = new Sprite(_transparency);
+                _sprites[id] = new Sprite(id, _transparency);
             }
             
             var data:SpriteData = SpriteData.createSpriteData(id, removed.getPixels());
@@ -717,7 +717,7 @@ package nail.otlib.sprites
             _signature = _stream.readUnsignedInt();
             _spritesCount = _extended ? _stream.readUnsignedInt() : _stream.readUnsignedShort();
             _headSize = _extended ? HEAD_SIZE_U32 : HEAD_SIZE_U16;
-            _blankSprite = new Sprite(transparency);
+            _blankSprite = new Sprite(0, transparency);
             _alertSprite = createAlertSprite(transparency);
             _sprites = new Dictionary();
             _sprites[0] = _blankSprite;
@@ -729,11 +729,11 @@ package nail.otlib.sprites
             }
         }
         
-        private function createAlertSprite(enableAlphaChannel:Boolean):Sprite
+        private function createAlertSprite(transparent:Boolean):Sprite
         {
-            var bitmap:BitmapData = (new Sprite.ALERT_IMAGE).bitmapData;
-            var sprite:Sprite = new Sprite(enableAlphaChannel);
-            sprite.setBytes(bitmap.getPixels(bitmap.rect), enableAlphaChannel);
+            var bitmap:BitmapData = (new Icons.ALERT_IMAGE).bitmapData;
+            var sprite:Sprite = new Sprite(uint.MAX_VALUE, transparent);
+            sprite.setPixels( bitmap.getPixels(bitmap.rect) );
             return sprite;
         }
         
