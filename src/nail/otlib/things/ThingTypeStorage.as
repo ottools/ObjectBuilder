@@ -312,7 +312,11 @@ package nail.otlib.things
                 }
                 stream.close();
             } catch(error:Error) {
-                dispatchEvent(new ErrorEvent(ErrorEvent.ERROR, false, false, error.getStackTrace(), error.errorID));
+                if (error.errorID == 3001)
+                    Log.error(Resources.getString("strings", "accessDenied"));
+                else
+                    dispatchEvent(new ErrorEvent(ErrorEvent.ERROR, false, false, error.getStackTrace(), error.errorID));
+               
                 done = false;
             }
             
