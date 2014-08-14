@@ -73,4 +73,5 @@
 	<version value="1041" string="10.41" dat="5383504E" spr="53835077" otb="0"/>
 	<version value="1050" string="10.50" dat="53B6460E" spr="53B64639" otb="0"/>
 	<version value="1051" string="10.51" dat="53C8CC17" spr="53C8CC3F" otb="0"/>
+	<version value="1052" string="10.52" dat="53E898BD" spr="53E898E5" otb="0"/>
 </versions>
