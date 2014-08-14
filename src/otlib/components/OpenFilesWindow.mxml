@@ -37,6 +37,7 @@
           maximizable="false"
           showStatusBar="false"
           fontSize="11"
+          type="utility"
           backgroundColor="0x494949"
           title="@Resource(key='openClientFiles', bundle='strings')"
           creationComplete="windowCreationCompleteHandler(event)"

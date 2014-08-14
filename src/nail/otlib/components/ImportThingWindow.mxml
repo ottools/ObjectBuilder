@@ -38,6 +38,7 @@
           resizable="false"
           backgroundColor="0x494949"
           fontSize="11"
+          type="utility"
           title="@Resource(key='importObject', bundle='strings')"
           creationComplete="creationCompleteHandler(event)"
           closing="windowClosingHandler(event)">

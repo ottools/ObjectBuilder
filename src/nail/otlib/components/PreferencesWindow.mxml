@@ -37,6 +37,7 @@
           showStatusBar="false"
           backgroundColor="0x494949"
           fontSize="11"
+          type="utility"
           title="@Resource(key='menu.preferences', bundle='strings')"
           creationComplete="creationCompleteHandler(event)">
     

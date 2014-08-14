@@ -38,6 +38,7 @@
           fontSize="11"
           backgroundColor="0x494949"
           showStatusBar="false"
+          type="utility"
           title="@Resource(key='compileClientFiles', bundle='strings')"
           creationComplete="creationCompleteHandler(event)"
           closing="windowClosingHandler(event)">

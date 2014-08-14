@@ -39,6 +39,7 @@
           maximizable="false"
           minimizable="false"
           fontSize="11"
+          type="utility"
           closing="windowClosingHandler(event)">
     
     <s:layout>

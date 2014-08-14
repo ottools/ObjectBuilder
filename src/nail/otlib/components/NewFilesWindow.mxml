@@ -36,6 +36,7 @@
           resizable="false"
           showStatusBar="false"
           backgroundColor="0x494949"
+          type="utility"
           title="@Resource(key='newClientFiles', bundle='strings')"
           fontSize="11"
           creationComplete="creationCompleteHandler(event)"
