@@ -62,6 +62,10 @@ package nail.otlib.components
         {
             if (_color != value) {
                 _color = value;
+                
+                if (colorPanel)
+                    colorPanel.selectedIndex = this.color;
+                
                 invalidateDisplayList();
                 dispatchEvent(new Event(Event.CHANGE));
             }
@@ -89,6 +93,7 @@ package nail.otlib.components
             super.partAdded(partName, instance);
             
             if (instance == colorPanel) {
+                colorPanel.selectedIndex = this.color;
                 colorPanel.addEventListener(Event.CHANGE, colorPanelChangeHandler);
             }
         }
@@ -105,9 +110,6 @@ package nail.otlib.components
         
         protected function mouseClickHandler(event:MouseEvent):void
         {
-            if (colorPanel) {
-                colorPanel.selectedIndex = this.color;
-            }
             popUpArchor.displayPopUp = true;
             systemManager.stage.addEventListener(MouseEvent.MOUSE_UP, stageMouseUpHandler);
         }
