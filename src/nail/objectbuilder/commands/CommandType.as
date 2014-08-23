@@ -41,6 +41,7 @@ package nail.objectbuilder.commands
         // STATIC
         //--------------------------------------------------------------------------
         
+        public static const LOAD_VERSIONS:String = "loadVersions";
         public static const CREATE_NEW_FILES:String = "createNewFiles";
         public static const LOAD_FILES:String = "loadFiles";
         public static const UNLOAD_FILES:String = "unloadFiles";

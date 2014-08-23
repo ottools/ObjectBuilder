@@ -147,7 +147,6 @@ package nail.objectbuilder.core
         
         public function ObjectBuilderWorker()
         {
-            Versions.instance.load(File.applicationDirectory.resolvePath("versions.xml"));
             this.stage.frameRate = 60;
         }
         
@@ -226,6 +225,8 @@ package nail.objectbuilder.core
             registerClassAlias("LoopStrategy", LoopStrategy);
             registerClassAlias("Animator", Animator);
             
+            registerCallback(CommandType.LOAD_VERSIONS, onLoadClientVersions);
+            
             // File commands
             registerCallback(CommandType.CREATE_NEW_FILES, onCreateNewFiles);
             registerCallback(CommandType.LOAD_FILES, onLoadFiles);
@@ -266,6 +267,14 @@ package nail.objectbuilder.core
         //--------------------------------------
         // Private
         //--------------------------------------
+        
+        private function onLoadClientVersions(path:String):void
+        {
+            if (isNullOrEmpty(path))
+                return;
+            
+            Versions.instance.load( new File(path) );
+        }
         
         private function onCreateNewFiles(version:Version, extended:Boolean, transparency:Boolean):void
         {

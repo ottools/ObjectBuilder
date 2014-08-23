@@ -35,8 +35,10 @@ package nail.objectbuilder.core
     import nail.otlib.sprites.SpriteData;
     import nail.otlib.things.ThingData;
     import nail.otlib.things.ThingType;
-    import otlib.utils.FilesInfo;
+    import nail.settings.ISettingsManager;
     import nail.utils.FileData;
+    
+    import otlib.utils.FilesInfo;
     
     public interface IObjectBuilder extends IApplication
     {
@@ -98,6 +100,7 @@ package nail.objectbuilder.core
         function set showThingsPanel(value:Boolean):void;
         function get showSpritesPanel():Boolean;
         function set showSpritesPanel(value:Boolean):void;
+        function get settingsManager():ISettingsManager;
         function get settings():ObjectBuilderSettings;
     }
 }

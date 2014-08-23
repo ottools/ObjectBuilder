@@ -106,6 +106,7 @@
             import nail.logging.Log;
             import nail.managers.PopUpWindowManager;
             import nail.objectbuilder.commands.CommandType;
+            import nail.objectbuilder.commands.LoadVersionsCommand;
             import nail.objectbuilder.commands.NeedToReloadCommand;
             import nail.objectbuilder.commands.ProgressBarID;
             import nail.objectbuilder.commands.files.CompileAsCommand;
@@ -155,8 +156,10 @@
             import nail.otlib.utils.OTFormat;
             import nail.otlib.utils.SpriteUtils;
             import nail.otlib.utils.ThingListItem;
-            import nail.settings.Settings;
+            import nail.settings.ISettingsManager;
+            import nail.settings.SettingsManager;
             import nail.slicer.Slicer;
+            import nail.utils.Descriptor;
             import nail.utils.DialogDetail;
             import nail.utils.FileData;
             import nail.utils.FileQueueHelper;
@@ -182,7 +185,8 @@
             [Embed(source="../workerswfs/nail/objectbuilder/core/ObjectBuilderWorker.swf", mimeType="application/octet-stream")]
             public const ObjectBuilderWorker:Class;
             
-            private var _settings:ObjectBuilderSettings = new ObjectBuilderSettings();
+            private var _settingsManager:ISettingsManager;
+            private var _settings:ObjectBuilderSettings;
             private var _updater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
             private var _versions:Versions;
             private var _thingData:ThingData;
@@ -284,6 +288,7 @@
                 }
             }
             
+            public function get settingsManager():ISettingsManager { return _settingsManager; }
             public function get settings():ObjectBuilderSettings { return _settings; }
             
             //--------------------------------------------------------------------------
@@ -796,19 +801,9 @@
                 return new ObjectBuilderWorker() as ByteArray;
             }
             
-            override protected function getSettings():Settings
-            {
-                return _settings;
-            }
-            
-            override protected function setSettings(settings:Settings):void
-            {
-                resourceManager.localeChain = ObjectBuilderSettings(settings).getLanguage();
-            }
-            
             override protected function applicationLoadComplete():void
             {
-                super.applicationLoadComplete();
+                loadVersionsXML();
                 
                 this.systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
                 
@@ -826,6 +821,8 @@
                 setSharedProperty("spritesListAmount", _settings.spritesListAmount);
                 thingStepper.amount = _settings.objectsListAmount;
                 spriteStepper.amount = _settings.spritesListAmount;
+                
+                super.applicationLoadComplete();
             }
             
             override protected function setInvokeArgs(args:Array):void
@@ -847,13 +844,57 @@
             // Private
             //--------------------------------------
             
-            private function loadVersionsXML():void
+            private function loadSettings():void
             {
-                _versions = new Versions();
-                _versions.load(File.applicationDirectory.resolvePath("versions.xml"));
+                _settings = new ObjectBuilderSettings();
+                
+                if (!_settingsManager.loadSettings(_settings) ||
+                    _settings.settingsApplicationVersion != Descriptor.getVersionNumber()) {
+                    
+                    firstRun();
+                }
+                
+                this.resourceManager.localeChain = _settings.getLanguage();
             }
             
-            public function onSetAssetsInfo(info:FilesInfo):void
+            private function saveSettings():void
+            {
+                _settingsManager.saveSettings(_settings);
+            }
+            
+            private function loadVersionsXML():void
+            {
+                var file:File = File.applicationStorageDirectory.resolvePath("versions.xml");
+                
+                _versions = new Versions();
+                _versions.load(file);
+                
+                sendCommand(new LoadVersionsCommand(file));
+            }
+            
+            private function firstRun():void
+            {
+                // Sets as default application for supported extensions.
+                nativeApplication.setAsDefaultApplication("obd");
+                nativeApplication.setAsDefaultApplication("dat");
+                nativeApplication.setAsDefaultApplication("spr");
+                
+                // Copy the firstRun folder to application storage.
+                var directory:File = File.applicationDirectory.resolvePath("firstRun");
+                if (!directory) return;
+                
+                try
+                {
+                    FileUtil.copyInto(directory, File.applicationStorageDirectory);
+                } catch(error:Error) {
+                    Log.error(error.getStackTrace());
+                }
+                
+                // Clear the application log
+                this.logTarget.clear();
+            }
+            
+            private function onSetAssetsInfo(info:FilesInfo):void
             {
                 _info = info;
                 infoPanel.setFilesInfo(info);
@@ -1992,8 +2033,11 @@
             
             override protected function applicationPreinitializeHandler(event:FlexEvent):void
             {
+                _settingsManager = SettingsManager.getInstance();
+                
                 super.applicationPreinitializeHandler(event);
-                loadVersionsXML();
+                
+                loadSettings();
             }
             
             override protected function applicationClosingHandler(event:Event):void
