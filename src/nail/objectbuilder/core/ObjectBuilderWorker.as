@@ -564,7 +564,9 @@ package nail.objectbuilder.core
         private function onExportThing(list:Vector.<PathHelper>,
                                        category:String,
                                        version:Version,
-                                       spriteSheetFlag:uint):void
+                                       spriteSheetFlag:uint,
+                                       transparentBackground:Boolean,
+                                       jpegQuality:uint):void
         {
             if (!list)
                 throw new NullArgumentError("list");
@@ -584,7 +586,7 @@ package nail.objectbuilder.core
             sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("strings", "exportingObjects")));
             
             var helper:SaveHelper = new SaveHelper();
-            var backgoundColor:uint = _transparency ? 0x00FF00FF : 0xFFFF00FF;
+            var backgoundColor:uint = (_transparency || transparentBackground) ? 0x00FF00FF : 0xFFFF00FF;
             var bytes:ByteArray;
             var bitmap:BitmapData;
             
@@ -597,7 +599,7 @@ package nail.objectbuilder.core
                 
                 if (ImageFormat.hasImageFormat(format)) {
                     bitmap = ThingData.getSpriteSheet(thingData, null, backgoundColor);
-                    bytes = ImageCodec.encode(bitmap, format);
+                    bytes = ImageCodec.encode(bitmap, format, jpegQuality);
                     if (spriteSheetFlag != 0) {
                         helper.addFile(ObUtils.getPatternsString(thingData.thing, spriteSheetFlag), name, "txt", file);
                     }
@@ -1202,7 +1204,9 @@ package nail.objectbuilder.core
             }
         }
         
-        private function onExportSprites(list:Vector.<PathHelper>):void
+        private function onExportSprites(list:Vector.<PathHelper>,
+                                         transparentBackground:Boolean,
+                                         jpegQuality:uint):void
         {
             if (!list) {
                 throw new NullArgumentError("list");
@@ -1217,7 +1221,7 @@ package nail.objectbuilder.core
             sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("strings", "exportingSprites")));
             
             var helper:SaveHelper = new SaveHelper();
-            var backgoundColor:uint = _transparency ? 0x00FF00FF : 0xFFFF00FF;
+            var backgoundColor:uint = (_transparency || transparentBackground) ? 0x00FF00FF : 0xFFFF00FF;
             
             for (var i:uint = 0; i < length; i++) {
                 var pathHelper:PathHelper = list[i];
@@ -1228,7 +1232,7 @@ package nail.objectbuilder.core
                 if (ImageFormat.hasImageFormat(format) && pathHelper.id != 0) {
                     var bitmap:BitmapData = _sprites.getBitmap(pathHelper.id, backgoundColor);
                     if (bitmap) {
-                        var bytes:ByteArray = ImageCodec.encode(bitmap, format);
+                        var bytes:ByteArray = ImageCodec.encode(bitmap, format, jpegQuality);
                         helper.addFile(bytes, name, format, file);
                     }
                 }

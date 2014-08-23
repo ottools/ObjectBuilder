@@ -40,8 +40,14 @@ package nail.objectbuilder.core
     
     public interface IObjectBuilder extends IApplication
     {
-        function loadFiles(datFile:File, sprFile:File, version:Version, extended:Boolean, transparency:Boolean):void;
-        function createFiles(version:Version, extended:Boolean, transparency:Boolean):void;
+        function loadFiles(datFile:File,
+                           sprFile:File,
+                           version:Version,
+                           extended:Boolean,
+                           transparency:Boolean):void;
+        function createFiles(version:Version,
+                             extended:Boolean,
+                             transparency:Boolean):void;
         function openClient(directory:File = null):void;
         function openObjectViewer(file:File = null):void;
         function closeObjectViewer():void;
@@ -49,15 +55,24 @@ package nail.objectbuilder.core
         function closeSlicer():void;
         
         function importThingsFromFiles(list:Vector.<PathHelper>):void;
-        function exportThings(fileDataList:Vector.<FileData>, category:String, version:Version, spriteSheetFlag:uint):void;
+        function exportThings(fileDataList:Vector.<FileData>,
+                              category:String,
+                              version:Version,
+                              spriteSheetFlag:uint,
+                              transparentBackground:Boolean,
+                              jpegQuality:uint):void;
         function replaceThings(things:Vector.<ThingData>):void;
         function replaceThingsFromFiles(list:Vector.<PathHelper>):void;
         function duplicateThings(ids:Vector.<uint>, category:String):void;
         function removeThing(thing:ThingType, removeSprites:Boolean = false):void;
-        function removeThings(list:Vector.<uint>, category:String, removeSprites:Boolean = false):void;
+        function removeThings(list:Vector.<uint>,
+                              category:String,
+                              removeSprites:Boolean = false):void;
         function importSprites(list:Vector.<ByteArray>):void;
         function importSpritesFromFiles(list:Vector.<PathHelper>):void;
-        function exportSprites(fileDataList:Vector.<FileData>):void;
+        function exportSprites(fileDataList:Vector.<FileData>,
+                               transparentBackground:Boolean,
+                               jpegQuality:uint):void;
         function replaceSprite(id:uint, bitmap:BitmapData):void;
         function replaceSprites(list:Vector.<SpriteData>):void;
         function replaceSpritesFromFiles(list:Vector.<PathHelper>):void;

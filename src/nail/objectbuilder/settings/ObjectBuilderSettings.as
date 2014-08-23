@@ -72,6 +72,8 @@ package nail.objectbuilder.settings
         public var animationWindowMaximized:Boolean;
         public var objectsListAmount:Number = 100;
         public var spritesListAmount:Number = 100;
+        public var exportWithTransparentBackground:Boolean = false;
+        public var jpegQuality:Number = 100;
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR

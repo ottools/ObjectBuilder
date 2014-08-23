@@ -83,7 +83,6 @@
     
     <fx:Script>
         <![CDATA[
-            import nail.utils.DialogDetail;
             import flash.net.registerClassAlias;
             
             import mx.core.UIComponent;
@@ -137,7 +136,6 @@
             import nail.otlib.components.CompileFilesWindow;
             import nail.otlib.components.DatSprProgressBar;
             import nail.otlib.components.DefaultProgressBar;
-            import nail.otlib.components.ExportWindow;
             import nail.otlib.components.FindWindow;
             import nail.otlib.components.LogWindow;
             import nail.otlib.components.LookGenerator;
@@ -159,6 +157,7 @@
             import nail.otlib.utils.ThingListItem;
             import nail.settings.Settings;
             import nail.slicer.Slicer;
+            import nail.utils.DialogDetail;
             import nail.utils.FileData;
             import nail.utils.FileQueueHelper;
             import nail.utils.FileUtil;
@@ -166,6 +165,7 @@
             import nail.utils.WindowUtil;
             import nail.workers.Command;
             
+            import otlib.components.ExportWindow;
             import otlib.components.OpenFilesWindow;
             import otlib.things.Animator;
             import otlib.things.FrameDuration;
@@ -347,7 +347,12 @@
                 sendCommand(new ImportThingsFromFilesCommand(list));
             }
             
-            public function exportThings(fileDataList:Vector.<FileData>, category:String, version:Version, spriteSheetFlags:uint):void
+            public function exportThings(fileDataList:Vector.<FileData>,
+                                         category:String,
+                                         version:Version,
+                                         spriteSheetFlags:uint,
+                                         transparentBackground:Boolean,
+                                         jpegQuality:uint):void
             {
                 if (!this.loaded || !fileDataList || fileDataList.length == 0 || isNullOrEmpty(category) || !version) return;
                 var length:uint = fileDataList.length;
@@ -355,7 +360,7 @@
                 for (var i:uint = 0; i < length; i++) {
                     list[i] = new PathHelper(fileDataList[i].nativePath, fileDataList[i].data as uint);
                 }
-                sendCommand(new ExportThingCommand(list, category, version, spriteSheetFlags));
+                sendCommand(new ExportThingCommand(list, category, version, spriteSheetFlags, transparentBackground, jpegQuality));
             }
             
             public function replaceThings(list:Vector.<ThingData>):void
@@ -402,7 +407,9 @@
                 sendCommand(new ImportSpritesFromFileCommand(list));
             }
             
-            public function exportSprites(fileDataList:Vector.<FileData>):void
+            public function exportSprites(fileDataList:Vector.<FileData>,
+                                          transparentBackground:Boolean,
+                                          jpegQuality:uint):void
             {
                 if (!this.loaded || !fileDataList || fileDataList.length == 0) return;
                 var length:uint = fileDataList.length;
@@ -410,7 +417,7 @@
                 for (var i:uint = 0; i < length; i++) {
                     list[i] = new PathHelper(fileDataList[i].nativePath, fileDataList[i].data as uint);
                 }
-                sendCommand(new ExportSpritesCommand(list));
+                sendCommand(new ExportSpritesCommand(list, transparentBackground, jpegQuality));
             }
             
             public function replaceSprite(id:uint, bitmap:BitmapData):void
@@ -948,7 +955,9 @@
                                                version:Version,
                                                things:Vector.<ThingType>,
                                                category:String,
-                                               spriteSheetFlag:uint):void
+                                               spriteSheetFlag:uint,
+                                               transparentBackground:Boolean,
+                                               jpegQuality:uint):void
             {
                 var queue:FileQueueHelper = new FileQueueHelper();
                 queue.parent = this;
@@ -966,12 +975,17 @@
                 function completeHandler(event:Event):void
                 {
                     if (queue.result && queue.result.length > 0) {
-                        exportThings(queue.result, category, version, spriteSheetFlag);
+                        exportThings(queue.result, category, version, spriteSheetFlag, transparentBackground, jpegQuality);
                     }
                 }
             }
             
-            private function onExportSprites(fileName:String, format:String, directory:File, sprites:Vector.<SpriteData>):void
+            private function onExportSprites(fileName:String,
+                                             format:String,
+                                             directory:File,
+                                             sprites:Vector.<SpriteData>,
+                                             transparentBackground:Boolean,
+                                             jpegQuality:uint):void
             {
                 var queue:FileQueueHelper = new FileQueueHelper();
                 queue.parent = this;
@@ -989,7 +1003,7 @@
                 function completeHandler(event:Event):void
                 {
                     if (queue.result && queue.result.length > 0) {
-                        exportSprites(queue.result);
+                        exportSprites(queue.result, transparentBackground, jpegQuality);
                     }
                 }
             }
@@ -1533,6 +1547,8 @@
                 window.directory = _settings.getIODirectory();
                 window.format = _settings.getLastExportThingFormat();
                 window.version = version;
+                window.transparentBackground = _settings.exportWithTransparentBackground;
+                window.jpegQuality = _settings.jpegQuality;
                 window.addEventListener(Event.CLOSE, windowCloseHandler);
                 window.open();
                 
@@ -1540,18 +1556,27 @@
                 
                 function windowCloseHandler(event:Event):void
                 {
-                    if (window.fileName && window.directory && window.format) {
+                    if (window.detail == DialogDetail.CONFIRM &&
+                        window.fileName != null &&
+                        window.directory &&
+                        window.format != null &&
+                        window.version) {
+                        
                         _settings.setIODirectory(window.directory);
                         _settings.setLastExportThingFormat(window.format);
                         _settings.setLastExportThingVersion(window.version);
+                        _settings.exportWithTransparentBackground = window.transparentBackground;
+                        _settings.jpegQuality = window.jpegQuality;
                         
                         onExportThingData(window.fileName,
-                            window.format,
-                            window.directory,
-                            window.version,
-                            things,
-                            thingData.category,
-                            _settings.savingSpriteSheet);
+                                          window.format,
+                                          window.directory,
+                                          window.version,
+                                          things,
+                                          thingData.category,
+                                          _settings.savingSpriteSheet,
+                                          _settings.exportWithTransparentBackground,
+                                          _settings.jpegQuality);
                     }
                 }
             }
@@ -1788,6 +1813,8 @@
                 window.format = _settings.getLastExportSpriteFormat();
                 window.directory = _settings.getIODirectory();
                 window.enableObdFormat = false;
+                window.transparentBackground = _settings.exportWithTransparentBackground;
+                window.jpegQuality = _settings.jpegQuality;
                 window.addEventListener(Event.CLOSE, windowCloseHandler);
                 window.open();
                 
@@ -1795,10 +1822,22 @@
                 
                 function windowCloseHandler(event:Event):void
                 {
-                    if (window.fileName != null && window.format != null && window.directory) {
+                    if (window.detail == DialogDetail.CONFIRM && 
+                        window.fileName != null &&
+                        window.format != null 
+                        && window.directory) {
+                        
                         _settings.setIODirectory(window.directory);
                         _settings.setLastExportSpriteFormat(window.format);
-                        onExportSprites(window.fileName, window.format, window.directory, sprites);
+                        _settings.exportWithTransparentBackground = window.transparentBackground;
+                        _settings.jpegQuality = window.jpegQuality;
+                        
+                        onExportSprites(window.fileName,
+                                        window.format,
+                                        window.directory,
+                                        sprites,
+                                        _settings.exportWithTransparentBackground,
+                                        _settings.jpegQuality);
                     }
                 }
             }

@@ -35,9 +35,20 @@ package nail.objectbuilder.commands.things
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function ExportThingCommand(list:Vector.<PathHelper>, category:String, version:Version, spriteSheetFlag:uint)
+        public function ExportThingCommand(list:Vector.<PathHelper>,
+                                           category:String,
+                                           version:Version,
+                                           spriteSheetFlag:uint,
+                                           transparentBackground:Boolean,
+                                           jpegQuality:uint)
         {
-            super(CommandType.EXPORT_THINGS, list, category, version, spriteSheetFlag);
+            super(CommandType.EXPORT_THINGS,
+                  list,
+                  category,
+                  version,
+                  spriteSheetFlag,
+                  transparentBackground,
+                  jpegQuality);
         }
     }
 }

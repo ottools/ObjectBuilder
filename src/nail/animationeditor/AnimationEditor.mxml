@@ -84,7 +84,6 @@
             import nail.managers.PopUpWindowManager;
             import nail.objectbuilder.core.IObjectBuilder;
             import nail.objectbuilder.utils.ObUtils;
-            import nail.otlib.components.ExportWindow;
             import nail.otlib.components.SurfaceCells;
             import nail.otlib.geom.Size;
             import nail.otlib.sprites.SpriteData;
@@ -97,6 +96,7 @@
             import nail.utils.SaveHelper;
             import nail.utils.StringUtil;
             
+            import otlib.components.ExportWindow;
             import otlib.things.AnimationMode;
             import otlib.things.Animator;
             import otlib.things.FrameDuration;

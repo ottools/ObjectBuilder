@@ -34,9 +34,11 @@ package nail.objectbuilder.commands.sprites
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function ExportSpritesCommand(list:Vector.<PathHelper>)
+        public function ExportSpritesCommand(list:Vector.<PathHelper>,
+                                             transparentBackground:Boolean,
+                                             jpegQuality:uint)
         {
-            super(CommandType.EXPORT_SPRITES, list);
+            super(CommandType.EXPORT_SPRITES, list, transparentBackground, jpegQuality);
         }
     }
 }
