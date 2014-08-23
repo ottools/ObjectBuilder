@@ -1357,14 +1357,14 @@
                                                     verticalAlign="middle"
                                                     horizontalAlign="right"/>
                             </s:layout>
-                            <s:Label text="{resourceManager.getString('strings', 'elevationHeight') + ':'}"
+                            <s:Label text="{resourceManager.getString('strings', 'elevation') + ':'}"
                                      minWidth="60"
                                      textAlign="right"/>
-                            <s:NumericStepper id="elevationHeightNumericStepper"
+                            <s:NumericStepper id="elevationNumericStepper"
                                               width="80"
                                               maximum="32"
                                               value="{_thingBinding.elevation}"
-                                              change="{_thingBinding.elevation = elevationHeightNumericStepper.value;}"/>
+                                              change="{_thingBinding.elevation = elevationNumericStepper.value;}"/>
                             <s:Spacer width="30"/>
                         </s:Group>
                     </nail:GroupCheckBox>

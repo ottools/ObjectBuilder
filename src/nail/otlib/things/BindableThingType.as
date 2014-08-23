@@ -593,7 +593,7 @@ package nail.otlib.things
             PROPERTY_LABEL["frames"] = resource.getString("strings", "animations");
             PROPERTY_LABEL["isGround"] = resource.getString("strings", "isGround");
             PROPERTY_LABEL["groundSpeed"] = resource.getString("strings", "groundSpeed");
-            PROPERTY_LABEL["isGroundBorder"] = resource.getString("strings", "isOnClip");
+            PROPERTY_LABEL["isGroundBorder"] = resource.getString("strings", "isGroundBorder");
             PROPERTY_LABEL["isOnBottom"] = resource.getString("strings", "isOnBottom");
             PROPERTY_LABEL["isOnTop"] = resource.getString("strings", "isOnTop");
             PROPERTY_LABEL["isContainer"] = resource.getString("strings", "container");
@@ -624,7 +624,7 @@ package nail.otlib.things
             PROPERTY_LABEL["lightLevel"] = resource.getString("strings", "lightIntensity");
             PROPERTY_LABEL["lightColor"] = resource.getString("strings", "lightColor");
             PROPERTY_LABEL["hasElevation"] = resource.getString("strings", "hasElevation");
-            PROPERTY_LABEL["elevation"] = resource.getString("strings", "elevationHeight");
+            PROPERTY_LABEL["elevation"] = resource.getString("strings", "elevation");
             PROPERTY_LABEL["isLyingObject"] = resource.getString("strings", "lyingObject");
             PROPERTY_LABEL["animateAlways"] = resource.getString("strings", "animateAlways");
             PROPERTY_LABEL["miniMap"] = resource.getString("strings", "automap");
@@ -654,6 +654,7 @@ package nail.otlib.things
             PROPERTY_LABEL["maximumDuration"] = resource.getString("strings", "maximumDuration");
             PROPERTY_LABEL["startFrame"] = resource.getString("strings", "startFrame");
             PROPERTY_LABEL["repeat"] = resource.getString("strings", "repeat");
+            PROPERTY_LABEL["isAnimation"] = resource.getString("strings", "isAnimation");
         }
         startPropertyLabels();
         
