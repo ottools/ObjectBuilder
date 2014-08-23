@@ -64,8 +64,7 @@
             
             import nail.otlib.core.Version;
             import nail.otlib.core.Versions;
-            import nail.otlib.utils.DialogDetail;
-            
+            import nail.utils.DialogDetail;
             
             //--------------------------------------------------------------------------
             // PROPERTIES

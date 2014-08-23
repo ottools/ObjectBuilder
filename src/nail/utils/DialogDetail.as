@@ -22,7 +22,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.otlib.utils
+package nail.utils
 {
     import nail.errors.AbstractClassError;
 
@@ -42,8 +42,10 @@ package nail.otlib.utils
         //--------------------------------------------------------------------------
         
         public static const CANCEL:uint = 0;
-        public static const CONFIRM:uint = 1;
-        public static const NO:uint = 0;
-        public static const YES:uint = 1;
+        public static const OK:uint = 1;
+        public static const CONFIRM:uint = 2;
+        public static const YES:uint = 3;
+        public static const YES_TO_ALL:uint = 4;
+        public static const NO:uint = 5;
     }
 }

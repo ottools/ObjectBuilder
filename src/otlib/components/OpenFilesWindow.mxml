@@ -65,8 +65,8 @@
             import nail.otlib.core.Version;
             import nail.otlib.core.Versions;
             import nail.otlib.events.FileTextInputEvent;
-            import nail.otlib.utils.DialogDetail;
             import nail.otlib.utils.OTFormat;
+            import nail.utils.DialogDetail;
             
             import otlib.utils.FilesInfo;
             import otlib.utils.FilesInfoLoader;

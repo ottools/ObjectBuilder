@@ -62,7 +62,7 @@
             import nail.assets.Icons;
             import nail.objectbuilder.settings.ObjectBuilderSettings;
             import nail.objectbuilder.utils.SupportedLanguages;
-            import nail.otlib.utils.DialogDetail;
+            import nail.utils.DialogDetail;
             
             //--------------------------------------------------------------------------
             // PROPERTIES
