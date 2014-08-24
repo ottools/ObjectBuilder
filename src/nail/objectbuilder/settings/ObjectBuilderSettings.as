@@ -26,10 +26,13 @@ package nail.objectbuilder.settings
 {
     import flash.filesystem.File;
     
+    import mx.core.FlexGlobals;
+    
     import nail.codecs.ImageFormat;
+    import nail.objectbuilder.core.IObjectBuilder;
     import nail.objectbuilder.utils.SupportedLanguages;
+    import nail.otlib.core.IVersionStorage;
     import nail.otlib.core.Version;
-    import nail.otlib.core.Versions;
     import nail.otlib.utils.OTFormat;
     import nail.settings.Settings;
     import nail.utils.FileUtil;
@@ -151,7 +154,8 @@ package nail.objectbuilder.settings
         
         public function getLastExportThingVersion():Version
         {
-            return Versions.instance.getBySignatures(datSignature, sprSignature);
+            var versionStorage:IVersionStorage = IObjectBuilder(FlexGlobals.topLevelApplication).versionStorage;
+            return versionStorage.getBySignatures(datSignature, sprSignature);
         }
         
         public function setLastExportThingVersion(version:Version):void

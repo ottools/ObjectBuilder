@@ -63,7 +63,7 @@
             import spark.events.IndexChangeEvent;
             
             import nail.otlib.core.Version;
-            import nail.otlib.core.Versions;
+            import nail.otlib.core.VersionStorage;
             import nail.utils.DialogDetail;
             
             //--------------------------------------------------------------------------
@@ -152,7 +152,7 @@
             
             protected function creationCompleteHandler(event:FlexEvent):void
             {
-                versionsDropDownList.dataProvider = new ArrayCollection( Versions.instance.getList() );
+                versionsDropDownList.dataProvider = new ArrayCollection( VersionStorage.instance.getList() );
                 versionsDropDownList.setSelectedIndex(0, true);
                 focusManager.setFocus(confirmButton);
                 focusManager.showFocus();

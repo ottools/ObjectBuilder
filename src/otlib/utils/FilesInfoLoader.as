@@ -36,7 +36,7 @@ package otlib.utils
     
     import nail.errors.NullArgumentError;
     import nail.otlib.core.Version;
-    import nail.otlib.core.Versions;
+    import nail.otlib.core.VersionStorage;
     import nail.resources.Resources;
     
     [Event(name="complete", type="flash.events.Event")]
@@ -155,7 +155,7 @@ package otlib.utils
             var stream:FileStream = event.target as FileStream;
             _filesInfo.sprSignature = stream.readUnsignedInt();
             
-            var version:Version = Versions.instance.getBySignatures(
+            var version:Version = VersionStorage.instance.getBySignatures(
                 _filesInfo.datSignature,
                 _filesInfo.sprSignature);
             

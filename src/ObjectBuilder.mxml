@@ -64,6 +64,8 @@
             </menuitem>
             <menuitem label="{resourceManager.getString('strings', 'menu.window')}">
                 <menuitem label="{resourceManager.getString('strings', 'menu.logWindow')}"  keyEquivalent='L' data="windowOpenLog" icon="nail.assets.Icons_LOG"/>
+                <menuitem type="separator"/>
+                <menuitem label="{resourceManager.getString('strings', 'menu.versions')}" data="windowVersions"/>
             </menuitem>	
             <menuitem label="{resourceManager.getString('strings', 'menu.help')}">
                 <menuitem label="{resourceManager.getString('strings', 'menu.helpContents')}" data="helpContents" enabled="true" icon="nail.assets.Icons_HELP"/>
@@ -143,8 +145,6 @@
             import nail.otlib.components.NewFilesWindow;
             import nail.otlib.components.PreferencesWindow;
             import nail.otlib.components.renders.ThingListRenderer;
-            import nail.otlib.core.Version;
-            import nail.otlib.core.Versions;
             import nail.otlib.events.ThingEditorEvent;
             import nail.otlib.geom.Rect;
             import nail.otlib.loaders.PathHelper;
@@ -168,8 +168,12 @@
             import nail.utils.WindowUtil;
             import nail.workers.Command;
             
+            import otlib.components.ClientVersionsWindow;
             import otlib.components.ExportWindow;
             import otlib.components.OpenFilesWindow;
+            import nail.otlib.core.IVersionStorage;
+            import nail.otlib.core.Version;
+            import nail.otlib.core.VersionStorage;
             import otlib.things.Animator;
             import otlib.things.FrameDuration;
             import otlib.things.LoopStrategy;
@@ -188,7 +192,7 @@
             private var _settingsManager:ISettingsManager;
             private var _settings:ObjectBuilderSettings;
             private var _updater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
-            private var _versions:Versions;
+            private var _versionStorage:VersionStorage;
             private var _thingData:ThingData;
             private var _nextThingData:ThingData;
             private var _thingDataChanged:Boolean;
@@ -290,6 +294,7 @@
             
             public function get settingsManager():ISettingsManager { return _settingsManager; }
             public function get settings():ObjectBuilderSettings { return _settings; }
+            public function get versionStorage():IVersionStorage { return _versionStorage; }
             
             //--------------------------------------------------------------------------
             // METHODS
@@ -505,7 +510,7 @@
                 
                 var window:CompileFilesWindow = new CompileFilesWindow();
                 window.directory = _settings.getLastDirectory();
-                window.version = Versions.instance.getFromFilesInfo(_info);
+                window.version = _versionStorage.getFromFilesInfo(_info);
                 window.extended = _info.extended;
                 window.transparency = _info.transparency;
                 window.filesName = isNullOrEmpty(_filesName) ? "Tibia" : _filesName;
@@ -803,7 +808,7 @@
             
             override protected function applicationLoadComplete():void
             {
-                loadVersionsXML();
+                loadVersions();
                 
                 this.systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
                 
@@ -862,14 +867,21 @@
                 _settingsManager.saveSettings(_settings);
             }
             
-            private function loadVersionsXML():void
+            private function loadVersions():void
             {
                 var file:File = File.applicationStorageDirectory.resolvePath("versions.xml");
                 
-                _versions = new Versions();
-                _versions.load(file);
+                _versionStorage = new VersionStorage();
+                _versionStorage.load(file);
                 
                 sendCommand(new LoadVersionsCommand(file));
+            }
+            
+            private function saveVersions():void
+            {
+                var file:File = File.applicationStorageDirectory.resolvePath("versions.xml");
+                
+                _versionStorage.save(file);
             }
             
             private function firstRun():void
@@ -1135,6 +1147,26 @@
             {
                 if (_logWindow && !_logWindow.closed) {
                     _logWindow.close();
+                }
+            }
+            
+            private function openVersionsWindow():void
+            {
+                var window:ClientVersionsWindow = new ClientVersionsWindow();
+                window.addEventListener(Event.CLOSE, closeHandler);
+                window.open();
+                
+                WindowUtil.centralizeWindowOnScreen(window);
+                
+                function closeHandler(event:Event):void
+                {
+                    window.removeEventListener(Event.CLOSE, closeHandler);
+                    
+                    if (_versionStorage.changed) {
+                        saveSettings();
+                        
+                        sendCommand(new LoadVersionsCommand(_versionStorage.file));
+                    }
                 }
             }
             
@@ -1579,7 +1611,7 @@
                 
                 var version:Version = _settings.getLastExportThingVersion();
                 if (!version) {
-                    version = Versions.instance.getFromFilesInfo(_info);
+                    version = _versionStorage.getFromFilesInfo(_info);
                 }
                 
                 var window:ExportWindow = new ExportWindow();
@@ -2050,6 +2082,7 @@
                 this.closeAnimationEditor();
                 this.saveWindowState();
                 this.saveSettings();
+                this.saveVersions();
                 
                 if (this.loaded && !this.compiled) {
                     event.preventDefault();
@@ -2157,6 +2190,9 @@
                         break;
                     case "windowOpenLog":
                         this.openLogWindow();
+                        break;
+                    case "windowVersions":
+                        this.openVersionsWindow();
                         break;
                     case "helpContents":
                         this.openHelpWindow();

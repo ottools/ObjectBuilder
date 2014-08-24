@@ -62,12 +62,12 @@
             
             import nail.assets.Icons;
             import nail.logging.Log;
-            import nail.otlib.core.Version;
-            import nail.otlib.core.Versions;
             import nail.otlib.events.FileTextInputEvent;
             import nail.otlib.utils.OTFormat;
             import nail.utils.DialogDetail;
             
+            import nail.otlib.core.Version;
+            import nail.otlib.core.VersionStorage;
             import otlib.utils.FilesInfo;
             import otlib.utils.FilesInfoLoader;
             
@@ -247,7 +247,7 @@
                     
                     _datFile = dat;
                     _sprFile = spr;
-                    _version = Versions.instance.getBySignatures(info.datSignature, info.sprSignature);
+                    _version = VersionStorage.instance.getBySignatures(info.datSignature, info.sprSignature);
                 }
                 
                 function progressHandler(event:ProgressEvent):void

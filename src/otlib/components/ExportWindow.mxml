@@ -38,6 +38,7 @@
           fontSize="11"
           type="utility"
           title="@Resource(key='export', bundle='strings')"
+          preinitialize="preinitializeHandler(event)"
           closing="windowClosingHandler(event)">
     
     <s:layout>
@@ -61,13 +62,14 @@
     <fx:Script>
         <![CDATA[
             import mx.collections.ArrayCollection;
+            import mx.events.FlexEvent;
             
             import spark.events.IndexChangeEvent;
             import spark.events.TextOperationEvent;
             
             import nail.codecs.ImageFormat;
             import nail.otlib.core.Version;
-            import nail.otlib.core.Versions;
+            import nail.otlib.core.VersionStorage;
             import nail.otlib.events.FileTextInputEvent;
             import nail.otlib.utils.OTFormat;
             import nail.utils.DialogDetail;
@@ -83,7 +85,7 @@
             public var jpegQuality:Number = 100;
             
             [Bindable]
-            private var _versionCollection:ArrayCollection = new ArrayCollection( Versions.instance.getList() );
+            private var _versionCollection:ArrayCollection;
             private var _fileName:String;
             private var _fileNameChanged:Boolean;
             private var _directory:File;
@@ -237,6 +239,11 @@
             //--------------------------------------
             // Event Handlers
             //--------------------------------------
+            
+            protected function preinitializeHandler(event:FlexEvent):void
+            {
+                _versionCollection = new ArrayCollection( VersionStorage.instance.getList() );
+            }
             
             protected function nameTextInputChangeHandler(event:TextOperationEvent):void
             {

@@ -51,7 +51,7 @@ package nail.objectbuilder.core
     import nail.objectbuilder.commands.things.SetThingListCommand;
     import nail.objectbuilder.utils.ObUtils;
     import nail.otlib.core.Version;
-    import nail.otlib.core.Versions;
+    import nail.otlib.core.VersionStorage;
     import nail.otlib.events.ProgressEvent;
     import nail.otlib.loaders.PathHelper;
     import nail.otlib.loaders.SpriteDataLoader;
@@ -273,7 +273,7 @@ package nail.objectbuilder.core
             if (isNullOrEmpty(path))
                 return;
             
-            Versions.instance.load( new File(path) );
+            VersionStorage.instance.load( new File(path) );
         }
         
         private function onCreateNewFiles(version:Version, extended:Boolean, transparency:Boolean):void

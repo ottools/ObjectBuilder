@@ -24,6 +24,9 @@
 
 package nail.otlib.core
 {
+    import nail.errors.NullArgumentError;
+    import nail.utils.StringUtil;
+    
     public final class Version
     {
         //--------------------------------------------------------------------------
@@ -79,6 +82,44 @@ package nail.otlib.core
             version.sprSignature = this.sprSignature;
             version.otbVersion = this.otbVersion;
             return version;
+        }
+        
+        public function serialize():XML
+        {
+            var xml:XML = <version/>;
+            xml.@value = this.value;
+            xml.@string = this.valueStr;
+            xml.@dat = this.datSignature.toString(16).toUpperCase();
+            xml.@spr = sprSignature.toString(16).toUpperCase();
+            xml.@otb = this.otbVersion;
+            return xml;
+        }
+        
+        public function unserialize(xml:XML):void
+        {
+            if (!xml)
+                throw new NullArgumentError("xml");
+            
+            if (!xml.hasOwnProperty("@value"))
+                throw new Error("Version.unserialize: Missing 'value' attribute.");
+            
+            if (!xml.hasOwnProperty("@string"))
+                throw new Error("Version.unserialize: Missing 'string' attribute.");
+            
+            if (!xml.hasOwnProperty("@dat"))
+                throw new Error("Version.unserialize: Missing 'dat' attribute.");
+            
+            if (!xml.hasOwnProperty("@spr"))
+                throw new Error("Version.unserialize: Missing 'spr' attribute.");
+            
+            if (!xml.hasOwnProperty("@otb"))
+                throw new Error("Version.unserialize: Missing 'otb' attribute.");
+            
+            this.value = uint(xml.@value);
+            this.valueStr = String(xml.@string);
+            this.datSignature = uint(StringUtil.substitute("0x{0}", xml.@dat));
+            this.sprSignature = uint(StringUtil.substitute("0x{0}", xml.@spr));
+            this.otbVersion = uint(xml.@otb);
         }
     }
 }

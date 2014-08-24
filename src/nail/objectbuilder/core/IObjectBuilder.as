@@ -30,6 +30,7 @@ package nail.objectbuilder.core
     
     import nail.core.IApplication;
     import nail.objectbuilder.settings.ObjectBuilderSettings;
+    import nail.otlib.core.IVersionStorage;
     import nail.otlib.core.Version;
     import nail.otlib.loaders.PathHelper;
     import nail.otlib.sprites.SpriteData;
@@ -102,5 +103,6 @@ package nail.objectbuilder.core
         function set showSpritesPanel(value:Boolean):void;
         function get settingsManager():ISettingsManager;
         function get settings():ObjectBuilderSettings;
+        function get versionStorage():IVersionStorage;
     }
 }

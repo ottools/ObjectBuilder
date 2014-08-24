@@ -39,7 +39,7 @@ package nail.otlib.things
     
     import nail.errors.NullArgumentError;
     import nail.otlib.core.Version;
-    import nail.otlib.core.Versions;
+    import nail.otlib.core.VersionStorage;
     import nail.otlib.geom.Rect;
     import nail.otlib.sprites.Sprite;
     import nail.otlib.sprites.SpriteData;
@@ -196,22 +196,25 @@ package nail.otlib.things
             bytes.endian = Endian.LITTLE_ENDIAN;
             bytes.uncompress(CompressionAlgorithm.LZMA);
             
+            var versions:Vector.<Version>;
             var version:Version;
             var category:String;
             var newObd:Boolean = (bytes.readUnsignedByte() == OBD_MAJOR_VERSION);
             
             if (newObd) {
                 bytes.readUnsignedByte(); // Reads obd minor version.
-                version = Versions.instance.getByValue( bytes.readUnsignedShort() );
+                versions = VersionStorage.instance.getByValue( bytes.readUnsignedShort() );
                 category = ThingCategory.getCategoryByValue( bytes.readUnsignedByte() );
             } else {
                 bytes.position = 0;
-                version = Versions.instance.getByValue( bytes.readUnsignedShort() );
+                versions = VersionStorage.instance.getByValue( bytes.readUnsignedShort() );
                 category = ThingCategory.getCategory( bytes.readUTF() );
             }
             
-            if (!version)
+            if (versions.length == 0)
                 throw new Error("Unsupported version.");
+            
+            version = versions[0];
             
             if (category == null)
                 throw new Error("Invalid thing category.");
