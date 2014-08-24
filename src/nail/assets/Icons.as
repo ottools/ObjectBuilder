@@ -65,26 +65,11 @@ package nail.assets
         [Embed(source="../../../assets/open.png", mimeType="image/png")]
         public static const OPEN:Class;
         
-        [Embed(source="../../../assets/open_white.png", mimeType="image/png")]
-        public static const OPEN_WHITE:Class;
-        
         [Embed(source="../../../assets/save.png", mimeType="image/png")]
         public static const SAVE:Class;
         
-        [Embed(source="../../../assets/save_white.png", mimeType="image/png")]
-        public static const SAVE_WHITE:Class;
-        
         [Embed(source="../../../assets/save_as.png", mimeType="image/png")]
         public static const SAVE_AS:Class;
-        
-        [Embed(source="../../../assets/save_as_white.png", mimeType="image/png")]
-        public static const SAVE_AS_WHITE:Class;
-        
-        [Embed(source="../../../assets/help.png", mimeType="image/png")]
-        public static const HELP:Class;
-        
-        [Embed(source="../../../assets/download.png", mimeType="image/png")]
-        public static const DOWNLOAD:Class;
         
         [Embed(source="../../../assets/info.png", mimeType="image/png")]
         public static const INFO:Class;
@@ -92,14 +77,8 @@ package nail.assets
         [Embed(source="../../../assets/log.png", mimeType="image/png")]
         public static const LOG:Class;
         
-        [Embed(source="../../../assets/log_white.png", mimeType="image/png")]
-        public static const LOG_WHITE:Class;
-        
         [Embed(source="../../../assets/new_files.png", mimeType="image/png")]
         public static const NEW_FILE:Class;
-        
-        [Embed(source="../../../assets/new_files_white.png", mimeType="image/png")]
-        public static const NEW_FILE_WHITE:Class;
         
         [Embed(source="../../../assets/copy.png", mimeType="image/png")]
         public static const COPY:Class;
@@ -110,26 +89,14 @@ package nail.assets
         [Embed(source="../../../assets/binoculars.png", mimeType="image/png")]
         public static const BINOCULARS:Class;
         
-        [Embed(source="../../../assets/binoculars_white.png", mimeType="image/png")]
-        public static const BINOCULARS_WHITE:Class;
-        
         [Embed(source="../../../assets/viewer.png", mimeType="image/png")]
         public static const VIEWER:Class;
-        
-        [Embed(source="../../../assets/viewer_white.png", mimeType="image/png")]
-        public static const VIEWER_WHITE:Class;
         
         [Embed(source="../../../assets/slicer.png", mimeType="image/png")]
         public static const SLICER:Class;
         
-        [Embed(source="../../../assets/slicer_white.png", mimeType="image/png")]
-        public static const SLICER_WHITE:Class;
-        
         [Embed(source="../../../assets/animation.png", mimeType="image/png")]
-        public static const ANIMATION : Class;
-        
-        [Embed(source="../../../assets/animation_white.png", mimeType="image/png")]
-        public static const ANIMATION_WHITE:Class;
+        public static const ANIMATION:Class;
         
         [Embed(source="../../../assets/outfit.png", mimeType="image/png")]
         public static const OUTFIT:Class;

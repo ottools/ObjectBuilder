@@ -17,10 +17,35 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import mx.core.mx_internal;
+package nail.utils
+{
+    import flash.system.Capabilities;
+    
+    import nail.errors.AbstractClassError;
 
-/**
- *  @private
- *  Version string for this class.
- */
-mx_internal static const VERSION:String = "4.12.0.20140303";
+    public final class CapabilitiesUtil
+    {
+        //--------------------------------------------------------------------------
+        // CONSTRUCTOR
+        //--------------------------------------------------------------------------
+        
+        public function CapabilitiesUtil()
+        {
+            throw new AbstractClassError(CapabilitiesUtil);
+        }
+        
+        //--------------------------------------------------------------------------
+        // STATIC
+        //--------------------------------------------------------------------------
+        
+        public static function get isWin():Boolean
+        {
+            return (Capabilities.os.indexOf("Windows") >= 0);
+        }
+        
+        public static function get isMac():Boolean
+        {
+            return (Capabilities.os.indexOf("Mac OS") >= 0);
+        }
+    }
+}

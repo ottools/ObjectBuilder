@@ -37,44 +37,55 @@
                   fontSize="11"
                   showStatusBar="false">
     
+    <nail:menu>
+        <mx:FlexNativeMenu showRoot="false"
+                           labelField="@label"
+                           keyEquivalentField="@keyEquivalent"
+                           keyEquivalentModifiersFunction="keyEquivalentModifiers"
+                           dataProvider="{menuXML}"
+                           itemClick="nativeMenuItemClickHandler(event)"/>
+    </nail:menu>
+    
     <fx:Declarations>
-        <fx:XMLList id="menuXML">
-            <menuitem label="{resourceManager.getString('strings', 'menu.file')}">
-                <menuitem label="{resourceManager.getString('strings', 'menu.new')}" data="fileNew" keyEquivalent='N' icon="nail.assets.Icons_NEW_FILE"/>
-                <menuitem label="{resourceManager.getString('strings', 'menu.open')}" data="fileOpen" keyEquivalent='O' icon="nail.assets.Icons_OPEN"/>
-                <menuitem label="{resourceManager.getString('strings', 'menu.compile')}" keyEquivalent='S' data="fileCompile" icon="nail.assets.Icons_SAVE"/>
-                <menuitem label="{resourceManager.getString('strings', 'menu.compileAs')}" keyEquivalent='s' data="fileCompileAs" icon="nail.assets.Icons_SAVE_AS"/>
-                <menuitem type="separator"/>
-                <menuitem label="{resourceManager.getString('strings', 'menu.close')}"  keyEquivalent='W' data="fileClose"/>
-                <menuitem type="separator"/>
-                <menuitem label="{resourceManager.getString('strings', 'menu.preferences')}"  keyEquivalent='P' data="filePreferences"/>
-                <menuitem label="{resourceManager.getString('strings', 'menu.exit')}"  keyEquivalent='Q' data="fileExit"/>
-            </menuitem>
-            <menuitem label="{resourceManager.getString('strings', 'menu.view')}">
-                <menuitem label="{resourceManager.getString('strings', 'menu.showPreviewPanel')}" type="check" data="viewShowInfoAndPreview"/>
-                <menuitem label="{resourceManager.getString('strings', 'menu.showObjectsPanel')}" type="check" data="viewShowObjectList"/>
-                <menuitem label="{resourceManager.getString('strings', 'menu.showSpritesPanel')}" type="check" data="viewShowSpriteList"/>
-            </menuitem>
-            <menuitem label="{resourceManager.getString('strings', 'menu.tools')}">
-                <menuitem label="{resourceManager.getString('strings', 'find')}"  keyEquivalent='F' data="toolsFind" icon="nail.assets.Icons_BINOCULARS"/>
-                <menuitem label="{resourceManager.getString('strings', 'menu.toolsLookTypeGenerator')}" data="toolsLookGenerator" icon="nail.assets.Icons_OUTFIT"/>
-                <menuitem label="{resourceManager.getString('strings', 'objectViewer')}" data="toolsObjectViewer" icon="nail.assets.Icons_VIEWER"/>
-                <menuitem label="Slicer" data="toolsSlicer" icon="nail.assets.Icons_SLICER"/>
-                <menuitem label="{resourceManager.getString('strings', 'animationEditor')}" data="toolsAnimationEditor" icon="nail.assets.Icons_ANIMATION"/>
-            </menuitem>
-            <menuitem label="{resourceManager.getString('strings', 'menu.window')}">
-                <menuitem label="{resourceManager.getString('strings', 'menu.logWindow')}"  keyEquivalent='L' data="windowOpenLog" icon="nail.assets.Icons_LOG"/>
-                <menuitem type="separator"/>
-                <menuitem label="{resourceManager.getString('strings', 'menu.versions')}" data="windowVersions"/>
-            </menuitem>	
-            <menuitem label="{resourceManager.getString('strings', 'menu.help')}">
-                <menuitem label="{resourceManager.getString('strings', 'menu.helpContents')}" data="helpContents" enabled="true" icon="nail.assets.Icons_HELP"/>
-                <menuitem type="separator"/>
-                <menuitem label="{resourceManager.getString('strings', 'menu.checkForUpdate')}" data="helpCheckForUpdate" icon="nail.assets.Icons_DOWNLOAD"/>
-                <menuitem type="separator"/>
-                <menuitem label="{resourceManager.getString('strings', 'menu.about')}" data="helpAbout" icon="nail.assets.Icons_INFO"/>
-            </menuitem>	
-        </fx:XMLList>
+        <fx:XML id="menuXML">
+            <root>
+                <menuitem label="{resourceManager.getString('strings', 'menu.file')}">
+                    <menuitem label="{resourceManager.getString('strings', 'menu.new')}" data="fileNew" keyEquivalent="n" controlKey="true"/>
+                    <menuitem label="{resourceManager.getString('strings', 'menu.open')}" data="fileOpen" keyEquivalent="o" controlKey="true"/>
+                    <menuitem label="{resourceManager.getString('strings', 'menu.compile')}" data="fileCompile" keyEquivalent="s" controlKey="true"/>
+                    <menuitem label="{resourceManager.getString('strings', 'menu.compileAs')}" data="fileCompileAs" keyEquivalent="s" controlKey="true" shiftKey="true"/>
+                    <menuitem type="separator"/>
+                    <menuitem label="{resourceManager.getString('strings', 'menu.close')}" data="fileClose" keyEquivalent="w" controlKey="true"/>
+                    <menuitem type="separator"/>
+                    <menuitem label="{resourceManager.getString('strings', 'menu.preferences')}"  data="filePreferences" keyEquivalent="p" controlKey="true"/>
+                    <menuitem label="{resourceManager.getString('strings', 'menu.exit')}" data="fileExit" keyEquivalent="q" controlKey="true"/>
+                </menuitem>
+                <menuitem label="{resourceManager.getString('strings', 'menu.view')}">
+                    <menuitem label="{resourceManager.getString('strings', 'menu.showPreviewPanel')}" type="check" data="viewShowInfoAndPreview" keyEquivalent="f2"/>
+                    <menuitem label="{resourceManager.getString('strings', 'menu.showObjectsPanel')}" type="check" data="viewShowObjectList" keyEquivalent="f3"/>
+                    <menuitem label="{resourceManager.getString('strings', 'menu.showSpritesPanel')}" type="check" data="viewShowSpriteList" keyEquivalent="f4"/>
+                </menuitem>
+                <menuitem label="{resourceManager.getString('strings', 'menu.tools')}">
+                    <menuitem label="{resourceManager.getString('strings', 'find')}" data="toolsFind" keyEquivalent="f" controlKey="true"/>
+                    <menuitem label="{resourceManager.getString('strings', 'menu.toolsLookTypeGenerator')}" data="toolsLookGenerator"/>
+                    <menuitem label="{resourceManager.getString('strings', 'objectViewer')}" data="toolsObjectViewer"/>
+                    <menuitem label="Slicer" data="toolsSlicer"/>
+                    <menuitem label="{resourceManager.getString('strings', 'animationEditor')}" data="toolsAnimationEditor"/>
+                </menuitem>
+                <menuitem label="{resourceManager.getString('strings', 'menu.window')}">
+                    <menuitem label="{resourceManager.getString('strings', 'menu.logWindow')}" data="windowOpenLog" keyEquivalent="l" controlKey="true"/>
+                    <menuitem type="separator"/>
+                    <menuitem label="{resourceManager.getString('strings', 'menu.versions')}" data="windowVersions"/>
+                </menuitem>	
+                <menuitem label="{resourceManager.getString('strings', 'menu.help')}">
+                    <menuitem label="{resourceManager.getString('strings', 'menu.helpContents')}" data="helpContents" keyEquivalent="f1"/>
+                    <menuitem type="separator"/>
+                    <menuitem label="{resourceManager.getString('strings', 'menu.checkForUpdate')}" data="helpCheckForUpdate"/>
+                    <menuitem type="separator"/>
+                    <menuitem label="{resourceManager.getString('strings', 'menu.about')}" data="helpAbout"/>
+                </menuitem>	
+            </root>
+        </fx:XML>
     </fx:Declarations>
     
     <fx:Style source="../css/style.css"/>
@@ -85,12 +96,13 @@
     
     <fx:Script>
         <![CDATA[
+            import nail.utils.CapabilitiesUtil;
+            import mx.events.FlexNativeMenuEvent;
             import flash.net.registerClassAlias;
             
             import mx.core.UIComponent;
             import mx.events.CloseEvent;
             import mx.events.FlexEvent;
-            import mx.events.MenuEvent;
             import mx.managers.DragManager;
             
             import spark.events.IndexChangeEvent;
@@ -777,9 +789,9 @@
                 }
                 
                 if (_showPanelChanged) {
-                    menuXML[1].menuitem[0].@toggled = _showPreviewPanel; // View > Show Object List
-                    menuXML[1].menuitem[1].@toggled = _showThingsPanel; // View > Show Info and Preview
-                    menuXML[1].menuitem[2].@toggled = _showSpritesPanel; // View > Show Sprite List
+                    menuXML.menuitem[1].menuitem[0].@toggled = _showPreviewPanel; // View > Show Object List
+                    menuXML.menuitem[1].menuitem[1].@toggled = _showThingsPanel; // View > Show Info and Preview
+                    menuXML.menuitem[1].menuitem[2].@toggled = _showSpritesPanel; // View > Show Sprite List
                     previewPanel.visible = _showPreviewPanel;
                     previewPanel.includeInLayout = _showPreviewPanel;
                     thingsPanel.visible = _showThingsPanel;
@@ -848,6 +860,35 @@
             //--------------------------------------
             // Private
             //--------------------------------------
+            
+            private function keyEquivalentModifiers(item:Object):Array
+            {
+                var result:Array = [];
+                var keyEquivField:String = menu.keyEquivalentField;
+                var altKeyField:String = "@altKey";
+                var controlKeyField:String = "@controlKey";
+                var shiftKeyField:String = "@shiftKey";
+                
+                if (item[keyEquivField] == null || item[keyEquivField].length == 0)
+                    return result;  
+                
+                if (item[altKeyField] != null && item[altKeyField] == true) { 
+                    if (CapabilitiesUtil.isWin)
+                        result.push(Keyboard.ALTERNATE);
+                } 
+                
+                if (item[controlKeyField] != null && item[controlKeyField] == true) {
+                    if (CapabilitiesUtil.isWin)
+                        result.push(Keyboard.CONTROL);
+                    else if (CapabilitiesUtil.isMac)
+                        result.push(Keyboard.COMMAND);
+                }
+                
+                if (item[shiftKeyField] != null && item[shiftKeyField] == true)
+                    result.push(Keyboard.SHIFT);
+                
+                return result;
+            } 
             
             private function loadSettings():void
             {
@@ -2136,10 +2177,25 @@
                             this.compileAs();
                             break;
                     }
+                } else if (!event.ctrlKey && !event.shiftKey) {
+                    switch (code) {
+                        case Keyboard.F1:
+                            this.openHelpWindow();
+                            break;
+                        case Keyboard.F2:
+                            this.showPreviewPanel = !this.showPreviewPanel;
+                            break;
+                        case Keyboard.F3:
+                            this.showThingsPanel = !this.showThingsPanel;
+                            break;
+                        case Keyboard.F4:
+                            this.showSpritesPanel = !this.showSpritesPanel;
+                            break;
+                    }
                 }
             }
             
-            protected function menuItemClickHandler(event:MenuEvent):void
+            protected function nativeMenuItemClickHandler(event:FlexNativeMenuEvent):void
             {
                 var data:String = String(event.item.@data);
                 switch(data) {
@@ -2209,39 +2265,10 @@
         ]]>
     </fx:Script>
     
-    <!-- menu bar -->
-    <s:Group width="100%"
-             height="31">
-        <!-- fill -->
-        <s:Rect left="-1" right="-1" top="1" bottom="0">
-            <s:fill>
-                <s:SolidColor color="0x494949"/>
-            </s:fill>
-        </s:Rect>
-        
-        <!-- border -->
-        <s:Rect left="-1" right="-1" top="0" bottom="0">
-            <s:stroke>
-                <s:SolidColorStroke color="0x272727"/>
-            </s:stroke>
-        </s:Rect>
-        
-        <mx:MenuBar id="menuBar"
-                    width="100%"
-                    top="4"
-                    fontSize="11"
-                    labelField="@label"
-                    iconField="@icon"
-                    showRoot="true"
-                    dataProvider="{menuXML}"
-                    itemSkin="nail.components.skins.MenuBarItemSkin"
-                    itemClick="menuItemClickHandler(event)"/>
-    </s:Group>
-    
     <!-- tool bar -->
     <s:Group width="100%"
              height="35"
-             top="30">
+             top="0">
         
         <!-- highlight -->
         <s:Rect left="-1" right="-1" top="1" bottom="0">
@@ -2265,57 +2292,57 @@
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.new')}"
-                      icon="{nail.assets.Icons.NEW_FILE_WHITE}"
+                      icon="{nail.assets.Icons.NEW_FILE}"
                       click="onCreateNew()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.open')}"
-                      icon="{nail.assets.Icons.OPEN_WHITE}"
+                      icon="{nail.assets.Icons.OPEN}"
                       click="openClient()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.compile')}"
-                      icon="{nail.assets.Icons.SAVE_WHITE}"
+                      icon="{nail.assets.Icons.SAVE}"
                       click="compile()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.compileAs')}"
-                      icon="{nail.assets.Icons.SAVE_AS_WHITE}"
+                      icon="{nail.assets.Icons.SAVE_AS}"
                       click="compileAs()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <nail:ShadowLine height="20"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'find')}"
-                      icon="{nail.assets.Icons.BINOCULARS_WHITE}"
+                      icon="{nail.assets.Icons.BINOCULARS}"
                       click="openFindWindow()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'objectViewer')}"
-                      icon="{nail.assets.Icons.VIEWER_WHITE}"
+                      icon="{nail.assets.Icons.VIEWER}"
                       click="openObjectViewer()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="Slicer"
-                      icon="{nail.assets.Icons.SLICER_WHITE}"
+                      icon="{nail.assets.Icons.SLICER}"
                       click="openSlicer()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'animationEditor')}"
-                      icon="{nail.assets.Icons.ANIMATION_WHITE}"
+                      icon="{nail.assets.Icons.ANIMATION}"
                       click="openAnimationEditor()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <nail:ShadowLine height="20"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.logWindow')}"
-                      icon="{nail.assets.Icons.LOG_WHITE}"
+                      icon="{nail.assets.Icons.LOG}"
                       click="openLogWindow()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
         </s:HGroup>
@@ -2323,7 +2350,7 @@
     
     <mx:HDividedBox width="100%"
                     height="100%"
-                    top="65">
+                    top="35">
         
         <!-- info/view container -->
         <s:BorderContainer id="previewPanel"
