@@ -30,7 +30,6 @@ package nail.objectbuilder.settings
     
     import nail.codecs.ImageFormat;
     import nail.objectbuilder.core.IObjectBuilder;
-    import nail.objectbuilder.utils.SupportedLanguages;
     import nail.otlib.core.IVersionStorage;
     import nail.otlib.core.Version;
     import nail.otlib.utils.OTFormat;
@@ -57,7 +56,7 @@ package nail.objectbuilder.settings
         public var showPreviewPanel:Boolean = true;
         public var showThingsPanel:Boolean = true;
         public var showSpritesPanel:Boolean = true;
-        public var language:String = SupportedLanguages.EN_US;
+        public var language:String = "en_US";
         public var extended:Boolean;
         public var transparency:Boolean;
         public var savingSpriteSheet:Number = 0;
@@ -201,9 +200,9 @@ package nail.objectbuilder.settings
         
         public function getLanguage():Array
         {
-            if (isNullOrEmpty(language) || language == "null") {
-                return [SupportedLanguages.EN_US];
-            }
+            if (isNullOrEmpty(language) || language == "null")
+                return ["en_US"];
+                
             return [language];
         }
     }

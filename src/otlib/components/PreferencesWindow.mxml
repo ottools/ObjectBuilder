@@ -57,11 +57,11 @@
     
     <fx:Script>
         <![CDATA[
+            import mx.collections.ArrayCollection;
             import mx.events.FlexEvent;
             
             import nail.assets.Icons;
             import nail.objectbuilder.settings.ObjectBuilderSettings;
-            import nail.objectbuilder.utils.SupportedLanguages;
             import nail.utils.DialogDetail;
             
             //--------------------------------------------------------------------------
@@ -72,6 +72,12 @@
             private var _settings:ObjectBuilderSettings;
             private var _settingsChanged:Boolean;
             private var _detail:uint;
+            
+            [Bindable]
+            private var _languages:ArrayCollection = new ArrayCollection([{locale:"en_US", label:"English"},
+                                                                          {locale:"es_ES", label:"Español"},
+                                                                          {locale:"pl_PL", label:"Polski"},
+                                                                          {locale:"pt_BR", label:"Português"}]);
             
             //--------------------------------------
             // Getters / Setters
@@ -124,12 +130,17 @@
             
             private function setLanguage(language:String):void
             {
+                trace("PreferencesWindow.setLanguage(language)");
+                
                 switch(language) {
-                    case SupportedLanguages.PL_PL:
+                    case _languages.getItemAt(1).locale:
                         languageDropDownList.selectedIndex = 1;
                         break;
-                    case SupportedLanguages.PT_BR:
+                    case _languages.getItemAt(2).locale:
                         languageDropDownList.selectedIndex = 2;
+                        break;
+                    case _languages.getItemAt(3).locale:
+                        languageDropDownList.selectedIndex = 3;
                         break;
                     default:
                         languageDropDownList.selectedIndex = 0;
@@ -141,11 +152,13 @@
             {
                 switch(languageDropDownList.selectedIndex) {
                     case 1:
-                        return SupportedLanguages.PL_PL;
+                        return _languages.getItemAt(1).locale;
                     case 2:
-                        return SupportedLanguages.PT_BR;
+                        return _languages.getItemAt(2).locale;
+                    case 3:
+                        return _languages.getItemAt(3).locale;
                 }
-                return SupportedLanguages.EN_US;
+                return _languages.getItemAt(0).locale;
             }
             
             private function getSavePropertiesValue():Number
@@ -217,17 +230,11 @@
                                       paddingTop="10"
                                       paddingBottom="10"/>
                 </nail:layout>
+                
                 <s:DropDownList id="languageDropDownList"
                                 width="100%"
-                                selectedIndex="0">
-                    <s:dataProvider>
-                        <s:ArrayList>
-                            <fx:String>English</fx:String>
-                            <fx:String>Polski</fx:String>
-                            <fx:String>Português</fx:String>
-                        </s:ArrayList>
-                    </s:dataProvider>
-                </s:DropDownList>
+                                requireSelection="true"
+                                dataProvider="{_languages}"/>
             </nail:GroupBox>
             
             <nail:GroupBox width="100%"

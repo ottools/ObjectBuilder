@@ -155,7 +155,7 @@
             import nail.otlib.components.LogWindow;
             import nail.otlib.components.LookGenerator;
             import nail.otlib.components.NewFilesWindow;
-            import nail.otlib.components.PreferencesWindow;
+            import otlib.components.PreferencesWindow;
             import nail.otlib.components.renders.ThingListRenderer;
             import nail.otlib.events.ThingEditorEvent;
             import nail.otlib.geom.Rect;
