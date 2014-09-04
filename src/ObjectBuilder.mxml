@@ -35,7 +35,11 @@
                   minWidth="800"
                   minHeight="600"
                   fontSize="11"
-                  showStatusBar="false">
+                  showStatusBar="false"
+                  visible="false"
+                  preinitialize="applicationPreinitializeHandler(event)"
+                  applicationComplete="applicationCompleteHandler(event)"
+                  closing="applicationClosingHandler(event)">
     
     <nail:menu>
         <mx:FlexNativeMenu showRoot="false"
@@ -96,13 +100,12 @@
     
     <fx:Script>
         <![CDATA[
-            import nail.utils.CapabilitiesUtil;
-            import mx.events.FlexNativeMenuEvent;
             import flash.net.registerClassAlias;
             
             import mx.core.UIComponent;
             import mx.events.CloseEvent;
             import mx.events.FlexEvent;
+            import mx.events.FlexNativeMenuEvent;
             import mx.managers.DragManager;
             
             import spark.events.IndexChangeEvent;
@@ -155,8 +158,10 @@
             import nail.otlib.components.LogWindow;
             import nail.otlib.components.LookGenerator;
             import nail.otlib.components.NewFilesWindow;
-            import otlib.components.PreferencesWindow;
             import nail.otlib.components.renders.ThingListRenderer;
+            import nail.otlib.core.IVersionStorage;
+            import nail.otlib.core.Version;
+            import nail.otlib.core.VersionStorage;
             import nail.otlib.events.ThingEditorEvent;
             import nail.otlib.geom.Rect;
             import nail.otlib.loaders.PathHelper;
@@ -171,6 +176,7 @@
             import nail.settings.ISettingsManager;
             import nail.settings.SettingsManager;
             import nail.slicer.Slicer;
+            import nail.utils.CapabilitiesUtil;
             import nail.utils.Descriptor;
             import nail.utils.DialogDetail;
             import nail.utils.FileData;
@@ -180,12 +186,12 @@
             import nail.utils.WindowUtil;
             import nail.workers.Command;
             
+            import ob.components.SplashScreen;
+            
             import otlib.components.ClientVersionsWindow;
             import otlib.components.ExportWindow;
             import otlib.components.OpenFilesWindow;
-            import nail.otlib.core.IVersionStorage;
-            import nail.otlib.core.Version;
-            import nail.otlib.core.VersionStorage;
+            import otlib.components.PreferencesWindow;
             import otlib.things.Animator;
             import otlib.things.FrameDuration;
             import otlib.things.LoopStrategy;
@@ -201,6 +207,7 @@
             [Embed(source="../workerswfs/nail/objectbuilder/core/ObjectBuilderWorker.swf", mimeType="application/octet-stream")]
             public const ObjectBuilderWorker:Class;
             
+            private var _splashScreen:SplashScreen;
             private var _settingsManager:ISettingsManager;
             private var _settings:ObjectBuilderSettings;
             private var _updater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
@@ -718,8 +725,6 @@
             
             override public function register():void
             {
-                super.register();
-                
                 registerClassAlias("Version", Version);
                 registerClassAlias("ThingType", ThingType);
                 registerClassAlias("FilesInfo", FilesInfo);
@@ -734,6 +739,7 @@
                 registerClassAlias("LoopStrategy", LoopStrategy);
                 registerClassAlias("Animator", Animator);
                 
+                registerCallback("internalLog", onInternalLog);
                 registerCallback(CommandType.PROGRESS, onProgress);
                 registerCallback(CommandType.SHOW_PROGRESS_BAR, onShowProgressBar);
                 registerCallback(CommandType.HIDE_PROGRESS_BAR, onHideProgressBar);
@@ -806,11 +812,6 @@
                     onSetCategory(_category);
                     _categoryChanged = false;
                 }
-            }
-            
-            override protected function getSplashScreenImageFile():File
-            {
-                return File.applicationDirectory.resolvePath("icon/splash/ObjectBuilder.png");
             }
             
             override protected function getWorkerByteClass():ByteArray
@@ -892,6 +893,8 @@
             
             private function loadSettings():void
             {
+                _splashScreen.setProgress(1, 2);
+                
                 _settings = new ObjectBuilderSettings();
                 
                 if (!_settingsManager.loadSettings(_settings) ||
@@ -901,6 +904,8 @@
                 }
                 
                 this.resourceManager.localeChain = _settings.getLanguage();
+                
+                _splashScreen.status = resourceManager.getString("strings", "loadingSettings") + "...";
             }
             
             private function saveSettings():void
@@ -1473,6 +1478,61 @@
             //--------------------------------------
             // Event Handlers
             //--------------------------------------
+            
+            protected function applicationPreinitializeHandler(event:FlexEvent):void
+            {
+                _splashScreen = new SplashScreen();
+                _splashScreen.addEventListener(Event.CLOSE, splashScreenCloseHandler);
+                _splashScreen.open();
+                
+                _settingsManager = SettingsManager.getInstance();
+                
+                register();
+                createLogging();
+                createWorker();
+                loadSettings();
+            }
+            
+            protected function applicationCompleteHandler(event:FlexEvent):void
+            {
+                systemManager.stage.nativeWindow.addEventListener(
+                    NativeWindowDisplayStateEvent.DISPLAY_STATE_CHANGING,
+                    displayStateChangingHandler);
+                
+                _splashScreen.setProgress(2, 2);
+                _splashScreen = null;
+            }
+            
+            protected function applicationClosingHandler(event:Event):void
+            {
+                this.closeLogWindow();
+                this.closeFindThingWindow();
+                this.closeLookGenerator();
+                this.closeObjectViewer();
+                this.closeSlicer();
+                this.closeAnimationEditor();
+                this.saveWindowState();
+                this.saveSettings();
+                this.saveVersions();
+                
+                if (this.loaded && !this.compiled) {
+                    event.preventDefault();
+                    Alert.show(
+                        resourceManager.getString("strings", "wantToCompile"),
+                        "",
+                        Alert.YES | Alert.NO | Alert.CANCEL,
+                        this,
+                        alertCloseHandler);
+                }
+                
+                function alertCloseHandler(event:CloseEvent):void
+                {
+                    if (event.detail == Alert.YES)
+                        compile();
+                    else if (event.detail == Alert.NO)
+                        exit();
+                }
+            }
             
             protected function confirmButtonClickHandler(event:MouseEvent):void
             {
@@ -2097,51 +2157,15 @@
                 Alert.show(event.text);
             }
             
-            override protected function displayStateChangingHandler(event:NativeWindowDisplayStateEvent):void
+            protected function displayStateChangingHandler(event:NativeWindowDisplayStateEvent):void
             {
-                if (_settings) {
+                if (_settings)
                     _settings.maximized = event.afterDisplayState == NativeWindowDisplayState.MAXIMIZED;
-                }
             }
             
-            override protected function applicationPreinitializeHandler(event:FlexEvent):void
+            protected function splashScreenCloseHandler(event:Event):void
             {
-                _settingsManager = SettingsManager.getInstance();
-                
-                super.applicationPreinitializeHandler(event);
-                
-                loadSettings();
-            }
-            
-            override protected function applicationClosingHandler(event:Event):void
-            {
-                this.closeLogWindow();
-                this.closeFindThingWindow();
-                this.closeLookGenerator();
-                this.closeObjectViewer();
-                this.closeSlicer();
-                this.closeAnimationEditor();
-                this.saveWindowState();
-                this.saveSettings();
-                this.saveVersions();
-                
-                if (this.loaded && !this.compiled) {
-                    event.preventDefault();
-                    Alert.show(
-                        resourceManager.getString("strings", "wantToCompile"),
-                        "",
-                        Alert.YES | Alert.NO | Alert.CANCEL,
-                        this,
-                        alertCloseHandler);
-                }
-                
-                function alertCloseHandler(event:CloseEvent):void
-                {
-                    if (event.detail == Alert.YES)
-                        compile();
-                    else if (event.detail == Alert.NO)
-                        exit();
-                }
+                applicationLoadComplete();
             }
             
             override protected function keyDownHandler(event:KeyboardEvent):void
