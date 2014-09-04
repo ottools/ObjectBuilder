@@ -82,7 +82,7 @@
                     <menuitem label="{resourceManager.getString('strings', 'menu.versions')}" data="windowVersions"/>
                 </menuitem>	
                 <menuitem label="{resourceManager.getString('strings', 'menu.help')}">
-                    <menuitem label="{resourceManager.getString('strings', 'menu.helpContents')}" data="helpContents" keyEquivalent="f1"/>
+                    <menuitem label="{resourceManager.getString('strings', 'menu.helpContents')}" data="helpContents" keyEquivalent="f1" enabled="false"/>
                     <menuitem type="separator"/>
                     <menuitem label="{resourceManager.getString('strings', 'menu.checkForUpdate')}" data="helpCheckForUpdate"/>
                     <menuitem type="separator"/>
