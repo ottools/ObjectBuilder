@@ -46,7 +46,8 @@ package nail.otlib.loaders
     import nail.otlib.sprites.Sprite;
     import nail.otlib.sprites.SpriteData;
     import nail.otlib.utils.SpriteUtils;
-    import nail.resources.Resources;
+    
+    import otlib.resources.Resources;
     
     [Event(name="progress", type="nail.otlib.events.ProgressEvent")]
     [Event(name="complete", type="flash.events.Event")]
@@ -206,7 +207,7 @@ package nail.otlib.loaders
                     ErrorEvent.ERROR,
                     false,
                     false,
-                    Resources.getString("strings", "invalidSpriteSize")));
+                    Resources.getString("invalidSpriteSize")));
                 return;
             }
             

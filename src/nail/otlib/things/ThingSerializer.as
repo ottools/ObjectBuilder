@@ -29,8 +29,8 @@ package nail.otlib.things
     
     import nail.errors.AbstractClassError;
     import nail.otlib.sprites.Sprite;
-    import nail.resources.Resources;
     
+    import otlib.resources.Resources;
     import otlib.things.Animator;
     import otlib.things.FrameDuration;
     
@@ -156,11 +156,10 @@ package nail.otlib.things
                         break;
                     default:
                         throw new Error(Resources.getString(
-                            "strings",
                             "readUnknownFlag",
                             flag.toString(16),
                             previusFlag.toString(16),
-                            Resources.getString("strings", thing.category),
+                            Resources.getString(thing.category),
                             thing.id));
                 }
             }
@@ -279,11 +278,10 @@ package nail.otlib.things
                         break;
                     default:
                         throw new Error(Resources.getString(
-                            "strings",
                             "readUnknownFlag",
                             flag.toString(16),
                             previusFlag.toString(16),
-                            Resources.getString("strings", thing.category),
+                            Resources.getString(thing.category),
                             thing.id));
                 }
             }
@@ -406,11 +404,10 @@ package nail.otlib.things
                         break;
                     default:
                         throw new Error(Resources.getString(
-                            "strings",
                             "readUnknownFlag",
                             flag.toString(16),
                             previusFlag.toString(16),
-                            Resources.getString("strings", thing.category),
+                            Resources.getString(thing.category),
                             thing.id));
                 }
             }
@@ -542,11 +539,10 @@ package nail.otlib.things
                         break;
                     default:
                         throw new Error(Resources.getString(
-                            "strings",
                             "readUnknownFlag",
                             flag.toString(16),
                             previusFlag.toString(16),
-                            Resources.getString("strings", thing.category),
+                            Resources.getString(thing.category),
                             thing.id));
                 }
             }
@@ -689,11 +685,10 @@ package nail.otlib.things
                         break;
                     default:
                         throw new Error(Resources.getString(
-                            "strings",
                             "readUnknownFlag",
                             flag.toString(16),
                             previusFlag.toString(16),
-                            Resources.getString("strings", thing.category),
+                            Resources.getString(thing.category),
                             thing.id));
                 }
             }
@@ -846,11 +841,10 @@ package nail.otlib.things
                         break;
                     default:
                         throw new Error(Resources.getString(
-                            "strings",
                             "readUnknownFlag",
                             flag.toString(16),
                             previusFlag.toString(16),
-                            Resources.getString("strings", thing.category),
+                            Resources.getString(thing.category),
                             thing.id));
                 }
             }

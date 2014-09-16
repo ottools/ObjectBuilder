@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 // 
-//  Copyright (c) 2014 <nailsonnego@gmail.com>
+//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
 // 
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -22,66 +22,47 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package otlib.things
+package otlib.resources
 {
-    import otlib.resources.Resources;
-
-    public class PingPongStrategy implements IFrameStrategy
+    import mx.resources.ResourceManager;
+    
+    import nail.core.nail_internal;
+    import nail.errors.AbstractClassError;
+    import nail.utils.isNullOrEmpty;
+    import nail.workers.ApplicationWorker;
+    
+    use namespace nail_internal;
+    
+    public final class Resources
     {
-        //--------------------------------------------------------------------------
-        // PROPERTIES
-        //--------------------------------------------------------------------------
-        
-        private var _currentDirection:uint;
-        
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function PingPongStrategy()
+        public function Resources()
         {
-            super();
+            throw new AbstractClassError(Resources);
         }
         
         //--------------------------------------------------------------------------
-        // METHODS
+        // STATIC
         //--------------------------------------------------------------------------
         
-        //--------------------------------------
-        // Public
-        //--------------------------------------
+        public static var bundleName:String = "strings";
         
-        public function toString():String
+        public static function getString(resourceName:String, ...rest):String
         {
-            return Resources.getString("pingPong");
-        }
-        
-        public function nextFrame(currentFrame:uint, framesCount:uint):uint
-        {
-            var count:int = _currentDirection == FRAME_FORWARD ? 1 : -1;
-            var frame:int = currentFrame + count;
+            var locale:String;
             
-            if (currentFrame + count < 0 || frame >= framesCount) {
-                _currentDirection = _currentDirection == FRAME_FORWARD ? FRAME_BACKWARD : FRAME_FORWARD;
-                count = count * -1;
+            if (ApplicationWorker.isRunning)
+            {
+                locale = ApplicationWorker.instance.getSharedProperty("locale") as String;
+                
+                if (isNullOrEmpty(locale))
+                    locale = "en_US";
             }
             
-            return currentFrame + count;
+            return ResourceManager.getInstance().getString(bundleName, resourceName, rest, locale);
         }
-        
-        public function clone():IFrameStrategy
-        {
-            var clone:PingPongStrategy = new PingPongStrategy();
-            clone._currentDirection = _currentDirection;
-            return clone;
-        }
-        
-        public function reset():void
-        {
-            _currentDirection = FRAME_FORWARD;
-        }
-        
-        private static const FRAME_FORWARD:uint = 0;
-        private static const FRAME_BACKWARD:uint = 1;
     }
 }

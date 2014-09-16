@@ -27,8 +27,8 @@ package nail.otlib.utils
     import nail.errors.AbstractClassError;
     import nail.otlib.things.ThingCategory;
     import nail.otlib.things.ThingType;
-    import nail.resources.Resources;
     
+    import otlib.resources.Resources;
     import otlib.things.AnimationMode;
     import otlib.things.Animator;
     import otlib.things.FrameDuration;
@@ -54,7 +54,7 @@ package nail.otlib.utils
                                            createFrameDuration:Boolean = false):ThingType
         {
             if (!ThingCategory.getCategory(category))
-                throw new Error(Resources.getString("strings", "invalidCategory"));
+                throw new Error(Resources.getString("invalidCategory"));
             
             var thing:ThingType = new ThingType();
             thing.category = category;

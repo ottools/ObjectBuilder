@@ -45,8 +45,9 @@ package nail.otlib.sprites
     import nail.otlib.core.otlib_internal;
     import nail.otlib.events.ProgressEvent;
     import nail.otlib.utils.ChangeResult;
-    import nail.resources.Resources;
     import nail.utils.FileUtil;
+    
+    import otlib.resources.Resources;
     
     use namespace otlib_internal;
     
@@ -181,7 +182,7 @@ package nail.otlib.sprites
         public function replaceSprite(id:uint, pixels:ByteArray):ChangeResult
         {
             if (id == 0 || id > _spritesCount) {
-                throw new ArgumentError(Resources.getString("strings", "indexOutOfRange"));
+                throw new ArgumentError(Resources.getString("indexOutOfRange"));
             }
             
             if (!pixels) {
@@ -219,7 +220,7 @@ package nail.otlib.sprites
         public function removeSprite(id:uint):ChangeResult
         {
             if (id == 0 || id > _spritesCount) {
-                throw new ArgumentError(Resources.getString("strings", "indexOutOfRange"));
+                throw new ArgumentError(Resources.getString("indexOutOfRange"));
             }
             
             var result:ChangeResult = internalRemoveSprite(id);
@@ -276,7 +277,7 @@ package nail.otlib.sprites
                     {
                         pixels =  sprite.getPixels();
                     } catch (error:Error) {
-                        Log.error(Resources.getString("strings", "failedToGetSprite", id), error.getStackTrace());
+                        Log.error(Resources.getString("failedToGetSprite", id), error.getStackTrace());
                         return _alertSprite.getPixels();
                     }
                     return pixels;
@@ -385,7 +386,7 @@ package nail.otlib.sprites
             } 
             catch(error:Error)
             {
-                Log.error(Resources.getString("strings", "failedToGetSprite", index), error.getStackTrace());
+                Log.error(Resources.getString("failedToGetSprite", index), error.getStackTrace());
                 return _alertSprite;
             }
             return null;
@@ -560,16 +561,15 @@ package nail.otlib.sprites
             }
             
             if (this.isFull) {
-                return result.update(null, false, Resources.getString("strings", "spritesLimitReached"));
+                return result.update(null, false, Resources.getString("spritesLimitReached"));
             }
             
             var id:uint = ++_spritesCount;
             var sprite:Sprite = new Sprite(id, _transparency);
             if (!sprite.setPixels(pixels)) {
                 var message:String = Resources.getString(
-                    "strings",
                     "failedToAdd",
-                    Resources.getString("strings", "sprite"),
+                    Resources.getString("sprite"),
                     id);
                 return result.update(null, false, message);
             }
@@ -608,9 +608,8 @@ package nail.otlib.sprites
             var sprite:Sprite = new Sprite(id, _transparency);
             if (!sprite.setPixels(pixels)) {
                 var message:String = Resources.getString(
-                    "strings",
                     "failedToReplace",
-                    Resources.getString("strings", "sprite"),
+                    Resources.getString("sprite"),
                     id);
                 return result.update(null, false, message);
             }
@@ -703,7 +702,7 @@ package nail.otlib.sprites
             }
             
             if (!file.exists) {
-                Log.error(Resources.getString("strings", "fileNotFound", file.nativePath));
+                Log.error(Resources.getString("fileNotFound", file.nativePath));
                 return;
             }
             
