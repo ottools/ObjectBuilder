@@ -560,13 +560,13 @@ package otlib.things
                 
                 var spriteData:SpriteData = data.sprites[i];
                 if (!spriteData || !spriteData.pixels)
-                    throw new Error(StringUtil.substitute("Invalid sprite id.", spriteId));
+                    throw new Error(StringUtil.format("Invalid sprite id.", spriteId));
                 
                 var pixels:ByteArray = spriteData.pixels;
                 pixels.position = 0;
                 
                 if (pixels.bytesAvailable != 4096)
-                    throw new Error(StringUtil.substitute("Invalid pixels length."));
+                    throw new Error(StringUtil.format("Invalid pixels length."));
                 
                 bytes.writeUnsignedInt(spriteId);
                 bytes.writeBytes(pixels, 0, pixels.bytesAvailable);

@@ -1616,7 +1616,7 @@
                 
                 if (event.property) {
                     var message:String = resourceManager.getString("strings", "propertyChanged");
-                    this.appendLog(StringUtil.substitute(message,
+                    this.appendLog(StringUtil.format(message,
                         ObUtils.toLocale(event.data.category),
                         event.data.id,
                         event.property,
@@ -1795,7 +1795,7 @@
                     if (event.detail == Alert.YES) {
                         saveThingChanges();
                     } else if (event.detail == Alert.NO) {
-                        appendLog(StringUtil.substitute(resourceManager.getString("strings", "unsavedChanges"),
+                        appendLog(StringUtil.format(resourceManager.getString("strings", "unsavedChanges"),
                             ObUtils.toLocale(thingTypeEditor.thingData.category),
                             thingTypeEditor.thingData.id));
                     } else if (event.detail == Alert.CANCEL) {
@@ -1904,7 +1904,7 @@
                         }
                     } else {
                         var message:String = resourceManager.getString("strings", "invalidSpriteSheetSize");
-                        Alert.show(StringUtil.substitute(message, rect.width, rect.height),
+                        Alert.show(StringUtil.format(message, rect.width, rect.height),
                             resourceManager.getString("strings", "invalidSpriteSheetSizeTitle"));
                     }
                 }

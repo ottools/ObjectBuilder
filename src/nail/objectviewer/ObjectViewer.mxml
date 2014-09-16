@@ -225,7 +225,7 @@
                     else 
                         bytes.position = 0;
                     
-                    var statusText:String = StringUtil.substitute(
+                    var statusText:String = StringUtil.format(
                         STATUS,
                         resourceManager.getString("strings", "name"),
                         FileUtil.getName(file),

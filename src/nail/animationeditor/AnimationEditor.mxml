@@ -77,10 +77,10 @@
             import nail.animationeditor.events.FrameListEvent;
             import nail.assets.Icons;
             import nail.assets.NailAssets;
-            import nail.codecs.ImageCodec;
-            import nail.codecs.ImageFormat;
             import nail.components.controls.Alert;
             import nail.image.ClipboardBitmapLoader;
+            import nail.image.ImageCodec;
+            import nail.image.ImageFormat;
             import nail.managers.PopUpWindowManager;
             import nail.objectbuilder.core.IObjectBuilder;
             import nail.objectbuilder.utils.ObUtils;

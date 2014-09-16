@@ -67,7 +67,7 @@
             import spark.events.IndexChangeEvent;
             import spark.events.TextOperationEvent;
             
-            import nail.codecs.ImageFormat;
+            import nail.image.ImageFormat;
             import nail.utils.DialogDetail;
             import nail.utils.isNullOrEmpty;
             

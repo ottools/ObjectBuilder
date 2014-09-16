@@ -39,8 +39,8 @@ package otlib.loaders
     import flash.net.URLRequest;
     import flash.utils.ByteArray;
     
-    import nail.codecs.ImageFormat;
     import nail.errors.NullArgumentError;
+    import nail.image.ImageFormat;
     import nail.objectbuilder.commands.ProgressBarID;
     
     import otlib.events.ProgressEvent;

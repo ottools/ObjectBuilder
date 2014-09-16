@@ -157,7 +157,7 @@
                 var version:Version = versionsDataGrid.selectedItem as Version;
                 if (!version) return;
                 
-                var message:String = StringUtil.substitute(
+                var message:String = StringUtil.format(
                     resourceManager.getString("strings", "wantToRemove"),
                     resourceManager.getString("strings", "version").toLowerCase(),
                     version);

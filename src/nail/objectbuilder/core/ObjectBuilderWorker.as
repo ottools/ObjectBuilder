@@ -33,10 +33,10 @@ package nail.objectbuilder.core
     import flash.utils.ByteArray;
     import flash.utils.Dictionary;
     
-    import nail.codecs.ImageCodec;
-    import nail.codecs.ImageFormat;
     import nail.errors.NullArgumentError;
     import nail.errors.NullOrEmptyArgumentError;
+    import nail.image.ImageCodec;
+    import nail.image.ImageFormat;
     import nail.logging.Log;
     import nail.objectbuilder.commands.CommandType;
     import nail.objectbuilder.commands.FindResultCommand;
@@ -918,7 +918,7 @@ package nail.objectbuilder.core
             this.setSelectedThingIds(thingIds, category);
             
             thingIds.sort(Array.NUMERIC);
-            var message:String = StringUtil.substitute(Resources.getString(
+            var message:String = StringUtil.format(Resources.getString(
                 "logDuplicated"),
                 toLocale(category, thingIds.length > 1),
                 list);

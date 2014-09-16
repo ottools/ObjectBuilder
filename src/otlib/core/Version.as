@@ -117,8 +117,8 @@ package otlib.core
             
             this.value = uint(xml.@value);
             this.valueStr = String(xml.@string);
-            this.datSignature = uint(StringUtil.substitute("0x{0}", xml.@dat));
-            this.sprSignature = uint(StringUtil.substitute("0x{0}", xml.@spr));
+            this.datSignature = uint(StringUtil.format("0x{0}", xml.@dat));
+            this.sprSignature = uint(StringUtil.format("0x{0}", xml.@spr));
             this.otbVersion = uint(xml.@otb);
         }
     }

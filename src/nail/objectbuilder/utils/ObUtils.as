@@ -118,15 +118,15 @@ package nail.objectbuilder.utils
                 resource.getString("strings", "patternZ") + " = {6}" + File.lineEnding +
                 resource.getString("strings", "animations") + " = {7}" + File.lineEnding;
             
-            return StringUtil.substitute(text,
-                thing.width,
-                thing.height,
-                thing.exactSize,
-                thing.layers,
-                thing.patternX,
-                thing.patternY,
-                thing.patternZ,
-                thing.frames);
+            return StringUtil.format(text,
+                                     thing.width,
+                                     thing.height,
+                                     thing.exactSize,
+                                     thing.layers,
+                                     thing.patternX,
+                                     thing.patternY,
+                                     thing.patternZ,
+                                     thing.frames);
         }
         
         public static function sortFiles(list:*, flags:uint):*

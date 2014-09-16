@@ -28,7 +28,7 @@ package nail.objectbuilder.settings
     
     import mx.core.FlexGlobals;
     
-    import nail.codecs.ImageFormat;
+    import nail.image.ImageFormat;
     import nail.objectbuilder.core.IObjectBuilder;
     import nail.settings.Settings;
     import nail.utils.FileUtil;
