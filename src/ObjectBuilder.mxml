@@ -1927,6 +1927,9 @@
                     var length:uint = files.length;
                     var list:Vector.<PathHelper> = new Vector.<PathHelper>(length, true);
                     
+                    if (length > 0)
+                        _settings.setIODirectory(files[0]);
+                    
                     if (selectedIds.length != files.length) {
                         Alert.show(
                             resourceManager.getString(
@@ -1963,6 +1966,9 @@
                     var files:Array = event.files;
                     var length:uint = files.length;
                     var list:Vector.<PathHelper> = new Vector.<PathHelper>(length, true);
+                    
+                    if (length > 0)
+                        _settings.setIODirectory(files[0]);
                     
                     FileUtil.sortFiles(files, Array.NUMERIC | Array.DESCENDING);
                     
