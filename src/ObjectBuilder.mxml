@@ -184,6 +184,7 @@
             import nail.utils.FileUtil;
             import nail.utils.StringUtil;
             import nail.utils.WindowUtil;
+            import nail.utils.isNullOrEmpty;
             import nail.workers.Command;
             
             import ob.components.SplashScreen;

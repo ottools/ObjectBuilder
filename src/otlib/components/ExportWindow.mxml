@@ -73,6 +73,7 @@
             import nail.otlib.events.FileTextInputEvent;
             import nail.otlib.utils.OTFormat;
             import nail.utils.DialogDetail;
+            import nail.utils.isNullOrEmpty;
             
             //--------------------------------------------------------------------------
             // PROPERTIES

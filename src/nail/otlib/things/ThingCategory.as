@@ -26,6 +26,7 @@ package nail.otlib.things
 {
     import nail.errors.AbstractClassError;
     import nail.utils.StringUtil;
+    import nail.utils.isNullOrEmpty;
     
     public final class ThingCategory
     {

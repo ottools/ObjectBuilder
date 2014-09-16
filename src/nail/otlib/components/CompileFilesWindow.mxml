@@ -58,6 +58,7 @@
             import nail.otlib.core.Version;
             import nail.otlib.core.VersionStorage;
             import nail.otlib.events.FileTextInputEvent;
+            import nail.utils.isNullOrEmpty;
             
             //--------------------------------------------------------------------------
             // PROPERTIES

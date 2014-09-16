@@ -59,6 +59,7 @@
             import mx.events.PropertyChangeEvent;
             
             import nail.otlib.utils.BindableLookType;
+            import nail.utils.isNullOrEmpty;
             
             //--------------------------------------------------------------------------
             // PROPERTIES

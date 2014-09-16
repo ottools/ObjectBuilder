@@ -35,6 +35,7 @@ package nail.objectbuilder.settings
     import nail.otlib.utils.OTFormat;
     import nail.settings.Settings;
     import nail.utils.FileUtil;
+    import nail.utils.isNullOrEmpty;
     
     public class ObjectBuilderSettings extends Settings
     {

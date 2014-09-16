@@ -47,6 +47,7 @@
             import nail.otlib.events.ThingListEvent;
             import nail.otlib.things.ThingType;
             import nail.otlib.utils.ThingListItem;
+            import nail.utils.isNullOrEmpty;
             
             use namespace otlib_internal;
             

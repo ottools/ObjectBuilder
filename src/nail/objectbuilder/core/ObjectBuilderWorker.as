@@ -73,6 +73,7 @@ package nail.objectbuilder.core
     import nail.utils.SaveHelper;
     import nail.utils.StringUtil;
     import nail.utils.VectorUtils;
+    import nail.utils.isNullOrEmpty;
     import nail.workers.ApplicationWorker;
     import nail.workers.Command;
     

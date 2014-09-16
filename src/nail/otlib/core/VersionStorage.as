@@ -35,6 +35,7 @@ package nail.otlib.core
     import nail.errors.NullArgumentError;
     import nail.errors.SingletonClassError;
     import nail.otlib.utils.OTFormat;
+    import nail.utils.isNullOrEmpty;
     
     import otlib.utils.FilesInfo;
     
