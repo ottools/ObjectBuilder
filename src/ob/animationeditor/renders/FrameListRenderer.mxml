@@ -42,9 +42,10 @@
             import mx.resources.IResourceManager;
             import mx.resources.ResourceManager;
             
-            import nail.animationeditor.Frame;
-            import nail.animationeditor.FrameList;
-            import nail.animationeditor.events.FrameListEvent;
+            import ob.animationeditor.Frame;
+            import ob.animationeditor.FrameList;
+            import ob.animationeditor.events.FrameListEvent;
+            
             import otlib.components.ListBase;
             import otlib.core.otlib_internal;
             

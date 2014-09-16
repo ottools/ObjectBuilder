@@ -22,30 +22,60 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.utils
+package ob.animationeditor
 {
-    import nail.errors.AbstractClassError;
-
-    public final class DialogDetail
+    import flash.display.BitmapData;
+    
+    import otlib.components.IListObject;
+    import otlib.things.FrameDuration;
+    
+    public class Frame implements IListObject
     {
+        //--------------------------------------------------------------------------
+        // PROPERTIES
+        //--------------------------------------------------------------------------
+        
+        public var opacity:Number;
+        public var bitmap:BitmapData;
+        public var duration:FrameDuration;
+        
+        //--------------------------------------
+        // Getters / Setters
+        //--------------------------------------
+        
+        public function get id():uint { return uint.MAX_VALUE; }
+        
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function DialogDetail()
+        public function Frame(bitmap:BitmapData = null, duration:FrameDuration = null)
         {
-            throw new AbstractClassError(DialogDetail);
+            this.opacity = 1.0;
+            this.bitmap = bitmap;
+            this.duration = duration;
         }
         
         //--------------------------------------------------------------------------
-        // STATIC
+        // METHODS
         //--------------------------------------------------------------------------
         
-        public static const CANCEL:uint = 0;
-        public static const OK:uint = 1;
-        public static const CONFIRM:uint = 2;
-        public static const YES:uint = 3;
-        public static const YES_TO_ALL:uint = 4;
-        public static const NO:uint = 5;
+        //--------------------------------------
+        // Public
+        //--------------------------------------
+        
+        public function getBitmap(backgroundColor:uint = 0):BitmapData
+        {
+            return bitmap;
+        }
+        
+        public function clone():Frame
+        {
+            var clone:Frame = new Frame();
+            clone.opacity = this.opacity;
+            clone.bitmap = this.bitmap ? this.bitmap.clone() : null;
+            clone.duration = this.duration ? this.duration.clone() : null;
+            return clone;
+        }
     }
 }

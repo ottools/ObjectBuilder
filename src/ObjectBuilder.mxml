@@ -112,7 +112,7 @@
             import air.update.ApplicationUpdaterUI;
             import air.update.events.UpdateEvent;
             
-            import nail.animationeditor.AnimationEditor;
+            import ob.animationeditor.AnimationEditor;
             import nail.components.controls.AboutWindow;
             import nail.components.controls.Alert;
             import nail.core.nail_internal;
@@ -120,10 +120,10 @@
             import nail.loaders.BitmapLoader;
             import nail.logging.Log;
             import nail.managers.PopUpWindowManager;
-            import nail.objectviewer.ObjectViewer;
+            import ob.objectviewer.ObjectViewer;
             import nail.settings.ISettingsManager;
             import nail.settings.SettingsManager;
-            import nail.slicer.Slicer;
+            import ob.slicer.Slicer;
             import nail.utils.CapabilitiesUtil;
             import nail.utils.Descriptor;
             import nail.utils.DialogDetail;

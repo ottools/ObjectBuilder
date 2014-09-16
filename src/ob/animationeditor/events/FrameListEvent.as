@@ -22,38 +22,19 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.animationeditor
+package ob.animationeditor.events
 {
-    import flash.display.BitmapData;
+    import flash.events.Event;
     
-    import otlib.components.IListObject;
-    import otlib.things.FrameDuration;
-    
-    public class Frame implements IListObject
+    public class FrameListEvent extends Event
     {
-        //--------------------------------------------------------------------------
-        // PROPERTIES
-        //--------------------------------------------------------------------------
-        
-        public var opacity:Number;
-        public var bitmap:BitmapData;
-        public var duration:FrameDuration;
-        
-        //--------------------------------------
-        // Getters / Setters
-        //--------------------------------------
-        
-        public function get id():uint { return uint.MAX_VALUE; }
-        
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function Frame(bitmap:BitmapData = null, duration:FrameDuration = null)
+        public function FrameListEvent(type:String)
         {
-            this.opacity = 1.0;
-            this.bitmap = bitmap;
-            this.duration = duration;
+            super(type);
         }
         
         //--------------------------------------------------------------------------
@@ -61,21 +42,20 @@ package nail.animationeditor
         //--------------------------------------------------------------------------
         
         //--------------------------------------
-        // Public
+        // Override Public
         //--------------------------------------
         
-        public function getBitmap(backgroundColor:uint = 0):BitmapData
+        override public function clone():Event
         {
-            return bitmap;
+            return new FrameListEvent(this.type);
         }
         
-        public function clone():Frame
-        {
-            var clone:Frame = new Frame();
-            clone.opacity = this.opacity;
-            clone.bitmap = this.bitmap ? this.bitmap.clone() : null;
-            clone.duration = this.duration ? this.duration.clone() : null;
-            return clone;
-        }
+        //--------------------------------------------------------------------------
+        // STATIC
+        //--------------------------------------------------------------------------
+        
+        public static const DUPLICATE:String = "duplicate";
+        public static const REMOVE:String = "remove";
+        public static const DISPLAYING_CONTEXT_MENU:String = "displayingContextMenu";
     }
 }

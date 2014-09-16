@@ -22,19 +22,19 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.animationeditor
+package ob.animationeditor
 {
     import flash.ui.ContextMenu;
     
-    import nail.animationeditor.events.FrameListEvent;
+    import ob.animationeditor.events.FrameListEvent;
     
     import otlib.components.ListBase;
     import otlib.core.otlib_internal;
     
     use namespace otlib_internal;
     
-    [Event(name="duplicate", type="nail.animationeditor.events.FrameListEvent")]
-    [Event(name="remove", type="nail.animationeditor.events.FrameListEvent")]
+    [Event(name="duplicate", type="ob.animationeditor.events.FrameListEvent")]
+    [Event(name="remove", type="ob.animationeditor.events.FrameListEvent")]
     
     public class FrameList extends ListBase
     {
