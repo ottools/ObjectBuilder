@@ -30,7 +30,7 @@
                   xmlns:mx="library://ns.adobe.com/flex/mx"
                   xmlns:nail="library://ns.nail.com/naillib"
                   xmlns:otlib="otlib.components.*"
-                  implements="nail.objectbuilder.core.IObjectBuilder"
+                  implements="ob.core.IObjectBuilder"
                   minWidth="800"
                   minHeight="600"
                   fontSize="11"
@@ -121,34 +121,6 @@
             import nail.loaders.BitmapLoader;
             import nail.logging.Log;
             import nail.managers.PopUpWindowManager;
-            import nail.objectbuilder.commands.CommandType;
-            import nail.objectbuilder.commands.LoadVersionsCommand;
-            import nail.objectbuilder.commands.NeedToReloadCommand;
-            import nail.objectbuilder.commands.ProgressBarID;
-            import nail.objectbuilder.commands.files.CompileAsCommand;
-            import nail.objectbuilder.commands.files.CompileCommand;
-            import nail.objectbuilder.commands.files.CreateNewFilesCommand;
-            import nail.objectbuilder.commands.files.LoadFilesCommand;
-            import nail.objectbuilder.commands.files.UnloadFilesCommand;
-            import nail.objectbuilder.commands.sprites.ExportSpritesCommand;
-            import nail.objectbuilder.commands.sprites.GetSpriteListCommand;
-            import nail.objectbuilder.commands.sprites.ImportSpritesCommand;
-            import nail.objectbuilder.commands.sprites.ImportSpritesFromFileCommand;
-            import nail.objectbuilder.commands.sprites.RemoveSpritesCommand;
-            import nail.objectbuilder.commands.sprites.ReplaceSpritesCommand;
-            import nail.objectbuilder.commands.sprites.ReplaceSpritesFromFilesCommand;
-            import nail.objectbuilder.commands.things.DuplicateThingCommand;
-            import nail.objectbuilder.commands.things.ExportThingCommand;
-            import nail.objectbuilder.commands.things.GetThingCommand;
-            import nail.objectbuilder.commands.things.GetThingListCommand;
-            import nail.objectbuilder.commands.things.ImportThingsFromFilesCommand;
-            import nail.objectbuilder.commands.things.NewThingCommand;
-            import nail.objectbuilder.commands.things.RemoveThingCommand;
-            import nail.objectbuilder.commands.things.ReplaceThingsCommand;
-            import nail.objectbuilder.commands.things.ReplaceThingsFromFilesCommand;
-            import nail.objectbuilder.commands.things.UpdateThingCommand;
-            import nail.objectbuilder.settings.ObjectBuilderSettings;
-            import nail.objectbuilder.utils.ObUtils;
             import nail.objectviewer.ObjectViewer;
             import nail.settings.ISettingsManager;
             import nail.settings.SettingsManager;
@@ -164,7 +136,35 @@
             import nail.utils.isNullOrEmpty;
             import nail.workers.Command;
             
+            import ob.commands.CommandType;
+            import ob.commands.LoadVersionsCommand;
+            import ob.commands.NeedToReloadCommand;
+            import ob.commands.ProgressBarID;
+            import ob.commands.files.CompileAsCommand;
+            import ob.commands.files.CompileCommand;
+            import ob.commands.files.CreateNewFilesCommand;
+            import ob.commands.files.LoadFilesCommand;
+            import ob.commands.files.UnloadFilesCommand;
+            import ob.commands.sprites.ExportSpritesCommand;
+            import ob.commands.sprites.GetSpriteListCommand;
+            import ob.commands.sprites.ImportSpritesCommand;
+            import ob.commands.sprites.ImportSpritesFromFileCommand;
+            import ob.commands.sprites.RemoveSpritesCommand;
+            import ob.commands.sprites.ReplaceSpritesCommand;
+            import ob.commands.sprites.ReplaceSpritesFromFilesCommand;
+            import ob.commands.things.DuplicateThingCommand;
+            import ob.commands.things.ExportThingCommand;
+            import ob.commands.things.GetThingCommand;
+            import ob.commands.things.GetThingListCommand;
+            import ob.commands.things.ImportThingsFromFilesCommand;
+            import ob.commands.things.NewThingCommand;
+            import ob.commands.things.RemoveThingCommand;
+            import ob.commands.things.ReplaceThingsCommand;
+            import ob.commands.things.ReplaceThingsFromFilesCommand;
+            import ob.commands.things.UpdateThingCommand;
             import ob.components.SplashScreen;
+            import ob.settings.ObjectBuilderSettings;
+            import ob.utils.ObUtils;
             
             import otlib.components.ClientVersionsWindow;
             import otlib.components.CompileFilesWindow;
@@ -204,7 +204,7 @@
             // PROPERTIES
             //--------------------------------------------------------------------------
             
-            [Embed(source="../workerswfs/nail/objectbuilder/core/ObjectBuilderWorker.swf", mimeType="application/octet-stream")]
+            [Embed(source="../workerswfs/ob/core/ObjectBuilderWorker.swf", mimeType="application/octet-stream")]
             public const ObjectBuilderWorker:Class;
             
             private var _splashScreen:SplashScreen;

@@ -45,7 +45,7 @@
             import mx.core.UIComponent;
             import mx.managers.PopUpManager;
             
-            import nail.objectbuilder.commands.ProgressBarID;
+            import ob.commands.ProgressBarID;
             
             //--------------------------------------------------------------------------
             // PROPERTIES

@@ -34,7 +34,7 @@ package otlib.loaders
     import flash.utils.ByteArray;
     
     import nail.errors.NullArgumentError;
-    import nail.objectbuilder.commands.ProgressBarID;
+    import ob.commands.ProgressBarID;
     
     import otlib.events.ProgressEvent;
     import otlib.things.ThingData;

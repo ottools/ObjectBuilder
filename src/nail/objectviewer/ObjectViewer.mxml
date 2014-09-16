@@ -60,9 +60,10 @@
             import nail.assets.Icons;
             import nail.assets.NailAssets;
             import nail.components.controls.Alert;
-            import nail.objectbuilder.core.IObjectBuilder;
             import nail.utils.FileUtil;
             import nail.utils.StringUtil;
+            
+            import ob.core.IObjectBuilder;
             
             import otlib.core.VersionStorage;
             import otlib.loaders.PathHelper;

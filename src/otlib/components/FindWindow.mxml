@@ -56,12 +56,12 @@
             import mx.events.PropertyChangeEvent;
             
             import nail.assets.Icons;
-            import nail.objectbuilder.commands.FindResultCommand;
-            import nail.objectbuilder.commands.sprites.FindSpritesCommand;
-            import nail.objectbuilder.commands.sprites.GetSpriteListCommand;
-            import nail.objectbuilder.commands.things.FindThingCommand;
-            import nail.objectbuilder.commands.things.GetThingCommand;
-            import nail.objectbuilder.core.IObjectBuilder;
+            import ob.commands.FindResultCommand;
+            import ob.commands.sprites.FindSpritesCommand;
+            import ob.commands.sprites.GetSpriteListCommand;
+            import ob.commands.things.FindThingCommand;
+            import ob.commands.things.GetThingCommand;
+            import ob.core.IObjectBuilder;
             
             import otlib.components.renders.SpriteListRenderer;
             import otlib.components.renders.ThingListRenderer;

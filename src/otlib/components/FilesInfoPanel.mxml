@@ -36,7 +36,7 @@
         <![CDATA[
             import mx.core.FlexGlobals;
             
-            import nail.objectbuilder.core.IObjectBuilder;
+            import ob.core.IObjectBuilder;
             
             import otlib.core.IVersionStorage;
             import otlib.core.Version;

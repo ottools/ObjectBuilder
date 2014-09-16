@@ -35,9 +35,10 @@ package otlib.things
     
     import nail.errors.NullArgumentError;
     import nail.logging.Log;
-    import nail.objectbuilder.commands.ProgressBarID;
     import nail.utils.FileUtil;
     import nail.utils.StringUtil;
+    
+    import ob.commands.ProgressBarID;
     
     import otlib.core.Version;
     import otlib.core.otlib_internal;

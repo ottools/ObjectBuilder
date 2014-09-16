@@ -61,7 +61,7 @@
             import mx.events.FlexEvent;
             
             import nail.assets.Icons;
-            import nail.objectbuilder.settings.ObjectBuilderSettings;
+            import ob.settings.ObjectBuilderSettings;
             import nail.utils.DialogDetail;
             
             //--------------------------------------------------------------------------

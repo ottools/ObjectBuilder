@@ -41,7 +41,7 @@ package otlib.loaders
     
     import nail.errors.NullArgumentError;
     import nail.image.ImageFormat;
-    import nail.objectbuilder.commands.ProgressBarID;
+    import ob.commands.ProgressBarID;
     
     import otlib.events.ProgressEvent;
     import otlib.resources.Resources;

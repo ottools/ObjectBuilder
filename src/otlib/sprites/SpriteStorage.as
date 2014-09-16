@@ -40,7 +40,7 @@ package otlib.sprites
     import nail.assets.Icons;
     import nail.errors.NullArgumentError;
     import nail.logging.Log;
-    import nail.objectbuilder.commands.ProgressBarID;
+    import ob.commands.ProgressBarID;
     import nail.utils.FileUtil;
     
     import otlib.core.Version;
