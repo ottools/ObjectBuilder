@@ -37,7 +37,7 @@
           fontSize="11"
           backgroundColor="0x494949"
           showStatusBar="false"
-          title="Slicer">
+          title="Slicer" xmlns:components1="otlib.components.*">
     
     <fx:Declarations>
         <fx:XMLList id="menuXML">
@@ -67,10 +67,11 @@
             import nail.components.controls.Alert;
             import nail.objectbuilder.core.IObjectBuilder;
             import nail.objectbuilder.utils.ObUtils;
-            import nail.otlib.components.SurfaceCells;
-            import nail.otlib.sprites.Sprite;
-            import nail.otlib.utils.SpriteUtils;
             import nail.utils.FileUtil;
+            
+            import otlib.components.SurfaceCells;
+            import otlib.sprites.Sprite;
+            import otlib.utils.SpriteUtils;
             
             //--------------------------------------------------------------------------
             // PROPERTIES
@@ -157,7 +158,7 @@
             {
                 if (!this.hasImage) return;
                 
-                var size:uint = nail.otlib.sprites.Sprite.DEFAULT_SIZE;
+                var size:uint = otlib.sprites.Sprite.DEFAULT_SIZE;
                 _surfaceCells.cellWidth = size;
                 _surfaceCells.cellHeight = size;
                 _surfaceCells.columns = columnsStepper.value;
@@ -206,8 +207,8 @@
                 
                 var x:int = offsetXStepper.value;
                 var y:int = offsetYStepper.value;
-                var width:uint = nail.otlib.sprites.Sprite.DEFAULT_SIZE;
-                var height:uint = nail.otlib.sprites.Sprite.DEFAULT_SIZE;
+                var width:uint = otlib.sprites.Sprite.DEFAULT_SIZE;
+                var height:uint = otlib.sprites.Sprite.DEFAULT_SIZE;
                 var columns:uint = columnsStepper.value;
                 var rows:uint = rowsStepper.value;
                 
@@ -619,7 +620,7 @@
                          nativeDragEnter="imageConteinerGroupNativeDragEnterHandler(event)"
                          nativeDragDrop="imageConteinerGroupNativeDragDropHandler(event)">
                     
-                    <components:CheckerBoard id="checkerboard"
+                    <components1:CheckerBoard id="checkerboard"
                                              width="{imageControl.width}"
                                              height="{imageControl.height}"/>
                     
@@ -651,7 +652,7 @@
                         contentBackgroundColor="0x494949"
                         borderVisible="false"
                         dataProvider="{_sprites}"
-                        itemRenderer="nail.otlib.components.renders.BitmapListRenderer"/>
+                        itemRenderer="otlib.components.renders.BitmapListRenderer"/>
             </nail:GroupBox>
             
             <s:Spacer height="3"/>

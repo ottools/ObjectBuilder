@@ -25,7 +25,7 @@
 package nail.objectbuilder.commands.things
 {
     import nail.objectbuilder.commands.CommandType;
-    import nail.otlib.loaders.PathHelper;
+    import otlib.loaders.PathHelper;
     import nail.workers.Command;
     
     public class ImportThingsFromFilesCommand extends Command

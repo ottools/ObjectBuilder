@@ -24,8 +24,6 @@
 
 package otlib.things
 {
-    import nail.otlib.things.ThingCategory;
-
     public class FrameDuration
     {
         //--------------------------------------------------------------------------

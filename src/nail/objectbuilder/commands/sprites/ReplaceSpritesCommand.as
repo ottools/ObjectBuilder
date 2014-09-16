@@ -25,7 +25,7 @@
 package nail.objectbuilder.commands.sprites
 {
     import nail.objectbuilder.commands.CommandType;
-    import nail.otlib.sprites.SpriteData;
+    import otlib.sprites.SpriteData;
     import nail.workers.Command;
     
     public class ReplaceSpritesCommand extends Command

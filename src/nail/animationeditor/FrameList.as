@@ -27,8 +27,9 @@ package nail.animationeditor
     import flash.ui.ContextMenu;
     
     import nail.animationeditor.events.FrameListEvent;
-    import nail.otlib.components.ListBase;
-    import nail.otlib.core.otlib_internal;
+    
+    import otlib.components.ListBase;
+    import otlib.core.otlib_internal;
     
     use namespace otlib_internal;
     

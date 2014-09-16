@@ -26,8 +26,7 @@ package nail.animationeditor
 {
     import flash.display.BitmapData;
     
-    import nail.otlib.components.IListObject;
-    
+    import otlib.components.IListObject;
     import otlib.things.FrameDuration;
     
     public class Frame implements IListObject

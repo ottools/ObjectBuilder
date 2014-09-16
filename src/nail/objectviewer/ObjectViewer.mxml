@@ -61,13 +61,14 @@
             import nail.assets.NailAssets;
             import nail.components.controls.Alert;
             import nail.objectbuilder.core.IObjectBuilder;
-            import nail.otlib.core.VersionStorage;
-            import nail.otlib.loaders.PathHelper;
-            import nail.otlib.things.ThingCategory;
-            import nail.otlib.things.ThingData;
-            import nail.otlib.utils.OTFormat;
             import nail.utils.FileUtil;
             import nail.utils.StringUtil;
+            
+            import otlib.core.VersionStorage;
+            import otlib.loaders.PathHelper;
+            import otlib.things.ThingCategory;
+            import otlib.things.ThingData;
+            import otlib.utils.OTFormat;
             
             //--------------------------------------------------------------------------
             // PROPERTIES

@@ -32,13 +32,12 @@ package otlib.components
     
     import mx.core.UIComponent;
     
-    import nail.otlib.geom.Rect;
-    import nail.otlib.things.ThingCategory;
-    import nail.otlib.things.ThingData;
-    import nail.otlib.things.ThingType;
-    
+    import otlib.geom.Rect;
     import otlib.things.Animator;
     import otlib.things.FrameDuration;
+    import otlib.things.ThingCategory;
+    import otlib.things.ThingData;
+    import otlib.things.ThingType;
     import otlib.utils.OutfitData;
     
     [Event(name="change", type="flash.events.Event")]

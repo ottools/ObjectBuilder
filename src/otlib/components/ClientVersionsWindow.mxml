@@ -54,16 +54,15 @@
             import mx.events.FlexEvent;
             
             import spark.events.GridSelectionEvent;
-            import spark.events.IndexChangeEvent;
-            import spark.events.TextOperationEvent;
             
             import nail.assets.Icons;
             import nail.components.controls.Alert;
-            import nail.otlib.core.IVersionStorage;
-            import nail.otlib.core.Version;
-            import nail.otlib.core.VersionStorage;
             import nail.utils.StringUtil;
             import nail.utils.isNullOrEmpty;
+            
+            import otlib.core.IVersionStorage;
+            import otlib.core.Version;
+            import otlib.core.VersionStorage;
             
             //--------------------------------------------------------------------------
             // PROPERTIES

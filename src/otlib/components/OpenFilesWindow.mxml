@@ -29,7 +29,7 @@
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:nail="library://ns.nail.com/naillib"
-          xmlns:components="nail.otlib.components.*"
+          xmlns:otlib="otlib.components.*"
           width="500"
           height="360"
           resizable="false"
@@ -62,15 +62,15 @@
             
             import nail.assets.Icons;
             import nail.logging.Log;
-            import nail.otlib.core.Version;
-            import nail.otlib.core.VersionStorage;
-            import nail.otlib.events.FileTextInputEvent;
-            import nail.otlib.utils.OTFormat;
             import nail.utils.DialogDetail;
             import nail.utils.isNullOrEmpty;
             
+            import otlib.core.Version;
+            import otlib.core.VersionStorage;
+            import otlib.events.FileTextInputEvent;
             import otlib.utils.FilesInfo;
             import otlib.utils.FilesInfoLoader;
+            import otlib.utils.OTFormat;
             
             //--------------------------------------------------------------------------
             // PROPERTIES
@@ -415,9 +415,9 @@
                  color="0xDFDFDF"/>
         <s:HGroup width="100%"
                   height="100%">
-            <components:FileTextInput id="clientDirectoryTextInput"
-                                      width="100%"
-                                      fileChange="clientDirectoryChangeHandler(event)"/>
+            <otlib:FileTextInput id="clientDirectoryTextInput"
+                                 width="100%"
+                                 fileChange="clientDirectoryChangeHandler(event)"/>
             <s:Button id="clientBrowseButton"
                       label="@Resource(key='browse', bundle='strings')"
                       height="21"

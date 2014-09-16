@@ -30,15 +30,15 @@ package nail.objectbuilder.core
     
     import nail.core.IApplication;
     import nail.objectbuilder.settings.ObjectBuilderSettings;
-    import nail.otlib.core.IVersionStorage;
-    import nail.otlib.core.Version;
-    import nail.otlib.loaders.PathHelper;
-    import nail.otlib.sprites.SpriteData;
-    import nail.otlib.things.ThingData;
-    import nail.otlib.things.ThingType;
     import nail.settings.ISettingsManager;
     import nail.utils.FileData;
     
+    import otlib.core.IVersionStorage;
+    import otlib.core.Version;
+    import otlib.loaders.PathHelper;
+    import otlib.sprites.SpriteData;
+    import otlib.things.ThingData;
+    import otlib.things.ThingType;
     import otlib.utils.FilesInfo;
     
     public interface IObjectBuilder extends IApplication

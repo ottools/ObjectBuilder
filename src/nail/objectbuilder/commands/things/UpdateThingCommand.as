@@ -25,7 +25,7 @@
 package nail.objectbuilder.commands.things
 {
     import nail.objectbuilder.commands.CommandType;
-    import nail.otlib.things.ThingData;
+    import otlib.things.ThingData;
     import nail.workers.Command;
     
     public class UpdateThingCommand extends Command

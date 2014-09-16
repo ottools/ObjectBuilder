@@ -24,7 +24,7 @@
 
 package nail.objectbuilder.commands.sprites
 {
-    import nail.otlib.sprites.SpriteData;
+    import otlib.sprites.SpriteData;
     import nail.workers.Command;
     import nail.objectbuilder.commands.CommandType;
     

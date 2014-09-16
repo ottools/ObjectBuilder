@@ -25,7 +25,7 @@
 package nail.objectbuilder.commands.sprites
 {
     import nail.objectbuilder.commands.CommandType;
-    import nail.otlib.loaders.PathHelper;
+    import otlib.loaders.PathHelper;
     import nail.workers.Command;
     
     public class ImportSpritesFromFileCommand extends Command

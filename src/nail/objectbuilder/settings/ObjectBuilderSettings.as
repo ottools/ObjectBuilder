@@ -30,12 +30,13 @@ package nail.objectbuilder.settings
     
     import nail.codecs.ImageFormat;
     import nail.objectbuilder.core.IObjectBuilder;
-    import nail.otlib.core.IVersionStorage;
-    import nail.otlib.core.Version;
-    import nail.otlib.utils.OTFormat;
     import nail.settings.Settings;
     import nail.utils.FileUtil;
     import nail.utils.isNullOrEmpty;
+    
+    import otlib.core.IVersionStorage;
+    import otlib.core.Version;
+    import otlib.utils.OTFormat;
     
     public class ObjectBuilderSettings extends Settings
     {

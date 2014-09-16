@@ -30,7 +30,7 @@ package otlib.utils
     import mx.resources.ResourceManager;
     
     import nail.errors.AbstractClassError;
-    import nail.otlib.things.ThingCategory;
+    import otlib.things.ThingCategory;
     
     public final class OtlibUtils
     {

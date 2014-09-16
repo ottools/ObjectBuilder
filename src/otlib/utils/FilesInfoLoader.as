@@ -35,8 +35,8 @@ package otlib.utils
     import flash.utils.Endian;
     
     import nail.errors.NullArgumentError;
-    import nail.otlib.core.Version;
-    import nail.otlib.core.VersionStorage;
+    import otlib.core.Version;
+    import otlib.core.VersionStorage;
     
     import otlib.resources.Resources;
     

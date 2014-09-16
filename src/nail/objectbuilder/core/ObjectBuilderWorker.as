@@ -50,24 +50,6 @@ package nail.objectbuilder.core
     import nail.objectbuilder.commands.things.SetThingDataCommand;
     import nail.objectbuilder.commands.things.SetThingListCommand;
     import nail.objectbuilder.utils.ObUtils;
-    import nail.otlib.core.Version;
-    import nail.otlib.core.VersionStorage;
-    import nail.otlib.events.ProgressEvent;
-    import nail.otlib.loaders.PathHelper;
-    import nail.otlib.loaders.SpriteDataLoader;
-    import nail.otlib.loaders.ThingDataLoader;
-    import nail.otlib.sprites.Sprite;
-    import nail.otlib.sprites.SpriteData;
-    import nail.otlib.sprites.SpriteStorage;
-    import nail.otlib.things.ThingCategory;
-    import nail.otlib.things.ThingData;
-    import nail.otlib.things.ThingProperty;
-    import nail.otlib.things.ThingType;
-    import nail.otlib.things.ThingTypeStorage;
-    import nail.otlib.utils.ChangeResult;
-    import nail.otlib.utils.OTFormat;
-    import nail.otlib.utils.ThingListItem;
-    import nail.otlib.utils.ThingUtils;
     import nail.utils.FileUtil;
     import nail.utils.SaveHelper;
     import nail.utils.StringUtil;
@@ -76,12 +58,30 @@ package nail.objectbuilder.core
     import nail.workers.ApplicationWorker;
     import nail.workers.Command;
     
+    import otlib.core.Version;
+    import otlib.core.VersionStorage;
+    import otlib.events.ProgressEvent;
+    import otlib.loaders.PathHelper;
+    import otlib.loaders.SpriteDataLoader;
+    import otlib.loaders.ThingDataLoader;
     import otlib.resources.Resources;
+    import otlib.sprites.Sprite;
+    import otlib.sprites.SpriteData;
+    import otlib.sprites.SpriteStorage;
     import otlib.things.Animator;
     import otlib.things.FrameDuration;
     import otlib.things.LoopStrategy;
     import otlib.things.PingPongStrategy;
+    import otlib.things.ThingCategory;
+    import otlib.things.ThingData;
+    import otlib.things.ThingProperty;
+    import otlib.things.ThingType;
+    import otlib.things.ThingTypeStorage;
+    import otlib.utils.ChangeResult;
     import otlib.utils.FilesInfo;
+    import otlib.utils.OTFormat;
+    import otlib.utils.ThingListItem;
+    import otlib.utils.ThingUtils;
     
     [ResourceBundle("strings")]
     

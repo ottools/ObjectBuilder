@@ -24,7 +24,7 @@
 
 package nail.objectbuilder.commands.things
 {
-    import nail.otlib.things.ThingData;
+    import otlib.things.ThingData;
     import nail.workers.Command;
     import nail.objectbuilder.commands.CommandType;
     

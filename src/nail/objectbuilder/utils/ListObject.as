@@ -27,7 +27,7 @@ package nail.objectbuilder.utils
     import flash.display.BitmapData;
     import flash.utils.ByteArray;
     
-    import nail.otlib.things.ThingType;
+    import otlib.things.ThingType;
     
     public class ListObject
     {

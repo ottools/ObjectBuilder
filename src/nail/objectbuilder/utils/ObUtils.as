@@ -32,13 +32,13 @@ package nail.objectbuilder.utils
     import mx.resources.ResourceManager;
     
     import nail.errors.AbstractClassError;
-    import nail.otlib.things.BindableThingType;
-    import nail.otlib.things.ThingCategory;
-    import nail.otlib.things.ThingType;
     import nail.utils.FileUtil;
     import nail.utils.StringUtil;
     
     import otlib.resources.Resources;
+    import otlib.things.BindableThingType;
+    import otlib.things.ThingCategory;
+    import otlib.things.ThingType;
     
     [ResourceBundle("strings")]
     

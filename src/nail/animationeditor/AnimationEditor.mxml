@@ -84,23 +84,23 @@
             import nail.managers.PopUpWindowManager;
             import nail.objectbuilder.core.IObjectBuilder;
             import nail.objectbuilder.utils.ObUtils;
-            import nail.otlib.components.SurfaceCells;
-            import nail.otlib.geom.Size;
-            import nail.otlib.sprites.SpriteData;
-            import nail.otlib.things.ThingCategory;
-            import nail.otlib.things.ThingData;
-            import nail.otlib.things.ThingType;
-            import nail.otlib.utils.OTFormat;
-            import nail.otlib.utils.SpriteUtils;
             import nail.utils.FileUtil;
             import nail.utils.SaveHelper;
             import nail.utils.StringUtil;
             
             import otlib.components.ExportWindow;
+            import otlib.components.SurfaceCells;
+            import otlib.geom.Size;
+            import otlib.sprites.SpriteData;
             import otlib.things.AnimationMode;
             import otlib.things.Animator;
             import otlib.things.FrameDuration;
             import otlib.things.FrameStrategyType;
+            import otlib.things.ThingCategory;
+            import otlib.things.ThingData;
+            import otlib.things.ThingType;
+            import otlib.utils.OTFormat;
+            import otlib.utils.SpriteUtils;
             
             //--------------------------------------------------------------------------
             // PROPERTIES
@@ -996,7 +996,7 @@
                              nativeDragEnter="imageConteinerGroupNativeDragEnterHandler(event)"
                              nativeDragDrop="imageConteinerGroupNativeDragDropHandler(event)">
                         
-                        <components:CheckerBoard id="checkerboard"
+                        <otlib:CheckerBoard id="checkerboard"
                                                  width="{imageControl.width}"
                                                  height="{imageControl.height}"/>
                         

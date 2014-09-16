@@ -26,8 +26,6 @@
 
 @namespace s "library://ns.adobe.com/flex/spark";
 @namespace mx "library://ns.adobe.com/flex/mx";
-@namespace controls "nail.otlib.components.controls.*";
-@namespace components "nail.otlib.components.*";
 @namespace otlib "otlib.components.*";
 
 global
@@ -71,17 +69,17 @@ otlib|AmountNumericStepper
     skinClass: ClassReference("otlib.components.skins.AmountNumericStepperSkin");
 }
 
-components|HSIColorPicker
+otlib|HSIColorPicker
 {
-    skinClass: ClassReference("nail.otlib.components.skins.HSIColorPickerSkin");
+    skinClass: ClassReference("otlib.components.skins.HSIColorPickerSkin");
 }
 
-components|EightBitColorPicker
+otlib|EightBitColorPicker
 {
-    skinClass: ClassReference("nail.otlib.components.skins.EightBitColorPickerSkin");
+    skinClass: ClassReference("otlib.components.skins.EightBitColorPickerSkin");
 }
 
-components|PatternSlider
+otlib|PatternSlider
 {
-    skinClass: ClassReference("nail.otlib.components.skins.PatternSliderSkin");
+    skinClass: ClassReference("otlib.components.skins.PatternSliderSkin");
 }
