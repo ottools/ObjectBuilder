@@ -22,80 +22,47 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.otlib.things
+package otlib.resources
 {
-    import nail.errors.AbstractClassError;
-    import nail.utils.StringUtil;
-    import nail.utils.isNullOrEmpty;
+    import mx.resources.ResourceManager;
     
-    public final class ThingCategory
+    import nail.core.nail_internal;
+    import nail.errors.AbstractClassError;
+    import nail.utils.isNullOrEmpty;
+    import nail.workers.ApplicationWorker;
+    
+    use namespace nail_internal;
+    
+    public final class Resources
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function ThingCategory(value:String)
+        public function Resources()
         {
-            throw new AbstractClassError(ThingCategory);
+            throw new AbstractClassError(Resources);
         }
         
         //--------------------------------------------------------------------------
         // STATIC
         //--------------------------------------------------------------------------
         
-        public static const ITEM:String = "item";
-        public static const OUTFIT:String = "outfit";
-        public static const EFFECT:String = "effect";
-        public static const MISSILE:String = "missile";
+        public static var bundleName:String = "strings";
         
-        public static function getCategory(value:String):String
+        public static function getString(resourceName:String, ...rest):String
         {
-            if (!isNullOrEmpty(value)) {
-                value = StringUtil.toKeyString(value);
-                switch (value) {
-                    case "item":
-                        return ITEM;
-                    case "outfit":
-                        return OUTFIT;
-                    case "effect":
-                        return EFFECT;
-                    case "missile":
-                        return MISSILE;
-                }
+            var locale:String;
+            
+            if (ApplicationWorker.isRunning)
+            {
+                locale = ApplicationWorker.instance.getSharedProperty("locale") as String;
+                
+                if (isNullOrEmpty(locale))
+                    locale = "en_US";
             }
-            return null;
-        }
-        
-        public static function getCategoryByValue(value:uint):String
-        {
-            switch (value) {
-                case 1:
-                    return ITEM;
-                case 2:
-                    return OUTFIT;
-                case 3:
-                    return EFFECT;
-                case 4:
-                    return MISSILE;
-            }
-            return null;
-        }
-        
-        public static function getValue(category:String):uint
-        {
-            if (!isNullOrEmpty(category)) {
-                switch (category) {
-                    case "item":
-                        return 1;
-                    case "outfit":
-                        return 2;
-                    case "effect":
-                        return 3;
-                    case "missile":
-                        return 4;
-                }
-            }
-            return 0;
+            
+            return ResourceManager.getInstance().getString(bundleName, resourceName, rest, locale);
         }
     }
 }

@@ -59,11 +59,11 @@
             
             import nail.assets.Icons;
             import nail.components.controls.Alert;
-            import nail.utils.StringUtil;
-            
             import nail.otlib.core.IVersionStorage;
             import nail.otlib.core.Version;
             import nail.otlib.core.VersionStorage;
+            import nail.utils.StringUtil;
+            import nail.utils.isNullOrEmpty;
             
             //--------------------------------------------------------------------------
             // PROPERTIES

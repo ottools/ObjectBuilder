@@ -41,9 +41,10 @@ package nail.otlib.things
     import nail.otlib.events.ProgressEvent;
     import nail.otlib.utils.ChangeResult;
     import nail.otlib.utils.ThingUtils;
-    import nail.resources.Resources;
     import nail.utils.FileUtil;
     import nail.utils.StringUtil;
+    
+    import otlib.resources.Resources;
     
     use namespace otlib_internal;
     
@@ -169,7 +170,7 @@ package nail.otlib.things
             }
             
             if (!ThingCategory.getCategory(category)) {
-                throw new ArgumentError(Resources.getString("strings", "invalidCategory"));
+                throw new ArgumentError(Resources.getString("invalidCategory"));
             }
             
             var result:ChangeResult = internalAddThing(thing, category);
@@ -199,14 +200,13 @@ package nail.otlib.things
             }
             
             if (!ThingCategory.getCategory(category)) {
-                throw new ArgumentError(Resources.getString("strings", "invalidCategory"));
+                throw new ArgumentError(Resources.getString("invalidCategory"));
             }
             
             if (!hasThingType(category, replaceId)) {
                 throw new Error(Resources.getString(
-                    "strings",
                     "thingNotFound",
-                    Resources.getString("strings", category),
+                    Resources.getString(category),
                     replaceId));
             }
             
@@ -237,14 +237,13 @@ package nail.otlib.things
         {
             if (!ThingCategory.getCategory(category))
             {
-                throw new Error(Resources.getString("strings", "invalidCategory"));
+                throw new Error(Resources.getString("invalidCategory"));
             }
             
             if (!hasThingType(category, id)) {
                 throw new Error(Resources.getString(
-                    "strings",
                     "thingNotFound",
-                    Resources.getString("strings", category),
+                    Resources.getString(category),
                     id));
             }
             
@@ -266,7 +265,7 @@ package nail.otlib.things
             
             if (!ThingCategory.getCategory(category))
             {
-                throw new Error(Resources.getString("strings", "invalidCategory"));
+                throw new Error(Resources.getString("invalidCategory"));
             }
             
             var result:ChangeResult = internalRemoveThings(things, category);
@@ -313,7 +312,7 @@ package nail.otlib.things
                 stream.close();
             } catch(error:Error) {
                 if (error.errorID == 3001)
-                    Log.error(Resources.getString("strings", "accessDenied"));
+                    Log.error(Resources.getString("accessDenied"));
                 else
                     dispatchEvent(new ErrorEvent(ErrorEvent.ERROR, false, false, error.getStackTrace(), error.errorID));
                
@@ -375,7 +374,7 @@ package nail.otlib.things
             if (_loaded && id >= MIN_ITEM_ID && id <= _itemsCount && _items[id] !== undefined) {
                 var thing:ThingType = ThingType(_items[id]);
                 if (!ThingUtils.isValid(thing)) {
-                    Log.error(Resources.getString("strings", "failedToGetThing", ThingCategory.ITEM, id));
+                    Log.error(Resources.getString("failedToGetThing", ThingCategory.ITEM, id));
                     thing = ThingUtils.createAlertThing(ThingCategory.ITEM);
                     thing.id = id;
                 }
@@ -389,7 +388,7 @@ package nail.otlib.things
             if (_loaded && id >= MIN_OUTFIT_ID && id <= _outfitsCount && _outfits[id] !== undefined) {
                 var thing:ThingType = ThingType(_outfits[id]);
                 if (!ThingUtils.isValid(thing)) {
-                    Log.error(Resources.getString("strings", "failedToGetThing", ThingCategory.OUTFIT, id));
+                    Log.error(Resources.getString("failedToGetThing", ThingCategory.OUTFIT, id));
                     thing = ThingUtils.createAlertThing(ThingCategory.ITEM);
                     thing.category = ThingCategory.OUTFIT;
                     thing.id = id;
@@ -404,7 +403,7 @@ package nail.otlib.things
             if (_loaded && id >= MIN_EFFECT_ID && id <= _effectsCount && _effects[id] !== undefined) {
                 var thing:ThingType = ThingType(_effects[id]);
                 if (!ThingUtils.isValid(thing)) {
-                    Log.error(Resources.getString("strings", "failedToGetThing", ThingCategory.EFFECT, id));
+                    Log.error(Resources.getString("failedToGetThing", ThingCategory.EFFECT, id));
                     thing = ThingUtils.createAlertThing(ThingCategory.ITEM);
                     thing.category = ThingCategory.EFFECT;
                     thing.id = id;
@@ -419,7 +418,7 @@ package nail.otlib.things
             if (_loaded && id >= MIN_MISSILE_ID && id <= _missilesCount && _missiles[id] !== undefined) {
                 var thing:ThingType = ThingType(_missiles[id]);
                 if (!ThingUtils.isValid(thing)) {
-                    Log.error(Resources.getString("strings", "failedToGetThing", ThingCategory.MISSILE, id));
+                    Log.error(Resources.getString("failedToGetThing", ThingCategory.MISSILE, id));
                     thing = ThingUtils.createAlertThing(ThingCategory.ITEM);
                     thing.category = ThingCategory.MISSILE;
                     thing.id = id;
@@ -466,7 +465,7 @@ package nail.otlib.things
         public function findThingTypeByProperties(category:String, properties:Vector.<ThingProperty>):Array
         {
             if (!ThingCategory.getCategory(category)) {
-                throw new ArgumentError(Resources.getString("strings", "invalidCategory"));
+                throw new ArgumentError(Resources.getString("invalidCategory"));
             }
             
             if (!properties) {
@@ -593,7 +592,7 @@ package nail.otlib.things
                     _missiles[id] = thing;
                     break;
                 default:
-                    return result.update(null, false, Resources.getString("strings", "invalidCategory"));
+                    return result.update(null, false, Resources.getString("invalidCategory"));
             }
             
             thing.category = category;
@@ -616,9 +615,8 @@ package nail.otlib.things
                 var added:ChangeResult = internalAddThing(thing, thing.category, CHANGE_RESULT_HELPER);
                 if (!added.done) {
                     var message:String = Resources.getString(
-                        "strings",
                         "failedToAdd",
-                        Resources.getString("strings", thing.category),
+                        Resources.getString(thing.category),
                         getMaxId(thing.category) + 1);
                     return result.update(addedList, false, message + File.lineEnding + result.message);
                 }
@@ -654,7 +652,7 @@ package nail.otlib.things
                     _missiles[replaceId] = thing;
                     break;
                 default:
-                    return result.update(null, false, Resources.getString("strings", "invalidCategory"));
+                    return result.update(null, false, Resources.getString("invalidCategory"));
             }
             
             thing.category = category;
@@ -680,9 +678,8 @@ package nail.otlib.things
                     CHANGE_RESULT_HELPER);
                 if (!replaced.done) {
                     var message:String = Resources.getString(
-                        "strings",
                         "failedToReplace",
-                        Resources.getString("strings", thing.category),
+                        Resources.getString(thing.category),
                         thing.id);
                     return result.update(replacedList, false, message + File.lineEnding + result.message);
                 }
@@ -739,7 +736,7 @@ package nail.otlib.things
                     }
                     break;
                 default:
-                    return result.update(null, false, Resources.getString("strings", "invalidCategory"));
+                    return result.update(null, false, Resources.getString("invalidCategory"));
             }
             return result.update([removedThing], true);
         }
@@ -761,9 +758,8 @@ package nail.otlib.things
                 var removed:ChangeResult = internalRemoveThing(things[i], category, CHANGE_RESULT_HELPER);
                 if (!removed.done) {
                     var message:String = Resources.getString(
-                        "strings",
                         "failedToRemove",
-                        Resources.getString("strings", category),
+                        Resources.getString(category),
                         things[i]);
                     return result.update(removedList, false, message + File.lineEnding + removed.message);
                 }

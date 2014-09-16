@@ -37,7 +37,8 @@ package otlib.utils
     import nail.errors.NullArgumentError;
     import nail.otlib.core.Version;
     import nail.otlib.core.VersionStorage;
-    import nail.resources.Resources;
+    
+    import otlib.resources.Resources;
     
     [Event(name="complete", type="flash.events.Event")]
     [Event(name="progress", type="flash.events.ProgressEvent")]
@@ -89,10 +90,10 @@ package otlib.utils
                 throw new NullArgumentError("spr");
             
             if (!dat.exists)
-                dispatchEvent( createErrorEvent( Resources.getString("strings", "datFileNotFound") ) );
+                dispatchEvent( createErrorEvent( Resources.getString("datFileNotFound") ) );
             
             if (!spr.exists)
-                dispatchEvent( createErrorEvent( Resources.getString("strings", "sprFileNotFound") ) );
+                dispatchEvent( createErrorEvent( Resources.getString("sprFileNotFound") ) );
             
             _dat = dat;
             _spr = spr;
@@ -167,7 +168,7 @@ package otlib.utils
                 _filesInfo.maxSpriteId = 0;
                 
                 dispatchEvent(new Event(Event.COMPLETE));
-                dispatchEvent( createErrorEvent( Resources.getString("strings", "unsupportedVersion") ) );
+                dispatchEvent( createErrorEvent( Resources.getString("unsupportedVersion") ) );
                 return;
             }
             

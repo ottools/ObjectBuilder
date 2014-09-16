@@ -62,12 +62,13 @@
             
             import nail.assets.Icons;
             import nail.logging.Log;
+            import nail.otlib.core.Version;
+            import nail.otlib.core.VersionStorage;
             import nail.otlib.events.FileTextInputEvent;
             import nail.otlib.utils.OTFormat;
             import nail.utils.DialogDetail;
+            import nail.utils.isNullOrEmpty;
             
-            import nail.otlib.core.Version;
-            import nail.otlib.core.VersionStorage;
             import otlib.utils.FilesInfo;
             import otlib.utils.FilesInfoLoader;
             

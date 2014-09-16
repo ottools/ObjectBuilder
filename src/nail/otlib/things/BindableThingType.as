@@ -34,6 +34,7 @@ package nail.otlib.things
     import mx.resources.ResourceManager;
     
     import nail.otlib.sprites.SpriteData;
+    import nail.utils.isNullOrEmpty;
     
     import otlib.things.AnimationMode;
     import otlib.things.Animator;

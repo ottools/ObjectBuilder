@@ -35,9 +35,10 @@ package nail.objectbuilder.utils
     import nail.otlib.things.BindableThingType;
     import nail.otlib.things.ThingCategory;
     import nail.otlib.things.ThingType;
-    import nail.resources.Resources;
     import nail.utils.FileUtil;
     import nail.utils.StringUtil;
+    
+    import otlib.resources.Resources;
     
     [ResourceBundle("strings")]
     
@@ -63,16 +64,16 @@ package nail.objectbuilder.utils
             if (ThingCategory.getCategory(category)) {
                 switch(category) {
                     case ThingCategory.ITEM:
-                        result = Resources.getString("strings", "item");
+                        result = Resources.getString("item");
                         break;
                     case ThingCategory.OUTFIT:
-                        result = ResourceManager.getInstance().getString("strings", "outfit");
+                        result = Resources.getString("outfit");
                         break;
                     case ThingCategory.EFFECT:
-                        result = ResourceManager.getInstance().getString("strings", "effect");
+                        result = Resources.getString("effect");
                         break;
                     case ThingCategory.MISSILE:
-                        result = ResourceManager.getInstance().getString("strings", "missile");
+                        result = Resources.getString("missile");
                         break;
                 }
             }
@@ -154,7 +155,7 @@ package nail.objectbuilder.utils
         
         public static function createImagesFileFilter():Array
         {
-            return [ new FileFilter(Resources.getString("strings", "allFormats"), "*.png;*.bmp;*.jpg;*.gif;"),
+            return [ new FileFilter(Resources.getString("allFormats"), "*.png;*.bmp;*.jpg;*.gif;"),
                 new FileFilter("PNG (*.PNG)", "*.png"),
                 new FileFilter("BMP (*.BMP)", "*.bmp"),
                 new FileFilter("JPEG (*.JPG)", "*.jpg"),

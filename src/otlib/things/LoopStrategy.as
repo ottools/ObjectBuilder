@@ -24,7 +24,7 @@
 
 package otlib.things
 {
-    import nail.resources.Resources;
+    import otlib.resources.Resources;
 
     public class LoopStrategy implements IFrameStrategy
     {
@@ -53,7 +53,7 @@ package otlib.things
         
         public function toString():String
         {
-            return Resources.getString("strings", "loop");
+            return Resources.getString("loop");
         }
         
         public function nextFrame(currentFrame:uint, framesCount:uint):uint

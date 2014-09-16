@@ -24,7 +24,7 @@
 
 package otlib.things
 {
-    import nail.resources.Resources;
+    import otlib.resources.Resources;
 
     public class PingPongStrategy implements IFrameStrategy
     {
@@ -53,7 +53,7 @@ package otlib.things
         
         public function toString():String
         {
-            return Resources.getString("strings", "pingPong");
+            return Resources.getString("pingPong");
         }
         
         public function nextFrame(currentFrame:uint, framesCount:uint):uint

@@ -68,14 +68,15 @@ package nail.objectbuilder.core
     import nail.otlib.utils.OTFormat;
     import nail.otlib.utils.ThingListItem;
     import nail.otlib.utils.ThingUtils;
-    import nail.resources.Resources;
     import nail.utils.FileUtil;
     import nail.utils.SaveHelper;
     import nail.utils.StringUtil;
     import nail.utils.VectorUtils;
+    import nail.utils.isNullOrEmpty;
     import nail.workers.ApplicationWorker;
     import nail.workers.Command;
     
+    import otlib.resources.Resources;
     import otlib.things.Animator;
     import otlib.things.FrameDuration;
     import otlib.things.LoopStrategy;
@@ -291,12 +292,12 @@ package nail.objectbuilder.core
             
             // Create sprites.
             if (!_sprites.createNew(version, _extended, transparency)) {
-                throw new Error(Resources.getString("strings", "notCreateSpr"));
+                throw new Error(Resources.getString("notCreateSpr"));
             }
             
             // Create things.
             if (!_things.createNew(version)) {
-                throw new Error(Resources.getString("strings", "notCreateDat"));
+                throw new Error(Resources.getString("notCreateDat"));
             }
             
             this.compiled = false;
@@ -349,7 +350,7 @@ package nail.objectbuilder.core
             _extended = (extended || _version.value >= 960);
             _transparency = transparency;
             
-            var title:String = Resources.getString("strings", "loading");
+            var title:String = Resources.getString("loading");
             sendCommand(new ShowProgressBarCommand(ProgressBarID.DAT_SPR, title));
             
             createStorage();
@@ -378,15 +379,15 @@ package nail.objectbuilder.core
                 throw new NullArgumentError("version");
             
             if (!_things || !_things.loaded)
-                throw new Error(Resources.getString("strings", "metadataNotLoaded"));
+                throw new Error(Resources.getString("metadataNotLoaded"));
             
             if (!_sprites || !_sprites.loaded)
-                throw new Error(Resources.getString("strings", "spritesNotLoaded"));
+                throw new Error(Resources.getString("spritesNotLoaded"));
             
             var dat:File = new File(datPath);
             var spr:File = new File(sprPath);
             var structureChanged:Boolean = (_extended != extended || _transparency != transparency);
-            var title:String = Resources.getString("strings", "compiling");
+            var title:String = Resources.getString("compiling");
             
             sendCommand(new ShowProgressBarCommand(ProgressBarID.DAT_SPR, title));
             
@@ -443,7 +444,7 @@ package nail.objectbuilder.core
         private function onNewThing(category:String):void
         {
             if (!ThingCategory.getCategory(category)) {
-                throw new Error(Resources.getString("strings", "invalidCategory"));
+                throw new Error(Resources.getString("invalidCategory"));
             }
             
             //============================================================================
@@ -464,7 +465,6 @@ package nail.objectbuilder.core
             
             // Send message to log.
             var message:String = Resources.getString(
-                "strings",
                 "logAdded",
                 toLocale(category),
                 thing.id);
@@ -483,7 +483,6 @@ package nail.objectbuilder.core
             
             if (!_things.hasThingType(thing.category, thing.id)) {
                 throw new Error(Resources.getString(
-                    "strings",
                     "thingNotFound",
                     toLocale(thing.category),
                     thing.id));
@@ -525,7 +524,7 @@ package nail.objectbuilder.core
                     }
                 } else {
                     if (!_sprites.hasSpriteId(id)) {
-                        Log.error(Resources.getString("strings", "spriteNotFound", id));
+                        Log.error(Resources.getString("spriteNotFound", id));
                         return;
                     }
                 }
@@ -548,7 +547,6 @@ package nail.objectbuilder.core
             // Sprites change message
             if (spritesIds.length > 0) {
                 message = Resources.getString(
-                    "strings",
                     replaceSprites ? "logReplaced" : "logAdded",
                     toLocale("sprite", spritesIds.length > 1),
                     spritesIds);
@@ -562,7 +560,6 @@ package nail.objectbuilder.core
             onGetThing(thingData.id, thingData.category);
             onGetThingList(thingData.id, thingData.category);
             message = Resources.getString(
-                "strings",
                 "logChanged",
                 toLocale(thing.category),
                 thing.id);
@@ -581,7 +578,7 @@ package nail.objectbuilder.core
                 throw new NullArgumentError("list");
             
             if (!ThingCategory.getCategory(category))
-                throw new ArgumentError(Resources.getString("strings", "invalidCategory"));
+                throw new ArgumentError(Resources.getString("invalidCategory"));
             
             if (!version)
                 throw new NullArgumentError("version");
@@ -592,7 +589,7 @@ package nail.objectbuilder.core
             //============================================================================
             // Export things
             
-            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("strings", "exportingObjects")));
+            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("exportingObjects")));
             
             var helper:SaveHelper = new SaveHelper();
             var backgoundColor:uint = (_transparency || transparentBackground) ? 0x00FF00FF : 0xFFFF00FF;
@@ -693,7 +690,6 @@ package nail.objectbuilder.core
             if (spritesIds.length > 0) {
                 onGetSpriteList(_sprites.spritesCount);
                 message = Resources.getString(
-                    "strings",
                     "logAdded",
                     toLocale("sprite", spritesIds.length > 1),
                     spritesIds);
@@ -705,7 +701,6 @@ package nail.objectbuilder.core
             this.setSelectedThingIds(thingsIds, category);
             
             message = Resources.getString(
-                "strings",
                 "logReplaced",
                 toLocale(category, thingsIds.length > 1),
                 thingsIds);
@@ -731,7 +726,7 @@ package nail.objectbuilder.core
             loader.addEventListener(ErrorEvent.ERROR, errorHandler);
             loader.loadFiles(list);
             
-            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("strings", "loading")));
+            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("loading")));
             
             function progressHandler(event:ProgressEvent):void
             {
@@ -811,7 +806,6 @@ package nail.objectbuilder.core
             if (spritesIds.length > 0) {
                 onGetSpriteList(_sprites.spritesCount);
                 message = Resources.getString(
-                    "strings",
                     "logAdded",
                     toLocale("sprite", spritesIds.length > 1),
                     spritesIds);
@@ -828,7 +822,6 @@ package nail.objectbuilder.core
             this.setSelectedThingIds(thingsIds, category);
             
             message = Resources.getString(
-                "strings",
                 "logAdded",
                 toLocale(category, thingsIds.length > 1),
                 thingsIds);
@@ -854,7 +847,7 @@ package nail.objectbuilder.core
             loader.addEventListener(ErrorEvent.ERROR, errorHandler);
             loader.loadFiles(list);
             
-            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("strings", "loading")));
+            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("loading")));
             
             function progressHandler(event:ProgressEvent):void
             {
@@ -881,7 +874,7 @@ package nail.objectbuilder.core
             }
             
             if (!ThingCategory.getCategory(category)) {
-                throw new Error(Resources.getString("strings", "invalidCategory"));
+                throw new Error(Resources.getString("invalidCategory"));
             }
             
             var length:uint = list.length;
@@ -898,9 +891,8 @@ package nail.objectbuilder.core
                 var thing:ThingType = _things.getThingType(list[i], category);
                 if (!thing) {
                     throw new Error(Resources.getString(
-                        "strings",
                         "thingNotFound",
-                        Resources.getString("strings", category),
+                        Resources.getString(category),
                         list[i]));
                 }
                 thingsCopyList[i] = thing.clone();
@@ -927,7 +919,6 @@ package nail.objectbuilder.core
             
             thingIds.sort(Array.NUMERIC);
             var message:String = StringUtil.substitute(Resources.getString(
-                "strings",
                 "logDuplicated"),
                 toLocale(category, thingIds.length > 1),
                 list);
@@ -942,7 +933,7 @@ package nail.objectbuilder.core
             }
             
             if (!ThingCategory.getCategory(category)) {
-                throw new ArgumentError(Resources.getString("strings", "invalidCategory"));
+                throw new ArgumentError(Resources.getString("invalidCategory"));
             }
             
             var length:uint = list.length;
@@ -1009,7 +1000,6 @@ package nail.objectbuilder.core
             
             thingIds.sort(Array.NUMERIC);
             message = Resources.getString(
-                "strings",
                 "logRemoved",
                 toLocale(category, thingIds.length > 1),
                 thingIds);
@@ -1021,7 +1011,6 @@ package nail.objectbuilder.core
                 spriteIds.sort(Array.NUMERIC);
                 onGetSpriteList(spriteIds[0]);
                 message = Resources.getString(
-                    "strings",
                     "logRemoved",
                     toLocale("sprite", spriteIds.length > 1),
                     spriteIds);
@@ -1033,7 +1022,7 @@ package nail.objectbuilder.core
         private function onFindThing(category:String, properties:Vector.<ThingProperty>):void
         {
             if (!ThingCategory.getCategory(category)) {
-                throw new ArgumentError(Resources.getString("strings", "invalidCategory"));
+                throw new ArgumentError(Resources.getString("invalidCategory"));
             }
             
             if (!properties) {
@@ -1087,7 +1076,6 @@ package nail.objectbuilder.core
             this.setSelectedSpriteIds(spriteIds);
                 
             var message:String = Resources.getString(
-                "strings",
                 "logReplaced",
                 toLocale("sprite", sprites.length > 1),
                 spriteIds);
@@ -1111,7 +1099,7 @@ package nail.objectbuilder.core
             loader.addEventListener(ProgressEvent.PROGRESS, progressHandler);
             loader.loadFiles(list);
             
-            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("strings", "loading")));
+            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("loading")));
             
             function progressHandler(event:ProgressEvent):void
             {
@@ -1157,8 +1145,7 @@ package nail.objectbuilder.core
             
             ids.sort(Array.NUMERIC);
             var message:String = Resources.getString(
-                "strings",
-                "logRemoved",
+                "logAdded",
                 toLocale("sprite", ids.length > 1),
                 ids);
             
@@ -1182,7 +1169,7 @@ package nail.objectbuilder.core
             loader.addEventListener(ErrorEvent.ERROR, errorHandler);
             loader.loadFiles(list);
             
-            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("strings", "loading")));
+            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("loading")));
             
             function progressHandler(event:ProgressEvent):void
             {
@@ -1227,7 +1214,7 @@ package nail.objectbuilder.core
             //============================================================================
             // Save sprites
             
-            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("strings", "exportingSprites")));
+            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("exportingSprites")));
             
             var helper:SaveHelper = new SaveHelper();
             var backgoundColor:uint = (_transparency || transparentBackground) ? 0x00FF00FF : 0xFFFF00FF;
@@ -1264,7 +1251,7 @@ package nail.objectbuilder.core
         private function onNewSprite():void
         {
             if (_sprites.isFull) {
-                Log.error(Resources.getString("strings", "spritesLimitReached"));
+                Log.error(Resources.getString("spritesLimitReached"));
                 return;
             }
             
@@ -1284,9 +1271,8 @@ package nail.objectbuilder.core
             
             this.onGetSpriteList(_sprites.spritesCount);
             var message:String = Resources.getString(
-                "strings",
                 "logAdded",
-                Resources.getString("strings", "sprite"),
+                Resources.getString("sprite"),
                 _sprites.spritesCount);
             Log.info(message);
         }
@@ -1314,7 +1300,6 @@ package nail.objectbuilder.core
             
             // Send message to log
             var message:String = Resources.getString(
-                "strings",
                 "logRemoved",
                 toLocale("sprite", list.length > 1),
                 list);
@@ -1422,7 +1407,7 @@ package nail.objectbuilder.core
             this.compiled = true;
             sendCommand(new HideProgressBarCommand(ProgressBarID.DAT_SPR));
             sendCommand(new Command(CommandType.LOAD_COMPLETE));
-            Log.info(Resources.getString("strings", "loadComplete"));
+            Log.info(Resources.getString("loadComplete"));
         }
         
         private function assetsCompileComplete():void
@@ -1430,17 +1415,17 @@ package nail.objectbuilder.core
             this.compiled = true;
             this.isTemporary = false;
             sendCommand(new HideProgressBarCommand(ProgressBarID.DAT_SPR));
-            Log.info(Resources.getString("strings", "compileComplete"));
+            Log.info(Resources.getString("compileComplete"));
         }
         
         public function sendFilesInfo():void
         {
             if (!_things || !_things.loaded) {
-                throw new Error(Resources.getString("strings", "metadataNotLoaded"));
+                throw new Error(Resources.getString("metadataNotLoaded"));
             }
             
             if (!_sprites || !_sprites.loaded) {
-                throw new Error(Resources.getString("strings", "spritesNotLoaded"));
+                throw new Error(Resources.getString("spritesNotLoaded"));
             }
             
             var info:FilesInfo = new FilesInfo();
@@ -1467,7 +1452,7 @@ package nail.objectbuilder.core
         private function sendThingList(selectedIds:Vector.<uint>, category:String):void
         {
             if (!_things || !_things.loaded) {
-                throw new Error(Resources.getString("strings", "metadataNotLoaded"));
+                throw new Error(Resources.getString("metadataNotLoaded"));
             }
             
             var first:uint = _things.getMinId(category);
@@ -1491,9 +1476,8 @@ package nail.objectbuilder.core
                 var thing:ThingType = _things.getThingType(i, category);
                 if (!thing) {
                     throw new Error(Resources.getString(
-                        "strings",
                         "thingNotFound",
-                        Resources.getString("strings", category),
+                        Resources.getString(category),
                         i));
                 }
                 
@@ -1513,7 +1497,7 @@ package nail.objectbuilder.core
             }
             
             if (!_sprites || !_sprites.loaded) {
-                throw new Error(Resources.getString("strings", "spritesNotLoaded"));
+                throw new Error(Resources.getString("spritesNotLoaded"));
             }
             
             var length:uint = selectedIds.length;
@@ -1534,7 +1518,7 @@ package nail.objectbuilder.core
             for (var i:uint = min; i <= max; i++) {
                 var pixels:ByteArray = _sprites.getPixels(i);
                 if (!pixels) {
-                    throw new Error(Resources.getString("strings", "spriteNotFound", i));
+                    throw new Error(Resources.getString("spriteNotFound", i));
                 }
                 
                 var spriteData:SpriteData = new SpriteData();
@@ -1576,15 +1560,14 @@ package nail.objectbuilder.core
         private function getThingData(id:uint, category:String):ThingData
         {
             if (!ThingCategory.getCategory(category)) {
-                throw new Error(Resources.getString("strings", "invalidCategory"));
+                throw new Error(Resources.getString("invalidCategory"));
             }
             
             var thing:ThingType = _things.getThingType(id,  category);
             if (!thing) {
                 throw new Error(Resources.getString(
-                    "strings",
                     "thingNotFound",
-                    Resources.getString("strings", category),
+                    Resources.getString(category),
                     id));
             }
             
@@ -1596,7 +1579,7 @@ package nail.objectbuilder.core
                 var spriteId:uint = spriteIndex[i];
                 var pixels:ByteArray = _sprites.getPixels(spriteId);
                 if (!pixels) {
-                    Log.error(Resources.getString("strings", "spriteNotFound", spriteId));
+                    Log.error(Resources.getString("spriteNotFound", spriteId));
                     pixels = _sprites.alertSprite.getPixels();
                 }
                 
@@ -1610,7 +1593,7 @@ package nail.objectbuilder.core
         
         private function toLocale(bundle:String, plural:Boolean = false):String
         {
-            return Resources.getString("strings", bundle + (plural ? "s" : "")).toLowerCase();
+            return Resources.getString(bundle + (plural ? "s" : "")).toLowerCase();
         }
         
         //--------------------------------------

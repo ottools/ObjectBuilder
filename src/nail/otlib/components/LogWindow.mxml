@@ -53,6 +53,7 @@
             import flashx.textLayout.conversion.TextConverter;
             
             import nail.logging.Log;
+            import nail.utils.isNullOrEmpty;
             
             //--------------------------------------------------------------------------
             // PROPERTIES
