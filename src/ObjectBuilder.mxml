@@ -112,7 +112,6 @@
             import air.update.ApplicationUpdaterUI;
             import air.update.events.UpdateEvent;
             
-            import ob.animationeditor.AnimationEditor;
             import nail.components.controls.AboutWindow;
             import nail.components.controls.Alert;
             import nail.core.nail_internal;
@@ -120,10 +119,8 @@
             import nail.loaders.BitmapLoader;
             import nail.logging.Log;
             import nail.managers.PopUpWindowManager;
-            import ob.objectviewer.ObjectViewer;
             import nail.settings.ISettingsManager;
             import nail.settings.SettingsManager;
-            import ob.slicer.Slicer;
             import nail.utils.CapabilitiesUtil;
             import nail.utils.Descriptor;
             import nail.utils.DialogDetail;
@@ -135,6 +132,7 @@
             import nail.utils.isNullOrEmpty;
             import nail.workers.Command;
             
+            import ob.animationeditor.AnimationEditor;
             import ob.commands.CommandType;
             import ob.commands.LoadVersionsCommand;
             import ob.commands.NeedToReloadCommand;
@@ -162,7 +160,9 @@
             import ob.commands.things.ReplaceThingsFromFilesCommand;
             import ob.commands.things.UpdateThingCommand;
             import ob.components.SplashScreen;
+            import ob.objectviewer.ObjectViewer;
             import ob.settings.ObjectBuilderSettings;
+            import ob.slicer.Slicer;
             import ob.utils.ObUtils;
             
             import otlib.assets.Assets;
