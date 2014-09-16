@@ -1145,7 +1145,7 @@ package nail.objectbuilder.core
             
             ids.sort(Array.NUMERIC);
             var message:String = Resources.getString(
-                "logRemoved",
+                "logAdded",
                 toLocale("sprite", ids.length > 1),
                 ids);
             
