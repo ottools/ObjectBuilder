@@ -55,11 +55,11 @@
             
             import spark.events.GridSelectionEvent;
             
-            import nail.assets.Icons;
             import nail.components.controls.Alert;
             import nail.utils.StringUtil;
             import nail.utils.isNullOrEmpty;
             
+            import otlib.assets.Assets;
             import otlib.core.IVersionStorage;
             import otlib.core.Version;
             import otlib.core.VersionStorage;
@@ -229,7 +229,7 @@
                   toolTip="@Resource(key='addVersion', bundle='strings')"
                   width="19"
                   height="19"
-                  icon="{Icons.NEW}"
+                  icon="{Assets.NEW}"
                   enabled="false"
                   click="addVersionButtonClickHandler(event)"/>
         
@@ -237,7 +237,7 @@
                   toolTip="@Resource(key='remove', bundle='strings')"
                   width="19"
                   height="19"
-                  icon="{Icons.DELETE}"
+                  icon="{Assets.DELETE}"
                   enabled="false"
                   click="removeVersionButtonClickHandler(event)"/>
         

@@ -60,9 +60,11 @@
             import mx.collections.ArrayCollection;
             import mx.events.FlexEvent;
             
-            import nail.assets.Icons;
-            import ob.settings.ObjectBuilderSettings;
             import nail.utils.DialogDetail;
+            
+            import ob.settings.ObjectBuilderSettings;
+            
+            import otlib.assets.Assets;
             
             //--------------------------------------------------------------------------
             // PROPERTIES
@@ -342,7 +344,7 @@
         <s:Button id="infoButton"
                   width="25"
                   height="25"
-                  icon="{nail.assets.Icons.INFO}"
+                  icon="{Assets.INFO}"
                   focusEnabled="false"
                   toolTip="@Resource(key='needToRestart', bundle='strings')"
                   skinClass="nail.components.skins.IconButtonSkin"/>

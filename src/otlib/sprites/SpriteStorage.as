@@ -37,12 +37,13 @@ package otlib.sprites
     import flash.utils.Dictionary;
     import flash.utils.Endian;
     
-    import nail.assets.Icons;
     import nail.errors.NullArgumentError;
     import nail.logging.Log;
-    import ob.commands.ProgressBarID;
     import nail.utils.FileUtil;
     
+    import ob.commands.ProgressBarID;
+    
+    import otlib.assets.Assets;
     import otlib.core.Version;
     import otlib.core.otlib_internal;
     import otlib.events.ProgressEvent;
@@ -735,7 +736,7 @@ package otlib.sprites
         
         private function createAlertSprite(transparent:Boolean):Sprite
         {
-            var bitmap:BitmapData = (new Icons.ALERT_IMAGE).bitmapData;
+            var bitmap:BitmapData = (new Assets.ALERT_IMAGE).bitmapData;
             var sprite:Sprite = new Sprite(uint.MAX_VALUE, transparent);
             sprite.setPixels( bitmap.getPixels(bitmap.rect) );
             return sprite;

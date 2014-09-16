@@ -60,11 +60,11 @@
         <![CDATA[
             import mx.events.FlexEvent;
             
-            import nail.assets.Icons;
             import nail.logging.Log;
             import nail.utils.DialogDetail;
             import nail.utils.isNullOrEmpty;
             
+            import otlib.assets.Assets;
             import otlib.core.Version;
             import otlib.core.VersionStorage;
             import otlib.events.FileTextInputEvent;
@@ -500,7 +500,7 @@
               gap="10">
         <s:Image id="errorIcon"
                  visible="false"
-                 source="{Icons.ERROR}"/>
+                 source="{Assets.ERROR}"/>
         <nail:ShadowLabel id="errorLabel"
                           color="0xEC5151"
                           shadowColor="0x272727"

@@ -22,19 +22,19 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-package nail.assets
+package otlib.assets
 {
     import nail.errors.AbstractClassError;
-    
-    public final class Icons
+
+    public final class Assets
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function Icons()
+        public function Assets()
         {
-            throw new AbstractClassError(Icons);
+            throw new AbstractClassError(Assets);
         }
         
         //--------------------------------------------------------------------------

@@ -55,7 +55,6 @@
             import mx.events.FlexEvent;
             import mx.events.PropertyChangeEvent;
             
-            import nail.assets.Icons;
             import ob.commands.FindResultCommand;
             import ob.commands.sprites.FindSpritesCommand;
             import ob.commands.sprites.GetSpriteListCommand;
@@ -63,6 +62,7 @@
             import ob.commands.things.GetThingCommand;
             import ob.core.IObjectBuilder;
             
+            import otlib.assets.Assets;
             import otlib.components.renders.SpriteListRenderer;
             import otlib.components.renders.ThingListRenderer;
             import otlib.sprites.SpriteData;
@@ -70,7 +70,6 @@
             import otlib.things.ThingCategory;
             import otlib.things.ThingProperty;
             import otlib.utils.ThingListItem;
-            
             
             //--------------------------------------------------------------------------
             // PROPERTIES
@@ -526,7 +525,7 @@
                   width="23"
                   height="23"
                   enabled="false"
-                  icon="{nail.assets.Icons.DELETE}"
+                  icon="{otlib.assets.Assets.DELETE}"
                   click="removeHandler(event)"/>
         <s:Spacer width="100%"/>
         <s:Group width="230"

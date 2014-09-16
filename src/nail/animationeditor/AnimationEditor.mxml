@@ -75,7 +75,6 @@
             import spark.events.IndexChangeEvent;
             
             import nail.animationeditor.events.FrameListEvent;
-            import nail.assets.Icons;
             import nail.assets.NailAssets;
             import nail.components.controls.Alert;
             import nail.image.ClipboardBitmapLoader;
@@ -89,6 +88,7 @@
             import ob.core.IObjectBuilder;
             import ob.utils.ObUtils;
             
+            import otlib.assets.Assets;
             import otlib.components.ExportWindow;
             import otlib.components.SurfaceCells;
             import otlib.geom.Size;
@@ -1049,13 +1049,13 @@
                               width="19"
                               height="19"
                               toolTip="@Resource(key='firstFrame', bundle='strings')"
-                              icon="{Icons.FIRST}"
+                              icon="{Assets.FIRST}"
                               click="{thingView.fistFrame()}"/>
                     <s:Button id="previousFrameButton"
                               width="19"
                               height="19"
                               toolTip="@Resource(key='previousFrame', bundle='strings')"
-                              icon="{Icons.PREVIOUS}"
+                              icon="{Assets.PREVIOUS}"
                               autoRepeat="true"
                               repeatInterval="200"
                               buttonDown="{thingView.prevFrame()}"/>
@@ -1066,7 +1066,7 @@
                     <s:Button id="nextFrameButton" width="19"
                               height="19"
                               toolTip="@Resource(key='nextFrame', bundle='strings')"
-                              icon="{Icons.NEXT}"
+                              icon="{Assets.NEXT}"
                               autoRepeat="true"
                               repeatInterval="200"
                               buttonDown="{thingView.nextFrame()}"/>
@@ -1074,19 +1074,19 @@
                               width="19"
                               height="19"
                               toolTip="@Resource(key='lastFrame', bundle='strings')"
-                              icon="{Icons.LAST}"
+                              icon="{Assets.LAST}"
                               click="{thingView.lastFrame()}"/>
                     <nail:ShadowLine height="100%"/>
                     <s:Button id="dulicateFrameButton"
                               width="19"
                               height="19"
                               toolTip="@Resource(key='duplicateFrame', bundle='strings')"
-                              icon="{Icons.DUPLICATE}"
+                              icon="{Assets.DUPLICATE}"
                               click="dulicateFrameButtonClickHandler(event)"/>
                     <s:Button id="deleteFrameButton" width="19"
                               height="19"
                               toolTip="@Resource(key='deleteFrame', bundle='strings')"
-                              icon="{Icons.DELETE}"
+                              icon="{Assets.DELETE}"
                               click="deleteFrameButtonClickHandler(event)"/>
                 </s:HGroup>
             </s:BorderContainer>

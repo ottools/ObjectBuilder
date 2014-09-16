@@ -113,7 +113,6 @@
             import air.update.events.UpdateEvent;
             
             import nail.animationeditor.AnimationEditor;
-            import nail.assets.Icons;
             import nail.components.controls.AboutWindow;
             import nail.components.controls.Alert;
             import nail.core.nail_internal;
@@ -166,6 +165,7 @@
             import ob.settings.ObjectBuilderSettings;
             import ob.utils.ObUtils;
             
+            import otlib.assets.Assets;
             import otlib.components.ClientVersionsWindow;
             import otlib.components.CompileFilesWindow;
             import otlib.components.DatSprProgressBar;
@@ -2322,57 +2322,57 @@
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.new')}"
-                      icon="{nail.assets.Icons.NEW_FILE}"
+                      icon="{Assets.NEW_FILE}"
                       click="onCreateNew()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.open')}"
-                      icon="{nail.assets.Icons.OPEN}"
+                      icon="{Assets.OPEN}"
                       click="openClient()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.compile')}"
-                      icon="{nail.assets.Icons.SAVE}"
+                      icon="{Assets.SAVE}"
                       click="compile()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.compileAs')}"
-                      icon="{nail.assets.Icons.SAVE_AS}"
+                      icon="{Assets.SAVE_AS}"
                       click="compileAs()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <nail:ShadowLine height="20"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'find')}"
-                      icon="{nail.assets.Icons.BINOCULARS}"
+                      icon="{Assets.BINOCULARS}"
                       click="openFindWindow()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'objectViewer')}"
-                      icon="{nail.assets.Icons.VIEWER}"
+                      icon="{Assets.VIEWER}"
                       click="openObjectViewer()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="Slicer"
-                      icon="{nail.assets.Icons.SLICER}"
+                      icon="{Assets.SLICER}"
                       click="openSlicer()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'animationEditor')}"
-                      icon="{nail.assets.Icons.ANIMATION}"
+                      icon="{Assets.ANIMATION}"
                       click="openAnimationEditor()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <nail:ShadowLine height="20"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.logWindow')}"
-                      icon="{nail.assets.Icons.LOG}"
+                      icon="{Assets.LOG}"
                       click="openLogWindow()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
         </s:HGroup>
@@ -2425,7 +2425,7 @@
                                 width="20"
                                 height="20"
                                 selected="true"
-                                icon="{nail.assets.Icons.SHOW_LIST_ICON}"
+                                icon="{Assets.SHOW_LIST_ICON}"
                                 change="{showThingsPanel = showThingsPanelButton.selected;}"/>
             </s:HGroup>
             
@@ -2500,43 +2500,43 @@
                           toolTip="@Resource(key='replace', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.REPLACE}"
+                          icon="{Assets.REPLACE}"
                           click="replaceThingHandler(event)"/>
                 <s:Button id="importThingButton"
                           toolTip="@Resource(key='import', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.IMPORT}"
+                          icon="{Assets.IMPORT}"
                           click="importThingHandler(event)"/>
                 <s:Button id="exportThingButton"
                           toolTip="@Resource(key='export', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.EXPORT}"
+                          icon="{Assets.EXPORT}"
                           click="exportThingHandler(event)"/>
                 <s:Button id="editThingButton"
                           toolTip="@Resource(key='edit', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.EDIT}"
+                          icon="{Assets.EDIT}"
                           click="editThingHandler(event)"/>
                 <s:Button id="duplicateThingButton"
                           toolTip="@Resource(key='duplicate', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.DUPLICATE}"
+                          icon="{Assets.DUPLICATE}"
                           click="duplicateThingHandler(event)"/>
                 <s:Button id="newThingButton"
                           toolTip="@Resource(key='new', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.NEW}"
+                          icon="{Assets.NEW}"
                           click="newThingHandler(event)"/>
                 <s:Button id="removeThingButton"
                           toolTip="@Resource(key='remove', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.DELETE}"
+                          icon="{Assets.DELETE}"
                           click="removeThingHandler(event)"/>
             </s:HGroup>
         </s:BorderContainer>
@@ -2646,43 +2646,43 @@
                           toolTip="@Resource(key='replace', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.REPLACE}"
+                          icon="{Assets.REPLACE}"
                           click="replaceSpriteHandler(event)"/>
                 <s:Button id="importSpriteButton"
                           toolTip="@Resource(key='import', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.IMPORT}"
+                          icon="{Assets.IMPORT}"
                           click="importSpriteHandler(event)"/>
                 <s:Button id="exportSpriteButton"
                           toolTip="@Resource(key='export', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.EXPORT}"
+                          icon="{Assets.EXPORT}"
                           click="exportSpriteHandler(event)"/>
                 <s:Button id="copySpriteButton"
                           toolTip="@Resource(key='copy', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.COPY}"
+                          icon="{Assets.COPY}"
                           click="onCopySprite()"/>
                 <s:Button id="pasteSpriteButton"
                           toolTip="@Resource(key='paste', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.PASTE}"
+                          icon="{Assets.PASTE}"
                           click="onPasteSprite()"/>
                 <s:Button id="newSpriteButton"
                           toolTip="@Resource(key='new', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.NEW}"
+                          icon="{Assets.NEW}"
                           click="newSpriteButtonClickHandler(event)"/>
                 <s:Button id="removeSpriteButton"
                           toolTip="@Resource(key='remove', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.DELETE}"
+                          icon="{Assets.DELETE}"
                           click="removeSpriteHandler(event)"/>
             </s:HGroup>
         </s:BorderContainer>
