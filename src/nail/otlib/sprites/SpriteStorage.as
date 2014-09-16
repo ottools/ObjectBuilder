@@ -605,6 +605,9 @@ package nail.otlib.sprites
         {
             result = result ? result : new ChangeResult();
             
+            if (id == 0)
+                return result.update(null, true);
+            
             var sprite:Sprite = new Sprite(id, _transparency);
             if (!sprite.setPixels(pixels)) {
                 var message:String = Resources.getString(
@@ -640,7 +643,9 @@ package nail.otlib.sprites
                 if (!replaced.done) {
                     return result.update(replacedList, false, replaced.message);
                 }
-                replacedList[i] = replaced.list[0];
+                
+                if (replaced.list)
+                    replacedList[i] = replaced.list[0];
             }
             return result.update(replacedList, true);
         }
