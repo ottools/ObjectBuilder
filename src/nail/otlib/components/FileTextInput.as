@@ -102,8 +102,6 @@ package nail.otlib.components
         {
             var path:String = file ? file.nativePath : null;
             this.text = path;
-            if (path != null)
-                selectRange(path.length, path.length);
         }
         
         //--------------------------------------
