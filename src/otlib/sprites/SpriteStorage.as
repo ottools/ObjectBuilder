@@ -87,6 +87,7 @@ package otlib.sprites
         // Getters / Setters
         //--------------------------------------
         
+        public function get file():File { return _file; }
         public function get version():Version { return _version; }
         public function get signature():uint { return _signature; }
         public function get spritesCount():uint { return _spritesCount; }
@@ -554,6 +555,7 @@ package otlib.sprites
                 _stream = null;
             }
             
+            _file = null;
             _loaded = false;
             _signature = 0;
             _extended = false;

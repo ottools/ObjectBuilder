@@ -63,6 +63,7 @@ package otlib.things
         // PROPERTIES
         //--------------------------------------------------------------------------
         
+        private var _file:File;
         private var _version:Version;
         private var _signature:uint;
         private var _items:Dictionary;
@@ -83,6 +84,7 @@ package otlib.things
         // Getters / Setters
         //--------------------------------------
         
+        public function get file():File { return _file; }
         public function get version():Version { return _version; }
         public function get signature():uint { return _signature; }
         public function get items():Dictionary { return _items; }
@@ -138,6 +140,7 @@ package otlib.things
                 return;
             }
             
+            _file = file;
             _changed = false;
             _loaded = true;
             
@@ -573,6 +576,7 @@ package otlib.things
             if (event.isDefaultPrevented())
                 return;
             
+            _file = null;
             _items = null;
             _itemsCount = 0;
             _outfits = null;
