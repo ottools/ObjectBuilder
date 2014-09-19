@@ -76,6 +76,7 @@ package otlib.things
         private var _thingsCount:uint;
         private var _extended:Boolean;
         private var _progressCount:uint;
+        private var _changed:Boolean;
         private var _loaded:Boolean;
         
         //--------------------------------------
@@ -92,6 +93,7 @@ package otlib.things
         public function get outfitsCount():uint { return _outfitsCount; }
         public function get effectsCount():uint { return _effectsCount; }
         public function get missilesCount():uint { return _missilesCount; }
+        public function get changed():Boolean { return _changed; }
         public function get loaded():Boolean { return _loaded; }
         
         //--------------------------------------------------------------------------
@@ -136,6 +138,7 @@ package otlib.things
                 return;
             }
             
+            _changed = false;
             _loaded = true;
             
             dispatchEvent(new StorageEvent(StorageEvent.LOAD));
@@ -164,6 +167,7 @@ package otlib.things
             _outfits[_outfitsCount] = ThingUtils.createThing(ThingCategory.OUTFIT, _outfitsCount);
             _effects[_effectsCount] = ThingUtils.createThing(ThingCategory.EFFECT, _effectsCount);
             _missiles[_missilesCount] = ThingUtils.createThing(ThingCategory.MISSILE, _missilesCount);
+            _changed = false;
             _loaded = true;
             
             dispatchEvent(new StorageEvent(StorageEvent.LOAD));
@@ -181,6 +185,7 @@ package otlib.things
             
             var result:ChangeResult = internalAddThing(thing, category);
             if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                _changed = true;
                 dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             return result;
@@ -194,6 +199,7 @@ package otlib.things
             
             var result:ChangeResult = internalAddThings(things);
             if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                _changed = true;
                 dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             return result;
@@ -218,6 +224,7 @@ package otlib.things
             
             var result:ChangeResult = internalReplaceThing(thing, category, replaceId);
             if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                _changed = true;
                 dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             return result;
@@ -234,6 +241,7 @@ package otlib.things
             
             var result:ChangeResult = internalReplaceThings(things);
             if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                _changed = true;
                 dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             return result;
@@ -255,6 +263,7 @@ package otlib.things
             
             var result:ChangeResult = internalRemoveThing(id, category);
             if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                _changed = true;
                 dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             return result;
@@ -276,6 +285,7 @@ package otlib.things
             
             var result:ChangeResult = internalRemoveThings(things, category);
             if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                _changed = true;
                 dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             return result;
@@ -574,6 +584,7 @@ package otlib.things
             _signature = 0;
             _progressCount = 0;
             _thingsCount = 0;
+            _changed = false;
             _loaded = false;
             
             dispatchEvent(new StorageEvent(StorageEvent.UNLOAD));
