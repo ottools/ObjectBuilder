@@ -25,7 +25,6 @@
 package otlib.things
 {
     import flash.events.ErrorEvent;
-    import flash.events.Event;
     import flash.events.EventDispatcher;
     import flash.filesystem.File;
     import flash.filesystem.FileMode;
@@ -43,15 +42,19 @@ package otlib.things
     import otlib.core.Version;
     import otlib.core.otlib_internal;
     import otlib.events.ProgressEvent;
+    import otlib.events.StorageEvent;
     import otlib.resources.Resources;
     import otlib.utils.ChangeResult;
     import otlib.utils.ThingUtils;
     
     use namespace otlib_internal;
     
-    [Event(name="complete", type="flash.events.Event")]
-    [Event(name="change", type="flash.events.Event")]
-    [Event(name="progress", type="otlib.events.ProgressEvent")]
+    [Event(name="progress", type="flash.events.ProgressEvent")]
+    [Event(name="load", type="otlib.events.StorageEvent")]
+    [Event(name="compile", type="otlib.events.StorageEvent")]
+    [Event(name="change", type="otlib.events.StorageEvent")]
+    [Event(name="unloading", type="otlib.events.StorageEvent")]
+    [Event(name="unload", type="otlib.events.StorageEvent")]
     [Event(name="error", type="flash.events.ErrorEvent")]
     
     public class ThingTypeStorage extends EventDispatcher
@@ -60,6 +63,7 @@ package otlib.things
         // PROPERTIES
         //--------------------------------------------------------------------------
         
+        private var _version:Version;
         private var _signature:uint;
         private var _items:Dictionary;
         private var _itemsCount:uint;
@@ -70,6 +74,7 @@ package otlib.things
         private var _missiles:Dictionary;
         private var _missilesCount:uint;
         private var _thingsCount:uint;
+        private var _extended:Boolean;
         private var _progressCount:uint;
         private var _loaded:Boolean;
         
@@ -77,6 +82,7 @@ package otlib.things
         // Getters / Setters
         //--------------------------------------
         
+        public function get version():Version { return _version; }
         public function get signature():uint { return _signature; }
         public function get items():Dictionary { return _items; }
         public function get outfits():Dictionary { return _outfits; }
@@ -106,24 +112,24 @@ package otlib.things
         
         public function load(file:File, version:Version, extended:Boolean = false):void
         {
-            if (!file) {
+            if (!file)
                 throw new NullArgumentError("file");
-            }
             
-            if (!version) {
+            if (!version)
                 throw new NullArgumentError("version");
-            }
             
-            if (_loaded) {
-                this.dispose();
-            }
+            if (this.loaded)
+                return;
+            
+            _version = version;
+            _extended = (extended || version.value >= 960);
             
             try
             {
                 var stream:FileStream = new FileStream();
                 stream.open(file, FileMode.READ);
                 stream.endian = Endian.LITTLE_ENDIAN;
-                readBytes(stream, version, extended);
+                readBytes(stream);
                 stream.close();
             } catch(error:Error) {
                 dispatchEvent(new ErrorEvent(ErrorEvent.ERROR, false, false, error.getStackTrace(), error.errorID));
@@ -132,21 +138,19 @@ package otlib.things
             
             _loaded = true;
             
-            if (hasEventListener(Event.COMPLETE)) {
-                dispatchEvent(new Event(Event.COMPLETE));
-            }
+            dispatchEvent(new StorageEvent(StorageEvent.LOAD));
         }
         
-        public function createNew(version:Version):Boolean
+        public function createNew(version:Version, extended:Boolean):void
         {
-            if (!version) {
+            if (!version)
                 throw new NullArgumentError("version");
-            }
             
-            if (_loaded) {
-                this.dispose();
-            }
+            if (this.loaded)
+                return;
             
+            _version = version;
+            _extended = (extended || version.value >= 960);
             _items = new Dictionary();
             _outfits = new Dictionary();
             _effects = new Dictionary();
@@ -161,7 +165,8 @@ package otlib.things
             _effects[_effectsCount] = ThingUtils.createThing(ThingCategory.EFFECT, _effectsCount);
             _missiles[_missilesCount] = ThingUtils.createThing(ThingCategory.MISSILE, _missilesCount);
             _loaded = true;
-            return true;
+            
+            dispatchEvent(new StorageEvent(StorageEvent.LOAD));
         }
         
         public function addThing(thing:ThingType, category:String):ChangeResult
@@ -175,8 +180,8 @@ package otlib.things
             }
             
             var result:ChangeResult = internalAddThing(thing, category);
-            if (result.done && hasEventListener(Event.CHANGE)) {
-                dispatchEvent(new Event(Event.CHANGE));
+            if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             return result;
         }
@@ -188,8 +193,8 @@ package otlib.things
             }
             
             var result:ChangeResult = internalAddThings(things);
-            if (result.done && hasEventListener(Event.CHANGE)) {
-                dispatchEvent(new Event(Event.CHANGE));
+            if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             return result;
         }
@@ -212,8 +217,8 @@ package otlib.things
             }
             
             var result:ChangeResult = internalReplaceThing(thing, category, replaceId);
-            if (result.done && hasEventListener(Event.CHANGE)) {
-                dispatchEvent(new Event(Event.CHANGE));
+            if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             return result;
         }
@@ -228,8 +233,8 @@ package otlib.things
             }
             
             var result:ChangeResult = internalReplaceThings(things);
-            if (result.done && hasEventListener(Event.CHANGE)) {
-                dispatchEvent(new Event(Event.CHANGE));
+            if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             return result;
         }
@@ -249,8 +254,8 @@ package otlib.things
             }
             
             var result:ChangeResult = internalRemoveThing(id, category);
-            if (result.done && hasEventListener(Event.CHANGE)) {
-                dispatchEvent(new Event(Event.CHANGE));
+            if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             return result;
         }
@@ -270,8 +275,8 @@ package otlib.things
             }
             
             var result:ChangeResult = internalRemoveThings(things, category);
-            if (result.done && hasEventListener(Event.CHANGE)) {
-                dispatchEvent(new Event(Event.CHANGE));
+            if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             return result;
         }
@@ -333,6 +338,9 @@ package otlib.things
             } else if (tmpFile.exists) {
                 tmpFile.deleteFile();
             }
+            
+            dispatchEvent(new StorageEvent(StorageEvent.COMPILE));
+            
             return done;
         }
         
@@ -547,8 +555,14 @@ package otlib.things
             return result;
         }
         
-        public function dispose():void
+        public function unload():void
         {
+            var event:StorageEvent = new StorageEvent(StorageEvent.UNLOADING, false, true);
+            dispatchEvent(event);
+            
+            if (event.isDefaultPrevented())
+                return;
+            
             _items = null;
             _itemsCount = 0;
             _outfits = null;
@@ -561,6 +575,8 @@ package otlib.things
             _progressCount = 0;
             _thingsCount = 0;
             _loaded = false;
+            
+            dispatchEvent(new StorageEvent(StorageEvent.UNLOAD));
         }
         
         //--------------------------------------
@@ -773,11 +789,10 @@ package otlib.things
         // Protected
         //--------------------------------------
         
-        protected function readBytes(stream:FileStream, version:Version, extended:Boolean):void
+        protected function readBytes(stream:FileStream):void
         {
-            if (stream.bytesAvailable < 12) {
+            if (stream.bytesAvailable < 12)
                 throw new ArgumentError("Not enough data.");
-            }
             
             _items = new Dictionary();
             _outfits = new Dictionary();
@@ -792,33 +807,26 @@ package otlib.things
             _progressCount = 0;
             
             // Load item list.
-            if (!loadThingTypeList(stream, version, extended, _items, MIN_ITEM_ID, _itemsCount, ThingCategory.ITEM)) {
+            if (!loadThingTypeList(stream, _items, MIN_ITEM_ID, _itemsCount, ThingCategory.ITEM))
                 throw new Error("Items list cannot be created.");
-            }
             
             // Load outfit list.
-            if (!loadThingTypeList(stream, version, extended, _outfits, MIN_OUTFIT_ID, _outfitsCount, ThingCategory.OUTFIT)) {
+            if (!loadThingTypeList(stream, _outfits, MIN_OUTFIT_ID, _outfitsCount, ThingCategory.OUTFIT))
                 throw new Error("Outfits list cannot be created.");
-            }
             
             // Load effect list.
-            if (!loadThingTypeList(stream, version, extended, _effects, MIN_EFFECT_ID, _effectsCount, ThingCategory.EFFECT)) {
+            if (!loadThingTypeList(stream, _effects, MIN_EFFECT_ID, _effectsCount, ThingCategory.EFFECT))
                 throw new Error("Effects list cannot be created.");
-            }
             
             // Load missile list.
-            if (!loadThingTypeList(stream, version, extended, _missiles, MIN_MISSILE_ID, _missilesCount, ThingCategory.MISSILE)) {
+            if (!loadThingTypeList(stream, _missiles, MIN_MISSILE_ID, _missilesCount, ThingCategory.MISSILE))
                 throw new Error("Missiles list cannot be created.");
-            }
             
-            if (stream.bytesAvailable != 0) {
+            if (stream.bytesAvailable != 0)
                 throw new Error("An unknown error occurred while reading the file '*.dat'");
-            }
         }
         
         protected function loadThingTypeList(stream:FileStream,
-                                             version:Version,
-                                             extended:Boolean,
                                              list:Dictionary,
                                              minID:uint,
                                              maxID:uint,
@@ -838,7 +846,6 @@ package otlib.things
             else
                 type = 6;
             
-            extended = (extended || version.value >= 960);
             var dispatchProgress:Boolean = this.hasEventListener(ProgressEvent.PROGRESS);
             
             for (var id:uint = minID; id <= maxID; id++) {
@@ -870,7 +877,7 @@ package otlib.things
                         return false;
                 }
                 
-                if (!ThingSerializer.readSprites(thing, stream, extended, type > 2, version.value >= 1050)) return false;
+                if (!ThingSerializer.readSprites(thing, stream, _extended, type > 2, _version.value >= 1050)) return false;
                 
                 list[id] = thing;
                 

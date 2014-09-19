@@ -38,6 +38,14 @@ package ob.core
     import nail.image.ImageCodec;
     import nail.image.ImageFormat;
     import nail.logging.Log;
+    import nail.utils.FileUtil;
+    import nail.utils.SaveHelper;
+    import nail.utils.StringUtil;
+    import nail.utils.VectorUtils;
+    import nail.utils.isNullOrEmpty;
+    import nail.workers.ApplicationWorker;
+    import nail.workers.Command;
+    
     import ob.commands.CommandType;
     import ob.commands.FindResultCommand;
     import ob.commands.HideProgressBarCommand;
@@ -50,17 +58,11 @@ package ob.core
     import ob.commands.things.SetThingDataCommand;
     import ob.commands.things.SetThingListCommand;
     import ob.utils.ObUtils;
-    import nail.utils.FileUtil;
-    import nail.utils.SaveHelper;
-    import nail.utils.StringUtil;
-    import nail.utils.VectorUtils;
-    import nail.utils.isNullOrEmpty;
-    import nail.workers.ApplicationWorker;
-    import nail.workers.Command;
     
     import otlib.core.Version;
     import otlib.core.VersionStorage;
     import otlib.events.ProgressEvent;
+    import otlib.events.StorageEvent;
     import otlib.loaders.PathHelper;
     import otlib.loaders.SpriteDataLoader;
     import otlib.loaders.ThingDataLoader;
@@ -291,14 +293,10 @@ package ob.core
             this.createStorage();
             
             // Create sprites.
-            if (!_sprites.createNew(version, _extended, transparency)) {
-                throw new Error(Resources.getString("notCreateSpr"));
-            }
+            _sprites.createNew(version, _extended, transparency)
             
             // Create things.
-            if (!_things.createNew(version)) {
-                throw new Error(Resources.getString("notCreateDat"));
-            }
+            _things.createNew(version, _extended);
             
             this.compiled = false;
             this.isTemporary = true;
@@ -315,14 +313,14 @@ package ob.core
         private function createStorage():void
         {
             _things = new ThingTypeStorage();
-            _things.addEventListener(Event.COMPLETE, thingsCompleteHandler);
-            _things.addEventListener(Event.CHANGE, thingsChangeHandler);
+            _things.addEventListener(StorageEvent.LOAD, storageLoadHandler);
+            _things.addEventListener(StorageEvent.CHANGE, storageChangeHandler);
             _things.addEventListener(ProgressEvent.PROGRESS, thingsProgressHandler);
             _things.addEventListener(ErrorEvent.ERROR, thingsErrorHandler);
             
             _sprites = new SpriteStorage();
-            _sprites.addEventListener(Event.COMPLETE, spritesCompleteHandler);
-            _sprites.addEventListener(Event.CHANGE, spritesChangeHandler);
+            _sprites.addEventListener(StorageEvent.LOAD, storageLoadHandler);
+            _sprites.addEventListener(StorageEvent.CHANGE, storageChangeHandler);
             _sprites.addEventListener(ProgressEvent.PROGRESS, spritesProgressHandler);
             _sprites.addEventListener(ErrorEvent.ERROR, spritesErrorHandler);
         }
@@ -356,6 +354,7 @@ package ob.core
             createStorage();
             
             _things.load(_datFile, _version, _extended);
+            _sprites.load(_sprFile, _version, _extended, _transparency);
         }
         
         private function onGetFilesInfo():void
@@ -415,16 +414,18 @@ package ob.core
         private function onUnloadFiles():void
         {
             if (_things) {
-                _things.removeEventListener(Event.COMPLETE, thingsCompleteHandler);
-                _things.removeEventListener(Event.CHANGE, thingsChangeHandler);
+                _things.unload();
+                _things.removeEventListener(StorageEvent.LOAD, storageLoadHandler);
+                _things.removeEventListener(StorageEvent.CHANGE, storageChangeHandler);
                 _things.removeEventListener(ProgressEvent.PROGRESS, thingsProgressHandler);
                 _things.removeEventListener(ErrorEvent.ERROR, thingsErrorHandler);
                 _things = null;
             }
             
             if (_sprites) {
-                _sprites.removeEventListener(Event.COMPLETE, spritesCompleteHandler);
-                _sprites.removeEventListener(Event.CHANGE, spritesChangeHandler);
+                _sprites.unload();
+                _sprites.removeEventListener(StorageEvent.LOAD, storageLoadHandler);
+                _sprites.removeEventListener(StorageEvent.CHANGE, storageChangeHandler);
                 _sprites.removeEventListener(ProgressEvent.PROGRESS, spritesProgressHandler);
                 _sprites.removeEventListener(ErrorEvent.ERROR, spritesErrorHandler);
                 _sprites = null;
@@ -1600,17 +1601,21 @@ package ob.core
         // Event Handlers
         //--------------------------------------
         
-        protected function thingsCompleteHandler(event:Event):void
+        protected function storageLoadHandler(event:StorageEvent):void
         {
-            if (_sprites && !_sprites.loaded) {
-                _sprites.load(_sprFile, _version, _extended, _transparency);
+            if (event.target === _things || event.target === _sprites)
+            {
+                if (_things.loaded && _sprites.loaded)
+                    this.assetsLoadComplete();
             }
         }
         
-        protected function thingsChangeHandler(event:Event):void
+        protected function storageChangeHandler(event:StorageEvent):void
         {
-            this.compiled = false;
-            sendFilesInfo();
+            if (event.target === _things || event.target === _sprites) {
+                this.compiled = false;
+                sendFilesInfo();
+            }
         }
         
         protected function thingsProgressHandler(event:ProgressEvent):void
@@ -1636,19 +1641,6 @@ package ob.core
                     Log.error(event.text);
                 }
             }
-        }
-        
-        protected function spritesCompleteHandler(event:Event):void
-        {
-            if (_things && _things.loaded) {
-                this.assetsLoadComplete();
-            }
-        }
-        
-        protected function spritesChangeHandler(event:Event):void
-        {
-            this.compiled = false;
-            sendFilesInfo();
         }
         
         protected function spritesProgressHandler(event:ProgressEvent):void

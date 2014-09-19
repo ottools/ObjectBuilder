@@ -26,7 +26,6 @@ package otlib.sprites
 {
     import flash.display.BitmapData;
     import flash.events.ErrorEvent;
-    import flash.events.Event;
     import flash.events.EventDispatcher;
     import flash.filesystem.File;
     import flash.filesystem.FileMode;
@@ -47,14 +46,18 @@ package otlib.sprites
     import otlib.core.Version;
     import otlib.core.otlib_internal;
     import otlib.events.ProgressEvent;
+    import otlib.events.StorageEvent;
     import otlib.resources.Resources;
     import otlib.utils.ChangeResult;
     
     use namespace otlib_internal;
     
-    [Event(name="complete", type="flash.events.Event")]
-    [Event(name="change", type="flash.events.Event")]
-    [Event(name="progress", type="otlib.events.ProgressEvent")]
+    [Event(name="progress", type="flash.events.ProgressEvent")]
+    [Event(name="load", type="otlib.events.StorageEvent")]
+    [Event(name="compile", type="otlib.events.StorageEvent")]
+    [Event(name="change", type="otlib.events.StorageEvent")]
+    [Event(name="unloading", type="otlib.events.StorageEvent")]
+    [Event(name="unload", type="otlib.events.StorageEvent")]
     [Event(name="error", type="flash.events.ErrorEvent")]
     
     public class SpriteStorage extends EventDispatcher
@@ -65,11 +68,11 @@ package otlib.sprites
         
         private var _file:File;
         private var _stream:FileStream;
+        private var _version:Version;
         private var _signature:uint;
         private var _spritesCount:uint;
         private var _extended:Boolean;
         private var _transparency:Boolean;
-        private var _version:Version;
         private var _sprites:Dictionary;
         private var _loaded:Boolean;
         private var _rect:Rectangle;
@@ -84,11 +87,11 @@ package otlib.sprites
         // Getters / Setters
         //--------------------------------------
         
+        public function get version():Version { return _version; }
         public function get signature():uint { return _signature; }
         public function get spritesCount():uint { return _spritesCount; }
         public function get loaded():Boolean { return _loaded; }
         public function get changed():Boolean { return _changed; }
-        public function get version():Version { return _version; }
         public function get isFull():Boolean { return (!_extended && _spritesCount == 0xFFFF); }
         public function get transparency():Boolean { return _transparency; }
         public function get alertSprite():Sprite { return _alertSprite; }
@@ -114,31 +117,31 @@ package otlib.sprites
         
         public function load(file:File, version:Version, extended:Boolean, transparency:Boolean):void
         {
-            if (!file) {
+            if (!file)
                 throw new NullArgumentError("file");
-            }
             
-            if (!version) {
+            if (!version)
                 throw new NullArgumentError("version");
-            }
+            
+            if (this.loaded)
+                return;
             
             this.onLoad(file, version, extended, transparency, false);
         }
         
-        public function createNew(version:Version, extended:Boolean, transparency:Boolean):Boolean
+        public function createNew(version:Version, extended:Boolean, transparency:Boolean):void
         {
-            if (!version) {
+            if (!version)
                 throw new NullArgumentError("version");
-            }
             
-            if (_loaded) {
-                this.dispose();
-            }
+            if (this.loaded)
+                return;
             
             _version = version;
+            _extended = (extended || version.value >= 960);
             _signature = version.sprSignature;
             _spritesCount = 1;
-            _headSize = (extended || version.value >= 960) ? HEAD_SIZE_U32 : HEAD_SIZE_U16;
+            _headSize = _extended ? HEAD_SIZE_U32 : HEAD_SIZE_U16;
             _transparency = transparency;
             _blankSprite = new Sprite(0, transparency);
             _alertSprite = createAlertSprite(transparency);
@@ -147,7 +150,8 @@ package otlib.sprites
             _sprites[1] = new Sprite(1, transparency);
             _changed = true;
             _loaded = true;
-            return true;
+            
+            dispatchEvent(new StorageEvent(StorageEvent.LOAD));
         }
         
         public function addSprite(pixels:ByteArray):ChangeResult
@@ -157,8 +161,8 @@ package otlib.sprites
             }
             
             var result:ChangeResult = internalAddSprite(pixels);
-            if (result.done && hasEventListener(Event.CHANGE)) {
-                dispatchEvent(new Event(Event.CHANGE));
+            if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             
             _changed = true;
@@ -172,8 +176,8 @@ package otlib.sprites
             }
             
             var result:ChangeResult = internalAddSprites(sprites);
-            if (result.done && hasEventListener(Event.CHANGE)) {
-                dispatchEvent(new Event(Event.CHANGE));
+            if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             
             _changed = true;
@@ -195,8 +199,8 @@ package otlib.sprites
             }
             
             var result:ChangeResult = internalReplaceSprite(id, pixels);
-            if (result.done && hasEventListener(Event.CHANGE)) {
-                dispatchEvent(new Event(Event.CHANGE));
+            if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             
             _changed = true;
@@ -210,8 +214,8 @@ package otlib.sprites
             }
             
             var result:ChangeResult = internalReplaceSprites(sprites);
-            if (result.done && hasEventListener(Event.CHANGE)) {
-                dispatchEvent(new Event(Event.CHANGE));
+            if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             
             _changed = true;
@@ -225,8 +229,8 @@ package otlib.sprites
             }
             
             var result:ChangeResult = internalRemoveSprite(id);
-            if (result.done && hasEventListener(Event.CHANGE)) {
-                dispatchEvent(new Event(Event.CHANGE));
+            if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             
             _changed = true;
@@ -240,8 +244,8 @@ package otlib.sprites
             }
             
             var result:ChangeResult = internalRemoveSprites(sprites);
-            if (result.done && hasEventListener(Event.CHANGE)) {
-                dispatchEvent(new Event(Event.CHANGE));
+            if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             
             _changed = true;
@@ -537,16 +541,31 @@ package otlib.sprites
             return true;
         }
         
-        public function dispose():void
+        public function unload():void
         {
+            var event:StorageEvent = new StorageEvent(StorageEvent.UNLOADING, false, true);
+            dispatchEvent(event);
+            
+            if (event.isDefaultPrevented())
+                return;
+            
             if (_stream) {
                 _stream.close();
                 _stream = null;
             }
             
             _loaded = false;
-            _spritesCount = 0;
             _signature = 0;
+            _extended = false;
+            _transparency = false;
+            _version = null;
+            _sprites = null;
+            _spritesCount = 0;
+            _blankSprite = null;
+            _alertSprite = null;
+            _headSize = 0;
+            
+            dispatchEvent(new StorageEvent(StorageEvent.UNLOAD));
         }
         
         //--------------------------------------
@@ -703,10 +722,6 @@ package otlib.sprites
                                 transparency:Boolean,
                                 reloading:Boolean):void
         {
-            if (_loaded) {
-                this.dispose();
-            }
-            
             if (!file.exists) {
                 Log.error(Resources.getString("fileNotFound", file.nativePath));
                 return;
@@ -729,9 +744,8 @@ package otlib.sprites
             _changed = false;
             _loaded = true;
             
-            if (!reloading) {
-                dispatchEvent(new Event(Event.COMPLETE));
-            }
+            if (!reloading)
+                dispatchEvent(new StorageEvent(StorageEvent.LOAD));
         }
         
         private function createAlertSprite(transparent:Boolean):Sprite
