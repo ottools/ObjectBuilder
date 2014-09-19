@@ -46,6 +46,7 @@ package ob.core
     import nail.workers.ApplicationWorker;
     import nail.workers.Command;
     
+    import ob.commands.ClientChangedCommand;
     import ob.commands.CommandType;
     import ob.commands.FindResultCommand;
     import ob.commands.HideProgressBarCommand;
@@ -1613,6 +1614,9 @@ package ob.core
         protected function storageChangeHandler(event:StorageEvent):void
         {
             if (event.target === _things || event.target === _sprites) {
+                
+                sendCommand(new ClientChangedCommand(_things.changed, _sprites.changed));
+                
                 this.compiled = false;
                 sendFilesInfo();
             }

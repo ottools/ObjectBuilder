@@ -744,6 +744,7 @@
                 registerCallback(CommandType.SHOW_PROGRESS_BAR, onShowProgressBar);
                 registerCallback(CommandType.HIDE_PROGRESS_BAR, onHideProgressBar);
                 registerCallback(CommandType.LOAD_COMPLETE, onLoadComplete);
+                registerCallback(CommandType.CLIENT_CHANGED, onClientChanged);
                 registerCallback(CommandType.FILES_INFO, onSetAssetsInfo);
                 registerCallback(CommandType.SET_THING, onSetThingData);
                 registerCallback(CommandType.SET_THING_LIST, onSetThingList);
@@ -1413,6 +1414,11 @@
                 this.sendCommand(new Command(CommandType.FILES_INFO));
                 this.sendCommand(new GetSpriteListCommand(0));
                 this.sendCommand(new GetThingCommand(100, ThingCategory.ITEM));
+            }
+            
+            private function onClientChanged(thingsChanged:Boolean, spritesChanged:Boolean):void
+            {
+                //trace(spritesChanged, thingsChanged);
             }
             
             private function onProgress(id:uint, loaded:uint, total:uint):void

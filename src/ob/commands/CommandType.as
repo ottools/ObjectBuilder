@@ -50,6 +50,8 @@ package ob.commands
         public static const COMPILE:String = "compile";
         public static const COMPILE_AS:String = "compileAs";
         
+        public static const CLIENT_CHANGED:String = "clientChanged";
+        
         public static const NEW_THING:String = "newThing";
         public static const IMPORT_THINGS:String = "importThings";
         public static const IMPORT_THINGS_FROM_FILES:String = "importThingsFromFiles";
