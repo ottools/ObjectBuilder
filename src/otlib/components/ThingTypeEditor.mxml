@@ -376,7 +376,7 @@
                 usableCheckBox.visible = visible;
                 usableCheckBox.includeInLayout = visible;
                 
-                visible = (isItem && info.clientVersion >= 1050);
+                visible = (info.clientVersion >= 1050);
                 minimumGroup.visible = visible;
                 minimumGroup.includeInLayout = visible;
                 maximumGroup.visible = visible;
