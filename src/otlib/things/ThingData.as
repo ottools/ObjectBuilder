@@ -278,7 +278,7 @@ package otlib.things
                         for (var x:uint = 0; x < patternX; x++) {
                             for (var l:uint = 0; l < layers; l++) {
                                 
-                                var index:uint = getTextureIndex(thing, f, x, y, z, l);
+                                var index:uint = thing.getTextureIndex(l, x, y, z, f);
                                 var fx:int = (index % totalX) * pixelsWidth;
                                 var fy:int = Math.floor(index / totalX) * pixelsHeight;
                                 
@@ -337,7 +337,7 @@ package otlib.things
                         for (var x:uint = 0; x < patternX; x++) {
                             for (var l:uint = 0; l < layers; l++) {
                                 
-                                var index:uint = getTextureIndex(thing, f, x, y, z, l);
+                                var index:uint = thing.getTextureIndex(l, x, y, z, f);
                                 var fx:int = (index % totalX) * pixelsWidth;
                                 var fy:int = Math.floor(index / totalX) * pixelsHeight;
                                 
@@ -485,11 +485,6 @@ package otlib.things
             var bitmapData:BitmapData = getSpriteSheet(thingData, null, 0);
             bitmapData.colorTransform(bitmapData.rect, colorTransform);
             return setSpriteSheet(bitmapData, thingData.thing);
-        }
-        
-        public static function getTextureIndex(thing:ThingType, f:int, x:int, y:int, z:int, l:int):int
-        {
-            return (((f % thing.frames * thing.patternZ + z) * thing.patternY + y) * thing.patternX + x) * thing.layers + l;
         }
         
         private static function copyPixels(data:ThingData, index:uint, bitmap:BitmapData, x:uint, y:uint):void
