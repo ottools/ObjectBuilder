@@ -1629,7 +1629,7 @@ package ob.core
                 {
                     sendCommand(new ClientChangedCommand(_things.changed, _sprites.changed));
                     
-                    this.compiled = this.clientChanged;
+                    this.compiled = !this.clientChanged;
                     sendFilesInfo();
                 }
             }

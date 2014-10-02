@@ -147,7 +147,7 @@ package otlib.sprites
             _sprites = new Dictionary();
             _sprites[0] = _blankSprite;
             _sprites[1] = new Sprite(1, transparency);
-            _changed = true;
+            _changed = false;
             _loaded = true;
             
             dispatchEvent(new StorageEvent(StorageEvent.LOAD));
@@ -162,10 +162,10 @@ package otlib.sprites
             
             var result:ChangeResult = internalAddSprite(pixels);
             if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                _changed = true;
                 dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             
-            _changed = true;
             return result;
         }
         
@@ -177,10 +177,10 @@ package otlib.sprites
             
             var result:ChangeResult = internalAddSprites(sprites);
             if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                _changed = true;
                 dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             
-            _changed = true;
             return result;
         }
         
@@ -200,10 +200,10 @@ package otlib.sprites
             
             var result:ChangeResult = internalReplaceSprite(id, pixels);
             if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                _changed = true;
                 dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             
-            _changed = true;
             return result;
         }
         
@@ -215,10 +215,10 @@ package otlib.sprites
             
             var result:ChangeResult = internalReplaceSprites(sprites);
             if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                _changed = true;
                 dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             
-            _changed = true;
             return result;
         }
         
@@ -230,10 +230,10 @@ package otlib.sprites
             
             var result:ChangeResult = internalRemoveSprite(id);
             if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                _changed = true;
                 dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             
-            _changed = true;
             return result;
         }
         
@@ -245,10 +245,10 @@ package otlib.sprites
             
             var result:ChangeResult = internalRemoveSprites(sprites);
             if (result.done && hasEventListener(StorageEvent.CHANGE)) {
+                _changed = true;
                 dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }
             
-            _changed = true;
             return result;
         }
         
