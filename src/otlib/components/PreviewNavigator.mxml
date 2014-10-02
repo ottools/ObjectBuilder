@@ -29,7 +29,6 @@
                     xmlns:s="library://ns.adobe.com/flex/spark" 
                     xmlns:mx="library://ns.adobe.com/flex/mx"
                     xmlns:nail="library://ns.nail.com/naillib"
-                    xmlns:components="nail.otlib.components.*"
                     xmlns:otlib="otlib.components.*">
     <s:layout>
         <s:VerticalLayout horizontalAlign="center"
@@ -42,7 +41,8 @@
     <fx:Script>
         <![CDATA[
             import nail.assets.Icons;
-            import nail.otlib.things.ThingData;
+            
+            import otlib.things.ThingData;
             
             //--------------------------------------------------------------------------
             // METHODS
@@ -93,7 +93,7 @@
         ]]>
     </fx:Script>
     
-    <components:FilesInfoPanel id="infoPanel"
+    <otlib:FilesInfoPanel id="infoPanel"
                                width="100%"/>
     
     <nail:GroupBox id="thingViewGroup"

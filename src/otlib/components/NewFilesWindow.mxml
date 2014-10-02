@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+///////////////////////////////////////////////////////////////////////////////////
+// 
+//  Copyright (c) 2014 Nailson <nailsonnego@gmail.com>
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+// 
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+// 
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+//
+///////////////////////////////////////////////////////////////////////////////////
+-->
+
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009" 
+          xmlns:s="library://ns.adobe.com/flex/spark" 
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:nail="library://ns.nail.com/naillib"
+          width="380"
+          height="125"
+          minimizable="false"
+          maximizable="false"
+          resizable="false"
+          showStatusBar="false"
+          backgroundColor="0x494949"
+          type="utility"
+          title="@Resource(key='newClientFiles', bundle='strings')"
+          fontSize="11"
+          creationComplete="creationCompleteHandler(event)"
+          closing="closingHandler(event)">
+    
+    <s:layout>
+        <s:VerticalLayout gap="10"
+                          paddingLeft="10"
+                          paddingRight="10"
+                          paddingTop="10"
+                          paddingBottom="10"
+                          horizontalAlign="right"/>
+    </s:layout>
+    
+    <fx:Metadata>
+        [ResourceBundle("strings")]
+    </fx:Metadata>
+    
+    <fx:Script>
+        <![CDATA[
+            import mx.collections.ArrayCollection;
+            import mx.events.FlexEvent;
+            
+            import spark.events.IndexChangeEvent;
+            
+            import nail.utils.DialogDetail;
+            
+            import otlib.core.Version;
+            import otlib.core.VersionStorage;
+            
+            //--------------------------------------------------------------------------
+            // PROPERTIES
+            //--------------------------------------------------------------------------
+            
+            private var _version:Version;
+            private var _versionChanged:Boolean;
+            private var _extended:Boolean;
+            private var _extendedChanged:Boolean;
+            private var _transparencyChannel:Boolean;
+            private var _transparencyChanged:Boolean;
+            private var _detail:uint;
+            
+            //--------------------------------------
+            // Getters / Setters 
+            //--------------------------------------
+            
+            public function get version():Version { return _version; }
+            public function set version(value:Version):void
+            {
+                if (value != _version) {
+                    _version = value;
+                    _versionChanged = true;
+                    invalidateProperties();
+                }
+            }
+            
+            public function get extended():Boolean { return _extended; }
+            public function set extended(value:Boolean):void
+            {
+                if (value != _extended) {
+                    _extended = value;
+                    _extendedChanged = true;
+                    invalidateProperties();
+                }
+            }
+            
+            public function get transparency():Boolean { return _transparencyChannel; }
+            public function set transparency(value:Boolean):void
+            {
+                if (value != _transparencyChannel)
+                {
+                    _transparencyChannel = value;
+                    _transparencyChanged = true;
+                    invalidateProperties();
+                }
+            }
+            
+            public function get detail():uint { return _detail; }
+            
+            //--------------------------------------------------------------------------
+            // METHODS
+            //--------------------------------------------------------------------------
+            
+            //--------------------------------------
+            // Override Protected
+            //--------------------------------------
+            
+            override protected function commitProperties():void
+            {
+                super.commitProperties();
+                
+                if (_versionChanged) {
+                    versionsDropDownList.selectedItem = _version;
+                    confirmButton.enabled = (_version != null);
+                    extendedCheckBox.enabled = (_version != null && _version.value < 960);
+                    extendedCheckBox.selected = (_extended || (_version && _version.value >= 960));
+                    _versionChanged = false;
+                }
+                
+                if (_extendedChanged) {
+                    extendedCheckBox.selected = _extended;
+                    _extendedChanged = false;
+                }
+                
+                if (_transparencyChanged) {
+                    transparencyCheckBox.selected = _transparencyChannel;
+                    _transparencyChanged = false;
+                }
+            }
+            
+            //--------------------------------------
+            // Event Handlers
+            //--------------------------------------
+            
+            protected function creationCompleteHandler(event:FlexEvent):void
+            {
+                versionsDropDownList.dataProvider = new ArrayCollection( VersionStorage.instance.getList() );
+                versionsDropDownList.setSelectedIndex(0, true);
+                focusManager.setFocus(confirmButton);
+                focusManager.showFocus();
+            }
+            
+            protected function versionsDropDownListChangeHandler(event:IndexChangeEvent):void
+            {
+                this.version = versionsDropDownList.selectedItem as Version;
+            }
+            
+            protected function extendedCheckBoxChangeHandler(event:Event):void
+            {
+                this.extended = extendedCheckBox.selected;
+            }
+            
+            protected function transparencyCheckBoxChangeHandler(event:Event):void
+            {
+                this.transparency = transparencyCheckBox.selected;
+            }
+            
+            protected function confirmButtonClickHandler(event:MouseEvent):void
+            {
+                _detail = DialogDetail.CONFIRM;
+                this.close();
+            }
+            
+            protected function cancelButtonClickHandler(event:MouseEvent):void
+            {
+                _detail = DialogDetail.CANCEL;
+                this.close();
+            }
+            
+            protected function closingHandler(event:Event):void
+            {
+                if (_detail == DialogDetail.CANCEL)
+                    _version = null;
+            }
+            
+        ]]>
+    </fx:Script>
+    
+    <nail:GroupBox width="100%" label="@Resource(key='version', bundle='strings')">
+        <nail:layout>
+            <s:HorizontalLayout gap="10"
+                                paddingLeft="10"
+                                paddingRight="10"
+                                paddingTop="10"
+                                paddingBottom="10"
+                                verticalAlign="middle"/>
+        </nail:layout>
+        <s:DropDownList id="versionsDropDownList"
+                        width="100%"
+                        height="21"
+                        change="versionsDropDownListChangeHandler(event)"/>
+        <s:CheckBox id="extendedCheckBox"
+                    label="@Resource(key='extended', bundle='strings')"
+                    change="extendedCheckBoxChangeHandler(event)"/>
+        <s:CheckBox id="transparencyCheckBox"
+                    label="@Resource(key='transparency', bundle='strings')"
+                    change="transparencyCheckBoxChangeHandler(event)"/>
+    </nail:GroupBox>
+    <nail:ShadowLine width="100%"/>
+    <s:HGroup width="100%"
+              verticalAlign="middle"
+              horizontalAlign="right">
+        <s:Button id="confirmButton"
+                  label="@Resource(key='confirm', bundle='strings')"
+                  minWidth="70"
+                  enabled="false"
+                  click="confirmButtonClickHandler(event)"/>
+        <s:Button id="cancelButton"
+                  label="@Resource(key='cancel', bundle='strings')"
+                  minWidth="70"
+                  click="cancelButtonClickHandler(event)"/>
+    </s:HGroup>
+</s:Window>

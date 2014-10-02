@@ -26,7 +26,7 @@ package otlib.components
 {
     import spark.components.ToggleButton;
     
-    import nail.assets.Icons;
+    import otlib.assets.Assets;
     
     public class PlayButton extends ToggleButton
     {
@@ -46,10 +46,10 @@ package otlib.components
             super.selected = value;
             
             if (value) {
-                setStyle("icon", Icons.PAUSE);
+                setStyle("icon", Assets.PAUSE);
                 toolTip = resourceManager.getString("strings", "pause");
             } else {
-                setStyle("icon", Icons.PLAY);
+                setStyle("icon", Assets.PLAY);
                 toolTip = resourceManager.getString("strings", "play");
             }
         }
@@ -61,7 +61,7 @@ package otlib.components
         public function PlayButton()
         {
             super();
-            setStyle("icon", Icons.PLAY);
+            setStyle("icon", Assets.PLAY);
         }
     }
 }

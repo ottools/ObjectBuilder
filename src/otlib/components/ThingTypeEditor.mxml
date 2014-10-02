@@ -29,7 +29,6 @@
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:nail="library://ns.nail.com/naillib"
-         xmlns:components="nail.otlib.components.*"
          xmlns:otlib="otlib.components.*"
          minWidth="300"
          minHeight="0"
@@ -43,9 +42,9 @@
     </fx:Declarations>
     
     <fx:Metadata>
-        [Event(name="thingChange", type="nail.otlib.events.ThingEditorEvent")]
-        [Event(name="thingPropertyChange", type="nail.otlib.events.ThingEditorEvent")]
-        [Event(name="spriteDoubleClick", type="nail.otlib.events.ThingEditorEvent")]
+        [Event(name="thingChange", type="otlib.events.ThingEditorEvent")]
+        [Event(name="thingPropertyChange", type="otlib.events.ThingEditorEvent")]
+        [Event(name="spriteDoubleClick", type="otlib.events.ThingEditorEvent")]
         [ResourceBundle("strings")]
     </fx:Metadata>
     
@@ -61,21 +60,20 @@
             import spark.components.Button;
             import spark.events.IndexChangeEvent;
             
-            import nail.otlib.components.skins.SpriteButtonSkin;
-            import nail.otlib.events.ThingEditorEvent;
-            import nail.otlib.sprites.Sprite;
-            import nail.otlib.sprites.SpriteData;
-            import nail.otlib.things.BindableThingType;
-            import nail.otlib.things.ThingCategory;
-            import nail.otlib.things.ThingData;
-            import nail.otlib.things.ThingType;
-            
+            import otlib.components.skins.SpriteButtonSkin;
+            import otlib.events.ThingEditorEvent;
+            import otlib.sprites.Sprite;
+            import otlib.sprites.SpriteData;
             import otlib.things.AnimationMode;
             import otlib.things.Animator;
+            import otlib.things.BindableThingType;
             import otlib.things.FrameDuration;
             import otlib.things.IFrameStrategy;
             import otlib.things.LoopStrategy;
             import otlib.things.PingPongStrategy;
+            import otlib.things.ThingCategory;
+            import otlib.things.ThingData;
+            import otlib.things.ThingType;
             import otlib.utils.FilesInfo;
             import otlib.utils.OutfitData;
             
@@ -377,6 +375,14 @@
                 actionGroupCheckBox.includeInLayout = visible;
                 usableCheckBox.visible = visible;
                 usableCheckBox.includeInLayout = visible;
+                
+                visible = (isItem && info.clientVersion >= 1050);
+                minimumGroup.visible = visible;
+                minimumGroup.includeInLayout = visible;
+                maximumGroup.visible = visible;
+                maximumGroup.includeInLayout = visible;
+                animationGroupBox.visible = visible;
+                animationGroupBox.includeInLayout = visible;
             }
             
             private function updateViewWithDirection():void
@@ -387,7 +393,7 @@
                 
                 var width:uint = _thingBinding.width;
                 var height:uint = _thingBinding.height;
-                var size:uint = nail.otlib.sprites.Sprite.DEFAULT_SIZE;
+                var size:uint = otlib.sprites.Sprite.DEFAULT_SIZE;
                 var bitmapWidth:Number = Math.max(size, width * size);
                 var bitmapHeight:Number = Math.max(size, height * size);
                 var bitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0x00FF00FF);
@@ -427,7 +433,7 @@
                 var layers:uint = _thingBinding.layers;
                 var patternX:uint = _thingBinding.patternX;
                 var patternY:uint = _thingBinding.patternY;
-                var size:uint = nail.otlib.sprites.Sprite.DEFAULT_SIZE;
+                var size:uint = otlib.sprites.Sprite.DEFAULT_SIZE;
                 var bitmapWidth:Number  = Math.max(size, (patternX * width) * size);
                 var bitmapHeight:Number = Math.max(size, (patternY * height) * size);
                 var pixelsWidth:int = width * size;
@@ -838,7 +844,7 @@
                                                 left="0"
                                                 toolTip="@Resource(key='northwest', bundle='strings')"
                                                 icon="@Embed('../../../assets/arrow_top_left.png')"
-                                                skinClass="nail.otlib.components.skins.DirectionButtonSkin"
+                                                skinClass="otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="topCenterButton"
                                                 width="22"
@@ -847,7 +853,7 @@
                                                 horizontalCenter="0"
                                                 toolTip="@Resource(key='north', bundle='strings')"
                                                 icon="@Embed('../../../assets/arrow_up.png')"
-                                                skinClass="nail.otlib.components.skins.DirectionButtonSkin"
+                                                skinClass="otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="topRightButton"
                                                 width="22"
@@ -856,7 +862,7 @@
                                                 right="0"
                                                 toolTip="@Resource(key='northeast', bundle='strings')"
                                                 icon="@Embed('../../../assets/arrow_top_right.png')"
-                                                skinClass="nail.otlib.components.skins.DirectionButtonSkin"
+                                                skinClass="otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="middleRightButton"
                                                 width="22"
@@ -865,7 +871,7 @@
                                                 right="0"
                                                 toolTip="@Resource(key='east', bundle='strings')"
                                                 icon="@Embed('../../../assets/arrow_right.png')"
-                                                skinClass="nail.otlib.components.skins.DirectionButtonSkin"
+                                                skinClass="otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="bottomRightButton"
                                                 width="22"
@@ -874,7 +880,7 @@
                                                 right="0"
                                                 toolTip="@Resource(key='southeast', bundle='strings')"
                                                 icon="@Embed('../../../assets/arrow_bottom_right.png')"
-                                                skinClass="nail.otlib.components.skins.DirectionButtonSkin"
+                                                skinClass="otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="bottomCenterButton"
                                                 width="22"
@@ -883,7 +889,7 @@
                                                 horizontalCenter="0"
                                                 toolTip="@Resource(key='south', bundle='strings')"
                                                 icon="@Embed('../../../assets/arrow_down.png')"
-                                                skinClass="nail.otlib.components.skins.DirectionButtonSkin"
+                                                skinClass="otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="bottomLeftButton"
                                                 width="22"
@@ -892,7 +898,7 @@
                                                 left="0"
                                                 toolTip="@Resource(key='southwest', bundle='strings')"
                                                 icon="@Embed('../../../assets/arrow_bottom_left.png')"
-                                                skinClass="nail.otlib.components.skins.DirectionButtonSkin"
+                                                skinClass="otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="middleLeftButton"
                                                 width="22"
@@ -901,7 +907,7 @@
                                                 verticalCenter="0"
                                                 toolTip="@Resource(key='west', bundle='strings')"
                                                 icon="@Embed('../../../assets/arrow_left.png')"
-                                                skinClass="nail.otlib.components.skins.DirectionButtonSkin"
+                                                skinClass="otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                             </s:Group>
                             
@@ -942,7 +948,7 @@
                                   horizontalAlign="right"
                                   visible="{_thingBinding.frames > 1}">
                             <s:Label text="{resourceManager.getString('strings', 'animations') + ':'}"/>
-                            <components:PatternSlider id="animationSlider"
+                            <otlib:PatternSlider id="animationSlider"
                                                       maximum="{_thingBinding.frames - 1}"
                                                       change="updatePreview()"/>
                             <s:Label id="animationCountLabel"
@@ -987,7 +993,7 @@
                                   paddingRight="27"
                                   visible="false">
                             <s:Label text="{resourceManager.getString('strings', 'addons') + ':'}"/>
-                            <components:PatternSlider id="addonsSlider"
+                            <otlib:PatternSlider id="addonsSlider"
                                                       maximum="{_thingBinding.patternY - 1}"
                                                       change="updatePreview()"/>
                             <s:Label id="addonCountLabel"
@@ -1001,7 +1007,7 @@
                                   paddingRight="27"
                                   visible="{_thingBinding.patternZ > 1}">
                             <s:Label text="{resourceManager.getString('strings', 'mount') + ':'}"/>
-                            <components:PatternSlider id="mountSlider"
+                            <otlib:PatternSlider id="mountSlider"
                                                       maximum="{_thingBinding.patternZ - 1}"
                                                       change="updatePreview()"/>
                             <s:Label id="mountCountLabel"
@@ -1104,7 +1110,8 @@
                     </nail:GroupBox>
                     
                     <!-- animation -->
-                    <nail:GroupBox label="@Resource(key='animation', bundle='strings')"
+                    <nail:GroupBox id="animationGroupBox"
+                                   label="@Resource(key='animation', bundle='strings')"
                                    width="100%"
                                    visible="{_thingBinding.frames > 1}"
                                    includeInLayout="{_thingBinding.frames > 1}">
@@ -1246,7 +1253,7 @@
                                                   value="{_thingBinding.lightColor}"
                                                   change="{_thingBinding.lightColor = lightColorNumericStepper.value;}"/>
                                 
-                                <components:EightBitColorPicker id="lightColorSwitchColor"
+                                <otlib:EightBitColorPicker id="lightColorSwitchColor"
                                                                 color="{_thingBinding.lightColor}"
                                                                 change="{_thingBinding.lightColor = lightColorSwitchColor.color;}"/>
                             </s:HGroup>
@@ -1290,7 +1297,7 @@
                                               maximum="215"
                                               value="{_thingBinding.miniMapColor}"
                                               change="{_thingBinding.miniMapColor = automapColorNumericStepper.value;}"/>
-                            <components:EightBitColorPicker id="automapColorSwitchColor"
+                            <otlib:EightBitColorPicker id="automapColorSwitchColor"
                                                             color="{_thingBinding.miniMapColor}"
                                                             change="{_thingBinding.miniMapColor = automapColorSwitchColor.color;}"/>
                         </s:Group>

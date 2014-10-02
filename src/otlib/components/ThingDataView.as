@@ -32,13 +32,12 @@ package otlib.components
     
     import mx.core.UIComponent;
     
-    import nail.otlib.geom.Rect;
-    import nail.otlib.things.ThingCategory;
-    import nail.otlib.things.ThingData;
-    import nail.otlib.things.ThingType;
-    
+    import otlib.geom.Rect;
     import otlib.things.Animator;
     import otlib.things.FrameDuration;
+    import otlib.things.ThingCategory;
+    import otlib.things.ThingData;
+    import otlib.things.ThingType;
     import otlib.utils.OutfitData;
     
     [Event(name="change", type="flash.events.Event")]
@@ -235,27 +234,20 @@ package otlib.components
         {
             graphics.clear();
             
-            if (_spriteSheet) {
-                
+            if (_spriteSheet)
+            {
                 var thing:ThingType = thingData.thing;
+                var px:uint = _patternX % thing.patternX;
+                var pz:uint = _patternZ % thing.patternZ;
+                var index:int = thing.getTextureIndex(0, px, 0, pz, _frame);
                 
-                var index:int = ThingData.getTextureIndex(thing,
-                                                          _frame,
-                                                          _patternX % thing.patternX,
-                                                          0,
-                                                          _patternZ % thing.patternZ,
-                                                          0);
                 var rect:Rect = _textureIndex[index];
                 _rectangle.setTo(rect.x, rect.y, rect.width, rect.height);
                 _bitmap.copyPixels(_spriteSheet, _rectangle, _point);
                 
-                if (_drawBlendLayer && thing.layers > 1) {
-                    index = ThingData.getTextureIndex(thing,
-                                                      _frame,
-                                                      _patternX % thing.patternX,
-                                                      0,
-                                                      _patternZ % thing.patternZ,
-                                                      1 % thing.layers);
+                if (_drawBlendLayer && thing.layers > 1) 
+                {
+                    index = thing.getTextureIndex(1 % thing.layers, px, 0, pz, _frame);
                     
                     rect = _textureIndex[index];
                     _rectangle.setTo(rect.x, rect.y, rect.width, rect.height);

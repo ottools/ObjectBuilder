@@ -29,9 +29,8 @@
                   xmlns:s="library://ns.adobe.com/flex/spark"
                   xmlns:mx="library://ns.adobe.com/flex/mx"
                   xmlns:nail="library://ns.nail.com/naillib"
-                  xmlns:components="nail.otlib.components.*"
                   xmlns:otlib="otlib.components.*"
-                  implements="nail.objectbuilder.core.IObjectBuilder"
+                  implements="ob.core.IObjectBuilder"
                   minWidth="800"
                   minHeight="600"
                   fontSize="11"
@@ -113,8 +112,6 @@
             import air.update.ApplicationUpdaterUI;
             import air.update.events.UpdateEvent;
             
-            import nail.animationeditor.AnimationEditor;
-            import nail.assets.Icons;
             import nail.components.controls.AboutWindow;
             import nail.components.controls.Alert;
             import nail.core.nail_internal;
@@ -122,60 +119,8 @@
             import nail.loaders.BitmapLoader;
             import nail.logging.Log;
             import nail.managers.PopUpWindowManager;
-            import nail.objectbuilder.commands.CommandType;
-            import nail.objectbuilder.commands.LoadVersionsCommand;
-            import nail.objectbuilder.commands.NeedToReloadCommand;
-            import nail.objectbuilder.commands.ProgressBarID;
-            import nail.objectbuilder.commands.files.CompileAsCommand;
-            import nail.objectbuilder.commands.files.CompileCommand;
-            import nail.objectbuilder.commands.files.CreateNewFilesCommand;
-            import nail.objectbuilder.commands.files.LoadFilesCommand;
-            import nail.objectbuilder.commands.files.UnloadFilesCommand;
-            import nail.objectbuilder.commands.sprites.ExportSpritesCommand;
-            import nail.objectbuilder.commands.sprites.GetSpriteListCommand;
-            import nail.objectbuilder.commands.sprites.ImportSpritesCommand;
-            import nail.objectbuilder.commands.sprites.ImportSpritesFromFileCommand;
-            import nail.objectbuilder.commands.sprites.RemoveSpritesCommand;
-            import nail.objectbuilder.commands.sprites.ReplaceSpritesCommand;
-            import nail.objectbuilder.commands.sprites.ReplaceSpritesFromFilesCommand;
-            import nail.objectbuilder.commands.things.DuplicateThingCommand;
-            import nail.objectbuilder.commands.things.ExportThingCommand;
-            import nail.objectbuilder.commands.things.GetThingCommand;
-            import nail.objectbuilder.commands.things.GetThingListCommand;
-            import nail.objectbuilder.commands.things.ImportThingsFromFilesCommand;
-            import nail.objectbuilder.commands.things.NewThingCommand;
-            import nail.objectbuilder.commands.things.RemoveThingCommand;
-            import nail.objectbuilder.commands.things.ReplaceThingsCommand;
-            import nail.objectbuilder.commands.things.ReplaceThingsFromFilesCommand;
-            import nail.objectbuilder.commands.things.UpdateThingCommand;
-            import nail.objectbuilder.settings.ObjectBuilderSettings;
-            import nail.objectbuilder.utils.ObUtils;
-            import nail.objectviewer.ObjectViewer;
-            import nail.otlib.components.CompileFilesWindow;
-            import nail.otlib.components.DatSprProgressBar;
-            import nail.otlib.components.DefaultProgressBar;
-            import nail.otlib.components.FindWindow;
-            import nail.otlib.components.LogWindow;
-            import nail.otlib.components.LookGenerator;
-            import nail.otlib.components.NewFilesWindow;
-            import nail.otlib.components.renders.ThingListRenderer;
-            import nail.otlib.core.IVersionStorage;
-            import nail.otlib.core.Version;
-            import nail.otlib.core.VersionStorage;
-            import nail.otlib.events.ThingEditorEvent;
-            import nail.otlib.geom.Rect;
-            import nail.otlib.loaders.PathHelper;
-            import nail.otlib.sprites.SpriteData;
-            import nail.otlib.things.ThingCategory;
-            import nail.otlib.things.ThingData;
-            import nail.otlib.things.ThingProperty;
-            import nail.otlib.things.ThingType;
-            import nail.otlib.utils.OTFormat;
-            import nail.otlib.utils.SpriteUtils;
-            import nail.otlib.utils.ThingListItem;
             import nail.settings.ISettingsManager;
             import nail.settings.SettingsManager;
-            import nail.slicer.Slicer;
             import nail.utils.CapabilitiesUtil;
             import nail.utils.Descriptor;
             import nail.utils.DialogDetail;
@@ -187,17 +132,71 @@
             import nail.utils.isNullOrEmpty;
             import nail.workers.Command;
             
+            import ob.animationeditor.AnimationEditor;
+            import ob.commands.CommandType;
+            import ob.commands.LoadVersionsCommand;
+            import ob.commands.NeedToReloadCommand;
+            import ob.commands.ProgressBarID;
+            import ob.commands.files.CompileAsCommand;
+            import ob.commands.files.CompileCommand;
+            import ob.commands.files.CreateNewFilesCommand;
+            import ob.commands.files.LoadFilesCommand;
+            import ob.commands.files.UnloadFilesCommand;
+            import ob.commands.sprites.ExportSpritesCommand;
+            import ob.commands.sprites.GetSpriteListCommand;
+            import ob.commands.sprites.ImportSpritesCommand;
+            import ob.commands.sprites.ImportSpritesFromFileCommand;
+            import ob.commands.sprites.RemoveSpritesCommand;
+            import ob.commands.sprites.ReplaceSpritesCommand;
+            import ob.commands.sprites.ReplaceSpritesFromFilesCommand;
+            import ob.commands.things.DuplicateThingCommand;
+            import ob.commands.things.ExportThingCommand;
+            import ob.commands.things.GetThingCommand;
+            import ob.commands.things.GetThingListCommand;
+            import ob.commands.things.ImportThingsFromFilesCommand;
+            import ob.commands.things.NewThingCommand;
+            import ob.commands.things.RemoveThingCommand;
+            import ob.commands.things.ReplaceThingsCommand;
+            import ob.commands.things.ReplaceThingsFromFilesCommand;
+            import ob.commands.things.UpdateThingCommand;
             import ob.components.SplashScreen;
+            import ob.objectviewer.ObjectViewer;
+            import ob.settings.ObjectBuilderSettings;
+            import ob.slicer.Slicer;
+            import ob.utils.ObUtils;
             
+            import otlib.assets.Assets;
             import otlib.components.ClientVersionsWindow;
+            import otlib.components.CompileFilesWindow;
+            import otlib.components.DatSprProgressBar;
+            import otlib.components.DefaultProgressBar;
             import otlib.components.ExportWindow;
+            import otlib.components.FindWindow;
+            import otlib.components.LogWindow;
+            import otlib.components.LookGenerator;
+            import otlib.components.NewFilesWindow;
             import otlib.components.OpenFilesWindow;
             import otlib.components.PreferencesWindow;
+            import otlib.components.renders.ThingListRenderer;
+            import otlib.core.IVersionStorage;
+            import otlib.core.Version;
+            import otlib.core.VersionStorage;
+            import otlib.events.ThingEditorEvent;
+            import otlib.geom.Rect;
+            import otlib.loaders.PathHelper;
+            import otlib.sprites.SpriteData;
             import otlib.things.Animator;
             import otlib.things.FrameDuration;
             import otlib.things.LoopStrategy;
             import otlib.things.PingPongStrategy;
+            import otlib.things.ThingCategory;
+            import otlib.things.ThingData;
+            import otlib.things.ThingProperty;
+            import otlib.things.ThingType;
             import otlib.utils.FilesInfo;
+            import otlib.utils.OTFormat;
+            import otlib.utils.SpriteUtils;
+            import otlib.utils.ThingListItem;
             
             use namespace nail_internal;
             
@@ -205,7 +204,7 @@
             // PROPERTIES
             //--------------------------------------------------------------------------
             
-            [Embed(source="../workerswfs/nail/objectbuilder/core/ObjectBuilderWorker.swf", mimeType="application/octet-stream")]
+            [Embed(source="../workerswfs/ob/core/ObjectBuilderWorker.swf", mimeType="application/octet-stream")]
             public const ObjectBuilderWorker:Class;
             
             private var _splashScreen:SplashScreen;
@@ -745,6 +744,7 @@
                 registerCallback(CommandType.SHOW_PROGRESS_BAR, onShowProgressBar);
                 registerCallback(CommandType.HIDE_PROGRESS_BAR, onHideProgressBar);
                 registerCallback(CommandType.LOAD_COMPLETE, onLoadComplete);
+                registerCallback(CommandType.CLIENT_CHANGED, onClientChanged);
                 registerCallback(CommandType.FILES_INFO, onSetAssetsInfo);
                 registerCallback(CommandType.SET_THING, onSetThingData);
                 registerCallback(CommandType.SET_THING_LIST, onSetThingList);
@@ -1416,6 +1416,11 @@
                 this.sendCommand(new GetThingCommand(100, ThingCategory.ITEM));
             }
             
+            private function onClientChanged(thingsChanged:Boolean, spritesChanged:Boolean):void
+            {
+                //trace(spritesChanged, thingsChanged);
+            }
+            
             private function onProgress(id:uint, loaded:uint, total:uint):void
             {
                 switch(id) {
@@ -1617,7 +1622,7 @@
                 
                 if (event.property) {
                     var message:String = resourceManager.getString("strings", "propertyChanged");
-                    this.appendLog(StringUtil.substitute(message,
+                    this.appendLog(StringUtil.format(message,
                         ObUtils.toLocale(event.data.category),
                         event.data.id,
                         event.property,
@@ -1796,7 +1801,7 @@
                     if (event.detail == Alert.YES) {
                         saveThingChanges();
                     } else if (event.detail == Alert.NO) {
-                        appendLog(StringUtil.substitute(resourceManager.getString("strings", "unsavedChanges"),
+                        appendLog(StringUtil.format(resourceManager.getString("strings", "unsavedChanges"),
                             ObUtils.toLocale(thingTypeEditor.thingData.category),
                             thingTypeEditor.thingData.id));
                     } else if (event.detail == Alert.CANCEL) {
@@ -1894,7 +1899,7 @@
                 {
                     var bitmap:BitmapData = event.target.bitmap;
                     var thing:ThingType = thingTypeEditor.getThingTypeResult();
-                    var rect:nail.otlib.geom.Rect = SpriteUtils.getSpriteSheetSize(thing);
+                    var rect:otlib.geom.Rect = SpriteUtils.getSpriteSheetSize(thing);
                     
                     if (bitmap.width == rect.width && rect.height == bitmap.height) {
                         var data:ThingData = ThingData.setSpriteSheet(bitmap, thing);
@@ -1905,7 +1910,7 @@
                         }
                     } else {
                         var message:String = resourceManager.getString("strings", "invalidSpriteSheetSize");
-                        Alert.show(StringUtil.substitute(message, rect.width, rect.height),
+                        Alert.show(StringUtil.format(message, rect.width, rect.height),
                             resourceManager.getString("strings", "invalidSpriteSheetSizeTitle"));
                     }
                 }
@@ -2323,57 +2328,57 @@
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.new')}"
-                      icon="{nail.assets.Icons.NEW_FILE}"
+                      icon="{Assets.NEW_FILE}"
                       click="onCreateNew()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.open')}"
-                      icon="{nail.assets.Icons.OPEN}"
+                      icon="{Assets.OPEN}"
                       click="openClient()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.compile')}"
-                      icon="{nail.assets.Icons.SAVE}"
+                      icon="{Assets.SAVE}"
                       click="compile()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.compileAs')}"
-                      icon="{nail.assets.Icons.SAVE_AS}"
+                      icon="{Assets.SAVE_AS}"
                       click="compileAs()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <nail:ShadowLine height="20"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'find')}"
-                      icon="{nail.assets.Icons.BINOCULARS}"
+                      icon="{Assets.BINOCULARS}"
                       click="openFindWindow()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'objectViewer')}"
-                      icon="{nail.assets.Icons.VIEWER}"
+                      icon="{Assets.VIEWER}"
                       click="openObjectViewer()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="Slicer"
-                      icon="{nail.assets.Icons.SLICER}"
+                      icon="{Assets.SLICER}"
                       click="openSlicer()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'animationEditor')}"
-                      icon="{nail.assets.Icons.ANIMATION}"
+                      icon="{Assets.ANIMATION}"
                       click="openAnimationEditor()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
             <nail:ShadowLine height="20"/>
             <s:Button width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.logWindow')}"
-                      icon="{nail.assets.Icons.LOG}"
+                      icon="{Assets.LOG}"
                       click="openLogWindow()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
         </s:HGroup>
@@ -2400,7 +2405,7 @@
                                   gap="5"/>
             </s:layout>
             
-            <components:FilesInfoPanel id="infoPanel"
+            <otlib:FilesInfoPanel id="infoPanel"
                                        width="100%"/>
             
             <nail:ShadowLine width="100%"/>
@@ -2426,7 +2431,7 @@
                                 width="20"
                                 height="20"
                                 selected="true"
-                                icon="{nail.assets.Icons.SHOW_LIST_ICON}"
+                                icon="{Assets.SHOW_LIST_ICON}"
                                 change="{showThingsPanel = showThingsPanelButton.selected;}"/>
             </s:HGroup>
             
@@ -2469,7 +2474,7 @@
                                       paddingTop="10"
                                       paddingBottom="0"/>
                 </nail:layout>
-                <components:ThingList id="thingList"
+                <otlib:ThingList id="thingList"
                                       width="100%"
                                       height="100%"
                                       fontSize="11"
@@ -2501,43 +2506,43 @@
                           toolTip="@Resource(key='replace', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.REPLACE}"
+                          icon="{Assets.REPLACE}"
                           click="replaceThingHandler(event)"/>
                 <s:Button id="importThingButton"
                           toolTip="@Resource(key='import', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.IMPORT}"
+                          icon="{Assets.IMPORT}"
                           click="importThingHandler(event)"/>
                 <s:Button id="exportThingButton"
                           toolTip="@Resource(key='export', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.EXPORT}"
+                          icon="{Assets.EXPORT}"
                           click="exportThingHandler(event)"/>
                 <s:Button id="editThingButton"
                           toolTip="@Resource(key='edit', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.EDIT}"
+                          icon="{Assets.EDIT}"
                           click="editThingHandler(event)"/>
                 <s:Button id="duplicateThingButton"
                           toolTip="@Resource(key='duplicate', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.DUPLICATE}"
+                          icon="{Assets.DUPLICATE}"
                           click="duplicateThingHandler(event)"/>
                 <s:Button id="newThingButton"
                           toolTip="@Resource(key='new', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.NEW}"
+                          icon="{Assets.NEW}"
                           click="newThingHandler(event)"/>
                 <s:Button id="removeThingButton"
                           toolTip="@Resource(key='remove', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.DELETE}"
+                          icon="{Assets.DELETE}"
                           click="removeThingHandler(event)"/>
             </s:HGroup>
         </s:BorderContainer>
@@ -2616,7 +2621,7 @@
                                       paddingBottom="0"/>
                 </nail:layout>
                 
-                <components:SpriteList id="spritesList"
+                <otlib:SpriteList id="spritesList"
                                        width="100%"
                                        height="100%"
                                        allowMultipleSelection="true"
@@ -2647,43 +2652,43 @@
                           toolTip="@Resource(key='replace', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.REPLACE}"
+                          icon="{Assets.REPLACE}"
                           click="replaceSpriteHandler(event)"/>
                 <s:Button id="importSpriteButton"
                           toolTip="@Resource(key='import', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.IMPORT}"
+                          icon="{Assets.IMPORT}"
                           click="importSpriteHandler(event)"/>
                 <s:Button id="exportSpriteButton"
                           toolTip="@Resource(key='export', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.EXPORT}"
+                          icon="{Assets.EXPORT}"
                           click="exportSpriteHandler(event)"/>
                 <s:Button id="copySpriteButton"
                           toolTip="@Resource(key='copy', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.COPY}"
+                          icon="{Assets.COPY}"
                           click="onCopySprite()"/>
                 <s:Button id="pasteSpriteButton"
                           toolTip="@Resource(key='paste', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.PASTE}"
+                          icon="{Assets.PASTE}"
                           click="onPasteSprite()"/>
                 <s:Button id="newSpriteButton"
                           toolTip="@Resource(key='new', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.NEW}"
+                          icon="{Assets.NEW}"
                           click="newSpriteButtonClickHandler(event)"/>
                 <s:Button id="removeSpriteButton"
                           toolTip="@Resource(key='remove', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{nail.assets.Icons.DELETE}"
+                          icon="{Assets.DELETE}"
                           click="removeSpriteHandler(event)"/>
             </s:HGroup>
         </s:BorderContainer>

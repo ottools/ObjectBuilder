@@ -39,7 +39,7 @@
           type="utility"
           title="@Resource(key='export', bundle='strings')"
           preinitialize="preinitializeHandler(event)"
-          closing="windowClosingHandler(event)">
+          closing="windowClosingHandler(event)" xmlns:components="otlib.components.*">
     
     <s:layout>
         <s:VerticalLayout gap="10"
@@ -67,13 +67,14 @@
             import spark.events.IndexChangeEvent;
             import spark.events.TextOperationEvent;
             
-            import nail.codecs.ImageFormat;
-            import nail.otlib.core.Version;
-            import nail.otlib.core.VersionStorage;
-            import nail.otlib.events.FileTextInputEvent;
-            import nail.otlib.utils.OTFormat;
+            import nail.image.ImageFormat;
             import nail.utils.DialogDetail;
             import nail.utils.isNullOrEmpty;
+            
+            import otlib.core.Version;
+            import otlib.core.VersionStorage;
+            import otlib.events.FileTextInputEvent;
+            import otlib.utils.OTFormat;
             
             //--------------------------------------------------------------------------
             // PROPERTIES
@@ -323,7 +324,7 @@
                  fontSize="10"
                  color="0xDFDFDF"/>
         
-        <otlib:FileTextInput id="directoryTextInput"
+        <components:FileTextInput id="directoryTextInput"
                              left="0"
                              right="65"
                              top="15"

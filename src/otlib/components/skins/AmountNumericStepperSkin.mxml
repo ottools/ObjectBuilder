@@ -40,7 +40,7 @@
     <!-- script -->
     <fx:Script>
         <![CDATA[
-            import nail.assets.Icons;
+            import otlib.assets.Assets;
         ]]>
     </fx:Script>
     
@@ -60,19 +60,19 @@
               width="19"
               height="19"
               tabEnabled="false"
-              icon="{Icons.FIRST}"/>
+              icon="{Assets.FIRST}"/>
     
     <s:Button id="previousAmountButton"
               width="19"
               height="19"
               tabEnabled="false"
-              icon="{Icons.PREVIOUS}"/>
+              icon="{Assets.PREVIOUS}"/>
     
     <s:Button id="decrementButton"
               width="19"
               height="19"
               tabEnabled="false"
-              icon="{Icons.BACK}"/>
+              icon="{Assets.BACK}"/>
     
     <s:TextInput id="textDisplay"
                  width="100%"
@@ -84,17 +84,17 @@
               width="19"
               height="19"
               tabEnabled="false"
-              icon="{Icons.PLAY}"/>
+              icon="{Assets.PLAY}"/>
     
     <s:Button id="nextAmountButton"
               width="19"
               height="19"
               tabEnabled="false"
-              icon="{Icons.NEXT}"/>
+              icon="{Assets.NEXT}"/>
     
     <s:Button id="lastButton"
               width="19"
               height="19"
               tabEnabled="false"
-              icon="{Icons.LAST}"/>
+              icon="{Assets.LAST}"/>
 </s:SparkSkin>

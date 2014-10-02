@@ -29,7 +29,7 @@
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:nail="library://ns.nail.com/naillib"
-          xmlns:components="nail.otlib.components.*"
+          xmlns:otlib="otlib.components.*"
           width="500"
           height="360"
           resizable="false"
@@ -60,17 +60,17 @@
         <![CDATA[
             import mx.events.FlexEvent;
             
-            import nail.assets.Icons;
             import nail.logging.Log;
-            import nail.otlib.core.Version;
-            import nail.otlib.core.VersionStorage;
-            import nail.otlib.events.FileTextInputEvent;
-            import nail.otlib.utils.OTFormat;
             import nail.utils.DialogDetail;
             import nail.utils.isNullOrEmpty;
             
+            import otlib.assets.Assets;
+            import otlib.core.Version;
+            import otlib.core.VersionStorage;
+            import otlib.events.FileTextInputEvent;
             import otlib.utils.FilesInfo;
             import otlib.utils.FilesInfoLoader;
+            import otlib.utils.OTFormat;
             
             //--------------------------------------------------------------------------
             // PROPERTIES
@@ -415,9 +415,9 @@
                  color="0xDFDFDF"/>
         <s:HGroup width="100%"
                   height="100%">
-            <components:FileTextInput id="clientDirectoryTextInput"
-                                      width="100%"
-                                      fileChange="clientDirectoryChangeHandler(event)"/>
+            <otlib:FileTextInput id="clientDirectoryTextInput"
+                                 width="100%"
+                                 fileChange="clientDirectoryChangeHandler(event)"/>
             <s:Button id="clientBrowseButton"
                       label="@Resource(key='browse', bundle='strings')"
                       height="21"
@@ -458,19 +458,34 @@
                           paddingBottom="10"
                           horizontalGap="10"/>
         </nail:layout>
-        <s:Label text="{resourceManager.getString('strings', 'signature') + ':'}"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'signature') + ':'}"
+                 textAlign="right"/>
         <s:RichEditableText id="datSignatureLabel"
                             height="12"
                             editable="false"
-                            focusEnabled="false"/>
-        <s:Label text="{resourceManager.getString('strings', 'items') + ':'}"/>
-        <s:Label id="itemsCountLabel"/>
-        <s:Label text="{resourceManager.getString('strings', 'outfits') + ':'}"/>
-        <s:Label id="outfitsCountLabel"/>
-        <s:Label text="{resourceManager.getString('strings', 'effects') + ':'}"/>
-        <s:Label id="effectsCountLabel"/>
-        <s:Label text="{resourceManager.getString('strings', 'missiles') + ':'}"/>
-        <s:Label id="missilesCountLabel"/>
+                            focusEnabled="false"
+                            color="0x9AC9F8"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'items') + ':'}"
+                 textAlign="right"/>
+        <s:Label id="itemsCountLabel"
+                 color="0x9AC9F8"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'outfits') + ':'}"
+                 textAlign="right"/>
+        <s:Label id="outfitsCountLabel"
+                 color="0x9AC9F8"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'effects') + ':'}"
+                 textAlign="right"/>
+        <s:Label id="effectsCountLabel"
+                 color="0x9AC9F8"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'missiles') + ':'}"
+                 textAlign="right"/>
+        <s:Label id="missilesCountLabel"
+                 color="0x9AC9F8"/>
     </nail:GroupBox>
     
     <!-- spr -->
@@ -480,15 +495,22 @@
                           paddingLeft="10"
                           paddingRight="10"
                           paddingTop="10"
-                          paddingBottom="10"/>
+                          paddingBottom="10"
+                          horizontalGap="10"/>
         </nail:layout>
-        <s:Label text="{resourceManager.getString('strings', 'signature') + ':'}"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'signature') + ':'}"
+                 textAlign="right"/>
         <s:RichEditableText id="sprSignatureLabel"
                             height="12"
                             editable="false"
-                            focusEnabled="false"/>
-        <s:Label text="{resourceManager.getString('strings', 'sprites') + ':'}"/>
-        <s:Label id="spritesCountLabel"/>
+                            focusEnabled="false"
+                            color="0x9AC9F8"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'sprites') + ':'}"
+                 textAlign="right"/>
+        <s:Label id="spritesCountLabel"
+                 color="0x9AC9F8"/>
     </nail:GroupBox>
     
     <nail:ShadowLine width="100%"/>
@@ -500,7 +522,7 @@
               gap="10">
         <s:Image id="errorIcon"
                  visible="false"
-                 source="{Icons.ERROR}"/>
+                 source="{Assets.ERROR}"/>
         <nail:ShadowLabel id="errorLabel"
                           color="0xEC5151"
                           shadowColor="0x272727"

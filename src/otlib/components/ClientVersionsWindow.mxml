@@ -54,16 +54,15 @@
             import mx.events.FlexEvent;
             
             import spark.events.GridSelectionEvent;
-            import spark.events.IndexChangeEvent;
-            import spark.events.TextOperationEvent;
             
-            import nail.assets.Icons;
             import nail.components.controls.Alert;
-            import nail.otlib.core.IVersionStorage;
-            import nail.otlib.core.Version;
-            import nail.otlib.core.VersionStorage;
             import nail.utils.StringUtil;
             import nail.utils.isNullOrEmpty;
+            
+            import otlib.assets.Assets;
+            import otlib.core.IVersionStorage;
+            import otlib.core.Version;
+            import otlib.core.VersionStorage;
             
             //--------------------------------------------------------------------------
             // PROPERTIES
@@ -158,7 +157,7 @@
                 var version:Version = versionsDataGrid.selectedItem as Version;
                 if (!version) return;
                 
-                var message:String = StringUtil.substitute(
+                var message:String = StringUtil.format(
                     resourceManager.getString("strings", "wantToRemove"),
                     resourceManager.getString("strings", "version").toLowerCase(),
                     version);
@@ -230,7 +229,7 @@
                   toolTip="@Resource(key='addVersion', bundle='strings')"
                   width="19"
                   height="19"
-                  icon="{Icons.NEW}"
+                  icon="{Assets.NEW}"
                   enabled="false"
                   click="addVersionButtonClickHandler(event)"/>
         
@@ -238,7 +237,7 @@
                   toolTip="@Resource(key='remove', bundle='strings')"
                   width="19"
                   height="19"
-                  icon="{Icons.DELETE}"
+                  icon="{Assets.DELETE}"
                   enabled="false"
                   click="removeVersionButtonClickHandler(event)"/>
         
