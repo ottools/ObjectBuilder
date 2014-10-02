@@ -91,59 +91,91 @@
         
         <s:layout>
             <s:TileLayout verticalGap="3"
+                          horizontalGap="10"
                           requestedColumnCount="2"
                           paddingLeft="5"
                           paddingRight="5"
                           paddingTop="10"
                           paddingBottom="10"/>
         </s:layout>
-        <s:Label text="{resourceManager.getString('strings', 'version') + ':'}"/>
-        <s:Label id="filesVersionLabel"/>
-        <s:Label text="Dat:"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'version') + ':'}"
+                 textAlign="right"/>
+        <s:Label id="filesVersionLabel"
+                 color="0x9AC9F8"/>
+        
+        <s:Label text="Dat:"
+                 textAlign="right"/>
         <s:RichEditableText id="datSignatureLabel"
                             editable="false"
                             focusEnabled="false"
-                            height="13"/>
-        <s:Label text="{resourceManager.getString('strings', 'items') + ':'}"/>
+                            height="13"
+                            color="0x9AC9F8"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'items') + ':'}"
+                 textAlign="right"/>
         <s:RichEditableText id="itemsCountLabel"
                             editable="false"
                             focusEnabled="false"
-                            height="13"/>
-        <s:Label text="{resourceManager.getString('strings', 'outfits') + ':'}"/>
+                            height="13"
+                            color="0x9AC9F8"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'outfits') + ':'}"
+                 textAlign="right"/>
         <s:RichEditableText id="outfitsCountLabel"
                             editable="false"
                             focusEnabled="false"
-                            height="13"/>
-        <s:Label text="{resourceManager.getString('strings', 'effects') + ':'}"/>
+                            height="13"
+                            color="0x9AC9F8"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'effects') + ':'}"
+                 textAlign="right"/>
         <s:RichEditableText id="effectsCountLabel"
                             editable="false"
                             focusEnabled="false"
-                            height="13"/>
-        <s:Label text="{resourceManager.getString('strings', 'missiles') + ':'}"/>
+                            height="13"
+                            color="0x9AC9F8"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'missiles') + ':'}"
+                 textAlign="right"/>
         <s:RichEditableText id="missilesCountLabel"
                             editable="false"
                             focusEnabled="false"
-                            height="13"/>
-        <s:Label text="Spr:"/>
+                            height="13"
+                            color="0x9AC9F8"/>
+        
+        <s:Label text="Spr:"
+                 textAlign="right"/>
         <s:RichEditableText id="sprSignatureLabel"
                             editable="false"
                             focusEnabled="false"
-                            height="13"/>
-        <s:Label text="{resourceManager.getString('strings', 'sprites') + ':'}"/>
+                            height="13"
+                            color="0x9AC9F8"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'sprites') + ':'}"
+                 textAlign="right"/>
         <s:RichEditableText id="spritesCountLabel"
                             editable="false"
                             focusEnabled="false"
-                            height="13"/>
-        <s:Label text="{resourceManager.getString('strings', 'extended') + ':'}"/>
+                            height="13"
+                            color="0x9AC9F8"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'extended') + ':'}"
+                 textAlign="right"/>
         <s:RichEditableText id="extendedValueLabel"
                             editable="false"
                             focusEnabled="false"
-                            height="13"/>
-        <s:Label text="{resourceManager.getString('strings', 'transparency') + ':'}"/>
+                            height="13"
+                            color="0x9AC9F8"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'transparency') + ':'}"
+                 textAlign="right"/>
         <s:RichEditableText id="transparencyValueLabel"
                             editable="false"
                             focusEnabled="false"
-                            height="13"/>
+                            height="13"
+                            color="0x9AC9F8"/>
+        
         <s:filters>
             <s:DropShadowFilter color="0x272727"
                                 distance="1"

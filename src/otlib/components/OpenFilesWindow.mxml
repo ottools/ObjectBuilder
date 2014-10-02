@@ -458,19 +458,34 @@
                           paddingBottom="10"
                           horizontalGap="10"/>
         </nail:layout>
-        <s:Label text="{resourceManager.getString('strings', 'signature') + ':'}"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'signature') + ':'}"
+                 textAlign="right"/>
         <s:RichEditableText id="datSignatureLabel"
                             height="12"
                             editable="false"
-                            focusEnabled="false"/>
-        <s:Label text="{resourceManager.getString('strings', 'items') + ':'}"/>
-        <s:Label id="itemsCountLabel"/>
-        <s:Label text="{resourceManager.getString('strings', 'outfits') + ':'}"/>
-        <s:Label id="outfitsCountLabel"/>
-        <s:Label text="{resourceManager.getString('strings', 'effects') + ':'}"/>
-        <s:Label id="effectsCountLabel"/>
-        <s:Label text="{resourceManager.getString('strings', 'missiles') + ':'}"/>
-        <s:Label id="missilesCountLabel"/>
+                            focusEnabled="false"
+                            color="0x9AC9F8"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'items') + ':'}"
+                 textAlign="right"/>
+        <s:Label id="itemsCountLabel"
+                 color="0x9AC9F8"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'outfits') + ':'}"
+                 textAlign="right"/>
+        <s:Label id="outfitsCountLabel"
+                 color="0x9AC9F8"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'effects') + ':'}"
+                 textAlign="right"/>
+        <s:Label id="effectsCountLabel"
+                 color="0x9AC9F8"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'missiles') + ':'}"
+                 textAlign="right"/>
+        <s:Label id="missilesCountLabel"
+                 color="0x9AC9F8"/>
     </nail:GroupBox>
     
     <!-- spr -->
@@ -480,15 +495,22 @@
                           paddingLeft="10"
                           paddingRight="10"
                           paddingTop="10"
-                          paddingBottom="10"/>
+                          paddingBottom="10"
+                          horizontalGap="10"/>
         </nail:layout>
-        <s:Label text="{resourceManager.getString('strings', 'signature') + ':'}"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'signature') + ':'}"
+                 textAlign="right"/>
         <s:RichEditableText id="sprSignatureLabel"
                             height="12"
                             editable="false"
-                            focusEnabled="false"/>
-        <s:Label text="{resourceManager.getString('strings', 'sprites') + ':'}"/>
-        <s:Label id="spritesCountLabel"/>
+                            focusEnabled="false"
+                            color="0x9AC9F8"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'sprites') + ':'}"
+                 textAlign="right"/>
+        <s:Label id="spritesCountLabel"
+                 color="0x9AC9F8"/>
     </nail:GroupBox>
     
     <nail:ShadowLine width="100%"/>
