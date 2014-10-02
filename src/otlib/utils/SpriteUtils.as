@@ -25,13 +25,15 @@
 package otlib.utils
 {
     import flash.display.BitmapData;
+    import flash.geom.Point;
     import flash.geom.Rectangle;
     
     import nail.errors.AbstractClassError;
+    import nail.utils.BitmapUtil;
+    
     import otlib.geom.Rect;
     import otlib.sprites.Sprite;
     import otlib.things.ThingType;
-    import nail.utils.BitmapUtil;
     
     public final class SpriteUtils
     {
@@ -47,6 +49,16 @@ package otlib.utils
         //--------------------------------------------------------------------------
         // STATIC
         //--------------------------------------------------------------------------
+        
+        private static const RECTANGLE:Rectangle = new Rectangle(0, 0, Sprite.DEFAULT_SIZE, Sprite.DEFAULT_SIZE);
+        private static const POINT:Point = new Point();
+        
+        public static function fillBackground(sprite:BitmapData):BitmapData
+        {
+            var bitmap:BitmapData = new BitmapData(Sprite.DEFAULT_SIZE, Sprite.DEFAULT_SIZE, false, 0xFF00FF);
+            bitmap.copyPixels(sprite, RECTANGLE, POINT, null, null, true);
+            return bitmap;
+        }
         
         public static function removeMagenta(sprite:BitmapData):BitmapData
         {

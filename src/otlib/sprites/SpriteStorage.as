@@ -30,7 +30,6 @@ package otlib.sprites
     import flash.filesystem.File;
     import flash.filesystem.FileMode;
     import flash.filesystem.FileStream;
-    import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.utils.ByteArray;
     import flash.utils.Dictionary;
@@ -49,6 +48,7 @@ package otlib.sprites
     import otlib.events.StorageEvent;
     import otlib.resources.Resources;
     import otlib.utils.ChangeResult;
+    import otlib.utils.SpriteUtils;
     
     use namespace otlib_internal;
     
@@ -76,7 +76,6 @@ package otlib.sprites
         private var _sprites:Dictionary;
         private var _loaded:Boolean;
         private var _rect:Rectangle;
-        private var _point:Point;
         private var _bitmap:BitmapData;
         private var _blankSprite:Sprite;
         private var _alertSprite:Sprite;
@@ -105,7 +104,6 @@ package otlib.sprites
         {
             _rect = new Rectangle(0, 0, Sprite.DEFAULT_SIZE, Sprite.DEFAULT_SIZE);
             _bitmap = new BitmapData(_rect.width, _rect.height, true, 0xFFFF00FF);
-            _point = new Point();
         }
         
         //--------------------------------------------------------------------------
@@ -323,20 +321,18 @@ package otlib.sprites
          */
         public function getBitmap(id:uint, backgroundColor:uint = 0x00000000):BitmapData
         {
-            if (!_loaded || id == 0) return null;
+            if (!this.loaded || id == 0)
+                return null;
             
-            var pixels:ByteArray = getPixels(id);
-            if (pixels) {
-                pixels.position = 0;
-                
-                _point.setTo(0, 0);
-                _bitmap.setPixels(_rect, pixels);
-                
-                var bmp:BitmapData = new BitmapData(Sprite.DEFAULT_SIZE, Sprite.DEFAULT_SIZE, true, backgroundColor);
-                bmp.copyPixels(_bitmap, _rect, _point, null, null, true);
-                return bmp;
-            }
-            return null;
+            var sprite:Sprite = getSprite(id);
+            if (!sprite)
+                return null;
+            
+            var bitmap:BitmapData = sprite.getBitmap();
+            if (!_transparency)
+                bitmap = SpriteUtils.fillBackground(bitmap);
+            
+            return bitmap;
         }
         
         public function hasSpriteId(id:uint):Boolean
