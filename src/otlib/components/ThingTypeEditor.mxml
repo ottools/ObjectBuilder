@@ -375,6 +375,14 @@
                 actionGroupCheckBox.includeInLayout = visible;
                 usableCheckBox.visible = visible;
                 usableCheckBox.includeInLayout = visible;
+                
+                visible = (isItem && info.clientVersion >= 1050);
+                minimumGroup.visible = visible;
+                minimumGroup.includeInLayout = visible;
+                maximumGroup.visible = visible;
+                maximumGroup.includeInLayout = visible;
+                animationGroupBox.visible = visible;
+                animationGroupBox.includeInLayout = visible;
             }
             
             private function updateViewWithDirection():void
@@ -1102,7 +1110,8 @@
                     </nail:GroupBox>
                     
                     <!-- animation -->
-                    <nail:GroupBox label="@Resource(key='animation', bundle='strings')"
+                    <nail:GroupBox id="animationGroupBox"
+                                   label="@Resource(key='animation', bundle='strings')"
                                    width="100%"
                                    visible="{_thingBinding.frames > 1}"
                                    includeInLayout="{_thingBinding.frames > 1}">
