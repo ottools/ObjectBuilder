@@ -293,16 +293,29 @@ package otlib.sprites
             return null;
         }
         
-        public function copyPixels(index:int, bitmap:BitmapData, x:int, y:int):void
+        /**
+         * Copies the pixels of a sprite to a bitmap.
+         * 
+         * @param id The id of sprite.
+         * @param bitmap The destination bitmap.
+         * @param x The X destination point that represents the upper-left corner
+         * of the 32x32 area where the new pixels are placed.
+         * @param y The Y destination point that represents the upper-left corner of
+         * the 32x32 area where the new pixels are placed.
+         */
+        public function copyPixels(id:int, bitmap:BitmapData, x:int, y:int):void
         {
-            if (!_loaded || !bitmap) return;
+            if (!this.loaded || !bitmap)
+                return;
             
-            var pixels:ByteArray = getPixels(index);
-            if (!pixels) return;
+            var pixels:ByteArray = getPixels(id);
+            if (!pixels)
+                return;
             
-            _point.setTo(x, y);
-            _bitmap.setPixels(_rect, pixels);
-            bitmap.copyPixels(_bitmap, _rect, _point, null, null, true);
+            _rect.x = x;
+            _rect.y = y;
+            
+            bitmap.setPixels(_rect, pixels);
         }
         
         /**
