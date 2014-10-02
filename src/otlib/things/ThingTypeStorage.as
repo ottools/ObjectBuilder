@@ -145,6 +145,7 @@ package otlib.things
             _loaded = true;
             
             dispatchEvent(new StorageEvent(StorageEvent.LOAD));
+            dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
         }
         
         public function createNew(version:Version, extended:Boolean):void
@@ -174,6 +175,7 @@ package otlib.things
             _loaded = true;
             
             dispatchEvent(new StorageEvent(StorageEvent.LOAD));
+            dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
         }
         
         public function addThing(thing:ThingType, category:String):ChangeResult
@@ -353,6 +355,7 @@ package otlib.things
             }
             
             dispatchEvent(new StorageEvent(StorageEvent.COMPILE));
+            dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             
             return done;
         }
@@ -592,6 +595,7 @@ package otlib.things
             _loaded = false;
             
             dispatchEvent(new StorageEvent(StorageEvent.UNLOAD));
+            dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
         }
         
         //--------------------------------------

@@ -153,6 +153,7 @@ package otlib.sprites
             _loaded = true;
             
             dispatchEvent(new StorageEvent(StorageEvent.LOAD));
+            dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
         }
         
         public function addSprite(pixels:ByteArray):ChangeResult
@@ -518,6 +519,10 @@ package otlib.sprites
             } else if (tmpFile.exists) {
                 tmpFile.deleteFile();
             }
+            
+            dispatchEvent(new StorageEvent(StorageEvent.COMPILE));
+            dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
+            
             return done;
         }
         
@@ -568,6 +573,7 @@ package otlib.sprites
             _headSize = 0;
             
             dispatchEvent(new StorageEvent(StorageEvent.UNLOAD));
+            dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
         }
         
         //--------------------------------------
@@ -747,7 +753,10 @@ package otlib.sprites
             _loaded = true;
             
             if (!reloading)
+            {
                 dispatchEvent(new StorageEvent(StorageEvent.LOAD));
+                dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
+            }
         }
         
         private function createAlertSprite(transparent:Boolean):Sprite

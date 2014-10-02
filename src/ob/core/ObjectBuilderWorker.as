@@ -145,6 +145,16 @@ package ob.core
             return 100;
         }
         
+        public function get clientLoaded():Boolean
+        {
+            return (_things && _things.loaded && _sprites && _sprites.loaded);
+        }
+        
+        public function get clientChanged():Boolean
+        {
+            return ((_things && _things.changed) || (_sprites && _sprites.changed));
+        }
+        
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
@@ -1613,12 +1623,15 @@ package ob.core
         
         protected function storageChangeHandler(event:StorageEvent):void
         {
-            if (event.target === _things || event.target === _sprites) {
-                
-                sendCommand(new ClientChangedCommand(_things.changed, _sprites.changed));
-                
-                this.compiled = false;
-                sendFilesInfo();
+            if (event.target === _things || event.target === _sprites) 
+            {
+                if (clientLoaded)
+                {
+                    sendCommand(new ClientChangedCommand(_things.changed, _sprites.changed));
+                    
+                    this.compiled = this.clientChanged;
+                    sendFilesInfo();
+                }
             }
         }
         
