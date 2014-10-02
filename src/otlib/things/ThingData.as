@@ -327,7 +327,7 @@ package otlib.things
             var totalX:int = patternZ * patternX * layers;
             var pixelsWidth:int  = width * size;
             var pixelsHeight:int = height * size;
-            var sprites:Vector.<SpriteData> = new Vector.<SpriteData>(width * height * layers * patternX * patternY * patternZ * frames);
+            var sprites:Vector.<SpriteData> = new Vector.<SpriteData>( thing.getTotalSprites() );
             
             POINT.setTo(0, 0);
             

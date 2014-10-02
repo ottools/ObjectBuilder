@@ -904,10 +904,9 @@ package otlib.things
                                                  frameDurations);
             }
             
-            var totalSprites:uint = thing.width * thing.height * thing.layers * thing.patternX * thing.patternY * thing.patternZ * thing.frames;
-            if (totalSprites > 4096) {
+            var totalSprites:uint = thing.getTotalSprites();
+            if (totalSprites > 4096)
                 throw new Error("A thing type has more than 4096 sprites.");
-            }
             
             thing.spriteIndex = new Vector.<uint>(totalSprites);
             for (i = 0; i < totalSprites; i++) {
