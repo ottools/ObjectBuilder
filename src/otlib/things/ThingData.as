@@ -287,7 +287,7 @@ package otlib.things
                                 
                                 for (var w:uint = 0; w < width; w++) {
                                     for (var h:uint = 0; h < height; h++) {
-                                        index = getSpriteIndex(thing, w, h, l, x, y, z, f);
+                                        index = thing.getSpriteIndex(w, h, l, x, y, z, f);
                                         var px:int = ((width - w - 1) * size);
                                         var py:int = ((height - h - 1) * size);
                                         copyPixels(data, index, bitmap, px + fx, py + fy);
@@ -343,7 +343,7 @@ package otlib.things
                                 
                                 for (var w:uint = 0; w < width; w++) {
                                     for (var h:uint = 0; h < height; h++) {
-                                        index = getSpriteIndex(thing, w, h, l, x, y, z, f);
+                                        index = thing.getSpriteIndex(w, h, l, x, y, z, f);
                                         var px:int = ((width - w - 1) * size);
                                         var py:int = ((height - h - 1) * size);
                                         RECTANGLE.setTo(px + fx, py + fy, size, size);
@@ -490,17 +490,6 @@ package otlib.things
         public static function getTextureIndex(thing:ThingType, f:int, x:int, y:int, z:int, l:int):int
         {
             return (((f % thing.frames * thing.patternZ + z) * thing.patternY + y) * thing.patternX + x) * thing.layers + l;
-        }
-        
-        public static function getSpriteIndex(thing:ThingType, w:uint, h:uint, l:uint, x:uint, y:uint, z:uint, f:uint):uint
-        {
-            return ((((((f % thing.frames)
-                * thing.patternZ + z)
-                * thing.patternY + y)
-                * thing.patternX + x)
-                * thing.layers + l)
-                * thing.height + h)
-                * thing.width + w;
         }
         
         private static function copyPixels(data:ThingData, index:uint, bitmap:BitmapData, x:uint, y:uint):void

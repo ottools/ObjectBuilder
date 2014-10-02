@@ -309,7 +309,7 @@
                     for (var w:uint = 0; w < thing.width; w++) {
                         for (var h:uint = 0; h < thing.height; h++) {
                             
-                            var index:uint = ThingData.getSpriteIndex(thing, w, h, 0, 0, 0, 0, f);
+                            var index:uint = thing.getSpriteIndex(w, h, 0, 0, 0, 0, f);
                             rect.x = (thing.width - w - 1) * rect.width;
                             rect.y = (thing.height - h - 1) * rect.height;
                             var spriteData:SpriteData = new SpriteData();

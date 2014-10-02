@@ -1559,7 +1559,7 @@ package ob.core
             for (var l:uint = 0; l < layers; l++) {
                 for (var w:uint = 0; w < width; w++) {
                     for (var h:uint = 0; h < height; h++) {
-                        var index:uint = ThingData.getSpriteIndex(thing, w, h, l, x, 0, 0, 0);
+                        var index:uint = thing.getSpriteIndex(w, h, l, x, 0, 0, 0);
                         var px:int = (width - w - 1) * size;
                         var py:int = (height - h - 1) * size;
                         _sprites.copyPixels(thing.spriteIndex[index], bitmap, px, py);

@@ -134,6 +134,23 @@ package otlib.things
                    this.layers;
         }
         
+        public function getSpriteIndex(width:uint,
+                                       height:uint,
+                                       layer:uint,
+                                       patternX:uint,
+                                       patternY:uint,
+                                       patternZ:uint,
+                                       frame:uint):uint
+        {
+            return ((((((frame % this.frames) *
+                    this.patternZ + patternZ) *
+                    this.patternY + patternY) *
+                    this.patternX + patternX) *
+                    this.layers + layer) *
+                    this.height + height) *
+                    this.width + width;
+        }
+        
         public function clone():ThingType
         {
             var newThing:ThingType = new ThingType();
