@@ -65,3 +65,20 @@ winetricks wininet
 ```
 2. Download the [latest commit](https://github.com/Mignari/ObjectBuilder#latest-commits-compiled) compiled of the captive runtime. Something like ObjectBuilder_x_x_x_CR
 3. Uncompress the file, right-click in ObjectBuilder.exe and set to open with Wine Windows Program Loader.
+
+
+
+### Compiling
+
+Follow this tutorial:
+[Compiling](https://github.com/Mignari/ObjectBuilder/wiki/Compiling)
+
+### References
+
+Some projects were used as references:
+
+[OTClient](https://github.com/edubart/otclient)
+
+[TibiaEditor](https://github.com/asamy45/TibiaEditor)
+
+[Remere's Map Editor](https://github.com/hjnilsson/rme)
