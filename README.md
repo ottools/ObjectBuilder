@@ -30,11 +30,12 @@ Object Builder is a dat and spr files editor.
 
 ### Install
 
+
 #### Windows
 
 If you don't want to install the Abobe AIR:
 
-1. Download the latest commit compiled of the captive runtime [Object Builder](https://www.dropbox.com/sh/l6u5ponwfr77bhm/AAAY3xbcGudRzvcjUbizt0tha). Something like ObjectBuilder_x_x_x_CR
+1. Download the [latest commit](https://github.com/Mignari/ObjectBuilder#latest-commits-compiled) compiled of the captive runtime. Something like ObjectBuilder_x_x_x_CR
 
 Or
 
@@ -50,7 +51,7 @@ Or
 
 
 
-#### Linux
+#### Ubuntu
 
 Adobe AIR isn't officially supported under Linux anymore, but it's easy enough to run the Object Builder using Wine.
 
