@@ -233,7 +233,7 @@ package ob.core
             registerClassAlias("ThingListItem", ThingListItem);
             registerClassAlias("SpriteData", SpriteData);
             registerClassAlias("ByteArray", ByteArray);
-            registerClassAlias("LoaderHelper", PathHelper);
+            registerClassAlias("PathHelper", PathHelper);
             registerClassAlias("FrameDuration", FrameDuration);
             registerClassAlias("PingPongStrategy", PingPongStrategy);
             registerClassAlias("LoopStrategy", LoopStrategy);

@@ -733,7 +733,7 @@
                 registerClassAlias("ByteArray", ByteArray);
                 registerClassAlias("ThingProperty", ThingProperty);
                 registerClassAlias("ThingListItem", ThingListItem);
-                registerClassAlias("LoaderHelper", PathHelper);
+                registerClassAlias("PathHelper", PathHelper);
                 registerClassAlias("FrameDuration", FrameDuration);
                 registerClassAlias("PingPongStrategy", PingPongStrategy);
                 registerClassAlias("LoopStrategy", LoopStrategy);
