@@ -1229,7 +1229,6 @@ package ob.core
             sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("exportingSprites")));
             
             var helper:SaveHelper = new SaveHelper();
-            var backgoundColor:uint = (_transparency || transparentBackground) ? 0x00FF00FF : 0xFFFF00FF;
             
             for (var i:uint = 0; i < length; i++) {
                 var pathHelper:PathHelper = list[i];
@@ -1238,7 +1237,7 @@ package ob.core
                 var format:String = file.extension;
                 
                 if (ImageFormat.hasImageFormat(format) && pathHelper.id != 0) {
-                    var bitmap:BitmapData = _sprites.getBitmap(pathHelper.id, backgoundColor);
+                    var bitmap:BitmapData = _sprites.getBitmap(pathHelper.id, transparentBackground);
                     if (bitmap) {
                         var bytes:ByteArray = ImageCodec.encode(bitmap, format, jpegQuality);
                         helper.addFile(bytes, name, format, file);

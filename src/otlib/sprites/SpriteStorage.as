@@ -319,7 +319,7 @@ package otlib.sprites
         /**
          * @param backgroundColor A 32-bit ARGB color value.
          */
-        public function getBitmap(id:uint, backgroundColor:uint = 0x00000000):BitmapData
+        public function getBitmap(id:uint, transparent:Boolean):BitmapData
         {
             if (!this.loaded || id == 0)
                 return null;
@@ -329,7 +329,7 @@ package otlib.sprites
                 return null;
             
             var bitmap:BitmapData = sprite.getBitmap();
-            if (!_transparency)
+            if (!transparent)
                 bitmap = SpriteUtils.fillBackground(bitmap);
             
             return bitmap;
