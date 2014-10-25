@@ -96,7 +96,7 @@ package ob.utils
             
             if (unusedSprites || emptySprites)
             {
-                dispathProgress(0, 5, Resources.getString("startingTheOptimization"));
+                dispatchProgress(0, 5, Resources.getString("startingTheOptimization"));
                 
                 var length:uint = m_spr.spritesCount + 1;
                 var i:int = 0;
@@ -107,7 +107,7 @@ package ob.utils
                 
                 if (unusedSprites)
                 {
-                    dispathProgress(1, 5, Resources.getString("searchingForUnusedSprites"));
+                    dispatchProgress(1, 5, Resources.getString("searchingForUnusedSprites"));
                     
                     // scan items
                     scanList(m_dat.items, usedList);
@@ -124,7 +124,7 @@ package ob.utils
                     // =====================================================================
                     // gets all unused/empty ids.
                     
-                    dispathProgress(2, 5, Resources.getString("gettingFreeIds"));
+                    dispatchProgress(2, 5, Resources.getString("gettingFreeIds"));
                     
                     for (i = 1; i < length; i++)
                     {
@@ -139,7 +139,7 @@ package ob.utils
                     // =====================================================================
                     // gets all empty ids.
                     
-                    dispathProgress(2, 5, Resources.getString("gettingFreeIds"));
+                    dispatchProgress(2, 5, Resources.getString("gettingFreeIds"));
                     
                     for (i = 1; i < length; i++)
                     {
@@ -154,7 +154,7 @@ package ob.utils
                 // replaces all free ids and organizes indices.
                 
                 m_newIDs = new Dictionary();
-                dispathProgress(3, 5, Resources.getString("organizingSprites"));
+                dispatchProgress(3, 5, Resources.getString("organizingSprites"));
                 
                 var index:int = 1;
                 var count:uint = 0;
@@ -177,7 +177,7 @@ package ob.utils
                 // =====================================================================
                 // updates the ids of all lists.
                 
-                dispathProgress(4, 5, Resources.getString("updatingObjects"));
+                dispatchProgress(4, 5, Resources.getString("updatingObjects"));
                 
                 if (count > 0)
                 {
@@ -197,7 +197,7 @@ package ob.utils
                 // =====================================================================
                 // sets new values to the sprite storage.
                 
-                dispathProgress(5, 5, Resources.getString("finalizingTheOptimization"));
+                dispatchProgress(5, 5, Resources.getString("finalizingTheOptimization"));
                 
                 m_newIDs[0] = m_spr._sprites[0];
                 
@@ -242,7 +242,7 @@ package ob.utils
             }
         }
         
-        private function dispathProgress(current:uint, target:uint, label:String):void
+        private function dispatchProgress(current:uint, target:uint, label:String):void
         {
             dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS,
                                             ProgressBarID.FIND,
