@@ -46,6 +46,6 @@ package ob.commands
         public static const DAT_SPR:uint = 3;
         public static const DEFAULT:uint = 4;
         public static const FIND:uint = 5;
-        public static const OPTIMIZE:uint = 5;
+        public static const OPTIMIZE:uint = 6;
     }
 }
