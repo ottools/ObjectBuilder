@@ -55,10 +55,13 @@ package ob.core
     import ob.commands.ProgressCommand;
     import ob.commands.ShowProgressBarCommand;
     import ob.commands.files.SetFilesInfoCommand;
+    import ob.commands.sprites.OptimizeSpritesCommand;
+    import ob.commands.sprites.OptimizeSpritesResultCommand;
     import ob.commands.sprites.SetSpriteListCommand;
     import ob.commands.things.SetThingDataCommand;
     import ob.commands.things.SetThingListCommand;
     import ob.utils.ObUtils;
+    import ob.utils.SpritesOptimizer;
     
     import otlib.core.Version;
     import otlib.core.VersionStorage;
@@ -273,6 +276,7 @@ package ob.core
             registerCallback(CommandType.REPLACE_SPRITES_FROM_FILES, onReplaceSpritesFromFiles);
             registerCallback(CommandType.REMOVE_SPRITES, onRemoveSprites);
             registerCallback(CommandType.FIND_SPRITES, onFindSprites);
+            registerCallback(CommandType.OPTIMIZE_SPRITES, onOptimizeSprites);
             
             // General commands
             registerCallback(CommandType.NEED_TO_RELOAD, onNeedToReload);
@@ -1411,6 +1415,35 @@ package ob.core
             }
             
             sendCommand(new FindResultCommand(FindResultCommand.SPRITES, spriteFoundList));
+        }
+        
+        private function onOptimizeSprites(unusedSprites:Boolean, emptySprites:Boolean):void
+        {
+            var optimizer:SpritesOptimizer = new SpritesOptimizer(_things, _sprites);
+            optimizer.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+            optimizer.addEventListener(Event.COMPLETE, completeHandler);
+            optimizer.start(unusedSprites, emptySprites);
+            
+            function progressHandler(event:ProgressEvent):void
+            {
+                sendCommand(new ProgressCommand(ProgressBarID.FIND,
+                                                event.loaded,
+                                                event.total,
+                                                event.label));
+            }
+            
+            function completeHandler(event:Event):void
+            {
+                sendFilesInfo();
+                sendSpriteList(Vector.<uint>([0]));
+                sendThingList(Vector.<uint>([100]), ThingCategory.ITEM);
+                
+                var command:Command = new OptimizeSpritesResultCommand(optimizer.removedCount,
+                                                                       optimizer.oldCount,
+                                                                       optimizer.newCount);
+                
+                sendCommand(command);
+            }
         }
         
         private function assetsLoadComplete():void

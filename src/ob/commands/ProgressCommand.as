@@ -32,9 +32,9 @@ package ob.commands
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function ProgressCommand(id:uint, value:uint, total:uint)
+        public function ProgressCommand(id:uint, value:uint, total:uint, label:String = null)
         {
-            super(CommandType.PROGRESS, id, value, total);
+            super(CommandType.PROGRESS, id, value, total, label);
         }
     }
 }

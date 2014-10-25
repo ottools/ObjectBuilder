@@ -35,17 +35,24 @@ package otlib.events
         public var id:uint;
         public var loaded:uint;
         public var total:uint;
+        public var label:String;
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function ProgressEvent(type:String, id:uint, loaded:uint = 0, total:uint = 0)
+        public function ProgressEvent(type:String,
+                                      id:uint,
+                                      loaded:uint = 0,
+                                      total:uint = 0,
+                                      label:String = null)
         {
             super(type);
+            
             this.id = id;
             this.loaded = loaded;
             this.total = total;
+            this.label = label;
         }
         
         //--------------------------------------------------------------------------
@@ -58,7 +65,11 @@ package otlib.events
         
         override public function clone():Event
         {
-            return new ProgressEvent(this.type, this.id, this.loaded, this.total);
+            return new ProgressEvent(this.type,
+                                     this.id,
+                                     this.loaded,
+                                     this.total,
+                                     this.label);
         }
         
         //--------------------------------------------------------------------------

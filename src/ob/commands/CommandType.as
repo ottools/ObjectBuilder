@@ -78,6 +78,7 @@ package ob.commands
         public static const GET_SPRITE_LIST:String = "getSpriteList";
         public static const SET_SPRITE_LIST:String = "setSpriteList";
         public static const FIND_SPRITES:String = "findSprites";
+        public static const OPTIMIZE_SPRITES:String = "optimizeSprites";
         
         public static const PROGRESS:String = "progress";
         public static const SHOW_PROGRESS_BAR:String = "showProgressBar";

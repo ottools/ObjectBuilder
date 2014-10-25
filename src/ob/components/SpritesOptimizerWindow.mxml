@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:nail="library://ns.nail.com/naillib"
+          width="400"
+          height="280"
+          type="utility"
+          backgroundColor="0x494949"
+          showStatusBar="false"
+          fontSize="11"
+          resizable="false"
+          title="@Resource(key='spritesOptimizer', bundle='strings')"
+          creationComplete="creationCompleteHandler(event)"
+          closing="closingHandler(event)">
+    
+    <fx:Script>
+        <![CDATA[
+            import mx.core.FlexGlobals;
+            import mx.events.FlexEvent;
+            
+            import nail.workers.Command;
+            
+            import ob.commands.CommandType;
+            import ob.commands.ProgressBarID;
+            import ob.commands.sprites.OptimizeSpritesCommand;
+            import ob.core.IObjectBuilder;
+            
+            //--------------------------------------------------------------------------
+            // PROPERTIES
+            //--------------------------------------------------------------------------
+            
+            private var m_application:IObjectBuilder;
+            
+            [Bindable]
+            private var m_inProgress:Boolean;
+            
+            //--------------------------------------------------------------------------
+            // METHODS
+            //--------------------------------------------------------------------------
+            
+            //--------------------------------------
+            // Private
+            //--------------------------------------
+            
+            private function progressCallback(id:uint, loaded:uint, total:uint, label:String):void
+            {
+                if (id == ProgressBarID.OPTIMIZE)
+                {
+                    progressBar.setProgress(loaded, total);
+                    progressBar.label = label;
+                }
+            }
+            
+            private function optimizationResultCallback(removed:uint, oldCount:uint, newCount:uint):void
+            {
+                removedValueLabel.text = removed.toString();
+                oldCountValueLabel.text = oldCount.toString();
+                newCountValueLabel.text = newCount.toString();
+                m_inProgress = false;
+            }
+            
+            //--------------------------------------
+            // Event Handlers
+            //--------------------------------------
+            
+            protected function creationCompleteHandler(event:FlexEvent):void
+            {
+                m_application = FlexGlobals.topLevelApplication as IObjectBuilder;
+                m_application.registerCallback(CommandType.PROGRESS, progressCallback);
+                m_application.registerCallback(CommandType.OPTIMIZE_SPRITES, optimizationResultCallback);
+            }
+            
+            protected function closingHandler(event:Event):void
+            {
+                if (m_inProgress)
+                {
+                    event.preventDefault();
+                    return;
+                }
+                
+                m_application.unregisterCallback(CommandType.PROGRESS, progressCallback);
+                m_application.unregisterCallback(CommandType.OPTIMIZE_SPRITES, optimizationResultCallback);
+            }
+            
+            protected function startButtonClickHandler(event:MouseEvent):void
+            {
+                if (m_inProgress) return;
+                
+                var command:Command = new OptimizeSpritesCommand(unusedSpritesCheckBox.selected,
+                                                                 emptySpritesCheckBox.selected);
+                
+                m_application.sendCommand(command);
+                m_inProgress = true;
+                removedValueLabel.text = "0";
+                oldCountValueLabel.text = "0";
+                newCountValueLabel.text = "0";
+            }
+            
+        ]]>
+    </fx:Script>
+    
+    <s:layout>
+        <s:VerticalLayout paddingLeft="10"
+                          paddingRight="10"
+                          paddingTop="10"
+                          paddingBottom="10"
+                          gap="5"/>
+    </s:layout>
+    
+    <nail:GroupBox width="100%"
+                   height="75"
+                   label="@Resource(key='options', bundle='strings')">
+        
+        <nail:layout>
+            <s:VerticalLayout paddingLeft="10"
+                              paddingRight="10"
+                              paddingTop="10"
+                              paddingBottom="10"
+                              gap="5"/>
+        </nail:layout>
+        
+        <s:CheckBox id="unusedSpritesCheckBox"
+                    label="@Resource(key='unused', bundle='strings')"/>
+        <s:CheckBox id="emptySpritesCheckBox"
+                    label="@Resource(key='empty', bundle='strings')"/>
+    </nail:GroupBox>
+    
+    <nail:GroupBox width="100%"
+                   height="80"
+                   label="@Resource(key='result', bundle='strings')">
+        
+        <nail:layout>
+            <s:TileLayout paddingLeft="10"
+                          paddingRight="10"
+                          paddingTop="10"
+                          paddingBottom="10"
+                          requestedColumnCount="2"
+                          horizontalGap="5"
+                          verticalGap="8"/>
+        </nail:layout>
+        
+        <nail:ShadowLabel minWidth="70"
+                          text="{resourceManager.getString('strings', 'removedSprites') + ':'}"
+                          textAlign="right"/>
+        <nail:ShadowLabel id="removedValueLabel"
+                          minWidth="70"
+                          color="0x9AC9F8"
+                          text="0"/>
+        
+        <nail:ShadowLabel minWidth="70"
+                          text="{resourceManager.getString('strings', 'oldSpriteCount') + ':'}"
+                          textAlign="right"/>
+        <nail:ShadowLabel id="oldCountValueLabel"
+                          minWidth="70"
+                          color="0x9AC9F8"
+                          text="0"/>
+        
+        <nail:ShadowLabel minWidth="70"
+                          text="{resourceManager.getString('strings', 'newSpriteCount') + ':'}"
+                          textAlign="right"/>
+        <nail:ShadowLabel id="newCountValueLabel"
+                          minWidth="70"
+                          color="0x9AC9F8"
+                          text="0"/>
+    </nail:GroupBox>
+    
+    <nail:GroupBox width="100%"
+                   height="55"
+                   label="@Resource(key='progress', bundle='strings')">
+        
+        <nail:layout>
+            <s:HorizontalLayout paddingLeft="10"
+                                paddingRight="10"
+                                paddingTop="10"
+                                paddingBottom="10"
+                                gap="10"/>
+        </nail:layout>
+        
+        <s:Button id="startButton"
+                  minWidth="70"
+                  height="20"
+                  enabled="{unusedSpritesCheckBox.selected || emptySpritesCheckBox.selected}"
+                  label="@Resource(key='start', bundle='strings')"
+                  click="startButtonClickHandler(event)"/>
+        
+        <mx:ProgressBar id="progressBar"
+                        width="100%"
+                        height="20"
+                        fontWeight="normal"
+                        mode="manual"
+                        labelPlacement="center"
+                        label=""
+                        visible="{m_inProgress}"/>
+    </nail:GroupBox>
+    
+    <s:HGroup id="test" width="100%"
+              paddingTop="5"
+              horizontalAlign="right"
+              verticalAlign="middle">
+        
+        <s:Button id="closeButton"
+                  minWidth="70"
+                  label="@Resource(key='close', bundle='strings')"
+                  click="close()"/>
+    </s:HGroup>
+</s:Window>

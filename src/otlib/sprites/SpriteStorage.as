@@ -66,21 +66,22 @@ package otlib.sprites
         // PROPERTIES
         //--------------------------------------------------------------------------
         
+        otlib_internal var _sprites:Dictionary;
+        otlib_internal var _spritesCount:uint;
+        otlib_internal var _changed:Boolean;
+        
         private var _file:File;
         private var _stream:FileStream;
         private var _version:Version;
         private var _signature:uint;
-        private var _spritesCount:uint;
         private var _extended:Boolean;
         private var _transparency:Boolean;
-        private var _sprites:Dictionary;
         private var _loaded:Boolean;
         private var _rect:Rectangle;
         private var _bitmap:BitmapData;
         private var _blankSprite:Sprite;
         private var _alertSprite:Sprite;
         private var _headSize:uint;
-        private var _changed:Boolean;
         
         //--------------------------------------
         // Getters / Setters

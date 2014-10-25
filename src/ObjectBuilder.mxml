@@ -74,6 +74,7 @@
                     <menuitem label="{resourceManager.getString('strings', 'objectViewer')}" data="toolsObjectViewer"/>
                     <menuitem label="Slicer" data="toolsSlicer"/>
                     <menuitem label="{resourceManager.getString('strings', 'animationEditor')}" data="toolsAnimationEditor"/>
+                    <menuitem label="{resourceManager.getString('strings', 'spritesOptimizer')}" data="toolsSpritesOptimizer"/>
                 </menuitem>
                 <menuitem label="{resourceManager.getString('strings', 'menu.window')}">
                     <menuitem label="{resourceManager.getString('strings', 'menu.logWindow')}" data="windowOpenLog" keyEquivalent="l" controlKey="true"/>
@@ -160,6 +161,7 @@
             import ob.commands.things.ReplaceThingsFromFilesCommand;
             import ob.commands.things.UpdateThingCommand;
             import ob.components.SplashScreen;
+            import ob.components.SpritesOptimizerWindow;
             import ob.objectviewer.ObjectViewer;
             import ob.settings.ObjectBuilderSettings;
             import ob.slicer.Slicer;
@@ -687,6 +689,16 @@
                 if (_animationWindow) {
                     _animationWindow.close();
                 }
+            }
+            
+            private function openSpritesOptimizer():void
+            {
+                if (!loaded) return;
+                
+                var window:SpritesOptimizerWindow = new SpritesOptimizerWindow();
+                window.open();
+                
+                PopUpWindowManager.addWindow(window);
             }
             
             public function checkUpdate():void
@@ -1421,7 +1433,7 @@
                 //trace(spritesChanged, thingsChanged);
             }
             
-            private function onProgress(id:uint, loaded:uint, total:uint):void
+            private function onProgress(id:uint, loaded:uint, total:uint, label:String):void
             {
                 switch(id) {
                     case ProgressBarID.DAT:
@@ -2279,6 +2291,9 @@
                         break;
                     case "toolsAnimationEditor":
                         this.openAnimationEditor();
+                        break;
+                    case "toolsSpritesOptimizer":
+                        this.openSpritesOptimizer();
                         break;
                     case "windowOpenLog":
                         this.openLogWindow();

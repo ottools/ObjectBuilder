@@ -63,6 +63,8 @@ package otlib.things
         // PROPERTIES
         //--------------------------------------------------------------------------
         
+        otlib_internal var _changed:Boolean;
+        
         private var _file:File;
         private var _version:Version;
         private var _signature:uint;
@@ -77,7 +79,6 @@ package otlib.things
         private var _thingsCount:uint;
         private var _extended:Boolean;
         private var _progressCount:uint;
-        private var _changed:Boolean;
         private var _loaded:Boolean;
         
         //--------------------------------------
