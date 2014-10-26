@@ -1363,7 +1363,7 @@ package ob.core
             
             function progressHandler(event:ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(ProgressBarID.FIND,
+                sendCommand(new ProgressCommand(ProgressBarID.OPTIMIZE,
                                                 event.loaded,
                                                 event.total,
                                                 event.label));
