@@ -88,3 +88,7 @@ Some projects were used as references:
 [TibiaEditor](https://github.com/asamy45/TibiaEditor)
 
 [Remere's Map Editor](https://github.com/hjnilsson/rme)
+
+Donate
+----
+[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QFNUYQ24ULK7S)
