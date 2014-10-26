@@ -34,12 +34,12 @@
           maxWidth="600"
           minHeight="410"
           backgroundColor="0x494949"
-          maximizable="false"
-          minimizable="false"
           showStatusBar="false"
           fontSize="11"
+          type="utility"
           title="@Resource(key='find', bundle='strings')"
-          creationComplete="creationCompleteHandler(event)">
+          creationComplete="creationCompleteHandler(event)"
+          closing="closingHandler(event)">
     
     <s:layout>
         <s:VerticalLayout/>
@@ -55,7 +55,9 @@
             import mx.events.FlexEvent;
             import mx.events.PropertyChangeEvent;
             
+            import ob.commands.CommandType;
             import ob.commands.FindResultCommand;
+            import ob.commands.ProgressBarID;
             import ob.commands.sprites.FindSpritesCommand;
             import ob.commands.sprites.GetSpriteListCommand;
             import ob.commands.things.FindThingCommand;
@@ -75,26 +77,42 @@
             // PROPERTIES
             //--------------------------------------------------------------------------
             
-            private var _bindableThingType:BindableThingType;
-            private var _properties:Dictionary;
+            private var m_application:IObjectBuilder;
+            private var m_bindableThingType:BindableThingType;
+            private var m_properties:Dictionary;
             
             //--------------------------------------------------------------------------
             // METHODS
             //--------------------------------------------------------------------------
             
             //--------------------------------------
-            // Public
+            // Private
             //--------------------------------------
             
-            public function setFindThingResultList(type:uint, list:Array):void
+            private function progressCallback(id:uint,
+                                              loaded:uint,
+                                              total:uint,
+                                              label:String):void
             {
-                if (type == FindResultCommand.THINGS) {
+                if (id != ProgressBarID.FIND || !progressBar) return;
+                
+                progressBar.setProgress(loaded, total);
+                progressBar.label = loaded + " / " + total;
+            }
+            
+            private function findResultCallback(type:uint, list:Array):void
+            {
+                if (type == FindResultCommand.THINGS)
+                {
                     thingsList.setListObjects(list);
                     thingsList.selectedIndex = 0;
-                } else if (type == FindResultCommand.SPRITES) {
+                }
+                else if (type == FindResultCommand.SPRITES)
+                {
                     spritesList.setListObjects(list);
                     spritesList.selectedIndex = 0;
                 }
+                
                 progressBar.visible = false;
                 
                 var category:String;
@@ -111,51 +129,44 @@
                     [length, resourceManager.getString("strings", category + (length == 1 ? "" : "s"))]);
             }
             
-            public function setProgress(loaded:uint, total:uint):void
-            {
-                if (progressBar) {
-                    progressBar.setProgress(loaded, total);
-                    progressBar.label = loaded + " / " + total;
-                }
-            }
-            
-            //--------------------------------------
-            // Private
-            //--------------------------------------
-            
             private function getCurrentCategory():String
             {
-                switch (categoryDropDownList.selectedIndex) {
+                switch (categoryDropDownList.selectedIndex)
+                {
                     case 0:
                         return ThingCategory.ITEM;
+                        
                     case 1:
                         return ThingCategory.OUTFIT;
+                        
                     case 2:
                         return ThingCategory.EFFECT;
+                        
                     case 3:
                         return ThingCategory.MISSILE;
                 }
+                
                 return null;
             }
             
             private function findThings():void
             {
-                if (!_properties) return;
+                if (!m_properties) return;
                 
                 var list:Vector.<ThingProperty> = new Vector.<ThingProperty>();
                 
-                for (var property:String in _properties)
+                for (var property:String in m_properties)
                 {
                     var thingProperty:ThingProperty = new ThingProperty();
                     thingProperty.property = property;
-                    thingProperty.value = _properties[property];
+                    thingProperty.value = m_properties[property];
                     list.push(thingProperty);
                 }
                 
                 var category:String = getCurrentCategory();
-                if (list.length > 0 && category) {
-                    var app:IObjectBuilder = FlexGlobals.topLevelApplication as IObjectBuilder;
-                    app.sendCommand(new FindThingCommand(category, list));
+                if (list.length > 0 && category)
+                {
+                    m_application.sendCommand(new FindThingCommand(category, list));
                     progressBar.visible = true;
                 }
             }
@@ -163,23 +174,23 @@
             private function selectThing():void
             {
                 var listItem:ThingListItem = thingsList.selectedItem as ThingListItem;
-                if (listItem && listItem.thing) {
-                    var app:IObjectBuilder = FlexGlobals.topLevelApplication as IObjectBuilder;
-                    app.sendCommand(new GetThingCommand(listItem.thing.id, listItem.thing.category));
-                }
+                if (listItem && listItem.thing)
+                    m_application.sendCommand(new GetThingCommand(listItem.thing.id,
+                                                                  listItem.thing.category));
             }
             
             private function removeThings():void
             {
-                IObjectBuilder(FlexGlobals.topLevelApplication).removeThings(thingsList.selectedIds, getCurrentCategory());
+                m_application.removeThings(thingsList.selectedIds, getCurrentCategory());
                 thingsList.removeSelectedIndices();
             }
             
             private function findSprites():void
             {
-                if (unusedSpritesCheckBox.selected || emptySpritesCheckBox.selected) {
-                    var app:IObjectBuilder = FlexGlobals.topLevelApplication as IObjectBuilder;
-                    app.sendCommand(new FindSpritesCommand(unusedSpritesCheckBox.selected, emptySpritesCheckBox.selected));
+                if (unusedSpritesCheckBox.selected || emptySpritesCheckBox.selected)
+                {
+                    m_application.sendCommand(new FindSpritesCommand(unusedSpritesCheckBox.selected,
+                                                                     emptySpritesCheckBox.selected));
                     progressBar.visible = true;
                 }
             }
@@ -187,15 +198,13 @@
             private function selectSprite():void
             {
                 var spriteData:SpriteData = spritesList.selectedItem as SpriteData;
-                if (spriteData) {
-                    var app:IObjectBuilder = FlexGlobals.topLevelApplication as IObjectBuilder;
-                    app.sendCommand(new GetSpriteListCommand(spriteData.id));
-                }
+                if (spriteData) 
+                    m_application.sendCommand(new GetSpriteListCommand(spriteData.id));
             }
             
             private function removeSprites():void
             {
-                IObjectBuilder(FlexGlobals.topLevelApplication).removeSpritesIds(spritesList.selectedIds);
+                m_application.removeSpritesIds(spritesList.selectedIds);
                 spritesList.removeSelectedIndices();
             }
             
@@ -205,9 +214,18 @@
             
             protected function creationCompleteHandler(event:FlexEvent):void
             {
-                _bindableThingType = new BindableThingType();
-                _bindableThingType.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, thingPropertyChangeHandler);
-                _properties = new Dictionary();
+                m_application = FlexGlobals.topLevelApplication as IObjectBuilder;
+                m_application.registerCallback(CommandType.PROGRESS, progressCallback);
+                m_application.registerCallback(CommandType.FIND_RESULT, findResultCallback);
+                m_bindableThingType = new BindableThingType();
+                m_bindableThingType.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, thingPropertyChangeHandler);
+                m_properties = new Dictionary();
+            }
+            
+            protected function closingHandler(event:Event):void
+            {
+                m_application.unregisterCallback(CommandType.PROGRESS, progressCallback);
+                m_application.unregisterCallback(CommandType.FIND_RESULT, findResultCallback);
             }
             
             protected function findButtonClickHandler(event:MouseEvent):void
@@ -229,9 +247,9 @@
             protected function thingPropertyChangeHandler(event:PropertyChangeEvent):void
             {
                 if (event.newValue)
-                    _properties[event.property] = event.newValue;
+                    m_properties[event.property] = event.newValue;
                 else 
-                    delete _properties[event.property];
+                    delete m_properties[event.property];
             }
             
             protected function doubleClickHandler(event:MouseEvent):void
@@ -294,134 +312,134 @@
                         <s:Spacer height="10"/>
                         <s:CheckBox id="isGroundCheckBox"
                                     label="@Resource(key='isGround', bundle='strings')"
-                                    change="{_bindableThingType.isGround = isGroundCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.isGround = isGroundCheckBox.selected;}"/>
                         <s:CheckBox id="clipCheckBox"
                                     label="@Resource(key='isGroundBorder', bundle='strings')"
                                     toolTip="@Resource(key='toolTip.clip', bundle='strings')"
-                                    change="{_bindableThingType.isGroundBorder = clipCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.isGroundBorder = clipCheckBox.selected;}"/>
                         <s:CheckBox id="bottomCheckBox"
                                     label="@Resource(key='isOnBottom', bundle='strings')"
                                     toolTip="@Resource(key='toolTip.bottom', bundle='strings')"
-                                    change="{_bindableThingType.isOnBottom = bottomCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.isOnBottom = bottomCheckBox.selected;}"/>
                         <s:CheckBox id="topCheckBox"
                                     label="@Resource(key='isOnTop', bundle='strings')"
                                     toolTip="@Resource(key='toolTip.top', bundle='strings')"
-                                    change="{_bindableThingType.isOnTop = topCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.isOnTop = topCheckBox.selected;}"/>
                         <s:CheckBox id="hasLigthCheckBox"
                                     label="@Resource(key='hasLight', bundle='strings')"
-                                    change="{_bindableThingType.hasLight = hasLigthCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.hasLight = hasLigthCheckBox.selected;}"/>
                         <s:CheckBox id="automapCheckBox"
                                     label="@Resource(key='automap', bundle='strings')"
-                                    change="{_bindableThingType.miniMap = automapCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.miniMap = automapCheckBox.selected;}"/>
                         <s:CheckBox id="hasOffsetCheckBox"
                                     label="@Resource(key='hasOffset', bundle='strings')"
-                                    change="{_bindableThingType.hasOffset = hasOffsetCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.hasOffset = hasOffsetCheckBox.selected;}"/>
                         <s:CheckBox id="hasElevationCheckBox"
                                     label="@Resource(key='hasElevation', bundle='strings')"
-                                    change="{_bindableThingType.hasElevation = hasElevationCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.hasElevation = hasElevationCheckBox.selected;}"/>
                         <s:CheckBox id="equipCheckBox"
                                     label="@Resource(key='cloth', bundle='strings')"
-                                    change="{_bindableThingType.cloth = equipCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.cloth = equipCheckBox.selected;}"/>
                         <s:CheckBox id="marketCheckBox"
                                     label="@Resource(key='market', bundle='strings')"
-                                    change="{_bindableThingType.isMarketItem = marketCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.isMarketItem = marketCheckBox.selected;}"/>
                         <s:CheckBox id="writableCheckBox"
                                     label="@Resource(key='writable', bundle='strings')"
-                                    change="{_bindableThingType.writable = writableCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.writable = writableCheckBox.selected;}"/>
                         <s:CheckBox id="writableOnceCheckBox"
                                     label="@Resource(key='writableOnce', bundle='strings')"
-                                    change="{_bindableThingType.writableOnce = writableOnceCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.writableOnce = writableOnceCheckBox.selected;}"/>
                         <s:CheckBox id="actionGroupCheckBox"
                                     label="@Resource(key='hasAction', bundle='strings')"
-                                    change="{_bindableThingType.hasDefaultAction = actionGroupCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.hasDefaultAction = actionGroupCheckBox.selected;}"/>
                         <s:CheckBox id="containerCheckBox"
                                     label="@Resource(key='container', bundle='strings')"
-                                    change="{_bindableThingType.isContainer = containerCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.isContainer = containerCheckBox.selected;}"/>
                         <s:CheckBox id="stackableCheckBox"
                                     label="@Resource(key='stackable', bundle='strings')"
-                                    change="{_bindableThingType.stackable = stackableCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.stackable = stackableCheckBox.selected;}"/>
                         <s:CheckBox id="forceUseCheckBox"
                                     label="@Resource(key='forceUse', bundle='strings')"
-                                    change="{_bindableThingType.forceUse = forceUseCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.forceUse = forceUseCheckBox.selected;}"/>
                         <s:CheckBox id="multiUseCheckBox"
                                     label="@Resource(key='multiUse', bundle='strings')"
-                                    change="{_bindableThingType.multiUse = multiUseCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.multiUse = multiUseCheckBox.selected;}"/>
                         <s:CheckBox id="liquidContainerCheckBox"
                                     label="@Resource(key='fluidContainer', bundle='strings')"
-                                    change="{_bindableThingType.isFluidContainer = liquidContainerCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.isFluidContainer = liquidContainerCheckBox.selected;}"/>
                         <s:CheckBox id="liquidPoolCheckBox"
                                     label="@Resource(key='fluid', bundle='strings')"
-                                    change="{_bindableThingType.isFluid = liquidPoolCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.isFluid = liquidPoolCheckBox.selected;}"/>
                         <s:CheckBox id="unpassableCheckBox" 
                                     label="@Resource(key='unpassable', bundle='strings')"
-                                    change="{_bindableThingType.isUnpassable = unpassableCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.isUnpassable = unpassableCheckBox.selected;}"/>
                         <s:CheckBox id="unmovableCheckBox" 
                                     label="@Resource(key='unmovable', bundle='strings')"
-                                    change="{_bindableThingType.isUnmoveable = unmovableCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.isUnmoveable = unmovableCheckBox.selected;}"/>
                         <s:CheckBox id="blockMissileCheckBox"
                                     label="@Resource(key='blockMissile', bundle='strings')"
-                                    change="{_bindableThingType.blockMissile = blockMissileCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.blockMissile = blockMissileCheckBox.selected;}"/>
                         <s:CheckBox id="blockPathfindCheckBox"
                                     label="@Resource(key='blockPathfinder', bundle='strings')"
-                                    change="{_bindableThingType.blockPathfind = blockPathfindCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.blockPathfind = blockPathfindCheckBox.selected;}"/>
                         <s:CheckBox id="noMoveAnimationCheckBox"
                                     label="@Resource(key='noMoveAnimation', bundle='strings')"
-                                    change="{_bindableThingType.noMoveAnimation = noMoveAnimationCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.noMoveAnimation = noMoveAnimationCheckBox.selected;}"/>
                         <s:CheckBox id="pickupableCheckBox"
                                     label="@Resource(key='pickupable', bundle='strings')"
-                                    change="{_bindableThingType.pickupable = pickupableCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.pickupable = pickupableCheckBox.selected;}"/>
                         <s:CheckBox id="hangableCheckBox"
                                     label="@Resource(key='hangable', bundle='strings')"
-                                    change="{_bindableThingType.hangable = hangableCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.hangable = hangableCheckBox.selected;}"/>
                         <s:CheckBox id="horizontalCheckBox"
                                     label="@Resource(key='horizontalWall', bundle='strings')"
-                                    change="{_bindableThingType.isHorizontal = horizontalCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.isHorizontal = horizontalCheckBox.selected;}"/>
                         <s:CheckBox id="verticalCheckBox"
                                     label="@Resource(key='verticalWall', bundle='strings')"
-                                    change="{_bindableThingType.isVertical = verticalCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.isVertical = verticalCheckBox.selected;}"/>
                         <s:CheckBox id="rotatableCheckBox"
                                     label="@Resource(key='rotatable', bundle='strings')"
-                                    change="{_bindableThingType.rotatable = rotatableCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.rotatable = rotatableCheckBox.selected;}"/>
                         <s:CheckBox id="dontHideCheckBox"
                                     label="@Resource(key='dontHide', bundle='strings')"
-                                    change="{_bindableThingType.dontHide = dontHideCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.dontHide = dontHideCheckBox.selected;}"/>
                         <s:CheckBox id="translucentCheckBox"
                                     label="@Resource(key='translucent', bundle='strings')"
-                                    change="{_bindableThingType.isTranslucent = translucentCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.isTranslucent = translucentCheckBox.selected;}"/>
                         <s:CheckBox id="isLyingObjectCheckBox"
                                     label="@Resource(key='lyingObject', bundle='strings')"
-                                    change="{_bindableThingType.isLyingObject = isLyingObjectCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.isLyingObject = isLyingObjectCheckBox.selected;}"/>
                         <s:CheckBox id="animateAlwaysCheckBox"
                                     label="@Resource(key='animateAlways', bundle='strings')"
-                                    change="{_bindableThingType.animateAlways = animateAlwaysCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.animateAlways = animateAlwaysCheckBox.selected;}"/>
                         <s:CheckBox id="fullGroundCheckBox"
                                     label="@Resource(key='fullGround', bundle='strings')"
-                                    change="{_bindableThingType.isFullGround = fullGroundCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.isFullGround = fullGroundCheckBox.selected;}"/>
                         <s:CheckBox id="ignoreLookCheckBox"
                                     label="@Resource(key='ignoreLook', bundle='strings')"
-                                    change="{_bindableThingType.ignoreLook = ignoreLookCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.ignoreLook = ignoreLookCheckBox.selected;}"/>
                         <s:CheckBox id="usableCheckBox"
                                     label="@Resource(key='usable', bundle='strings')"
-                                    change="{_bindableThingType.usable = usableCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.usable = usableCheckBox.selected;}"/>
                         <s:CheckBox id="chargesCheckBox"
                                     label="@Resource(key='hasCharges', bundle='strings')"
-                                    change="{_bindableThingType.hasCharges = chargesCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.hasCharges = chargesCheckBox.selected;}"/>
                         <s:CheckBox id="floorChangeCheckBox"
                                     label="@Resource(key='floorChange', bundle='strings')"
-                                    change="{_bindableThingType.floorChange = floorChangeCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.floorChange = floorChangeCheckBox.selected;}"/>
                         <s:CheckBox id="lensHelpChangeCheckBox"
                                     label="@Resource(key='lensHelp', bundle='strings')"
-                                    change="{_bindableThingType.isLensHelp = lensHelpChangeCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.isLensHelp = lensHelpChangeCheckBox.selected;}"/>
                         <s:CheckBox id="isAnimationCheckBox"
                                     label="@Resource(key='isAnimation', bundle='strings')"
-                                    change="{_bindableThingType.isAnimation = isAnimationCheckBox.selected;}"/>
+                                    change="{m_bindableThingType.isAnimation = isAnimationCheckBox.selected;}"/>
                         <s:HGroup verticalAlign="middle"
                                   width="100%"
                                   paddingTop="5">
                             <s:Label text="{resourceManager.getString('strings', 'name') + ':'}"/>
                             <s:TextInput id="thingNameTextInput"
                                          width="100%"
-                                         change="{_bindableThingType.marketName = thingNameTextInput.text}"/>
+                                         change="{m_bindableThingType.marketName = thingNameTextInput.text}"/>
                         </s:HGroup>
                     </s:VGroup>
                 </s:Scroller>

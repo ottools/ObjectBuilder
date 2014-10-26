@@ -584,13 +584,6 @@
                 }
             }
             
-            public function setFindThingProgress(loaded:uint, total:uint):void
-            {
-                if (_findThingWindow != null) {
-                    _findThingWindow.setProgress(loaded, total);
-                }
-            }
-            
             public function openObjectViewer(file:File = null):void
             {
                 if (file && file.extension != OTFormat.OBD) return;
@@ -760,7 +753,6 @@
                 registerCallback(CommandType.FILES_INFO, onSetAssetsInfo);
                 registerCallback(CommandType.SET_THING, onSetThingData);
                 registerCallback(CommandType.SET_THING_LIST, onSetThingList);
-                registerCallback(CommandType.FIND_RESULT, onSetFindResultList);
                 registerCallback(CommandType.SET_SPRITE_LIST, onSetSpriteList);
                 registerCallback(CommandType.NEED_TO_RELOAD, onNeedToReload);
             }
@@ -1034,13 +1026,6 @@
                     if (event.detail == Alert.YES) {
                         sendCommand(new NeedToReloadCommand(extended, transparency));
                     }
-                }
-            }
-            
-            private function onSetFindResultList(type:uint, list:Array):void
-            {
-                if (_findThingWindow) {
-                    _findThingWindow.setFindThingResultList(type, list);
                 }
             }
             
@@ -1435,16 +1420,15 @@
             
             private function onProgress(id:uint, loaded:uint, total:uint, label:String):void
             {
-                switch(id) {
+                switch(id)
+                {
                     case ProgressBarID.DAT:
                     case ProgressBarID.SPR:
                         if (_datSprProgressBar) _datSprProgressBar.setProgress(id, loaded, total);
                         break;
+                    
                     case ProgressBarID.DEFAULT:
                         if (_defaultProgressBar) _defaultProgressBar.setProgress(loaded, total);
-                        break;
-                    case ProgressBarID.FIND:
-                        this.setFindThingProgress(loaded, total);
                         break;
                 }
             }

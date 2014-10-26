@@ -61,6 +61,7 @@ package ob.core
     import ob.commands.things.SetThingDataCommand;
     import ob.commands.things.SetThingListCommand;
     import ob.utils.ObUtils;
+    import ob.utils.SpritesFinder;
     import ob.utils.SpritesOptimizer;
     
     import otlib.core.Version;
@@ -1333,88 +1334,24 @@ package ob.core
         
         private function onFindSprites(unusedSprites:Boolean, emptySprites:Boolean):void
         {
-            var spriteFoundList:Array = [];
+            var finder:SpritesFinder = new SpritesFinder(_things, _sprites);
+            finder.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+            finder.addEventListener(Event.COMPLETE, completeHandler);
+            finder.start(unusedSprites, emptySprites);
             
-            if (unusedSprites || emptySprites) {
-                var length:uint;
-                var i:uint;
-                var spriteData:SpriteData;
-                
-                if (unusedSprites) {
-                    var ids:Vector.<Boolean> = new Vector.<Boolean>(_sprites.spritesCount + 1, true);
-                    var list:Dictionary;
-                    var thing:ThingType;
-                    var sprites:Vector.<uint>;
-                    
-                    // Scan items
-                    list = _things.items;
-                    for each (thing in list) {
-                        sprites = thing.spriteIndex;
-                        length = sprites.length;
-                        for (i = 0; i < length; i++) {
-                            ids[sprites[i]] = true;
-                        }
-                    }
-                    
-                    // Scan outfits
-                    list = _things.outfits;
-                    for each (thing in list) {
-                        sprites = thing.spriteIndex;
-                        length = sprites.length;
-                        for (i = 0; i < length; i++) {
-                            ids[sprites[i]] = true;
-                        }
-                    }
-                    
-                    // Scan effects
-                    list = _things.effects;
-                    for each (thing in list) {
-                        sprites = thing.spriteIndex;
-                        length = sprites.length;
-                        for (i = 0; i < length; i++) {
-                            ids[sprites[i]] = true;
-                        }
-                    }
-                    
-                    // Scan missiles
-                    list = _things.missiles;
-                    for each (thing in list) {
-                        sprites = thing.spriteIndex;
-                        length = sprites.length;
-                        for (i = 0; i < length; i++) {
-                            ids[sprites[i]] = true;
-                        }
-                    }
-                    
-                    length = ids.length;
-                    for (i = 1; i < length; i++) {
-                        if (!ids[i]) {
-                            
-                            if (_sprites.isEmptySprite(i) == false || emptySprites) {
-                                spriteData = new SpriteData();
-                                spriteData.id = i;
-                                spriteData.pixels = _sprites.getPixels(i);
-                                spriteFoundList[spriteFoundList.length] = spriteData;
-                                sendCommand(new ProgressCommand(ProgressBarID.FIND, i, length));
-                            }
-                        }
-                    }
-                } else if (emptySprites) {
-                    
-                    length = _sprites.spritesCount;
-                    for (i = 1; i <= length; i++) {
-                        if (_sprites.isEmptySprite(i)) {
-                            spriteData = new SpriteData();
-                            spriteData.id = i;
-                            spriteData.pixels = _sprites.getPixels(i);
-                            spriteFoundList[spriteFoundList.length] = spriteData;
-                            sendCommand(new ProgressCommand(ProgressBarID.FIND, i, length));
-                        }
-                    }
-                }
+            function progressHandler(event:ProgressEvent):void
+            {
+                sendCommand(new ProgressCommand(ProgressBarID.FIND,
+                                                event.loaded,
+                                                event.total));
             }
             
-            sendCommand(new FindResultCommand(FindResultCommand.SPRITES, spriteFoundList));
+            function completeHandler(event:Event):void
+            {
+                var command:Command = new FindResultCommand(FindResultCommand.SPRITES,
+                                                            finder.foundList);
+                sendCommand(command);
+            }
         }
         
         private function onOptimizeSprites(unusedSprites:Boolean, emptySprites:Boolean):void
