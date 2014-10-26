@@ -1,5 +1,5 @@
-### What is Object Builder?
-===========================
+What is Object Builder?
+----
 
 Object Builder is a dat and spr files editor.
 
@@ -10,15 +10,15 @@ Object Builder is a dat and spr files editor.
 
 
 
-### Supported versions:
-=======================
+Supported versions:
+----
 
 * 7.10 - 10.41
 
 
 
-### Download
-=============
+Download
+----
 
 #### Latest release
 
@@ -31,8 +31,8 @@ Object Builder is a dat and spr files editor.
 
 
 
-### Install
-===========
+Install
+----
 
 #### Windows
 
@@ -47,7 +47,7 @@ Or
 
 
 
-#### Mac OSX
+#### Mac OS X
 
 1. Install [Adobe AIR] (http://get.adobe.com/air/)
 2. Install [latest release](https://github.com/Mignari/ObjectBuilder#latest-release)
@@ -71,15 +71,15 @@ winetricks wininet
 
 
 
-### Compiling
-=============
+Compiling
+----
 
 Follow this tutorial:
 [Compiling](https://github.com/Mignari/ObjectBuilder/wiki/Compiling)
 
 
-### References
-==============
+References
+----
 
 Some projects were used as references:
 
