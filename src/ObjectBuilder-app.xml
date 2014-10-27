@@ -29,7 +29,9 @@
 		<image114x114>icon/app/icon114.png</image114x114>
 		<image128x128>icon/app/icon128.png</image128x128>
 		<image144x144>icon/app/icon144.png</image144x144>
-	</icon>
+		<image152x152>icon/app/icon152.png</image152x152>
+		<image512x512>icon/app/icon512.png</image512x512>
+</icon>
 
 	<fileTypes>
 		<fileType>
