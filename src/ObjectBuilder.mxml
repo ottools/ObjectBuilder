@@ -92,7 +92,7 @@
         </fx:XML>
     </fx:Declarations>
     
-    <fx:Style source="../css/style.css"/>
+    <fx:Style source="../assets/styles/object_builder.css"/>
     
     <fx:Metadata>
         [ResourceBundle("strings")]

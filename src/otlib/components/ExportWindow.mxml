@@ -308,7 +308,7 @@
     <s:Group width="100%">
         
         <s:Label text="{resourceManager.getString('strings', 'name') + ':'}"
-                 fontSize="10"
+                 fontSize="11"
                  color="0xDFDFDF"/>
         
         <s:TextInput id="nameTextInput"
@@ -321,7 +321,7 @@
     <s:Group width="100%">
         
         <s:Label text="{resourceManager.getString('strings', 'outputFolder') + ':'}"
-                 fontSize="10"
+                 fontSize="11"
                  color="0xDFDFDF"/>
         
         <components:FileTextInput id="directoryTextInput"

@@ -175,7 +175,7 @@
                      horizontalCenter="0"
                      verticalCenter="0"/>
         </s:Group>
-        <nail:ShadowLabel id="labelDisplay"
-                          shadowColor="0x353535"/>
+        
+        <s:Label id="labelDisplay" />
     </s:HGroup>
 </s:ItemRenderer>

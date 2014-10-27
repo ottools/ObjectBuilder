@@ -166,29 +166,29 @@
                           verticalGap="8"/>
         </nail:layout>
         
-        <nail:ShadowLabel minWidth="70"
-                          text="{resourceManager.getString('strings', 'removedSprites') + ':'}"
-                          textAlign="right"/>
-        <nail:ShadowLabel id="removedValueLabel"
-                          minWidth="70"
-                          color="0x9AC9F8"
-                          text="0"/>
+        <s:Label minWidth="70"
+                 text="{resourceManager.getString('strings', 'removedSprites') + ':'}"
+                 textAlign="right"/>
+        <s:Label id="removedValueLabel"
+                 minWidth="70"
+                 color="0x9AC9F8"
+                 text="0"/>
         
-        <nail:ShadowLabel minWidth="70"
-                          text="{resourceManager.getString('strings', 'oldSpriteCount') + ':'}"
-                          textAlign="right"/>
-        <nail:ShadowLabel id="oldCountValueLabel"
-                          minWidth="70"
-                          color="0x9AC9F8"
-                          text="0"/>
+        <s:Label minWidth="70"
+                 text="{resourceManager.getString('strings', 'oldSpriteCount') + ':'}"
+                 textAlign="right"/>
+        <s:Label id="oldCountValueLabel"
+                 minWidth="70"
+                 color="0x9AC9F8"
+                 text="0"/>
         
-        <nail:ShadowLabel minWidth="70"
-                          text="{resourceManager.getString('strings', 'newSpriteCount') + ':'}"
-                          textAlign="right"/>
-        <nail:ShadowLabel id="newCountValueLabel"
-                          minWidth="70"
-                          color="0x9AC9F8"
-                          text="0"/>
+        <s:Label minWidth="70"
+                 text="{resourceManager.getString('strings', 'newSpriteCount') + ':'}"
+                 textAlign="right"/>
+        <s:Label id="newCountValueLabel"
+                 minWidth="70"
+                 color="0x9AC9F8"
+                 text="0"/>
     </nail:GroupBox>
     
     <nail:GroupBox width="100%"

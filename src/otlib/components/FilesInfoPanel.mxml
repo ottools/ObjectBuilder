@@ -30,7 +30,7 @@
                xmlns:mx="library://ns.adobe.com/flex/mx"
                xmlns:nail="library://ns.nail.com/naillib"
                label="@Resource(key='info', bundle='strings')"
-               fontSize="10">
+               fontSize="11">
     
     <fx:Script>
         <![CDATA[
@@ -175,12 +175,5 @@
                             focusEnabled="false"
                             height="13"
                             color="0x9AC9F8"/>
-        
-        <s:filters>
-            <s:DropShadowFilter color="0x272727"
-                                distance="1"
-                                blurX="1"
-                                blurY="1"/>
-        </s:filters>
     </s:Group>
 </nail:GroupBox>

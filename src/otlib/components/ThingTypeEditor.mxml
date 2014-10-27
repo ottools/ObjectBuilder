@@ -1400,7 +1400,7 @@
                             <s:DropDownList id="equipSlotDropDownList"
                                             width="100%" 
                                             height="20"
-                                            fontSize="10"
+                                            fontSize="11"
                                             prompt="@Resource(key='slot.prompt', bundle='strings')"
                                             selectedIndex="{_thingBinding.clothSlot}"
                                             change="{_thingBinding.clothSlot = equipSlotDropDownList.selectedIndex;}">
@@ -1456,7 +1456,7 @@
                                 <s:DropDownList id="marketCategoryDropDownList"
                                                 width="170" 
                                                 height="20"
-                                                fontSize="10"
+                                                fontSize="11"
                                                 selectedIndex="{_thingBinding.marketCategory == 0 ? 8 : _thingBinding.marketCategory - 1}"
                                                 change="{_thingBinding.marketCategory = marketCategoryDropDownList.selectedIndex + 1;}">
                                     <s:ArrayList>
@@ -1600,7 +1600,7 @@
                             <s:DropDownList id="actionDropDownList"
                                             width="170"
                                             height="20"
-                                            fontSize="10"
+                                            fontSize="11"
                                             selectedIndex="{_thingBinding.defaultAction}"
                                             change="{_thingBinding.defaultAction = actionDropDownList.selectedIndex;}">
                                 <s:dataProvider>
@@ -1636,7 +1636,7 @@
                             <s:DropDownList id="lensHelpDropDownList"
                                             width="170"
                                             height="20"
-                                            fontSize="10"
+                                            fontSize="11"
                                             selectedIndex="{Math.max(0, _thingBinding.lensHelp - 1100)}"
                                             change="{_thingBinding.lensHelp = lensHelpDropDownList.selectedIndex + 1100;}">
                                 <s:dataProvider>

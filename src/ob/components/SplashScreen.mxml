@@ -151,7 +151,6 @@ limitations under the License.
     <nail:ShadowLabel id="statusDisplay"
                       left="10"
                       top="170"
-                      fontSize="10"
                       shadowColor="0x272727"
                       text="{status}"/>
     
@@ -162,7 +161,6 @@ limitations under the License.
                     label=""
                     labelPlacement="top"
                     mode="manual"
-                    fontSize="11"
                     fontWeight="normal"/>
     
     <s:RichText id="licenceDisplay"
@@ -172,7 +170,6 @@ limitations under the License.
                 top="190"
                 paddingLeft="30"
                 paddingRight="30"
-                fontSize="10"
                 focusEnabled="false"
                 backgroundColor="0x353535"
                 textAlign="justify"
