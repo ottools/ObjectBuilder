@@ -30,6 +30,7 @@
                   xmlns:mx="library://ns.adobe.com/flex/mx"
                   xmlns:nail="library://ns.nail.com/naillib"
                   xmlns:otlib="otlib.components.*"
+                  xmlns:menu="ob.menu.*"
                   implements="ob.core.IObjectBuilder"
                   minWidth="800"
                   minHeight="600"
@@ -37,60 +38,9 @@
                   showStatusBar="false"
                   visible="false"
                   preinitialize="applicationPreinitializeHandler(event)"
+                  creationComplete="creationCompleteHandler(event)"
                   applicationComplete="applicationCompleteHandler(event)"
                   closing="applicationClosingHandler(event)">
-    
-    <nail:menu>
-        <mx:FlexNativeMenu showRoot="false"
-                           labelField="@label"
-                           keyEquivalentField="@keyEquivalent"
-                           keyEquivalentModifiersFunction="keyEquivalentModifiers"
-                           dataProvider="{menuXML}"
-                           itemClick="nativeMenuItemClickHandler(event)"/>
-    </nail:menu>
-    
-    <fx:Declarations>
-        <fx:XML id="menuXML">
-            <root>
-                <menuitem label="{resourceManager.getString('strings', 'menu.file')}">
-                    <menuitem label="{resourceManager.getString('strings', 'menu.new')}" data="fileNew" keyEquivalent="n" controlKey="true"/>
-                    <menuitem label="{resourceManager.getString('strings', 'menu.open')}" data="fileOpen" keyEquivalent="o" controlKey="true"/>
-                    <menuitem label="{resourceManager.getString('strings', 'menu.compile')}" data="fileCompile" keyEquivalent="s" controlKey="true"/>
-                    <menuitem label="{resourceManager.getString('strings', 'menu.compileAs')}" data="fileCompileAs" keyEquivalent="s" controlKey="true" shiftKey="true"/>
-                    <menuitem type="separator"/>
-                    <menuitem label="{resourceManager.getString('strings', 'menu.close')}" data="fileClose" keyEquivalent="w" controlKey="true"/>
-                    <menuitem type="separator"/>
-                    <menuitem label="{resourceManager.getString('strings', 'menu.preferences')}"  data="filePreferences" keyEquivalent="p" controlKey="true"/>
-                    <menuitem label="{resourceManager.getString('strings', 'menu.exit')}" data="fileExit" keyEquivalent="q" controlKey="true"/>
-                </menuitem>
-                <menuitem label="{resourceManager.getString('strings', 'menu.view')}">
-                    <menuitem label="{resourceManager.getString('strings', 'menu.showPreviewPanel')}" type="check" data="viewShowInfoAndPreview" keyEquivalent="f2"/>
-                    <menuitem label="{resourceManager.getString('strings', 'menu.showObjectsPanel')}" type="check" data="viewShowObjectList" keyEquivalent="f3"/>
-                    <menuitem label="{resourceManager.getString('strings', 'menu.showSpritesPanel')}" type="check" data="viewShowSpriteList" keyEquivalent="f4"/>
-                </menuitem>
-                <menuitem label="{resourceManager.getString('strings', 'menu.tools')}">
-                    <menuitem label="{resourceManager.getString('strings', 'find')}" data="toolsFind" keyEquivalent="f" controlKey="true"/>
-                    <menuitem label="{resourceManager.getString('strings', 'menu.toolsLookTypeGenerator')}" data="toolsLookGenerator"/>
-                    <menuitem label="{resourceManager.getString('strings', 'objectViewer')}" data="toolsObjectViewer"/>
-                    <menuitem label="Slicer" data="toolsSlicer"/>
-                    <menuitem label="{resourceManager.getString('strings', 'animationEditor')}" data="toolsAnimationEditor"/>
-                    <menuitem label="{resourceManager.getString('strings', 'spritesOptimizer')}" data="toolsSpritesOptimizer"/>
-                </menuitem>
-                <menuitem label="{resourceManager.getString('strings', 'menu.window')}">
-                    <menuitem label="{resourceManager.getString('strings', 'menu.logWindow')}" data="windowOpenLog" keyEquivalent="l" controlKey="true"/>
-                    <menuitem type="separator"/>
-                    <menuitem label="{resourceManager.getString('strings', 'menu.versions')}" data="windowVersions"/>
-                </menuitem>	
-                <menuitem label="{resourceManager.getString('strings', 'menu.help')}">
-                    <menuitem label="{resourceManager.getString('strings', 'menu.helpContents')}" data="helpContents" keyEquivalent="f1" enabled="false"/>
-                    <menuitem type="separator"/>
-                    <menuitem label="{resourceManager.getString('strings', 'menu.checkForUpdate')}" data="helpCheckForUpdate"/>
-                    <menuitem type="separator"/>
-                    <menuitem label="{resourceManager.getString('strings', 'menu.about')}" data="helpAbout"/>
-                </menuitem>	
-            </root>
-        </fx:XML>
-    </fx:Declarations>
     
     <fx:Style source="../assets/styles/object_builder.css"/>
     
@@ -105,7 +55,6 @@
             import mx.core.UIComponent;
             import mx.events.CloseEvent;
             import mx.events.FlexEvent;
-            import mx.events.FlexNativeMenuEvent;
             import mx.managers.DragManager;
             
             import spark.events.IndexChangeEvent;
@@ -117,12 +66,12 @@
             import nail.components.controls.Alert;
             import nail.core.nail_internal;
             import nail.errors.NullArgumentError;
+            import nail.events.MenuEvent;
             import nail.loaders.BitmapLoader;
             import nail.logging.Log;
             import nail.managers.PopUpWindowManager;
             import nail.settings.ISettingsManager;
             import nail.settings.SettingsManager;
-            import nail.utils.CapabilitiesUtil;
             import nail.utils.Descriptor;
             import nail.utils.DialogDetail;
             import nail.utils.FileData;
@@ -694,7 +643,7 @@
                 PopUpWindowManager.addWindow(window);
             }
             
-            public function checkUpdate():void
+            public function checkForUpdates():void
             {
                 _updater.updateURL = "https://dl.dropboxusercontent.com/s/ersqqbih5xyqy7e/update.xml";
                 _updater.addEventListener(UpdateEvent.INITIALIZED, updateInitializedHandler);
@@ -799,10 +748,8 @@
                     _autosaveChanged = false;
                 }
                 
-                if (_showPanelChanged) {
-                    menuXML.menuitem[1].menuitem[0].@toggled = _showPreviewPanel; // View > Show Object List
-                    menuXML.menuitem[1].menuitem[1].@toggled = _showThingsPanel; // View > Show Info and Preview
-                    menuXML.menuitem[1].menuitem[2].@toggled = _showSpritesPanel; // View > Show Sprite List
+                if (_showPanelChanged)
+                {
                     previewPanel.visible = _showPreviewPanel;
                     previewPanel.includeInLayout = _showPreviewPanel;
                     thingsPanel.visible = _showThingsPanel;
@@ -827,8 +774,6 @@
             override protected function applicationLoadComplete():void
             {
                 loadVersions();
-                
-                this.systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
                 
                 if (_settings.maximized) {
                     this.maximize();
@@ -866,35 +811,6 @@
             //--------------------------------------
             // Private
             //--------------------------------------
-            
-            private function keyEquivalentModifiers(item:Object):Array
-            {
-                var result:Array = [];
-                var keyEquivField:String = menu.keyEquivalentField;
-                var altKeyField:String = "@altKey";
-                var controlKeyField:String = "@controlKey";
-                var shiftKeyField:String = "@shiftKey";
-                
-                if (item[keyEquivField] == null || item[keyEquivField].length == 0)
-                    return result;  
-                
-                if (item[altKeyField] != null && item[altKeyField] == true) { 
-                    if (CapabilitiesUtil.isWin)
-                        result.push(Keyboard.ALTERNATE);
-                } 
-                
-                if (item[controlKeyField] != null && item[controlKeyField] == true) {
-                    if (CapabilitiesUtil.isWin)
-                        result.push(Keyboard.CONTROL);
-                    else if (CapabilitiesUtil.isMac)
-                        result.push(Keyboard.COMMAND);
-                }
-                
-                if (item[shiftKeyField] != null && item[shiftKeyField] == true)
-                    result.push(Keyboard.SHIFT);
-                
-                return result;
-            } 
             
             private function loadSettings():void
             {
@@ -1493,6 +1409,11 @@
                 createLogging();
                 createWorker();
                 loadSettings();
+            }
+            
+            protected function creationCompleteHandler(event:FlexEvent):void
+            {
+                nativeMenu.create(systemManager.stage);
             }
             
             protected function applicationCompleteHandler(event:FlexEvent):void
@@ -2176,122 +2097,91 @@
                 applicationLoadComplete();
             }
             
-            override protected function keyDownHandler(event:KeyboardEvent):void
+            protected function nativeMenuSelectedHandler(event:MenuEvent):void
             {
-                var code:uint = event.keyCode;
-                if (event.ctrlKey && !event.shiftKey) {
-                    switch (code) {
-                        case Keyboard.N:
-                            this.onCreateNew();
-                            break;
-                        case Keyboard.O:
-                            this.openClient();
-                            break;
-                        case Keyboard.S:
-                            this.compile();
-                            break;
-                        case Keyboard.F:
-                            this.openFindWindow();
-                            break;
-                        case Keyboard.L:
-                            this.openLogWindow();
-                            break;
-                        case Keyboard.P:
-                            this.openPreferencesWindow();
-                            break;
-                        case Keyboard.Q:
-                            this.close();
-                            break;
-                    }
-                } else if (event.ctrlKey && event.shiftKey) {
-                    switch (code) {
-                        case Keyboard.S:
-                            this.compileAs();
-                            break;
-                    }
-                } else if (!event.ctrlKey && !event.shiftKey) {
-                    switch (code) {
-                        case Keyboard.F1:
-                            this.openHelpWindow();
-                            break;
-                        case Keyboard.F2:
-                            this.showPreviewPanel = !this.showPreviewPanel;
-                            break;
-                        case Keyboard.F3:
-                            this.showThingsPanel = !this.showThingsPanel;
-                            break;
-                        case Keyboard.F4:
-                            this.showSpritesPanel = !this.showSpritesPanel;
-                            break;
-                    }
-                }
-            }
-            
-            protected function nativeMenuItemClickHandler(event:FlexNativeMenuEvent):void
-            {
-                var data:String = String(event.item.@data);
-                switch(data) {
-                    case "fileNew":
+                switch(event.data)
+                {
+                    case Menu.FILE_NEW:
                         this.onCreateNew();
                         break;
-                    case "fileOpen":
-                        this.openClient();;
+                    
+                    case Menu.FILE_OPEN:
+                        this.openClient();
                         break;
-                    case "fileCompile":
+                    
+                    case Menu.FILE_COMPILE:
                         this.compile();
                         break;
-                    case "fileCompileAs":
+                    
+                    case Menu.FILE_COMPILE_AS:
                         this.compileAs();
                         break;
-                    case "fileClose":
+                    
+                    case Menu.FILE_CLOSE:
                         this.unload();
                         break;
-                    case "filePreferences":
+                    
+                    case Menu.FILE_PREFERENCES:
                         this.openPreferencesWindow();
                         break;
-                    case "fileExit":
+                    
+                    case Menu.FILE_EXIT:
                         this.close();
                         break;
-                    case "viewShowInfoAndPreview":
+                    
+                    case Menu.VIEW_SHOW_PREVIEW:
                         this.showPreviewPanel = !this.showPreviewPanel;
                         break;
-                    case "viewShowObjectList":
+                    
+                    case Menu.VIEW_SHOW_OBJECTS:
                         this.showThingsPanel = !this.showThingsPanel;
                         break;
-                    case "viewShowSpriteList":
+                    
+                    case Menu.VIEW_SHOW_SPRITES:
                         this.showSpritesPanel = !this.showSpritesPanel;
                         break;
-                    case "toolsFind":
+                    
+                    case Menu.TOOLS_FIND:
                         this.openFindWindow();
                         break;
-                    case "toolsLookGenerator":
+                    
+                    case Menu.TOOLS_LOOK_TYPE_GENERATOR:
                         this.openLookGenerator();
                         break;
-                    case "toolsObjectViewer":
+                    
+                    case Menu.TOOLS_OBJECT_VIEWER:
                         this.openObjectViewer();
                         break;
-                    case "toolsSlicer":
+                    
+                    case Menu.TOOLS_SLICER:
                         this.openSlicer();
                         break;
-                    case "toolsAnimationEditor":
+                    
+                    case Menu.TOOLS_ANIMATION_EDITOR:
                         this.openAnimationEditor();
                         break;
-                    case "toolsSpritesOptimizer":
+                    
+                    case Menu.TOOLS_SPRITES_OPTIMIZER:
                         this.openSpritesOptimizer();
                         break;
-                    case "windowOpenLog":
+                    
+                    case Menu.WINDOW_LOG:
                         this.openLogWindow();
                         break;
-                    case "windowVersions":
+                    
+                    case Menu.WINDOW_VERSIONS:
                         this.openVersionsWindow();
                         break;
-                    case "helpContents":
-                        this.openHelpWindow();
+                    
+                    case Menu.HELP_CONTENTS:
+                        //this.openHelpWindow();
                         break;
-                    case "helpCheckForUpdate":
-                        this.checkUpdate();
+                    
+                    case Menu.HELP_CHECK_FOR_UPDATES:
+                        this.checkForUpdates();
                         break;
-                    case "helpAbout":
+                    
+                    case Menu.HELP_ABOUT:
                         this.onAboutApplication();
                         break;
                 }
@@ -2299,6 +2189,11 @@
             
         ]]>
     </fx:Script>
+    
+    <nail:menu>
+        <menu:Menu id="nativeMenu"
+                   selected="nativeMenuSelectedHandler(event)"/>
+    </nail:menu>
     
     <!-- tool bar -->
     <s:Group width="100%"
