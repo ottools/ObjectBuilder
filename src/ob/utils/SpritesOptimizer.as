@@ -192,19 +192,20 @@ package ob.utils
                     
                     // set missiles
                     setNewIDs(m_dat.missiles);
+                    
+                    // =====================================================================
+                    // sets new values to the sprite storage.
+                    
+                    dispatchProgress(5, 5, Resources.getString("finalizingTheOptimization"));
+                    
+                    m_newIDs[0] = m_spr._sprites[0];
+                    
+                    m_dat._changed = true;
+                    m_spr._sprites = m_newIDs;
+                    m_spr._spritesCount = m_spr._spritesCount - count;
+                    m_spr._changed = true;
                 }
                 
-                // =====================================================================
-                // sets new values to the sprite storage.
-                
-                dispatchProgress(5, 5, Resources.getString("finalizingTheOptimization"));
-                
-                m_newIDs[0] = m_spr._sprites[0];
-                
-                m_dat._changed = true;
-                m_spr._sprites = m_newIDs;
-                m_spr._spritesCount = m_spr._spritesCount - count;
-                m_spr._changed = true;
                 m_removedCount = count;
                 m_oldCount = length - 1;
                 m_newCount = m_spr._spritesCount;

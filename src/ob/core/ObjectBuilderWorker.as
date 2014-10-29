@@ -1371,9 +1371,12 @@ package ob.core
             
             function completeHandler(event:Event):void
             {
-                sendFilesInfo();
-                sendSpriteList(Vector.<uint>([0]));
-                sendThingList(Vector.<uint>([100]), ThingCategory.ITEM);
+                if (optimizer.removedCount > 0)
+                {
+                    sendFilesInfo();
+                    sendSpriteList(Vector.<uint>([0]));
+                    sendThingList(Vector.<uint>([100]), ThingCategory.ITEM);
+                }
                 
                 var command:Command = new OptimizeSpritesResultCommand(optimizer.removedCount,
                                                                        optimizer.oldCount,
