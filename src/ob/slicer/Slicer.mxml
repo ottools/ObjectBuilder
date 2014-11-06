@@ -489,13 +489,13 @@
                 if (!this.hasImage) return;
                 
                 if (event.target === rotateRight90Button)
-                    this.bitmap = BitmapUtil.rotateBitmapData(_bitmap, 90);
+                    this.bitmap = BitmapUtil.rotate(_bitmap, 90);
                 else if (event.target === rotateLeft90Button)
-                    this.bitmap = BitmapUtil.rotateBitmapData(_bitmap, 270);
+                    this.bitmap = BitmapUtil.rotate(_bitmap, 270);
                 else if (event.target === flipHorizontalButton)
-                    this.bitmap = BitmapUtil.flipBitmapData(_bitmap, true, false);
+                    this.bitmap = BitmapUtil.flip(_bitmap, true, false);
                 else if (event.target === flipVerticalButton)
-                    this.bitmap = BitmapUtil.flipBitmapData(_bitmap, false, true);
+                    this.bitmap = BitmapUtil.flip(_bitmap, false, true);
             }
             
         ]]>
