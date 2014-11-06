@@ -20,7 +20,7 @@
 *  THE SOFTWARE.
 */
 
-package ob.slicer.core
+package slicer.core
 {
     import flash.utils.ByteArray;
 

@@ -58,13 +58,14 @@
             import nail.utils.BitmapUtil;
             import nail.utils.FileUtil;
             
-            import ob.slicer.core.ISlicerHost;
             import ob.utils.ObUtils;
             
             import otlib.assets.Assets;
             import otlib.components.SurfaceCells;
             import otlib.sprites.Sprite;
             import otlib.utils.SpriteUtils;
+            
+            import slicer.core.ISlicerHost;
             
             //--------------------------------------------------------------------------
             // PROPERTIES
