@@ -37,7 +37,8 @@
           fontSize="11"
           backgroundColor="0x494949"
           showStatusBar="false"
-          title="Slicer">
+          title="Slicer"
+          creationComplete="creationCompleteHandler(event)">
     
     <fx:Declarations>
         <fx:XMLList id="menuXML">
@@ -58,6 +59,8 @@
     <fx:Script>
         <![CDATA[
             import mx.collections.ArrayCollection;
+            import mx.events.CollectionEvent;
+            import mx.events.FlexEvent;
             import mx.events.MenuEvent;
             import mx.events.MoveEvent;
             import mx.managers.DragManager;
@@ -81,7 +84,6 @@
             public var application:IObjectBuilder;
             public var lastDirectory:File;
             
-            [Bindable]
             private var _sprites:ArrayCollection = new ArrayCollection();
             private var _surfaceCells:SurfaceCells;
             private var _rect:Rectangle = new Rectangle();
@@ -355,6 +357,18 @@
             //--------------------------------------
             // Event Handlers
             //--------------------------------------
+            
+            protected function creationCompleteHandler(event:FlexEvent):void
+            {
+                spritePartList.dataProvider = _sprites;
+                
+                _sprites.addEventListener(CollectionEvent.COLLECTION_CHANGE, spritesCollectionChange);
+            }
+            
+            protected function spritesCollectionChange(event:CollectionEvent):void
+            {
+                importButton.enabled = (_sprites.length != 0);
+            }
             
             protected function imageContainerMouseMoveHandler(event:MouseEvent):void
             {
@@ -640,6 +654,7 @@
             </s:Scroller>
         </s:BorderContainer>
         
+        <!-- sprite part list -->
         <s:BorderContainer width="150"
                            height="100%"
                            skinClass="nail.components.skins.BorderContainerSkin">
@@ -653,11 +668,12 @@
             <nail:GroupBox label="@Resource(key='sprites', bundle='strings')"
                            width="100%"
                            height="100%">
-                <s:List width="100%"
+                
+                <s:List id="spritePartList"
+                        width="100%"
                         height="100%"
                         contentBackgroundColor="0x494949"
                         borderVisible="false"
-                        dataProvider="{_sprites}"
                         itemRenderer="otlib.components.renders.BitmapListRenderer"/>
             </nail:GroupBox>
             
@@ -668,8 +684,8 @@
             <s:Button id="importButton"
                       label="@Resource(key='import', bundle='strings')"
                       width="100%"
-                      enabled="{_sprites.length > 0}"
                       click="importButtonClickHandler(event)"/>
+            
             <s:Button id="clearButton"
                       label="@Resource(key='clear', bundle='strings')"
                       width="100%"
