@@ -38,7 +38,8 @@
           backgroundColor="0x494949"
           showStatusBar="false"
           title="Slicer"
-          creationComplete="creationCompleteHandler(event)">
+          creationComplete="creationCompleteHandler(event)"
+          closing="slicerClosingHandler(event)">
     
     <fx:Metadata>
         [ResourceBundle("strings")]
@@ -55,8 +56,11 @@
             import nail.assets.NailAssets;
             import nail.components.controls.Alert;
             import nail.image.ImageCodec;
+            import nail.settings.ISettingsManager;
+            import nail.settings.SettingsManager;
             import nail.utils.BitmapUtil;
             import nail.utils.FileUtil;
+            import nail.utils.WindowUtil;
             
             import ob.utils.ObUtils;
             
@@ -66,6 +70,7 @@
             import otlib.utils.SpriteUtils;
             
             import slicer.core.ISlicerHost;
+            import slicer.settings.SlicerSettings;
             
             //--------------------------------------------------------------------------
             // PROPERTIES
@@ -74,6 +79,8 @@
             public var lastDirectory:File;
             public var host:ISlicerHost;
             
+            private var _settingsManager:ISettingsManager;
+            private var _settings:SlicerSettings;
             private var _sprites:ArrayCollection = new ArrayCollection();
             private var _surfaceCells:SurfaceCells;
             private var _rect:Rectangle = new Rectangle();
@@ -304,6 +311,26 @@
             // Private
             //--------------------------------------
             
+            private function loadSettings():void
+            {
+                _settings = new SlicerSettings();
+                _settingsManager.loadSettings(_settings);
+                
+                if (_settings.maximized)
+                    this.maximize();
+                else
+                    WindowUtil.centralizeWindowOnScreen(this);
+                
+                this.lastDirectory = _settings.getLastDirectory();
+            }
+            
+            private function saveSettings():void
+            {
+                _settings.setLastDirectory(this.lastDirectory);
+                _settings.maximized = (nativeWindow.displayState == NativeWindowDisplayState.MAXIMIZED);
+                _settingsManager.saveSettings(_settings);
+            }
+            
             private function setFile(file:File):void
             {
                 if (!file || !FileUtil.hasBitmapFormat(file)) return;
@@ -358,9 +385,18 @@
             
             protected function creationCompleteHandler(event:FlexEvent):void
             {
+                _settingsManager = SettingsManager.getInstance();
+                
                 spritePartList.dataProvider = _sprites;
                 
                 _sprites.addEventListener(CollectionEvent.COLLECTION_CHANGE, spritesCollectionChange);
+                
+                loadSettings();
+            }
+            
+            protected function slicerClosingHandler(event:Event):void
+            {
+                saveSettings();
             }
             
             protected function spritesCollectionChange(event:CollectionEvent):void

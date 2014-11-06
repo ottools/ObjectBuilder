@@ -68,10 +68,6 @@ package ob.settings
         public var objectViewerWidth:Number = 0;
         public var objectViewerHeight:Number = 0;
         public var objectViewerMaximized:Boolean;
-        public var slicerWidth:Number = 0;
-        public var slicerHeight:Number = 0;
-        public var slicerMaximized:Boolean;
-        public var slicerLastDirectory:String;
         public var animationWindowWidth:Number = 0;
         public var animationWindowHeight:Number = 0;
         public var animationWindowMaximized:Boolean;
@@ -178,27 +174,6 @@ package ob.settings
         {
             format = !format ? "" : format.toLowerCase();
             this.exportSpriteFormat = format;
-        }
-        
-        public function getSlicerLastDirectory():File
-        {
-            if (isNullOrEmpty(slicerLastDirectory)) return null;
-            
-            var directory:File;
-            try 
-            {
-                directory = new File(slicerLastDirectory);
-            } catch(error:Error) {
-                return null;
-            }
-            return directory;
-        }
-        
-        public function setSlicerLastDirectory(file:File):void
-        {
-            if (file) {
-                this.slicerLastDirectory = FileUtil.getDirectory(file).nativePath;
-            }
         }
         
         public function getLanguage():Array

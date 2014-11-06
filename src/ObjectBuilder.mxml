@@ -572,36 +572,31 @@
             {
                 if (file && !FileUtil.hasBitmapFormat(file)) return;
                 
-                if (!_slicer) {
+                if (!_slicer)
+                {
                     _slicer = new Slicer();
                     _slicer.host = this;
                     _slicer.file = file;
-                    _slicer.width = _settings.slicerWidth;
-                    _slicer.height = _settings.slicerHeight;
                     _slicer.transparency = _info ? _info.transparency : false;
-                    _slicer.lastDirectory = _settings.getSlicerLastDirectory();
-                    _slicer.addEventListener(
-                        NativeWindowDisplayStateEvent.DISPLAY_STATE_CHANGING,
-                        windowStateChagingHandler);
-                    _slicer.addEventListener(Event.CLOSING, windowClosingHandler);
+                    _slicer.addEventListener(Event.CLOSE, slicerCloseHandler);
                     _slicer.open();
-                    
-                    if (_settings.slicerMaximized) {
-                        _slicer.maximize();
-                    } else {
-                        WindowUtil.centralizeWindowOnScreen(_slicer);
-                    }
-                } else {
+                }
+                else
+                {
                     _slicer.file = file;
                     _slicer.activate();
+                }
+                
+                function slicerCloseHandler(event:Event):void
+                {
+                    _slicer = null;
                 }
             }
             
             public function closeSlicer():void
             {
-                if (_slicer) {
+                if (_slicer)
                     _slicer.close();
-                }
             }
             
             private function openAnimationEditor():void
@@ -2047,8 +2042,6 @@
                 var maximized:Boolean = (event.afterDisplayState == NativeWindowDisplayState.MAXIMIZED);
                 if (event.target is ObjectViewer) {
                     _settings.objectViewerMaximized = maximized
-                } else if (event.target is Slicer) {
-                    _settings.slicerMaximized = maximized;
                 } else if (event.target is AnimationEditor) {
                     _settings.animationWindowMaximized = maximized;
                 }
@@ -2065,11 +2058,6 @@
                     _settings.objectViewerWidth = _objectViewer.width;
                     _settings.objectViewerHeight = _objectViewer.height;
                     _objectViewer = null;
-                } else if (event.target is Slicer) {
-                    _settings.slicerWidth = _slicer.width;
-                    _settings.slicerHeight = _slicer.height;
-                    _settings.setSlicerLastDirectory(_slicer.lastDirectory);
-                    _slicer = null
                 } else if (event.target is AnimationEditor) {
                     _settings.animationWindowWidth = _animationWindow.width;
                     _settings.animationWindowWidth = _animationWindow.height;
