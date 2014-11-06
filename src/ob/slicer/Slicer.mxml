@@ -58,7 +58,7 @@
             import nail.utils.BitmapUtil;
             import nail.utils.FileUtil;
             
-            import ob.core.IObjectBuilder;
+            import ob.slicer.core.ISlicerHost;
             import ob.utils.ObUtils;
             
             import otlib.assets.Assets;
@@ -70,8 +70,8 @@
             // PROPERTIES
             //--------------------------------------------------------------------------
             
-            public var application:IObjectBuilder;
             public var lastDirectory:File;
+            public var host:ISlicerHost;
             
             private var _sprites:ArrayCollection = new ArrayCollection();
             private var _surfaceCells:SurfaceCells;
@@ -475,7 +475,7 @@
                         var bitmap:BitmapData = _sprites.getItemAt(i) as BitmapData;
                         list[i] = bitmap.getPixels(rect);;
                     }
-                    application.importSprites(list);
+                    host.importSprites(list);
                 }
             }
             

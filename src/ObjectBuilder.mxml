@@ -31,7 +31,7 @@
                   xmlns:nail="library://ns.nail.com/naillib"
                   xmlns:otlib="otlib.components.*"
                   xmlns:menu="ob.menu.*"
-                  implements="ob.core.IObjectBuilder"
+                  implements="ob.core.IObjectBuilder, ob.slicer.core.ISlicerHost"
                   minWidth="800"
                   minHeight="600"
                   fontSize="11"
@@ -573,7 +573,7 @@
                 
                 if (!_slicer) {
                     _slicer = new Slicer();
-                    _slicer.application = this;
+                    _slicer.host = this;
                     _slicer.file = file;
                     _slicer.width = _settings.slicerWidth;
                     _slicer.height = _settings.slicerHeight;
