@@ -332,6 +332,7 @@
                 rotateRight90Button.enabled = (bitmap != null);
                 flipHorizontalButton.enabled = (bitmap != null);
                 flipVerticalButton.enabled = (bitmap != null);
+                _lastValues.setEmpty();
                 
                 resetControls();
                 update();
