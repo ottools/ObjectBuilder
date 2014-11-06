@@ -29,7 +29,7 @@
           xmlns:s="library://ns.adobe.com/flex/spark" 
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:nail="library://ns.nail.com/naillib"
-          xmlns:components="nail.otlib.components.*"
+          xmlns:otlib="otlib.components.*"
           width="800"
           height="600"
           minWidth="600"
@@ -37,7 +37,7 @@
           fontSize="11"
           backgroundColor="0x494949"
           showStatusBar="false"
-          title="Slicer" xmlns:components1="otlib.components.*">
+          title="Slicer">
     
     <fx:Declarations>
         <fx:XMLList id="menuXML">
@@ -599,15 +599,20 @@
                       click="onCutImage()"/>
         </s:BorderContainer>
         
+        <!-- image container -->
         <s:BorderContainer width="100%"
                            height="100%"
                            skinClass="nail.components.skins.BorderContainerSkin">
-            <s:layout>
-                <s:VerticalLayout paddingLeft="1"
-                                  paddingRight="0"
-                                  paddingTop="1"
-                                  paddingBottom="0"/>
-            </s:layout>
+            
+            <!-- background fill -->
+            <otlib:CheckerBoard left="0"
+                                right="0"
+                                top="0"
+                                bottom="0"
+                                cellColors="{[0x636363, 0x535353]}"
+                                mouseChildren="false"
+                                mouseEnabled="false"/>
+            
             <s:Scroller width="100%"
                         height="100%"
                         verticalScrollPolicy="on"
@@ -621,9 +626,9 @@
                          nativeDragEnter="imageConteinerGroupNativeDragEnterHandler(event)"
                          nativeDragDrop="imageConteinerGroupNativeDragDropHandler(event)">
                     
-                    <components1:CheckerBoard id="checkerboard"
-                                             width="{imageControl.width}"
-                                             height="{imageControl.height}"/>
+                    <otlib:CheckerBoard id="checkerboard"
+                                        width="{imageControl.width}"
+                                        height="{imageControl.height}"/>
                     
                     <s:Image id="imageControl"/>
                     
