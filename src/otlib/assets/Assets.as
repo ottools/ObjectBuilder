@@ -130,5 +130,17 @@ package otlib.assets
         
         [Embed(source="../../../assets/alert_sprite.png")]
         public static const ALERT_IMAGE:Class;
+        
+        [Embed(source="../../../assets/icons/rotate_right_90.png")]
+        public static const ROTATE_RIGHT_90:Class;
+        
+        [Embed(source="../../../assets/icons/rotate_left_90.png")]
+        public static const ROTATE_LEFT_90:Class;
+        
+        [Embed(source="../../../assets/icons/flip_vertical.png")]
+        public static const FLIP_VERTICAL:Class;
+        
+        [Embed(source="../../../assets/icons/flip_horizontal.png")]
+        public static const FLIP_HORIZONTAL:Class;
     }
 }

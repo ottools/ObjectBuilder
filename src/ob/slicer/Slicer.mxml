@@ -40,18 +40,6 @@
           title="Slicer"
           creationComplete="creationCompleteHandler(event)">
     
-    <fx:Declarations>
-        <fx:XMLList id="menuXML">
-            <menuitem label="{resourceManager.getString('strings', 'menu.file')}">
-                <menuitem label="{resourceManager.getString('strings', 'menu.open')}" data="fileOpen" keyEquivalent='O' icon="nail.assets.Icons_OPEN"/>
-            </menuitem>
-        </fx:XMLList>
-    </fx:Declarations>
-    
-    <s:layout>
-        <s:VerticalLayout/>
-    </s:layout>
-    
     <fx:Metadata>
         [ResourceBundle("strings")]
     </fx:Metadata>
@@ -61,18 +49,19 @@
             import mx.collections.ArrayCollection;
             import mx.events.CollectionEvent;
             import mx.events.FlexEvent;
-            import mx.events.MenuEvent;
             import mx.events.MoveEvent;
             import mx.managers.DragManager;
             
             import nail.assets.NailAssets;
             import nail.components.controls.Alert;
             import nail.image.ImageCodec;
+            import nail.utils.BitmapUtil;
             import nail.utils.FileUtil;
             
             import ob.core.IObjectBuilder;
             import ob.utils.ObUtils;
             
+            import otlib.assets.Assets;
             import otlib.components.SurfaceCells;
             import otlib.sprites.Sprite;
             import otlib.utils.SpriteUtils;
@@ -334,8 +323,15 @@
             
             private function setBitmap(bitmap:BitmapData):void
             {
+                if (_bitmap)
+                    _bitmap.dispose();
+                
                 _bitmap = bitmap;
                 imageControl.source = bitmap;
+                rotateLeft90Button.enabled = (bitmap != null);
+                rotateRight90Button.enabled = (bitmap != null);
+                flipHorizontalButton.enabled = (bitmap != null);
+                flipVerticalButton.enabled = (bitmap != null);
                 
                 resetControls();
                 update();
@@ -468,16 +464,6 @@
                 this.zoom = HSlider(event.target).value;
             }
             
-            protected function menuItemClickHandler(event:MenuEvent):void
-            {
-                var data:String = String(event.item.@data);
-                switch(data) {
-                    case "fileOpen":
-                        this.onOpenFile();
-                        break;
-                }
-            }
-            
             protected function importButtonClickHandler(event:MouseEvent):void
             {
                 var length:uint = _sprites.length;
@@ -497,17 +483,37 @@
                 _sprites.removeAll();
             }
             
+            protected function rotateOrFlipClickHandler(event:MouseEvent):void
+            {
+                if (!this.hasImage) return;
+                
+                if (event.target === rotateRight90Button)
+                    this.bitmap = BitmapUtil.rotateBitmapData(_bitmap, 90);
+                else if (event.target === rotateLeft90Button)
+                    this.bitmap = BitmapUtil.rotateBitmapData(_bitmap, 270);
+                else if (event.target === flipHorizontalButton)
+                    this.bitmap = BitmapUtil.flipBitmapData(_bitmap, true, false);
+                else if (event.target === flipVerticalButton)
+                    this.bitmap = BitmapUtil.flipBitmapData(_bitmap, false, true);
+            }
+            
         ]]>
     </fx:Script>
     
-    <!-- menu bar -->
+    <s:layout>
+        <s:VerticalLayout/>
+    </s:layout>
+    
+    <!-- tool bar -->
     <s:Group width="100%"
-             height="31">
-        <!-- fill -->
+             height="35"
+             top="0">
+        
+        <!-- highlight -->
         <s:Rect left="-1" right="-1" top="1" bottom="0">
-            <s:fill>
-                <s:SolidColor color="0x494949"/>
-            </s:fill>
+            <s:stroke>
+                <s:SolidColorStroke color="0x636363"/>
+            </s:stroke>
         </s:Rect>
         
         <!-- border -->
@@ -517,20 +523,65 @@
             </s:stroke>
         </s:Rect>
         
-        <mx:MenuBar id="menuBar"
-                    width="100%"
-                    top="4"
-                    fontSize="11"
-                    labelField="@label"
-                    iconField="@icon"
-                    showRoot="true"
-                    dataProvider="{menuXML}"
-                    itemSkin="nail.components.skins.MenuBarItemSkin"
-                    itemClick="menuItemClickHandler(event)"/>
+        <s:HGroup width="100%"
+                  height="100%"
+                  verticalAlign="middle"
+                  paddingLeft="10"
+                  paddingRight="10">
+            
+            <s:Button id="openButton"
+                      toolTip="@Resource(key='menu.open', bundle='strings')"
+                      width="25"
+                      height="25"
+                      icon="{Assets.OPEN}"
+                      skinClass="nail.components.skins.IconButtonSkin"
+                      click="onOpenFile()"/>
+            
+            <nail:ShadowLine height="20"/>
+            
+            <s:Button id="rotateRight90Button"
+                      toolTip="@Resource(key='rotateRight90', bundle='strings')"
+                      width="25"
+                      height="25"
+                      icon="{Assets.ROTATE_RIGHT_90}"
+                      enabled="false"
+                      skinClass="nail.components.skins.IconButtonSkin"
+                      click="rotateOrFlipClickHandler(event)"/>
+            
+            <s:Button id="rotateLeft90Button"
+                      label="@Resource(key='rotateLeft90', bundle='strings')"
+                      width="25"
+                      height="25"
+                      icon="{Assets.ROTATE_LEFT_90}"
+                      enabled="false"
+                      skinClass="nail.components.skins.IconButtonSkin"
+                      click="rotateOrFlipClickHandler(event)"/>
+            
+            <s:Button id="flipVerticalButton"
+                      toolTip="@Resource(key='flipVertical', bundle='strings')"
+                      width="25"
+                      height="25"
+                      icon="{Assets.FLIP_VERTICAL}"
+                      enabled="false"
+                      skinClass="nail.components.skins.IconButtonSkin"
+                      click="rotateOrFlipClickHandler(event)"/>
+            
+            <s:Button id="flipHorizontalButton"
+                      toolTip="@Resource(key='flipHorizontal', bundle='strings')"
+                      width="25"
+                      height="25"
+                      icon="{Assets.FLIP_HORIZONTAL}"
+                      enabled="false"
+                      skinClass="nail.components.skins.IconButtonSkin"
+                      click="rotateOrFlipClickHandler(event)"/>
+            
+        </s:HGroup>
     </s:Group>
     
     <s:HGroup width="100%"
               height="100%">
+        
+        <!-- controls -->
         <s:BorderContainer width="150"
                            height="100%"
                            skinClass="nail.components.skins.BorderContainerSkin">
