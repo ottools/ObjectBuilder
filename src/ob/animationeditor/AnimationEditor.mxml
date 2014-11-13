@@ -198,6 +198,9 @@
                     offsetYStepper.value = _surfaceCells.y;
                 }
                 
+                _dragBounds.width = bitmap.width - (_surfaceCells.cellWidth * _surfaceCells.columns);
+                _dragBounds.height = bitmap.height - (_surfaceCells.cellHeight * _surfaceCells.rows);
+                
                 offsetXStepper.maximum = this.bitmap.width - sw;
                 offsetYStepper.maximum = this.bitmap.height - sh;
                 widthStepper.maximum = Math.floor(this.bitmap.width / 32) * 32;
@@ -532,12 +535,6 @@
                 
                 resetControls();
                 update();
-                
-                if (bitmap)
-                {
-                    _dragBounds.width = bitmap.width - (_surfaceCells.cellWidth * _surfaceCells.columns);
-                    _dragBounds.height = bitmap.height - (_surfaceCells.cellHeight * _surfaceCells.rows);
-                }
             }
             
             private function onOpenFile():void
