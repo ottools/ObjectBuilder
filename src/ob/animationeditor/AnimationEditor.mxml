@@ -447,6 +447,7 @@
                     
                     imageConteinerGroup.scaleX = _zoom;
                     imageConteinerGroup.scaleY = _zoom;
+                    ruler.zoom = _zoom;
                     _zoomChanged = false;
                 }
             }
@@ -1106,7 +1107,17 @@
                                     mouseChildren="false"
                                     mouseEnabled="false"/>
                 
-                <s:Scroller width="100%"
+                <otlib:Ruler id="ruler"
+                             width="100%"
+                             height="100%"
+                             mouseChildren="false"
+                             mouseEnabled="false"
+                             lineColor="0xCCCCCC"/>
+                
+                <s:Scroller left="15"
+                            right="0"
+                            top="15"
+                            bottom="0"
                             height="100%"
                             verticalScrollPolicy="on"
                             horizontalScrollPolicy="on">
