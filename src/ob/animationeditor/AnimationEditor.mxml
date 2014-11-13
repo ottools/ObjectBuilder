@@ -1008,10 +1008,6 @@
                         
                         <s:Image id="imageControl"/>
                         
-                        <s:SpriteVisualElement id="surfaceLine"
-                                               width="100%"
-                                               height="100%"
-                                               blendMode="invert"/>	
                     </s:Group>
                 </s:Scroller>
             </s:BorderContainer>
