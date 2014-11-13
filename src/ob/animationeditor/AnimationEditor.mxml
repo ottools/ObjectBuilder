@@ -114,7 +114,7 @@
             private var _settingsManager:ISettingsManager;
             private var _settings:AnimationEditorSettings;
             private var _surfaceCells:SurfaceCells;
-            private var _rect:Rectangle = new Rectangle();
+            private var _dragBounds:Rectangle = new Rectangle();
             private var _size:Size = new Size(32, 32);
             private var _file:File;
             private var _fileChanged:Boolean;
@@ -452,7 +452,11 @@
                     _bitmapChanged = false;
                 }
                 
-                if (_zoomChanged) {
+                if (_zoomChanged)
+                {
+                    if (zoomSlider.value != _zoom)
+                        zoomSlider.value = _zoom;
+                    
                     imageConteinerGroup.scaleX = _zoom;
                     imageConteinerGroup.scaleY = _zoom;
                     _zoomChanged = false;
@@ -531,8 +535,16 @@
                 _bitmap = bitmap;
                 imageControl.source = bitmap;
                 
+                _dragBounds.setEmpty();
+                
                 resetControls();
                 update();
+                
+                if (bitmap)
+                {
+                    _dragBounds.width = bitmap.width - (_surfaceCells.cellWidth * _surfaceCells.columns);
+                    _dragBounds.height = bitmap.height - (_surfaceCells.cellHeight * _surfaceCells.rows);
+                }
             }
             
             private function onOpenFile():void
@@ -613,6 +625,8 @@
             {
                 if (!this.hasImage) return;
                 
+                imageConteinerGroup.setFocus();
+                
                 if (event.target != _surfaceCells && event.localX <= this.bitmap.width && event.localY <= this.bitmap.height) {
                     var px:Number = Math.round(event.localX - _surfaceCells.width * 0.5);
                     var py:Number = Math.round(event.localY - _surfaceCells.height * 0.5);
@@ -628,12 +642,9 @@
             {
                 _mouseDown = true;
                 
-                _rect.width  = imageControl.width - _surfaceCells.width;
-                _rect.height = imageControl.height - _surfaceCells.height;
-                
                 cursorManager.setCursor(NailAssets.MOVE_CURSOR, 2, -8, -8);
                 
-                _surfaceCells.startDrag(false,_rect);
+                _surfaceCells.startDrag(false, _dragBounds);
                 
                 systemManager.stage.addEventListener(MouseEvent.MOUSE_UP, surfaceCellsMouseUpHandler);
             }
@@ -812,32 +823,55 @@
             
             override protected function keyDownHandler(event:KeyboardEvent):void
             {
-                var keyCode:uint = event.keyCode;
-                
-                if (event.ctrlKey && !event.shiftKey) {
-                    switch(keyCode) {
+                if (!event.ctrlKey &&
+                    !event.shiftKey &&
+                    !event.altKey &&
+                    focusManager.getFocus() != zoomSlider)
+                {
+                    switch (event.keyCode)
+                    {
+                        case Keyboard.LEFT:
+                            _surfaceCells.x = Math.max(0, _surfaceCells.x - 1);
+                            break;
+                        
+                        case Keyboard.RIGHT:
+                            _surfaceCells.x = Math.min(_dragBounds.width, _surfaceCells.x + 1);
+                            break;
+                        
+                        case Keyboard.UP:
+                            _surfaceCells.y = Math.max(0, _surfaceCells.y - 1);
+                            break;
+                        
+                        case Keyboard.DOWN:
+                            _surfaceCells.y = Math.min(_dragBounds.height, _surfaceCells.y + 1);
+                            break;
+                    }
+                    
+                    offsetXStepper.value = _surfaceCells.x;
+                    offsetYStepper.value = _surfaceCells.y;
+                }
+                else if (event.ctrlKey && !event.shiftKey && !event.altKey)
+                {
+                    switch (event.keyCode)
+                    {
                         case Keyboard.O:
                             this.onOpenFile();
                             break;
+                        
                         case Keyboard.E:
                             this.onExportThingData();
                             break;
+                        
                         case Keyboard.V:
                             this.onPaste();
                             break;
+                        
                         case Keyboard.MINUS:
-                            this.zoom = Math.max(zoomSlider.minimum, this.zoom - 0.1);
+                            this.zoom = Math.max(zoomSlider.minimum, zoomSlider.value - zoomSlider.stepSize);
                             break;
+                        
                         case Keyboard.EQUAL:
-                            this.zoom = Math.min(zoomSlider.maximum, this.zoom + 0.1);
-                            break;
-                    }
-                } else if (!event.ctrlKey && event.shiftKey) {
-                    
-                } else {
-                    switch(keyCode) {
-                        case Keyboard.DELETE:
-                            this.removeSelectedFrames();
+                            this.zoom = Math.min(zoomSlider.maximum, zoomSlider.value + zoomSlider.stepSize);
                             break;
                     }
                 }
