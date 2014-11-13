@@ -68,9 +68,6 @@ package ob.settings
         public var objectViewerWidth:Number = 0;
         public var objectViewerHeight:Number = 0;
         public var objectViewerMaximized:Boolean;
-        public var animationWindowWidth:Number = 0;
-        public var animationWindowHeight:Number = 0;
-        public var animationWindowMaximized:Boolean;
         public var objectsListAmount:Number = 100;
         public var spritesListAmount:Number = 100;
         public var exportWithTransparentBackground:Boolean = false;

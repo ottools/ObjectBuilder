@@ -603,21 +603,15 @@
                 if (!_animationWindow) {
                     _animationWindow = new AnimationEditor();
                     _animationWindow.application = this;
-                    _animationWindow.width = _settings.animationWindowWidth;
-                    _animationWindow.height = _settings.animationWindowHeight;
-                    _animationWindow.addEventListener(
-                        NativeWindowDisplayStateEvent.DISPLAY_STATE_CHANGING,
-                        windowStateChagingHandler);
-                    _animationWindow.addEventListener(Event.CLOSING, windowClosingHandler);
+                    _animationWindow.addEventListener(Event.CLOSING, animationEditorCloseHandler);
                     _animationWindow.open();
-                    
-                    if (_settings.animationWindowMaximized) {
-                        _animationWindow.maximize();
-                    } else {
-                        WindowUtil.centralizeWindowOnScreen(_animationWindow);
-                    }
                 } else {
                     _animationWindow.activate();
+                }
+                
+                function animationEditorCloseHandler(event:Event):void
+                {
+                    _animationWindow = null;
                 }
             }
             
@@ -2041,8 +2035,6 @@
                 var maximized:Boolean = (event.afterDisplayState == NativeWindowDisplayState.MAXIMIZED);
                 if (event.target is ObjectViewer) {
                     _settings.objectViewerMaximized = maximized
-                } else if (event.target is AnimationEditor) {
-                    _settings.animationWindowMaximized = maximized;
                 }
             }
             
@@ -2057,10 +2049,6 @@
                     _settings.objectViewerWidth = _objectViewer.width;
                     _settings.objectViewerHeight = _objectViewer.height;
                     _objectViewer = null;
-                } else if (event.target is AnimationEditor) {
-                    _settings.animationWindowWidth = _animationWindow.width;
-                    _settings.animationWindowWidth = _animationWindow.height;
-                    _animationWindow = null;
                 }
             }
             

@@ -38,7 +38,8 @@
           backgroundColor="0x494949"
           showStatusBar="false"
           title="@Resource(key='animationEditor', bundle='strings')"
-          creationComplete="creationCompleteHandler(event)">
+          creationComplete="creationCompleteHandler(event)"
+          closing="closingHandler(event)">
     
     <fx:Declarations>
         <fx:XMLList id="menuXML">
@@ -80,11 +81,15 @@
             import nail.image.ImageCodec;
             import nail.image.ImageFormat;
             import nail.managers.PopUpWindowManager;
+            import nail.settings.ISettingsManager;
+            import nail.settings.SettingsManager;
             import nail.utils.FileUtil;
             import nail.utils.SaveHelper;
             import nail.utils.StringUtil;
+            import nail.utils.WindowUtil;
             
             import ob.animationeditor.events.FrameListEvent;
+            import ob.animationeditor.settings.AnimationEditorSettings;
             import ob.core.IObjectBuilder;
             import ob.utils.ObUtils;
             
@@ -109,6 +114,8 @@
             
             public var application:IObjectBuilder;
             
+            private var _settingsManager:ISettingsManager;
+            private var _settings:AnimationEditorSettings;
             private var _surfaceCells:SurfaceCells;
             private var _rect:Rectangle = new Rectangle();
             private var _size:Size = new Size(32, 32);
@@ -458,6 +465,23 @@
             // Private
             //--------------------------------------
             
+            private function loadSettings():void
+            {
+                _settings = new AnimationEditorSettings();
+                _settingsManager.loadSettings(_settings);
+                
+                if (_settings.maximized)
+                    this.maximize();
+                else
+                    WindowUtil.centralizeWindowOnScreen(this);
+            }
+            
+            private function saveSettings():void
+            {
+                _settings.maximized = (nativeWindow.displayState == NativeWindowDisplayState.MAXIMIZED);
+                _settingsManager.saveSettings(_settings);
+            }
+            
             private function setFile(file:File):void
             {
                 if (!file || (file.extension != OTFormat.OBD && !ImageFormat.hasImageFormat(file.extension)))
@@ -472,7 +496,7 @@
                     else
                         ImageCodec.decodeFromFile(file, imageReadCallback);
                     
-                    application.settings.setLastDirectory(FileUtil.getDirectory(file));
+                    _settings.setLastDirectory(file);
                 } catch(error:Error) {
                     Alert.show(error.getStackTrace(), resourceManager.getString("strings", "error"), Alert.OK, this);
                 }
@@ -518,7 +542,7 @@
                 var filters:Array = ObUtils.createImagesFileFilter();
                 filters[0].extension += "*.obd";
                 filters.splice(1, 0, new FileFilter("Object Builder Data (*.OBD)", "*.obd"));
-                var file:File = application.settings.getLastDirectory() || File.userDirectory;
+                var file:File = _settings.getLastDirectory();
                 file.addEventListener(Event.SELECT, fileSelectHandler);
                 file.browseForOpen(resourceManager.getString("strings", "selectFile"), filters);
                 
@@ -565,7 +589,18 @@
             
             protected function creationCompleteHandler(event:FlexEvent):void
             {
+                _settingsManager = SettingsManager.getInstance();
+                
+                loadSettings();
+                
                 systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
+            }
+            
+            protected function closingHandler(event:Event):void
+            {
+                systemManager.stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
+                
+                saveSettings();
             }
             
             protected function imageContainerMouseMoveHandler(event:MouseEvent):void
