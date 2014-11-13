@@ -76,14 +76,13 @@
             // PROPERTIES
             //--------------------------------------------------------------------------
             
-            public var lastDirectory:File;
             public var host:ISlicerHost;
             
             private var _settingsManager:ISettingsManager;
             private var _settings:SlicerSettings;
             private var _sprites:ArrayCollection = new ArrayCollection();
             private var _surfaceCells:SurfaceCells;
-            private var _rect:Rectangle = new Rectangle();
+            private var _dragBounds:Rectangle = new Rectangle();
             private var _file:File;
             private var _fileChanged:Boolean;
             private var _bitmap:BitmapData;
@@ -168,30 +167,28 @@
                 var sh:uint = (size * _surfaceCells.rows);
                 var dx:int = (_surfaceCells.x + sw) - this.bitmap.width;
                 var dy:int = (_surfaceCells.y + sh) - this.bitmap.height;
-                var up:Boolean;
                 
-                if (dx > 0) {
+                if (dx > 0)
+                {
                     _surfaceCells.x -= dx;
-                    up = true;
-                }
-                
-                if (dy > 0) {
-                    _surfaceCells.y -= dy;
-                    up = true;
-                }
-                
-                if (_surfaceCells.x < 0) {
-                    _surfaceCells.x = 0;
-                    up = true;
-                }
-                
-                if (_surfaceCells.y < 0) {
-                    _surfaceCells.y = 0;
-                    up = true;
-                }		
-                
-                if (up) {
                     offsetXStepper.value = _surfaceCells.x;
+                }
+                
+                if (dy > 0)
+                {
+                    _surfaceCells.y -= dy;
+                    offsetYStepper.value = _surfaceCells.y;
+                }
+                
+                if (_surfaceCells.x < 0)
+                {
+                    _surfaceCells.x = 0;
+                    offsetXStepper.value = _surfaceCells.x;
+                }
+                
+                if (_surfaceCells.y < 0)
+                {
+                    _surfaceCells.y = 0;
                     offsetYStepper.value = _surfaceCells.y;
                 }
                 
@@ -324,13 +321,10 @@
                     this.maximize();
                 else
                     WindowUtil.centralizeWindowOnScreen(this);
-                
-                this.lastDirectory = _settings.getLastDirectory();
             }
             
             private function saveSettings():void
             {
-                _settings.setLastDirectory(this.lastDirectory);
                 _settings.maximized = (nativeWindow.displayState == NativeWindowDisplayState.MAXIMIZED);
                 _settingsManager.saveSettings(_settings);
             }
@@ -342,9 +336,14 @@
                 try
                 {
                     ImageCodec.decodeFromFile(file, imageReadCallback);
-                    lastDirectory = FileUtil.getDirectory(file);
-                } catch(error:Error) {
-                    Alert.show(error.getStackTrace(), resourceManager.getString("strings", "error"), Alert.OK, this);
+                    _settings.setLastDirectory(file);
+                }
+                catch(error:Error)
+                {
+                    Alert.show(error.getStackTrace(),
+                               resourceManager.getString("strings", "error"),
+                               Alert.OK,
+                               this);
                 }
                 
                 function imageReadCallback(bitmap:BitmapData):void
@@ -373,7 +372,7 @@
                 flipVerticalButton.enabled = (bitmap != null);
                 _lastValues.setEmpty();
                 
-                _rect.setEmpty();
+                _dragBounds.setEmpty();
                 
                 if (reset)
                 {
@@ -383,15 +382,15 @@
                 
                 if (bitmap)
                 {
-                    _rect.width = bitmap.width - (_surfaceCells.cellWidth * _surfaceCells.columns);
-                    _rect.height = bitmap.height - (_surfaceCells.cellHeight * _surfaceCells.rows);
+                    _dragBounds.width = bitmap.width - (_surfaceCells.cellWidth * _surfaceCells.columns);
+                    _dragBounds.height = bitmap.height - (_surfaceCells.cellHeight * _surfaceCells.rows);
                 }
             }
             
             private function onOpenFile():void
             {
                 var filters:Array = ObUtils.createImagesFileFilter();
-                var file:File = lastDirectory ? new File(lastDirectory.nativePath) : File.userDirectory;
+                var file:File = _settings.getLastDirectory();
                 file.addEventListener(Event.SELECT, fileSelectHandler);
                 file.browseForOpen(resourceManager.getString("strings", "selectImage"), filters);
                 
@@ -444,7 +443,10 @@
                 
                 imageConteinerGroup.setFocus();
                 
-                if (event.target != _surfaceCells && event.localX <= this.bitmap.width && event.localY <= this.bitmap.height) {
+                if (event.target != _surfaceCells &&
+                    event.localX <= this.bitmap.width &&
+                    event.localY <= this.bitmap.height)
+                {
                     var px:Number = Math.round(event.localX - _surfaceCells.width * 0.5);
                     var py:Number = Math.round(event.localY - _surfaceCells.height * 0.5);
                     
@@ -494,7 +496,7 @@
                 
                 cursorManager.setCursor(NailAssets.MOVE_CURSOR, 2, -8, -8);
                 
-                _surfaceCells.startDrag(false, _rect);
+                _surfaceCells.startDrag(false, _dragBounds);
                 
                 systemManager.stage.addEventListener(MouseEvent.MOUSE_UP, surfaceCellsMouseUpHandler);
             }
@@ -574,7 +576,7 @@
                             break;
                         
                         case Keyboard.RIGHT:
-                            _surfaceCells.x = Math.min(_rect.width, _surfaceCells.x + 1);
+                            _surfaceCells.x = Math.min(_dragBounds.width, _surfaceCells.x + 1);
                             break;
                         
                         case Keyboard.UP:
@@ -582,7 +584,7 @@
                             break;
                         
                         case Keyboard.DOWN:
-                            _surfaceCells.y = Math.min(_rect.height, _surfaceCells.y + 1);
+                            _surfaceCells.y = Math.min(_dragBounds.height, _surfaceCells.y + 1);
                             break;
                     }
                     
@@ -704,17 +706,21 @@
                                   verticalAlign="bottom"/>
             </s:layout>
             
+            <!-- cells controls -->
             <nail:GroupBox label="@Resource(key='cells', bundle='strings')"
                            width="100%">
+                
                 <nail:layout>
                     <s:VerticalLayout paddingLeft="5"
                                       paddingRight="5"
                                       paddingTop="10"
                                       paddingBottom="10"/>
                 </nail:layout>
+                
                 <s:TileGroup width="100%"
                              requestedColumnCount="2"
                              verticalAlign="middle">
+                    
                     <s:Label text="X:"
                              textAlign="right"/>
                     <s:NumericStepper id="offsetXStepper"
@@ -722,6 +728,7 @@
                                       minimum="0"
                                       maximum="608"
                                       change="offsetStepperChangeHandler(event)"/>
+                    
                     <s:Label text="Y:"
                              textAlign="right"/>
                     <s:NumericStepper id="offsetYStepper"
@@ -729,6 +736,7 @@
                                       minimum="0"
                                       maximum="608"
                                       change="offsetStepperChangeHandler(event)"/>
+                    
                     <s:Label text="{resourceManager.getString('strings', 'columns') + ':'}"
                              textAlign="right"/>
                     <s:NumericStepper id="columnsStepper"
@@ -736,6 +744,7 @@
                                       minimum="1"
                                       maximum="20"
                                       change="update()"/>
+                    
                     <s:Label text="{resourceManager.getString('strings', 'rows') + ':'}"
                              textAlign="right"/>
                     <s:NumericStepper id="rowsStepper"
@@ -746,14 +755,17 @@
                 </s:TileGroup>
             </nail:GroupBox>
             
+            <!-- zoom control -->
             <nail:GroupBox label="@Resource(key='zoom', bundle='strings')"
                            width="100%">
+                
                 <nail:layout>
                     <s:VerticalLayout paddingLeft="5"
                                       paddingRight="5"
                                       paddingTop="10"
                                       paddingBottom="10"/>
                 </nail:layout>
+                
                 <s:HSlider id="zoomSlider"
                            width="100%"
                            minimum="1.0"
