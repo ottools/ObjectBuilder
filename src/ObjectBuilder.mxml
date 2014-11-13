@@ -2539,13 +2539,13 @@
                           toolTip="@Resource(key='copy', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{Assets.COPY}"
+                          icon="{Assets.MINI_COPY}"
                           click="onCopySprite()"/>
                 <s:Button id="pasteSpriteButton"
                           toolTip="@Resource(key='paste', bundle='strings')"
                           width="19"
                           height="19"
-                          icon="{Assets.PASTE}"
+                          icon="{Assets.MINI_PASTE}"
                           click="onPasteSprite()"/>
                 <s:Button id="newSpriteButton"
                           toolTip="@Resource(key='new', bundle='strings')"

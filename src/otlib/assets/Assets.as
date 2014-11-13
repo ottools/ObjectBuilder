@@ -80,11 +80,14 @@ package otlib.assets
         [Embed(source="../../../assets/new_files.png", mimeType="image/png")]
         public static const NEW_FILE:Class;
         
-        [Embed(source="../../../assets/copy.png", mimeType="image/png")]
-        public static const COPY:Class;
-        
-        [Embed(source="../../../assets/paste.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/paste.png", mimeType="image/png")]
         public static const PASTE:Class;
+        
+        [Embed(source="../../../assets/icons/mini_copy.png", mimeType="image/png")]
+        public static const MINI_COPY:Class;
+        
+        [Embed(source="../../../assets/icons/mini_paste.png", mimeType="image/png")]
+        public static const MINI_PASTE:Class;
         
         [Embed(source="../../../assets/binoculars.png", mimeType="image/png")]
         public static const BINOCULARS:Class;

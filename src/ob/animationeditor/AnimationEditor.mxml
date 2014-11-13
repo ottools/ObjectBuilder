@@ -41,22 +41,6 @@
           creationComplete="creationCompleteHandler(event)"
           closing="closingHandler(event)">
     
-    <fx:Declarations>
-        <fx:XMLList id="menuXML">
-            <menuitem label="{resourceManager.getString('strings', 'menu.file')}">
-                <menuitem label="{resourceManager.getString('strings', 'menu.open')}" data="fileOpen" keyEquivalent='O' icon="nail.assets.Icons_OPEN"/>
-                <menuitem label="{resourceManager.getString('strings', 'export')}" data="fileExport" keyEquivalent='E' icon="nail.assets.Icons_EXPORT"/>
-            </menuitem>
-            <menuitem label="{resourceManager.getString('strings', 'menu.edit')}">
-                <menuitem label="{resourceManager.getString('strings', 'paste')}" data="editPaste" keyEquivalent='V' icon="nail.assets.Icons_PASTE"/>
-            </menuitem>
-        </fx:XMLList>
-    </fx:Declarations>
-    
-    <s:layout>
-        <s:VerticalLayout/>
-    </s:layout>
-    
     <fx:Metadata>
         [ResourceBundle("strings")]
     </fx:Metadata>
@@ -69,7 +53,6 @@
             
             import mx.events.DragEvent;
             import mx.events.FlexEvent;
-            import mx.events.MenuEvent;
             import mx.events.MoveEvent;
             import mx.managers.DragManager;
             
@@ -260,6 +243,7 @@
             {
                 if (framesList.isEmpty) {
                     thingView.thingData = null;
+                    saveButton.enabled = false;
                     return;
                 }
                 
@@ -326,6 +310,7 @@
                 }
                 
                 this.thingView.thingData = ThingData.createThingData(thing, sprites);
+                this.saveButton.enabled = true;
             }
             
             protected function getCurrentCategory():String
@@ -361,7 +346,7 @@
                 framesList.removeAll();
             }
             
-            protected function onExportThingData():void
+            protected function onSaveThingData():void
             {
                 if (!thingView.thingData)
                     return;
@@ -372,6 +357,7 @@
                 window.directory = _settings.getLastDirectory();
                 window.format = _settings.getLastExportFormat();
                 window.version = _settings.getLastExportVersion();
+                window.title = resourceManager.getString("strings", "menu.save");
                 window.addEventListener(Event.CLOSE, windowCloseHandler);
                 window.open();
                 
@@ -719,28 +705,6 @@
                 }
             }
             
-            protected function menuItemClickHandler(event:MenuEvent):void
-            {
-                var data:String = String(event.item.@data);
-                switch(data) {
-                    case "fileOpen":
-                        this.onOpenFile();
-                        break;
-                    case "fileExport":
-                        this.onExportThingData();
-                        break;
-                    case "editPaste":
-                        this.onPaste();
-                        break;
-                }
-            }
-            
-            protected function menuBarShowHandler(event:MenuEvent):void
-            {
-                menuXML[0].menuitem[1].@enabled = (thingView.thingData != null);
-                menuXML[1].menuitem[0].@enabled = ClipboardBitmapLoader.hasBitmapFormat;
-            }
-            
             protected function animationsListDuplicateHandler(event:FrameListEvent):void
             {
                 duplicateSelectedFrames();
@@ -859,7 +823,7 @@
                             break;
                         
                         case Keyboard.E:
-                            this.onExportThingData();
+                            this.onSaveThingData();
                             break;
                         
                         case Keyboard.V:
@@ -880,14 +844,20 @@
         ]]>
     </fx:Script>
     
-    <!-- menu bar -->
+    <s:layout>
+        <s:VerticalLayout/>
+    </s:layout>
+    
+    <!-- tool bar -->
     <s:Group width="100%"
-             height="31">
-        <!-- fill -->
+             height="35"
+             top="0">
+        
+        <!-- highlight -->
         <s:Rect left="-1" right="-1" top="1" bottom="0">
-            <s:fill>
-                <s:SolidColor color="0x494949"/>
-            </s:fill>
+            <s:stroke>
+                <s:SolidColorStroke color="0x636363"/>
+            </s:stroke>
         </s:Rect>
         
         <!-- border -->
@@ -897,17 +867,39 @@
             </s:stroke>
         </s:Rect>
         
-        <mx:MenuBar id="menuBar"
-                    width="100%"
-                    top="4"
-                    fontSize="11"
-                    labelField="@label"
-                    iconField="@icon"
-                    showRoot="true"
-                    dataProvider="{menuXML}"
-                    itemSkin="nail.components.skins.MenuBarItemSkin"
-                    itemClick="menuItemClickHandler(event)"
-                    menuShow="menuBarShowHandler(event)"/>
+        <s:HGroup width="100%"
+                  height="100%"
+                  verticalAlign="middle"
+                  paddingLeft="10"
+                  paddingRight="10">
+            
+            <s:Button id="openButton"
+                      toolTip="@Resource(key='menu.open', bundle='strings')"
+                      width="25"
+                      height="25"
+                      icon="{Assets.OPEN}"
+                      skinClass="nail.components.skins.IconButtonSkin"
+                      click="onOpenFile()"/>
+            
+            <s:Button id="saveButton"
+                      toolTip="@Resource(key='menu.save', bundle='strings')"
+                      width="25"
+                      height="25"
+                      icon="{Assets.SAVE}"
+                      enabled="false"
+                      skinClass="nail.components.skins.IconButtonSkin"
+                      click="onSaveThingData()"/>
+            
+            <nail:ShadowLine height="20"/>
+            
+            <s:Button id="pasteButton"
+                      toolTip="@Resource(key='paste', bundle='strings')"
+                      width="25"
+                      height="25"
+                      icon="{Assets.PASTE}"
+                      skinClass="nail.components.skins.IconButtonSkin"
+                      click="onPaste()"/>
+        </s:HGroup>
     </s:Group>
     
     <mx:HDividedBox width="100%"
