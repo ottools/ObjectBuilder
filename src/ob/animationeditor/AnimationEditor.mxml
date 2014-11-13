@@ -979,12 +979,16 @@
             <s:BorderContainer width="100%"
                                height="100%"
                                skinClass="nail.components.skins.BorderContainerSkin">
-                <s:layout>
-                    <s:VerticalLayout paddingLeft="1"
-                                      paddingRight="0"
-                                      paddingTop="1"
-                                      paddingBottom="0"/>
-                </s:layout>
+                
+                <!-- background fill -->
+                <otlib:CheckerBoard left="0"
+                                    right="0"
+                                    top="0"
+                                    bottom="0"
+                                    cellColors="{[0x636363, 0x535353]}"
+                                    mouseChildren="false"
+                                    mouseEnabled="false"/>
+                
                 <s:Scroller width="100%"
                             height="100%"
                             verticalScrollPolicy="on"
