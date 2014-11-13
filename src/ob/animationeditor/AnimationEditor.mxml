@@ -90,7 +90,6 @@
             
             import ob.animationeditor.events.FrameListEvent;
             import ob.animationeditor.settings.AnimationEditorSettings;
-            import ob.core.IObjectBuilder;
             import ob.utils.ObUtils;
             
             import otlib.assets.Assets;
@@ -111,8 +110,6 @@
             //--------------------------------------------------------------------------
             // PROPERTIES
             //--------------------------------------------------------------------------
-            
-            public var application:IObjectBuilder;
             
             private var _settingsManager:ISettingsManager;
             private var _settings:AnimationEditorSettings;
@@ -372,9 +369,9 @@
                 var window:ExportWindow = new ExportWindow();
                 window.enableObdFormat = true;
                 window.fileName = getCurrentCategory() + "_" + StringUtil.randomKeyString();
-                window.directory = application.settings.getIODirectory();
-                window.format = application.settings.getLastExportThingFormat();
-                window.version = application.settings.getLastExportThingVersion();
+                window.directory = _settings.getLastDirectory();
+                window.format = _settings.getLastExportFormat();
+                window.version = _settings.getLastExportVersion();
                 window.addEventListener(Event.CLOSE, windowCloseHandler);
                 window.open();
                 
@@ -403,8 +400,9 @@
                     helper.addFile(bytes, window.fileName, format, file);
                     helper.save();
                     
-                    application.settings.setIODirectory(window.directory);
-                    application.settings.setLastExportThingVersion(window.version);
+                    _settings.setLastDirectory(window.directory);
+                    _settings.setLastExportFormat(format);
+                    _settings.setLastExportVersion(window.version);
                 }
             }
             

@@ -602,7 +602,6 @@
             {
                 if (!_animationWindow) {
                     _animationWindow = new AnimationEditor();
-                    _animationWindow.application = this;
                     _animationWindow.addEventListener(Event.CLOSING, animationEditorCloseHandler);
                     _animationWindow.open();
                 } else {

@@ -24,9 +24,14 @@ package ob.animationeditor.settings
 {
     import flash.filesystem.File;
     
+    import nail.image.ImageFormat;
     import nail.settings.Settings;
     import nail.utils.FileUtil;
     import nail.utils.isNullOrEmpty;
+    
+    import otlib.core.Version;
+    import otlib.core.VersionStorage;
+    import otlib.utils.OTFormat;
     
     public class AnimationEditorSettings extends Settings
     {
@@ -36,6 +41,9 @@ package ob.animationeditor.settings
         
         public var maximized:Boolean;
         public var lastDirectoryPath:String;
+        public var exportFormat:String;
+        public var datSignature:int;
+        public var sprSignature:int;
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
@@ -79,6 +87,34 @@ package ob.animationeditor.settings
                 lastDirectoryPath = FileUtil.getDirectory(directory).nativePath;
             else
                 lastDirectoryPath = "";
+        }
+        
+        public function getLastExportFormat():String
+        {
+            if (!isNullOrEmpty(exportFormat))
+            {
+                if (ImageFormat.hasImageFormat(exportFormat) || exportFormat == OTFormat.OBD)
+                    return exportFormat;
+            }
+            
+            return null;
+        }
+        
+        public function setLastExportFormat(format:String):void
+        {
+            format = format != null ? format.toLowerCase() : "";
+            this.exportFormat = format;
+        }
+        
+        public function getLastExportVersion():Version
+        {
+            return VersionStorage.instance.getBySignatures(datSignature, sprSignature);
+        }
+        
+        public function setLastExportVersion(version:Version):void
+        {
+            this.datSignature = version ? version.datSignature : 0;
+            this.sprSignature = version ? version.sprSignature : 0;
         }
     }
 }
