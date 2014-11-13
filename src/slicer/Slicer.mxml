@@ -92,7 +92,6 @@
             private var _zoom:Number;
             private var _zoomChanged:Boolean;
             private var _lastValues:Rectangle = new Rectangle();
-            private var _transparency:Boolean;
             
             //--------------------------------------
             // Getters / Setters 
@@ -141,9 +140,6 @@
                 }
                 return null;
             }
-            
-            public function get transparency():Boolean { return _transparency; }
-            public function set transparency(value:Boolean):void { _transparency = value; }
             
             //--------------------------------------------------------------------------
             // METHODS
@@ -223,23 +219,19 @@
                 
                 _lastValues.setTo(x, y, columns, rows);
                 
-                for (var c:uint = 0; c < columns; c++) {
-                    for (var r:uint = 0; r < rows; r++) {
+                for (var c:uint = 0; c < columns; c++)
+                {
+                    for (var r:uint = 0; r < rows; r++)
+                    {
                         rect.x = x + (c * width);
                         rect.y = y + (r * height);
                         
-                        var sprite:BitmapData;
-                        if (_transparency)
-                            sprite = new BitmapData(width, height, true, 0xFFFF00FF);
-                        else
-                            sprite = new BitmapData(width, height, false, 0xFF00FF);
+                        var spritePart:BitmapData = new BitmapData(width, height, true, 0);
+                        spritePart.copyPixels(this.bitmap, rect, point);
+                        spritePart = SpriteUtils.removeMagenta(spritePart);
                         
-                        sprite.copyPixels(this.bitmap, rect, point);
-                        sprite = SpriteUtils.removeMagenta(sprite);
-                        
-                        if (!SpriteUtils.isEmpty(sprite)) {
-                            _sprites.addItem(sprite);
-                        }
+                        if (!SpriteUtils.isEmpty(spritePart))
+                            _sprites.addItem(spritePart);
                     }
                 }
             }

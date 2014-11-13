@@ -577,7 +577,6 @@
                     _slicer = new Slicer();
                     _slicer.host = this;
                     _slicer.file = file;
-                    _slicer.transparency = _info ? _info.transparency : false;
                     _slicer.addEventListener(Event.CLOSE, slicerCloseHandler);
                     _slicer.open();
                 }
