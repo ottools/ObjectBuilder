@@ -300,7 +300,11 @@
                     _bitmapChanged = false;
                 }
                 
-                if (_zoomChanged) {
+                if (_zoomChanged)
+                {
+                    if (zoomSlider.value != _zoom)
+                        zoomSlider.value = _zoom;
+                    
                     imageConteinerGroup.scaleX = _zoom;
                     imageConteinerGroup.scaleY = _zoom;
                     _zoomChanged = false;
@@ -369,10 +373,18 @@
                 flipVerticalButton.enabled = (bitmap != null);
                 _lastValues.setEmpty();
                 
+                _rect.setEmpty();
+                
                 if (reset)
                 {
                     resetControls();
                     update();
+                }
+                
+                if (bitmap)
+                {
+                    _rect.width = bitmap.width - (_surfaceCells.cellWidth * _surfaceCells.columns);
+                    _rect.height = bitmap.height - (_surfaceCells.cellHeight * _surfaceCells.rows);
                 }
             }
             
@@ -402,10 +414,14 @@
                 _sprites.addEventListener(CollectionEvent.COLLECTION_CHANGE, spritesCollectionChange);
                 
                 loadSettings();
+                
+                systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
             }
             
             protected function slicerClosingHandler(event:Event):void
             {
+                systemManager.stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
+                
                 saveSettings();
             }
             
@@ -425,6 +441,8 @@
             protected function imageContainerMouseDownHandler(event:MouseEvent):void
             {
                 if (!this.hasImage) return;
+                
+                imageConteinerGroup.setFocus();
                 
                 if (event.target != _surfaceCells && event.localX <= this.bitmap.width && event.localY <= this.bitmap.height) {
                     var px:Number = Math.round(event.localX - _surfaceCells.width * 0.5);
@@ -474,12 +492,9 @@
             {
                 _mouseDown = true;
                 
-                _rect.width  = imageControl.width - _surfaceCells.width;
-                _rect.height = imageControl.height - _surfaceCells.height;
-                
                 cursorManager.setCursor(NailAssets.MOVE_CURSOR, 2, -8, -8);
                 
-                _surfaceCells.startDrag(false,_rect);
+                _surfaceCells.startDrag(false, _rect);
                 
                 systemManager.stage.addEventListener(MouseEvent.MOUSE_UP, surfaceCellsMouseUpHandler);
             }
@@ -543,6 +558,54 @@
                     this.bitmap = BitmapUtil.flip(_bitmap, true, false);
                 else if (event.target === flipVerticalButton)
                     this.bitmap = BitmapUtil.flip(_bitmap, false, true);
+            }
+            
+            override protected function keyDownHandler(event:KeyboardEvent):void
+            {
+                if (!event.ctrlKey &&
+                    !event.shiftKey &&
+                    !event.altKey &&
+                    focusManager.getFocus() != zoomSlider)
+                {
+                    switch (event.keyCode)
+                    {
+                        case Keyboard.LEFT:
+                            _surfaceCells.x = Math.max(0, _surfaceCells.x - 1);
+                            break;
+                        
+                        case Keyboard.RIGHT:
+                            _surfaceCells.x = Math.min(_rect.width, _surfaceCells.x + 1);
+                            break;
+                        
+                        case Keyboard.UP:
+                            _surfaceCells.y = Math.max(0, _surfaceCells.y - 1);
+                            break;
+                        
+                        case Keyboard.DOWN:
+                            _surfaceCells.y = Math.min(_rect.height, _surfaceCells.y + 1);
+                            break;
+                    }
+                    
+                    offsetXStepper.value = _surfaceCells.x;
+                    offsetYStepper.value = _surfaceCells.y;
+                }
+                else if (event.ctrlKey && !event.shiftKey && !event.altKey)
+                {
+                    switch (event.keyCode)
+                    {
+                        case Keyboard.O:
+                            onOpenFile();
+                            break;
+                        
+                        case Keyboard.MINUS:
+                            zoom = Math.max(zoomSlider.minimum, zoomSlider.value - zoomSlider.stepSize);
+                            break;
+                        
+                        case Keyboard.EQUAL:
+                            zoom = Math.min(zoomSlider.maximum, zoomSlider.value + zoomSlider.stepSize);
+                            break;
+                    }
+                }
             }
             
         ]]>
