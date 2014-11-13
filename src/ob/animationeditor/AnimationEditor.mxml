@@ -60,12 +60,14 @@
             
             import nail.assets.NailAssets;
             import nail.components.controls.Alert;
+            import nail.components.skins.IconButtonSkin;
             import nail.image.ClipboardBitmapLoader;
             import nail.image.ImageCodec;
             import nail.image.ImageFormat;
             import nail.managers.PopUpWindowManager;
             import nail.settings.ISettingsManager;
             import nail.settings.SettingsManager;
+            import nail.utils.BitmapUtil;
             import nail.utils.FileUtil;
             import nail.utils.SaveHelper;
             import nail.utils.StringUtil;
@@ -520,6 +522,10 @@
             {
                 _bitmap = bitmap;
                 imageControl.source = bitmap;
+                rotateLeft90Button.enabled = (bitmap != null);
+                rotateRight90Button.enabled = (bitmap != null);
+                flipHorizontalButton.enabled = (bitmap != null);
+                flipVerticalButton.enabled = (bitmap != null);
                 
                 _dragBounds.setEmpty();
                 
@@ -785,6 +791,20 @@
                 createThingData();
             }
             
+            protected function rotateOrFlipClickHandler(event:MouseEvent):void
+            {
+                if (!this.hasImage) return;
+                
+                if (event.target === rotateRight90Button)
+                    this.bitmap = BitmapUtil.rotate(_bitmap, 90);
+                else if (event.target === rotateLeft90Button)
+                    this.bitmap = BitmapUtil.rotate(_bitmap, 270);
+                else if (event.target === flipHorizontalButton)
+                    this.bitmap = BitmapUtil.flip(_bitmap, true, false);
+                else if (event.target === flipVerticalButton)
+                    this.bitmap = BitmapUtil.flip(_bitmap, false, true);
+            }
+            
             override protected function keyDownHandler(event:KeyboardEvent):void
             {
                 if (!event.ctrlKey &&
@@ -899,6 +919,44 @@
                       icon="{Assets.PASTE}"
                       skinClass="nail.components.skins.IconButtonSkin"
                       click="onPaste()"/>
+            
+            <nail:ShadowLine height="20"/>
+            
+            <s:Button id="rotateRight90Button"
+                      toolTip="@Resource(key='rotateRight90', bundle='strings')"
+                      width="25"
+                      height="25"
+                      icon="{Assets.ROTATE_RIGHT_90}"
+                      enabled="false"
+                      skinClass="nail.components.skins.IconButtonSkin"
+                      click="rotateOrFlipClickHandler(event)"/>
+            
+            <s:Button id="rotateLeft90Button"
+                      label="@Resource(key='rotateLeft90', bundle='strings')"
+                      width="25"
+                      height="25"
+                      icon="{Assets.ROTATE_LEFT_90}"
+                      enabled="false"
+                      skinClass="nail.components.skins.IconButtonSkin"
+                      click="rotateOrFlipClickHandler(event)"/>
+            
+            <s:Button id="flipVerticalButton"
+                      toolTip="@Resource(key='flipVertical', bundle='strings')"
+                      width="25"
+                      height="25"
+                      icon="{Assets.FLIP_VERTICAL}"
+                      enabled="false"
+                      skinClass="nail.components.skins.IconButtonSkin"
+                      click="rotateOrFlipClickHandler(event)"/>
+            
+            <s:Button id="flipHorizontalButton"
+                      toolTip="@Resource(key='flipHorizontal', bundle='strings')"
+                      width="25"
+                      height="25"
+                      icon="{Assets.FLIP_HORIZONTAL}"
+                      enabled="false"
+                      skinClass="nail.components.skins.IconButtonSkin"
+                      click="rotateOrFlipClickHandler(event)"/>
         </s:HGroup>
     </s:Group>
     
