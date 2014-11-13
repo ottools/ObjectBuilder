@@ -351,8 +351,15 @@
             
             private function setBitmap(bitmap:BitmapData):void
             {
+                var reset:Boolean = true;
+                
                 if (_bitmap)
+                {
+                    if (_bitmap.width == bitmap.width && _bitmap.height == bitmap.height)
+                        reset = false;
+                    
                     _bitmap.dispose();
+                }
                 
                 _bitmap = bitmap;
                 imageControl.source = bitmap;
@@ -362,8 +369,11 @@
                 flipVerticalButton.enabled = (bitmap != null);
                 _lastValues.setEmpty();
                 
-                resetControls();
-                update();
+                if (reset)
+                {
+                    resetControls();
+                    update();
+                }
             }
             
             private function onOpenFile():void
@@ -692,10 +702,6 @@
                            change="zoomChangeHandler(event)"/>
             </nail:GroupBox>
             
-            <s:Spacer height="3"/>
-            <nail:ShadowLine width="100%"/>
-            <s:Spacer height="3"/>
-            
             <s:Button id="cutButton"
                       label="@Resource(key='crop', bundle='strings')"
                       width="100%"
@@ -735,10 +741,6 @@
                     
                     <s:Image id="imageControl"/>
                     
-                    <s:SpriteVisualElement id="surfaceLine"
-                                           width="100%"
-                                           height="100%"
-                                           blendMode="invert"/>	
                 </s:Group>
             </s:Scroller>
         </s:BorderContainer>
@@ -765,10 +767,6 @@
                         borderVisible="false"
                         itemRenderer="otlib.components.renders.BitmapListRenderer"/>
             </nail:GroupBox>
-            
-            <s:Spacer height="3"/>
-            <nail:ShadowLine width="100%"/>
-            <s:Spacer height="3"/>
             
             <s:Button id="importButton"
                       label="@Resource(key='import', bundle='strings')"
