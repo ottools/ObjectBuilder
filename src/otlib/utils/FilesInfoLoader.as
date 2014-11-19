@@ -33,9 +33,9 @@ package otlib.utils
     import flash.utils.Endian;
     
     import nail.errors.NullArgumentError;
+    
     import otlib.core.Version;
     import otlib.core.VersionStorage;
-    
     import otlib.resources.Resources;
     
     [Event(name="complete", type="flash.events.Event")]
@@ -54,8 +54,8 @@ package otlib.utils
         private var _spr:File;
         private var _extended:Boolean;
         private var _filesInfo:FilesInfo;
-        private var _bytesTotal:uint;
-        private var _bytesLoaded:uint;
+        private var _total:uint;
+        private var _loaded:uint;
         
         //--------------------------------------
         // Getters / Setters
@@ -97,27 +97,34 @@ package otlib.utils
             _spr = spr;
             _extended = extended;
             _filesInfo = new FilesInfo();
-            _bytesTotal = _dat.size + _spr.size;
+            _total = 2;
             
-            try
-            {
-                loadDat();
-            } catch(error:Error) {
-                _filesInfo = null;
-                dispatchEvent( createErrorEvent(error.message, error.errorID) );
-            }
+            loadNext();
         }
         
         //--------------------------------------
         // Private
         //--------------------------------------
         
+        private function loadNext():void
+        {
+            _loaded++;
+            
+            dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, false, false, _loaded, _total));
+            
+            if (_loaded == 1)
+                loadDat();
+            else if (_loaded == 2)
+                loadSpr();
+            else
+                dispatchEvent(new Event(Event.COMPLETE));
+        }
+        
         private function loadDat():void
         {
             var stream:FileStream = new FileStream();
             stream.endian = Endian.LITTLE_ENDIAN;
-            stream.addEventListener(Event.COMPLETE, datLoadCompleteHandler);
-            stream.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+            stream.addEventListener(ProgressEvent.PROGRESS, metadataProgressHandler);
             stream.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
             stream.openAsync(_dat, FileMode.READ);
         }
@@ -126,8 +133,7 @@ package otlib.utils
         {
             var stream:FileStream = new FileStream();
             stream.endian = Endian.LITTLE_ENDIAN;
-            stream.addEventListener(Event.COMPLETE, sprLoadCompleteHandler);
-            stream.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+            stream.addEventListener(ProgressEvent.PROGRESS, spritesProgressHandler);
             stream.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
             stream.openAsync(_spr, FileMode.READ);
         }
@@ -136,29 +142,27 @@ package otlib.utils
         // Event Handlers
         //--------------------------------------
         
-        private function datLoadCompleteHandler(event:Event):void
+        private function readMetadaInfo(stream:FileStream):void
         {
-            var stream:FileStream = event.target as FileStream;
             _filesInfo.datSignature = stream.readUnsignedInt();
             _filesInfo.maxItemId = stream.readUnsignedShort();
             _filesInfo.maxOutfitId = stream.readUnsignedShort();
             _filesInfo.maxEffectId = stream.readUnsignedShort();
             _filesInfo.maxMissileId = stream.readUnsignedShort();
-            stream.close();
             
-            loadSpr();
+            loadNext();
         }
         
-        private function sprLoadCompleteHandler(event:Event):void
+        private function readSpritesInfo(stream:FileStream):void
         {
-            var stream:FileStream = event.target as FileStream;
             _filesInfo.sprSignature = stream.readUnsignedInt();
             
             var version:Version = VersionStorage.instance.getBySignatures(
                 _filesInfo.datSignature,
                 _filesInfo.sprSignature);
             
-            if (!version) {
+            if (!version)
+            {
                 _filesInfo.maxItemId = 0;
                 _filesInfo.maxOutfitId = 0;
                 _filesInfo.maxEffectId = 0;
@@ -180,15 +184,29 @@ package otlib.utils
                 _filesInfo.maxSpriteId = stream.readUnsignedShort();
             }
             
-            stream.close();
-            
-            dispatchEvent(new Event(Event.COMPLETE));
+            loadNext();
         }
         
-        private function progressHandler(event:ProgressEvent):void
+        private function metadataProgressHandler(event:ProgressEvent):void
         {
-            _bytesLoaded = (event.bytesLoaded % _bytesTotal);
-            dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, false, false, _bytesLoaded, _bytesTotal));
+            var stream:FileStream = event.target as FileStream;
+            if (stream.bytesAvailable >= 12)
+                readMetadaInfo(stream);
+            
+            stream.removeEventListener(ProgressEvent.PROGRESS, metadataProgressHandler);
+            stream.removeEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
+            stream.close();
+        }
+        
+        private function spritesProgressHandler(event:ProgressEvent):void
+        {
+            var stream:FileStream = event.target as FileStream;
+            if (stream.bytesAvailable >= 8)
+                readSpritesInfo(stream);
+            
+            stream.removeEventListener(ProgressEvent.PROGRESS, spritesProgressHandler);
+            stream.removeEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
+            stream.close();
         }
         
         private function ioErrorHandler(event:IOErrorEvent):void
