@@ -105,7 +105,7 @@ package otlib.things
                 
                 var elapsed:Number = time - _lastTime;
                 if (elapsed >= _currentFrameDuration) {
-                    var frame:uint = this.nextFrameStrategy.nextFrame(_currentFrame, this.frames);
+                    var frame:uint = this.nextFrameStrategy.getNextFrame(_currentFrame, this.frames);
                     if (_currentFrame != frame) {
                         
                         var duration:int = this.frameDurations[frame].duration - (elapsed - _currentFrameDuration);
@@ -146,14 +146,19 @@ package otlib.things
             return clone;
         }
         
-        
-        
         public function getStartFrame():uint
         {
             if (this.startFrame > -1)
                 return this.startFrame;
             
             return Math.floor(Math.random() * this.frames);
+        }
+        
+        public function reset():void
+        {
+            frame = FRAME_AUTOMATIC;
+            nextFrameStrategy.reset();
+            _isComplete = false;
         }
         
         //--------------------------------------

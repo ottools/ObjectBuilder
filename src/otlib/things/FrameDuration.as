@@ -40,8 +40,7 @@ package otlib.things
             if (minimum == maximum)
                 return minimum;
             
-            var value:int = maximum - minimum;
-            return minimum + Math.round(Math.random() * value);
+            return minimum + Math.round(Math.random() * (maximum - minimum));
         }
         
         //--------------------------------------------------------------------------
@@ -50,6 +49,9 @@ package otlib.things
         
         public function FrameDuration(minimum:uint = 0, maximum:uint = 0)
         {
+            if (minimum > maximum)
+                throw new ArgumentError("The minimum value may not be greater than the maximum value.");
+            
             this.minimum = minimum;
             this.maximum = maximum;
         }
@@ -64,7 +66,7 @@ package otlib.things
         
         public function toString():String
         {
-            return "[object FrameDuration minimum=" + minimum + ", maximum=" + maximum + "]";
+            return "[FrameDuration minimum=" + minimum + ", maximum=" + maximum + "]";
         }
         
         public function clone():FrameDuration
@@ -78,16 +80,18 @@ package otlib.things
         
         public static function getDefaultDuration(category:String):uint
         {
-            switch(category) {
+            switch(category)
+            {
                 case ThingCategory.ITEM:
                     return 500;
+                    
                 case ThingCategory.OUTFIT:
                     return 300;
+                    
                 case ThingCategory.EFFECT:
                     return 100;
-                case ThingCategory.MISSILE:
-                    return 0;
             }
+            
             return 0;
         }
     }

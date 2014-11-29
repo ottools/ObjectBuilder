@@ -23,14 +23,8 @@
 package otlib.utils
 {
     import nail.errors.AbstractClassError;
-    import otlib.things.ThingCategory;
-    import otlib.things.ThingType;
     
-    import otlib.resources.Resources;
-    import otlib.things.AnimationMode;
-    import otlib.things.Animator;
-    import otlib.things.FrameDuration;
-    import otlib.things.FrameStrategyType;
+    import otlib.things.ThingType;
     
     public final class ThingUtils
     {
@@ -47,56 +41,9 @@ package otlib.utils
         // STATIC
         //--------------------------------------------------------------------------
         
-        public static function createThing(category:String,
-                                           id:uint = 0,
-                                           createFrameDuration:Boolean = false):ThingType
-        {
-            if (!ThingCategory.getCategory(category))
-                throw new Error(Resources.getString("invalidCategory"));
-            
-            var thing:ThingType = new ThingType();
-            thing.category = category;
-            thing.id = id;
-            thing.width = 1;
-            thing.height = 1;
-            thing.layers = 1;
-            thing.frames = 1;
-            thing.patternX = 1;
-            thing.patternY = 1;
-            thing.patternZ = 1;
-            thing.exactSize = 32;
-            
-            switch(category) {
-                case ThingCategory.OUTFIT:
-                    
-                    thing.patternX = 4;
-                    thing.frames = 3;
-                    thing.isAnimation = true;
-                    
-                    var frameDurations:Vector.<FrameDuration> = new Vector.<FrameDuration>(thing.frames, true);
-                    frameDurations[0] = new FrameDuration(300, 300);
-                    frameDurations[1] = new FrameDuration(300, 300);
-                    frameDurations[2] = new FrameDuration(300, 300);
-                    
-                    thing.animator = Animator.create(thing.frames,
-                                                     0,
-                                                     FrameStrategyType.PING_PONG,
-                                                     AnimationMode.SYNCHRONOUS,
-                                                     frameDurations);
-                    break;
-                case ThingCategory.MISSILE:
-                    thing.patternX = 3;
-                    thing.patternY = 3;
-                    break;
-            }
-            
-            thing.spriteIndex = createSpriteIndexList(thing);
-            return thing;
-        }
-        
         public static function createAlertThing(category:String):ThingType
         {
-            var thing:ThingType = createThing(category);
+            var thing:ThingType = ThingType.create(0, category);
             if (thing) {
                 var spriteIndex:Vector.<uint> = thing.spriteIndex;
                 var length:uint = spriteIndex.length;
@@ -111,19 +58,6 @@ package otlib.utils
         {
             if (thing && thing.width != 0 && thing.height != 0) return true;
             return false;
-        }
-        
-        public static function createSpriteIndexList(thing:ThingType):Vector.<uint>
-        {
-            if (thing)
-                return new Vector.<uint>(thing.width *
-                                         thing.height *
-                                         thing.patternX *
-                                         thing.patternY *
-                                         thing.patternZ *
-                                         thing.layers *
-                                         thing.frames);
-            return null;
         }
     }
 }

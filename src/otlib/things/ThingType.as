@@ -24,6 +24,8 @@ package otlib.things
 {
     import flash.utils.describeType;
     
+    import otlib.resources.Resources;
+    
     public class ThingType
     {
         //--------------------------------------------------------------------------
@@ -118,7 +120,7 @@ package otlib.things
         
         public function toString():String
         {
-            return "[object ThingType category=" + this.category + ", id=" + this.id + "]";
+            return "[ThingType category=" + this.category + ", id=" + this.id + "]";
         }
         
         public function getTotalSprites():uint
@@ -162,6 +164,12 @@ package otlib.things
                     this.layers + layer;
         }
         
+        public function resetAnimation():void
+        {
+            if (animator)
+                animator.reset();
+        }
+        
         public function clone():ThingType
         {
             var newThing:ThingType = new ThingType();
@@ -178,6 +186,55 @@ package otlib.things
                 newThing.animator = this.animator.clone();
             
             return newThing;
+        }
+        
+        //--------------------------------------------------------------------------
+        // STATIC
+        //--------------------------------------------------------------------------
+        
+        public static function create(id:uint, category:String):ThingType
+        {
+            if (!ThingCategory.getCategory(category))
+                throw new Error(Resources.getString("invalidCategory"));
+            
+            var thing:ThingType = new ThingType();
+            thing.category = category;
+            thing.id = id;
+            thing.width = 1;
+            thing.height = 1;
+            thing.layers = 1;
+            thing.frames = 1;
+            thing.patternX = 1;
+            thing.patternY = 1;
+            thing.patternZ = 1;
+            thing.exactSize = 32;
+            
+            if (category == ThingCategory.OUTFIT)
+            {
+                thing.patternX = 4; // Directions
+                thing.frames = 3;   // Animations
+                thing.isAnimation = true;
+                
+                var duration:uint = FrameDuration.getDefaultDuration(category);
+                var frameDurations:Vector.<FrameDuration> = new Vector.<FrameDuration>(thing.frames, true);
+                
+                for (var i:uint = 0; i < thing.frames; i++)
+                    frameDurations[i] = new FrameDuration(duration, duration);
+                
+                thing.animator = Animator.create(thing.frames,
+                                                 0,
+                                                 FrameStrategyType.LOOP,
+                                                 AnimationMode.SYNCHRONOUS,
+                                                 frameDurations);
+            }
+            else if (category == ThingCategory.MISSILE)
+            {
+                thing.patternX = 3;
+                thing.patternY = 3;
+            }
+            
+            thing.spriteIndex = new Vector.<uint>(thing.getTotalSprites(), true);
+            return thing;
         }
     }
 }

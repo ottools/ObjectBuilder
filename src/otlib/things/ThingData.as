@@ -47,7 +47,6 @@ package otlib.things
     import otlib.utils.OTFormat;
     import otlib.utils.OutfitData;
     import otlib.utils.SpriteUtils;
-    import otlib.utils.ThingUtils;
     
     public class ThingData
     {
@@ -465,7 +464,7 @@ package otlib.things
             var thing:ThingType = outfit.thing.clone();
             thing.patternY = 1;
             thing.layers = 1;
-            thing.spriteIndex = ThingUtils.createSpriteIndexList(thing);
+            thing.spriteIndex = new Vector.<uint>(thing.getTotalSprites(), true);
             return setSpriteSheet(spriteSheet, thing);
         }
         

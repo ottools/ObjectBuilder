@@ -168,10 +168,10 @@ package otlib.things
             _outfitsCount = MIN_OUTFIT_ID;
             _effectsCount = MIN_EFFECT_ID;
             _missilesCount = MIN_MISSILE_ID;
-            _items[_itemsCount] = ThingUtils.createThing(ThingCategory.ITEM, _itemsCount);
-            _outfits[_outfitsCount] = ThingUtils.createThing(ThingCategory.OUTFIT, _outfitsCount);
-            _effects[_effectsCount] = ThingUtils.createThing(ThingCategory.EFFECT, _effectsCount);
-            _missiles[_missilesCount] = ThingUtils.createThing(ThingCategory.MISSILE, _missilesCount);
+            _items[_itemsCount] = ThingType.create(_itemsCount, ThingCategory.ITEM);
+            _outfits[_outfitsCount] = ThingType.create(_outfitsCount, ThingCategory.OUTFIT);
+            _effects[_effectsCount] = ThingType.create(_effectsCount, ThingCategory.EFFECT);
+            _missiles[_missilesCount] = ThingType.create(_missilesCount, ThingCategory.MISSILE);
             _changed = false;
             _loaded = true;
             
@@ -734,47 +734,63 @@ package otlib.things
             
             var removedThing:ThingType;
             
-            switch(category) {
-                case ThingCategory.ITEM:
-                    removedThing = _items[id];
-                    if (id == _itemsCount && id != MIN_ITEM_ID) {
-                        _itemsCount = Math.max(0, _itemsCount - 1);
-                        delete _items[id];
-                    } else {
-                        _items[id] = ThingUtils.createThing(category, id);;
-                    }
-                    break;
+            if (category == ThingCategory.ITEM)
+            {
+                removedThing = _items[id];
                 
-                case ThingCategory.OUTFIT:
-                    removedThing = _outfits[id];
-                    if (id == _outfitsCount && id != MIN_OUTFIT_ID) {
-                        _outfitsCount = Math.max(0, _outfitsCount - 1);
-                        delete _outfits[id];
-                    } else {
-                        _outfits[id] = ThingUtils.createThing(category, id);;
-                    }
-                    break;
-                case ThingCategory.EFFECT:
-                    removedThing = _effects[id];
-                    if (id == _effectsCount && id != MIN_EFFECT_ID) {
-                        _effectsCount = Math.max(0, _effectsCount - 1);
-                        delete _effects[id];
-                    } else {
-                        _effects[id] = ThingUtils.createThing(category, id);;
-                    }
-                    break;
-                case ThingCategory.MISSILE:
-                    removedThing = _missiles[id];
-                    if (id == _missilesCount && id != MIN_MISSILE_ID) {
-                        _missilesCount = Math.max(0, _missilesCount - 1);
-                        delete _missiles[id];
-                    } else {
-                        _missiles[id] = ThingUtils.createThing(category, id);;
-                    }
-                    break;
-                default:
-                    return result.update(null, false, Resources.getString("invalidCategory"));
+                if (id == _itemsCount && id != MIN_ITEM_ID)
+                {
+                    delete _items[id];
+                    _itemsCount = Math.max(0, _itemsCount - 1);
+                }
+                else
+                {
+                    _items[id] = ThingType.create(id, category);
+                }
             }
+            else if (category == ThingCategory.OUTFIT)
+            {
+                removedThing = _outfits[id];
+                
+                if (id == _outfitsCount && id != MIN_OUTFIT_ID)
+                {
+                    delete _outfits[id];
+                    _outfitsCount = Math.max(0, _outfitsCount - 1);
+                }
+                else
+                {
+                    _outfits[id] = ThingType.create(id, category);
+                }
+            }
+            else if (category == ThingCategory.EFFECT)
+            {
+                removedThing = _effects[id];
+                
+                if (id == _effectsCount && id != MIN_EFFECT_ID)
+                {
+                    delete _effects[id];
+                    _effectsCount = Math.max(0, _effectsCount - 1);
+                }
+                else
+                {
+                    _effects[id] = ThingType.create(id, category);
+                }
+            }
+            else if (category == ThingCategory.MISSILE)
+            {
+                removedThing = _missiles[id];
+                
+                if (id == _missilesCount && id != MIN_MISSILE_ID)
+                {
+                    delete _missiles[id];
+                    _missilesCount = Math.max(0, _missilesCount - 1);
+                }
+                else
+                {
+                    _missiles[id] = ThingType.create(id, category);
+                }
+            }
+            
             return result.update([removedThing], true);
         }
         

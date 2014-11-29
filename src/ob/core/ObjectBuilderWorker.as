@@ -465,7 +465,7 @@ package ob.core
             //============================================================================
             // Add thing
             
-            var thing:ThingType = ThingUtils.createThing(category);
+            var thing:ThingType = ThingType.create(0, category);
             var result:ChangeResult = _things.addThing(thing, category);
             if (!result.done) {
                 Log.error(result.message);

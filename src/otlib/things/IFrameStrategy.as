@@ -26,7 +26,7 @@ package otlib.things
 {
     public interface IFrameStrategy
     {
-        function nextFrame(currentFrame:uint, framesCount:uint):uint;
+        function getNextFrame(currentFrame:uint, totalFrames:uint):uint;
         function clone():IFrameStrategy;
         function reset():void;
     }

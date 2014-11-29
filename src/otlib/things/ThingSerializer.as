@@ -874,9 +874,9 @@ package otlib.things
             if (thing.frames > 1) {
                 thing.isAnimation = true;
                 
-                var animationMode:uint;
-                var frameStrategy:int;
-                var startFrame:int;
+                var animationMode:uint = AnimationMode.ASYNCHRONOUS;
+                var frameStrategy:int = FrameStrategyType.LOOP;
+                var startFrame:int = -1;
                 var frameDurations:Vector.<FrameDuration> = new Vector.<FrameDuration>(thing.frames, true);
                 
                 if (readFrameDuration) {
@@ -885,7 +885,11 @@ package otlib.things
                     startFrame = input.readByte();
                     
                     for (i = 0; i < thing.frames; i++)
-                        frameDurations[i] = new FrameDuration(input.readUnsignedInt(), input.readUnsignedInt());
+                    {
+                        var minimum:uint = input.readUnsignedInt();
+                        var maximum:uint = input.readUnsignedInt();
+                        frameDurations[i] = new FrameDuration(minimum, maximum);
+                    }
                         
                 } else {
                     

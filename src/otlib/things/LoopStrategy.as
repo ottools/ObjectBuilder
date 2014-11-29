@@ -56,13 +56,16 @@ package otlib.things
             return Resources.getString("loop");
         }
         
-        public function nextFrame(currentFrame:uint, framesCount:uint):uint
+        public function getNextFrame(currentFrame:uint, totalFrames:uint):uint
         {
-            var frame:uint = currentFrame + 1;
-            if (frame < framesCount)
-                return frame;
+            var nextFrame:uint = (currentFrame + 1);
+            if (nextFrame < totalFrames)
+                return nextFrame;
             
-            if (currentLoop < (loopCount - 1) || loopCount == 0) {
+            if (loopCount == 0)
+                return 0;
+            
+            if (currentLoop < (loopCount - 1)) {
                 currentLoop++;
                 return 0;
             }

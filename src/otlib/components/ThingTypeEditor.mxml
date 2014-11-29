@@ -61,7 +61,6 @@ THE SOFTWARE.
             import otlib.sprites.Sprite;
             import otlib.sprites.SpriteData;
             import otlib.things.AnimationMode;
-            import otlib.things.Animator;
             import otlib.things.BindableThingType;
             import otlib.things.FrameDuration;
             import otlib.things.IFrameStrategy;
@@ -258,7 +257,7 @@ THE SOFTWARE.
                     else 
                         animationModeDropDownList.selectedIndex = 1;
                     
-                    repeatDropDownList.selectedIndex = _thingBinding.getLoopCount();
+                    repeatNumericStepper.value = _thingBinding.getLoopCount();
                     startFrameNumericStepper.value = _thingBinding.getStartFrame();
                     
                     if (isOutfit || isMissile)
@@ -372,7 +371,7 @@ THE SOFTWARE.
                 usableCheckBox.visible = visible;
                 usableCheckBox.includeInLayout = visible;
                 
-                visible = (info.clientVersion >= 1050);
+                visible = (info.clientVersion >= 1050 && category != ThingCategory.MISSILE);
                 minimumGroup.visible = visible;
                 minimumGroup.includeInLayout = visible;
                 maximumGroup.visible = visible;
@@ -533,7 +532,7 @@ THE SOFTWARE.
                     * thing.patternX + x)
                     * thing.layers + l)
                     * thing.height + h)
-                    * thing.width + w;
+                * thing.width + w;
             }
             
             private function copyPixels(index:uint, bitmap:BitmapData, x:uint, y:uint):void
@@ -771,22 +770,25 @@ THE SOFTWARE.
             
             protected function frameStrategyDropDownListChangeHandler(event:IndexChangeEvent):void
             {
-                var animatior:Animator = _thingBinding.animator;
-                
                 var strategy:IFrameStrategy;
                 if (frameStrategyDropDownList.selectedIndex == 0)
+                {
                     strategy = new PingPongStrategy();
-                else {
+                    repeatNumericStepper.enabled = false;
+                }
+                else
+                {
                     strategy = new LoopStrategy();
-                    LoopStrategy(strategy).loopCount = Math.max(0, repeatDropDownList.selectedIndex);
+                    LoopStrategy(strategy).loopCount = Math.max(0, repeatNumericStepper.value);
+                    repeatNumericStepper.enabled = true;
                 }
                 
                 _thingBinding.setNextFrameStrategy(strategy);
             }
             
-            protected function repeatDropDownListChangeHandler(event:IndexChangeEvent):void
+            protected function repeatNumericStepperChangeHandler(event:Event):void
             {
-                _thingBinding.setLoopCount(repeatDropDownList.selectedIndex);
+                _thingBinding.setLoopCount(repeatNumericStepper.value);
             }
             
             protected function startFrameNumericStepperChangeHandler(event:Event):void
@@ -945,8 +947,8 @@ THE SOFTWARE.
                                   visible="{_thingBinding.frames > 1}">
                             <s:Label text="{resourceManager.getString('strings', 'animations') + ':'}"/>
                             <otlib:PatternSlider id="animationSlider"
-                                                      maximum="{_thingBinding.frames - 1}"
-                                                      change="updatePreview()"/>
+                                                 maximum="{_thingBinding.frames - 1}"
+                                                 change="updatePreview()"/>
                             <s:Label id="animationCountLabel"
                                      minWidth="40"/>
                             
@@ -990,8 +992,8 @@ THE SOFTWARE.
                                   visible="false">
                             <s:Label text="{resourceManager.getString('strings', 'addons') + ':'}"/>
                             <otlib:PatternSlider id="addonsSlider"
-                                                      maximum="{_thingBinding.patternY - 1}"
-                                                      change="updatePreview()"/>
+                                                 maximum="{_thingBinding.patternY - 1}"
+                                                 change="updatePreview()"/>
                             <s:Label id="addonCountLabel"
                                      minWidth="40"/>
                         </s:HGroup>
@@ -1004,8 +1006,8 @@ THE SOFTWARE.
                                   visible="{_thingBinding.patternZ > 1}">
                             <s:Label text="{resourceManager.getString('strings', 'mount') + ':'}"/>
                             <otlib:PatternSlider id="mountSlider"
-                                                      maximum="{_thingBinding.patternZ - 1}"
-                                                      change="updatePreview()"/>
+                                                 maximum="{_thingBinding.patternZ - 1}"
+                                                 change="updatePreview()"/>
                             <s:Label id="mountCountLabel"
                                      minWidth="40"/>
                         </s:HGroup>	
@@ -1128,8 +1130,8 @@ THE SOFTWARE.
                                             change="animationModeDropDownListChangeHandler(event)">
                                 <s:dataProvider>
                                     <s:ArrayList>
-                                        <fx:String>{resourceManager.getString('strings', 'synchronous')}</fx:String>
                                         <fx:String>{resourceManager.getString('strings', 'asynchronous')}</fx:String>
+                                        <fx:String>{resourceManager.getString('strings', 'synchronous')}</fx:String>
                                     </s:ArrayList>
                                 </s:dataProvider>
                             </s:DropDownList>
@@ -1149,22 +1151,13 @@ THE SOFTWARE.
                                 </s:dataProvider>
                             </s:DropDownList>
                             
+                            <!-- loop count -->
                             <s:Label text="{resourceManager.getString('strings', 'repeat') + ':'}"
                                      verticalAlign="middle"
                                      textAlign="right"/>
-                            <s:DropDownList id="repeatDropDownList"
-                                            requireSelection="true"
-                                            width="170"
-                                            enabled="{frameStrategyDropDownList.selectedIndex == 1}"
-                                            change="repeatDropDownListChangeHandler(event)">
-                                <s:dataProvider>
-                                    <s:ArrayList>
-                                        <fx:String>{resourceManager.getString('strings', 'always')}</fx:String>
-                                        <fx:String>{resourceManager.getString('strings', 'once')}</fx:String>
-                                        <fx:String>{resourceManager.getString('strings', 'twice')}</fx:String>
-                                    </s:ArrayList>
-                                </s:dataProvider>
-                            </s:DropDownList>
+                            <s:NumericStepper id="repeatNumericStepper"
+                                              width="170"
+                                              change="repeatNumericStepperChangeHandler(event)"/>
                             
                             <s:Label text="{resourceManager.getString('strings', 'startFrame') + ':'}"
                                      verticalAlign="middle"
@@ -1250,8 +1243,8 @@ THE SOFTWARE.
                                                   change="{_thingBinding.lightColor = lightColorNumericStepper.value;}"/>
                                 
                                 <otlib:EightBitColorPicker id="lightColorSwitchColor"
-                                                                color="{_thingBinding.lightColor}"
-                                                                change="{_thingBinding.lightColor = lightColorSwitchColor.color;}"/>
+                                                           color="{_thingBinding.lightColor}"
+                                                           change="{_thingBinding.lightColor = lightColorSwitchColor.color;}"/>
                             </s:HGroup>
                             <s:HGroup width="100%" 
                                       verticalAlign="middle"
@@ -1294,8 +1287,8 @@ THE SOFTWARE.
                                               value="{_thingBinding.miniMapColor}"
                                               change="{_thingBinding.miniMapColor = automapColorNumericStepper.value;}"/>
                             <otlib:EightBitColorPicker id="automapColorSwitchColor"
-                                                            color="{_thingBinding.miniMapColor}"
-                                                            change="{_thingBinding.miniMapColor = automapColorSwitchColor.color;}"/>
+                                                       color="{_thingBinding.miniMapColor}"
+                                                       change="{_thingBinding.miniMapColor = automapColorSwitchColor.color;}"/>
                         </s:Group>
                     </nail:GroupCheckBox>
                     

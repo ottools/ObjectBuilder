@@ -56,14 +56,15 @@ package otlib.things
             return Resources.getString("pingPong");
         }
         
-        public function nextFrame(currentFrame:uint, framesCount:uint):uint
+        public function getNextFrame(currentFrame:uint, totalFrames:uint):uint
         {
             var count:int = _currentDirection == FRAME_FORWARD ? 1 : -1;
-            var frame:int = currentFrame + count;
+            var nextFrame:int = currentFrame + count;
             
-            if (currentFrame + count < 0 || frame >= framesCount) {
+            if (currentFrame + count < 0 || nextFrame >= totalFrames)
+            {
                 _currentDirection = _currentDirection == FRAME_FORWARD ? FRAME_BACKWARD : FRAME_FORWARD;
-                count = count * -1;
+                count *= -1;
             }
             
             return currentFrame + count;
