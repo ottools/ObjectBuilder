@@ -56,7 +56,6 @@ THE SOFTWARE.
         <![CDATA[
             import mx.events.FlexEvent;
             
-            import nail.logging.Log;
             import nail.utils.DialogDetail;
             import nail.utils.isNullOrEmpty;
             
@@ -85,7 +84,6 @@ THE SOFTWARE.
             private var _transparencyChanged:Boolean;
             private var _creationComplete:Boolean;
             private var _tmpDirectory:File;
-            private var _info:FilesInfo;
             private var _detail:uint;
             
             //--------------------------------------
@@ -359,25 +357,6 @@ THE SOFTWARE.
             protected function transparencyCheckBoxChangeHandler(event:Event):void
             {
                 this.transparency = transparencyCheckBox.selected;
-            }
-            
-            protected function datStreamCompleteHandler(event:Event):void
-            {
-                try
-                {
-                    _info = new FilesInfo();
-                    var stream:FileStream = event.target as FileStream;
-                    _info.datSignature = stream.readUnsignedInt();
-                    _info.maxItemId = stream.readUnsignedShort();
-                    _info.maxOutfitId = stream.readUnsignedShort();
-                    _info.maxEffectId = stream.readUnsignedShort();
-                    _info.maxMissileId = stream.readUnsignedShort();
-                    stream.close();
-                } catch(error:Error) {
-                    Log.error(error.message, error.getStackTrace(), error.errorID);
-                    this.close();
-                    return;
-                }
             }
             
             protected function loadButtonClickHandler(event:MouseEvent):void
