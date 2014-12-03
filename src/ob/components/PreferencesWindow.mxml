@@ -27,8 +27,6 @@ THE SOFTWARE.
           xmlns:nail="library://ns.nail.com/naillib"
           width="400"
           height="300"
-          minimizable="false"
-          maximizable="false"
           resizable="false"
           showStatusBar="false"
           backgroundColor="0x494949"
@@ -56,6 +54,7 @@ THE SOFTWARE.
             import mx.collections.ArrayCollection;
             import mx.events.FlexEvent;
             
+            import nail.errors.NullArgumentError;
             import nail.utils.DialogDetail;
             
             import ob.settings.ObjectBuilderSettings;
@@ -66,16 +65,10 @@ THE SOFTWARE.
             // PROPERTIES
             //--------------------------------------------------------------------------
             
-            [Bindable]
             private var _settings:ObjectBuilderSettings;
             private var _settingsChanged:Boolean;
             private var _detail:uint;
-            
-            [Bindable]
-            private var _languages:ArrayCollection = new ArrayCollection([{locale:"en_US", label:"English"},
-                                                                          {locale:"es_ES", label:"Español"},
-                                                                          {locale:"pl_PL", label:"Polski"},
-                                                                          {locale:"pt_BR", label:"Português"}]);
+            private var _languages:ArrayCollection;
             
             //--------------------------------------
             // Getters / Setters
@@ -84,6 +77,9 @@ THE SOFTWARE.
             public function get settings():ObjectBuilderSettings { return _settings; }
             public function set settings(value:ObjectBuilderSettings):void
             {
+                if (!value)
+                    throw new NullArgumentError("settings");
+                
                 if (_settings != value) {
                     _settings = value;
                     _settingsChanged = true;
@@ -105,8 +101,11 @@ THE SOFTWARE.
             {
                 super.commitProperties();
                 
-                if (_settingsChanged) {
-                    setSettings(_settings);
+                if (_settingsChanged)
+                {
+                    if (initialized)
+                        setSettings(_settings);
+                    
                     _settingsChanged = false;
                 }
             }
@@ -118,6 +117,7 @@ THE SOFTWARE.
             private function setSettings(settings:ObjectBuilderSettings):void
             {
                 setLanguage(settings.language);
+                confirmButton.enabled = (settings != null);
                 autosaveChangesCheckBox.selected = settings.autosaveThingChanges;
                 extendedCheckBox.selected = settings.extended;
                 transparencyCheckBox.selected = settings.transparency;
@@ -128,18 +128,20 @@ THE SOFTWARE.
             
             private function setLanguage(language:String):void
             {
-                trace("PreferencesWindow.setLanguage(language)");
-                
-                switch(language) {
+                switch(language)
+                {
                     case _languages.getItemAt(1).locale:
                         languageDropDownList.selectedIndex = 1;
                         break;
+                    
                     case _languages.getItemAt(2).locale:
                         languageDropDownList.selectedIndex = 2;
                         break;
+                    
                     case _languages.getItemAt(3).locale:
                         languageDropDownList.selectedIndex = 3;
                         break;
+                    
                     default:
                         languageDropDownList.selectedIndex = 0;
                         break;
@@ -148,20 +150,13 @@ THE SOFTWARE.
             
             private function getLanguage():String
             {
-                switch(languageDropDownList.selectedIndex) {
-                    case 1:
-                        return _languages.getItemAt(1).locale;
-                    case 2:
-                        return _languages.getItemAt(2).locale;
-                    case 3:
-                        return _languages.getItemAt(3).locale;
-                }
-                return _languages.getItemAt(0).locale;
+                return _languages.getItemAt(languageDropDownList.selectedIndex).locale;
             }
             
             private function getSavePropertiesValue():Number
             {
-                if (savePropertiesGroupCheckBox.selected) {
+                if (savePropertiesGroupCheckBox.selected)
+                {
                     if (onlyPatternsRadioButton.selected)
                         return 1;
                     else if (allPropertiesRadioButton.selected)
@@ -185,8 +180,17 @@ THE SOFTWARE.
             
             protected function creationCompleteHandler(event:FlexEvent):void
             {
+                _languages = new ArrayCollection([{locale:"en_US", label:"English"},
+                                                  {locale:"es_ES", label:"Español"},
+                                                  {locale:"pl_PL", label:"Polski"},
+                                                  {locale:"pt_BR", label:"Português"}]);
+                
+                languageDropDownList.dataProvider = _languages;
+                
                 focusManager.setFocus(cancelButton);
                 focusManager.showFocus();
+                
+                setSettings(_settings);
             }
             
             protected function confirmButtonClickHandler(event:MouseEvent):void
@@ -231,8 +235,7 @@ THE SOFTWARE.
                 
                 <s:DropDownList id="languageDropDownList"
                                 width="100%"
-                                requireSelection="true"
-                                dataProvider="{_languages}"/>
+                                requireSelection="true"/>
             </nail:GroupBox>
             
             <nail:GroupBox width="100%"
@@ -256,20 +259,26 @@ THE SOFTWARE.
                                   paddingTop="10"
                                   paddingBottom="10"/>
                 </nail:layout>
+                
                 <s:HSlider id="objectsAmountSlider"
                            minimum="100"
                            maximum="500"
                            stepSize="50"/>
+                
                 <s:Label text="{objectsAmountSlider.value}"
                          textAlign="center"/>
+                
                 <s:Label text="@Resource(key='objects', bundle='strings')"
                          textAlign="left"/>
+                
                 <s:HSlider id="spritesAmountSlider"
                            minimum="100"
                            maximum="500"
                            stepSize="50"/>
+                
                 <s:Label text="{spritesAmountSlider.value}"
                          textAlign="center"/>
+                
                 <s:Label text="@Resource(key='sprites', bundle='strings')"
                          textAlign="left"/>
             </nail:GroupBox>
@@ -293,8 +302,10 @@ THE SOFTWARE.
                                       paddingTop="10"
                                       paddingBottom="10"/>
                 </nail:layout>
+                
                 <s:CheckBox id="extendedCheckBox"
                             label="@Resource(key='extendedAlwaysSelected', bundle='strings')"/>
+                
                 <s:CheckBox id="transparencyCheckBox"
                             label="@Resource(key='transparencyAlwaysSelected', bundle='strings')"/>
             </nail:GroupBox>
@@ -319,10 +330,12 @@ THE SOFTWARE.
                                       paddingTop="10"
                                       paddingBottom="10"/>
                 </nail:layout>
+                
                 <s:RadioButton id="onlyPatternsRadioButton"
                                label="@Resource(key='onlyPatterns', bundle='strings')"
                                groupName="savePropertiesRadioButtonGroup"
                                enabled="{savePropertiesGroupCheckBox.selected}"/>
+                
                 <s:RadioButton id="allPropertiesRadioButton"
                                groupName="savePropertiesRadioButtonGroup"
                                label="@Resource(key='allProperties', bundle='strings')"
@@ -337,6 +350,7 @@ THE SOFTWARE.
               paddingBottom="10"
               verticalAlign="middle"
               horizontalAlign="right">
+        
         <s:Button id="infoButton"
                   width="25"
                   height="25"
@@ -344,12 +358,14 @@ THE SOFTWARE.
                   focusEnabled="false"
                   toolTip="@Resource(key='needToRestart', bundle='strings')"
                   skinClass="nail.components.skins.IconButtonSkin"/>
+        
         <s:Spacer width="100%"/>
+        
         <s:Button id="confirmButton"
                   label="@Resource(key='confirm', bundle='strings')"
-                  enabled="{_settings != null}"
                   minWidth="70"
                   click="confirmButtonClickHandler(event)"/>
+        
         <s:Button id="cancelButton"
                   label="@Resource(key='cancel', bundle='strings')"
                   minWidth="70"

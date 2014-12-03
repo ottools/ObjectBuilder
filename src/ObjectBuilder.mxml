@@ -105,6 +105,7 @@ THE SOFTWARE.
             import ob.commands.things.ReplaceThingsCommand;
             import ob.commands.things.ReplaceThingsFromFilesCommand;
             import ob.commands.things.UpdateThingCommand;
+            import ob.components.PreferencesWindow;
             import ob.components.SplashScreen;
             import ob.components.SpritesOptimizerWindow;
             import ob.objectviewer.ObjectViewer;
@@ -122,7 +123,6 @@ THE SOFTWARE.
             import otlib.components.LookGenerator;
             import otlib.components.NewFilesWindow;
             import otlib.components.OpenFilesWindow;
-            import otlib.components.PreferencesWindow;
             import otlib.components.renders.ThingListRenderer;
             import otlib.core.IVersionStorage;
             import otlib.core.Version;
