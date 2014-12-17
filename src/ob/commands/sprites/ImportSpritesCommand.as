@@ -24,8 +24,7 @@ package ob.commands.sprites
 {
     import flash.utils.ByteArray;
     
-    import ob.commands.CommandType;
-    import nail.workers.Command;
+    import nail.commands.Command;
     
     public class ImportSpritesCommand extends Command
     {
@@ -35,7 +34,7 @@ package ob.commands.sprites
         
         public function ImportSpritesCommand(sprites:Vector.<ByteArray>)
         {
-            super(CommandType.IMPORT_SPRITES, sprites);
+            super(sprites);
         }
     }
 }

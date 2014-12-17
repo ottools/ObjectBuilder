@@ -22,7 +22,7 @@
 
 package ob.commands
 {
-    import nail.workers.Command;
+    import nail.commands.Command;
     
     public class ShowProgressBarCommand extends Command
     {
@@ -32,7 +32,7 @@ package ob.commands
         
         public function ShowProgressBarCommand(id:uint, title:String = "")
         {
-            super(CommandType.SHOW_PROGRESS_BAR, id, title);
+            super(id, title);
         }
     }
 }

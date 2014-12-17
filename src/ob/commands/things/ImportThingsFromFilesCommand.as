@@ -22,9 +22,9 @@
 
 package ob.commands.things
 {
-    import ob.commands.CommandType;
+    import nail.commands.Command;
+    
     import otlib.loaders.PathHelper;
-    import nail.workers.Command;
     
     public class ImportThingsFromFilesCommand extends Command
     {
@@ -34,7 +34,7 @@ package ob.commands.things
         
         public function ImportThingsFromFilesCommand(list:Vector.<PathHelper>)
         {
-            super(CommandType.IMPORT_THINGS_FROM_FILES, list);
+            super(list);
         }
     }
 }

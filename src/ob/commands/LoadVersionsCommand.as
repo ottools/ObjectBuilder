@@ -24,7 +24,7 @@ package ob.commands
 {
     import flash.filesystem.File;
     
-    import nail.workers.Command;
+    import nail.commands.Command;
     
     public class LoadVersionsCommand extends Command
     {
@@ -34,7 +34,7 @@ package ob.commands
         
         public function LoadVersionsCommand(file:File)
         {
-            super(CommandType.LOAD_VERSIONS, file.nativePath);
+            super(file.nativePath);
         }
     }
 }

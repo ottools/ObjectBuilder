@@ -22,7 +22,7 @@
 
 package ob.commands
 {
-    import nail.workers.Command;
+    import nail.commands.Command;
     
     public class FindResultCommand extends Command
     {
@@ -32,7 +32,7 @@ package ob.commands
         
         public function FindResultCommand(type:uint, list:Array)
         {
-            super(CommandType.FIND_RESULT, type, list);
+            super(type, list);
         }
         
         //--------------------------------------------------------------------------

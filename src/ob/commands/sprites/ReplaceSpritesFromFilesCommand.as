@@ -22,9 +22,9 @@
 
 package ob.commands.sprites
 {
-    import ob.commands.CommandType;
+    import nail.commands.Command;
+    
     import otlib.loaders.PathHelper;
-    import nail.workers.Command;
     
     public class ReplaceSpritesFromFilesCommand extends Command
     {
@@ -34,7 +34,7 @@ package ob.commands.sprites
         
         public function ReplaceSpritesFromFilesCommand(files:Vector.<PathHelper>)
         {
-            super(CommandType.REPLACE_SPRITES_FROM_FILES, files);
+            super(files);
         }
     }
 }

@@ -20,21 +20,40 @@
 *  THE SOFTWARE.
 */
 
-package ob.commands.files
+package otlib.utils
 {
-    import otlib.utils.FilesInfo;
-    import nail.workers.Command;
-    import ob.commands.CommandType;
-    
-    public class SetFilesInfoCommand extends Command
+    public class ClientInfo
     {
+        //--------------------------------------------------------------------------
+        // PROPERTIES
+        //--------------------------------------------------------------------------
+        
+        public var clientVersion:uint;
+        public var clientVersionStr:String;
+        public var datSignature:uint;
+        public var minItemId:uint;
+        public var maxItemId:uint;
+        public var minOutfitId:uint;
+        public var maxOutfitId:uint;
+        public var minEffectId:uint;
+        public var maxEffectId:uint;
+        public var minMissileId:uint;
+        public var maxMissileId:uint;
+        public var sprSignature:uint;
+        public var minSpriteId:uint;
+        public var maxSpriteId:uint;
+        public var extended:Boolean;
+        public var transparency:Boolean;
+        public var changed:Boolean;
+        public var isTemporary:Boolean;
+        public var loaded:Boolean;
+        
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function SetFilesInfoCommand(info:FilesInfo)
+        public function ClientInfo()
         {
-            super(CommandType.FILES_INFO, info);
         }
     }
 }

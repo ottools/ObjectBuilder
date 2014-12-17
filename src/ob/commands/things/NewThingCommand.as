@@ -22,8 +22,7 @@
 
 package ob.commands.things
 {
-    import nail.workers.Command;
-    import ob.commands.CommandType;
+    import nail.commands.Command;
     
     public class NewThingCommand extends Command
     {
@@ -33,7 +32,7 @@ package ob.commands.things
         
         public function NewThingCommand(categoty:String)
         {
-            super(CommandType.NEW_THING, categoty);
+            super(categoty);
         }
     }
 }

@@ -22,9 +22,8 @@
 
 package ob.commands.files
 {
-    import nail.workers.Command;
-    import ob.commands.CommandType;
-    
+    import nail.commands.Command;
+
     public class CompileCommand extends Command
     {
         //--------------------------------------------------------------------------
@@ -33,7 +32,7 @@ package ob.commands.files
         
         public function CompileCommand()
         {
-            super(CommandType.COMPILE);
+            super();
         }
     }
 }

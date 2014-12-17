@@ -22,8 +22,7 @@
 
 package ob.commands.things
 {
-    import nail.workers.Command;
-    import ob.commands.CommandType;
+    import nail.commands.Command;
     
     public class GetThingListCommand extends Command
     {
@@ -31,9 +30,9 @@ package ob.commands.things
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function GetThingListCommand(target:uint, category:String)
+        public function GetThingListCommand(targetId:uint, category:String)
         {
-            super(CommandType.GET_THING_LIST, target, category);
+            super(targetId, category);
         }
     }
 }

@@ -22,9 +22,9 @@
 
 package ob.commands.things
 {
-    import ob.commands.CommandType;
+    import nail.commands.Command;
+    
     import otlib.things.ThingData;
-    import nail.workers.Command;
     
     public class UpdateThingCommand extends Command
     {
@@ -34,7 +34,7 @@ package ob.commands.things
         
         public function UpdateThingCommand(thingData:ThingData, replaceSprites:Boolean)
         {
-            super(CommandType.UPDATE_THING, thingData, replaceSprites);
+            super(thingData, replaceSprites);
         }
     }
 }

@@ -22,8 +22,7 @@
 
 package ob.commands.things
 {
-    import ob.commands.CommandType;
-    import nail.workers.Command;
+    import nail.commands.Command;
     
     public class RemoveThingCommand extends Command
     {
@@ -35,7 +34,7 @@ package ob.commands.things
                                            category:String,
                                            removeSprites:Boolean)
         {
-            super(CommandType.REMOVE_THINGS, list, category, removeSprites);
+            super(list, category, removeSprites);
         }
     }
 }

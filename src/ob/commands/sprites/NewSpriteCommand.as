@@ -20,19 +20,19 @@
 *  THE SOFTWARE.
 */
 
-package ob.commands.things
+package ob.commands.sprites
 {
     import nail.commands.Command;
     
-    public class GetThingCommand extends Command
+    public class NewSpriteCommand extends Command
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function GetThingCommand(id:uint, category:String)
+        public function NewSpriteCommand()
         {
-            super(id, category);
+            super();
         }
     }
 }

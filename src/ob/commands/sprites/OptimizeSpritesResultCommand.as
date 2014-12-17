@@ -22,9 +22,7 @@
 
 package ob.commands.sprites
 {
-    import nail.workers.Command;
-    
-    import ob.commands.CommandType;
+    import nail.commands.Command;
     
     public class OptimizeSpritesResultCommand extends Command
     {
@@ -34,7 +32,7 @@ package ob.commands.sprites
         
         public function OptimizeSpritesResultCommand(removed:uint, oldCount:uint, newCount:uint)
         {
-            super(CommandType.OPTIMIZE_SPRITES, removed, oldCount, newCount);
+            super(removed, oldCount, newCount);
         }
     }
 }

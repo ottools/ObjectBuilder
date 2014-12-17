@@ -63,7 +63,7 @@ THE SOFTWARE.
             import otlib.core.Version;
             import otlib.core.VersionStorage;
             import otlib.events.FileTextInputEvent;
-            import otlib.utils.FilesInfo;
+            import otlib.utils.ClientInfo;
             import otlib.utils.FilesInfoLoader;
             import otlib.utils.OTFormat;
             
@@ -228,7 +228,7 @@ THE SOFTWARE.
                     progressBar.includeInLayout = false;
                     progressBar.setProgress(0, 1);
                     
-                    var info:FilesInfo = loader.filesInfo;
+                    var info:ClientInfo = loader.filesInfo;
                     clientVersionLabel.text = info.clientVersionStr;
                     datSignatureLabel.text = info.datSignature.toString(16).toUpperCase();
                     itemsCountLabel.text = info.maxItemId.toString();

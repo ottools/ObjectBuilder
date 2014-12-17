@@ -22,9 +22,9 @@
 
 package ob.commands.files
 {
+    import nail.commands.Command;
+    
     import otlib.core.Version;
-    import nail.workers.Command;
-    import ob.commands.CommandType;
     
     public class CreateNewFilesCommand extends Command
     {
@@ -34,10 +34,7 @@ package ob.commands.files
         
         public function CreateNewFilesCommand(version:Version, extended:Boolean, transparency:Boolean)
         {
-            super(CommandType.CREATE_NEW_FILES,
-                  version,
-                  extended, 
-                  transparency);
+            super(version, extended, transparency);
         }
     }
 }

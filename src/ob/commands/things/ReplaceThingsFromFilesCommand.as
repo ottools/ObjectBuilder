@@ -22,9 +22,9 @@
 
 package ob.commands.things
 {
-    import ob.commands.CommandType;
+    import nail.commands.Command;
+    
     import otlib.loaders.PathHelper;
-    import nail.workers.Command;
     
     public class ReplaceThingsFromFilesCommand extends Command
     {
@@ -34,7 +34,7 @@ package ob.commands.things
         
         public function ReplaceThingsFromFilesCommand(list:Vector.<PathHelper>)
         {
-            super(CommandType.REPLACE_THINGS_FROM_FILES, list);
+            super(list);
         }
     }
 }

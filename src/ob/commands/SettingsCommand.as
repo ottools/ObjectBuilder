@@ -22,17 +22,19 @@
 
 package ob.commands
 {
-    import nail.workers.Command;
+    import nail.commands.Command;
     
-    public class ClientChangedCommand extends Command
+    import ob.settings.ObjectBuilderSettings;
+    
+    public class SettingsCommand extends Command
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function ClientChangedCommand(thingsChanged:Boolean, spritesChanged:Boolean)
+        public function SettingsCommand(settings:ObjectBuilderSettings)
         {
-            super(CommandType.CLIENT_CHANGED, thingsChanged, spritesChanged);
+            super(settings);
         }
     }
 }

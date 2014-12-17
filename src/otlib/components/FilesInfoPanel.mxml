@@ -26,17 +26,27 @@ THE SOFTWARE.
                xmlns:mx="library://ns.adobe.com/flex/mx"
                xmlns:nail="library://ns.nail.com/naillib"
                label="@Resource(key='info', bundle='strings')"
-               fontSize="11">
+               fontSize="11"
+               creationComplete="creationCompleteHandler(event)">
     
     <fx:Script>
         <![CDATA[
             import mx.core.FlexGlobals;
+            import mx.events.FlexEvent;
+            
+            import nail.errors.NullArgumentError;
             
             import ob.core.IObjectBuilder;
             
             import otlib.core.IVersionStorage;
             import otlib.core.Version;
-            import otlib.utils.FilesInfo;
+            import otlib.utils.ClientInfo;
+            
+            //--------------------------------------------------------------------------
+            // PROPERTIES
+            //--------------------------------------------------------------------------
+            
+            private var m_versions:IVersionStorage;
             
             //--------------------------------------------------------------------------
             // METHODS
@@ -46,11 +56,15 @@ THE SOFTWARE.
             // Public
             //--------------------------------------
             
-            public function setFilesInfo(info:FilesInfo):void
+            public function setFilesInfo(info:ClientInfo):void
             {
-                if (info) {
-                    var versionStorage:IVersionStorage = IObjectBuilder(FlexGlobals.topLevelApplication).versionStorage;
-                    var version:Version = versionStorage.getBySignatures(info.datSignature, info.sprSignature);
+                if (!info)
+                    throw new NullArgumentError("info");
+                
+                var version:Version = m_versions.getBySignatures(info.datSignature, info.sprSignature);
+                
+                if (version)
+                {
                     filesVersionLabel.text = version.toString();
                     datSignatureLabel.text = info.datSignature.toString(16).toUpperCase();
                     itemsCountLabel.text = info.maxItemId.toString();
@@ -61,9 +75,9 @@ THE SOFTWARE.
                     spritesCountLabel.text = info.maxSpriteId.toString();
                     extendedValueLabel.text = resourceManager.getString("strings", info.extended ? "yes" : "no");
                     transparencyValueLabel.text = resourceManager.getString("strings", info.transparency ? "yes" : "no");
-                } else {
-                    this.clear();
                 }
+                else
+                    this.clear();
             }
             
             public function clear():void
@@ -79,6 +93,16 @@ THE SOFTWARE.
                 extendedValueLabel.text = null;
                 transparencyValueLabel.text = null;
             }
+            
+            //--------------------------------------
+            // Event Handlers
+            //--------------------------------------
+            
+            protected function creationCompleteHandler(event:FlexEvent):void
+            {
+                m_versions = IObjectBuilder(FlexGlobals.topLevelApplication).versionStorage;
+            }
+            
         ]]>
     </fx:Script>
     

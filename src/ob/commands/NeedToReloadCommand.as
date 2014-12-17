@@ -22,7 +22,7 @@
 
 package ob.commands
 {
-    import nail.workers.Command;
+    import nail.commands.Command;
     
     public class NeedToReloadCommand extends Command
     {
@@ -32,7 +32,7 @@ package ob.commands
         
         public function NeedToReloadCommand(extended:Boolean, transparency:Boolean)
         {
-            super(CommandType.NEED_TO_RELOAD, extended, transparency);
+            super(extended, transparency);
         }
     }
 }

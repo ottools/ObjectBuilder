@@ -22,9 +22,9 @@
 
 package ob.commands.things
 {
+    import nail.commands.Command;
+    
     import otlib.utils.ThingListItem;
-    import nail.workers.Command;
-    import ob.commands.CommandType;
     
     public class SetThingListCommand extends Command
     {
@@ -34,7 +34,7 @@ package ob.commands.things
         
         public function SetThingListCommand(selectedIds:Vector.<uint>, things:Vector.<ThingListItem>)
         {
-            super(CommandType.SET_THING_LIST, selectedIds, things);
+            super(selectedIds, things);
         }
     }
 }

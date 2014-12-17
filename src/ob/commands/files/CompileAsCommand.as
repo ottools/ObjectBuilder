@@ -24,9 +24,9 @@ package ob.commands.files
 {
     import flash.filesystem.File;
     
+    import nail.commands.Command;
+    
     import otlib.core.Version;
-    import nail.workers.Command;
-    import ob.commands.CommandType;
     
     public class CompileAsCommand extends Command
     {
@@ -40,8 +40,7 @@ package ob.commands.files
                                          extended:Boolean, 
                                          transparency:Boolean)
         {
-            super(CommandType.COMPILE_AS,
-                  datFile.nativePath,
+            super(datFile.nativePath,
                   sprFile.nativePath,
                   version,
                   extended,

@@ -22,9 +22,9 @@
 
 package ob.commands.things
 {
+    import nail.commands.Command;
+    
     import otlib.things.ThingData;
-    import nail.workers.Command;
-    import ob.commands.CommandType;
     
     public class SetThingDataCommand extends Command
     {
@@ -34,7 +34,7 @@ package ob.commands.things
         
         public function SetThingDataCommand(thingData:ThingData)
         {
-            super(CommandType.SET_THING, thingData);
+            super(thingData);
         }
     }
 }

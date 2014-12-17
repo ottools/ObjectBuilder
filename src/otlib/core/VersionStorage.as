@@ -34,7 +34,7 @@ package otlib.core
     import nail.errors.SingletonClassError;
     import nail.utils.isNullOrEmpty;
     
-    import otlib.utils.FilesInfo;
+    import otlib.utils.ClientInfo;
     import otlib.utils.OTFormat;
     
     [Event(name="change", type="flash.events.Event")]
@@ -231,7 +231,7 @@ package otlib.core
             return list;
         }
         
-        public function getFromFilesInfo(info:FilesInfo):Version
+        public function getFromFilesInfo(info:ClientInfo):Version
         {
             for each (var version:Version in _versions) {
                 if (version.value == info.clientVersion &&
