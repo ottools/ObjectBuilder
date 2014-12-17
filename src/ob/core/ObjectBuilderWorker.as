@@ -63,6 +63,7 @@ package ob.core
     import ob.commands.files.UnloadFilesCommand;
     import ob.commands.sprites.ExportSpritesCommand;
     import ob.commands.sprites.FindSpritesCommand;
+    import ob.commands.sprites.GetSpriteListCommand;
     import ob.commands.sprites.ImportSpritesCommand;
     import ob.commands.sprites.ImportSpritesFromFileCommand;
     import ob.commands.sprites.NewSpriteCommand;
@@ -76,6 +77,7 @@ package ob.core
     import ob.commands.things.ExportThingCommand;
     import ob.commands.things.FindThingCommand;
     import ob.commands.things.GetThingCommand;
+    import ob.commands.things.GetThingListCommand;
     import ob.commands.things.ImportThingsCommand;
     import ob.commands.things.ImportThingsFromFilesCommand;
     import ob.commands.things.NewThingCommand;
@@ -286,6 +288,7 @@ package ob.core
             registerCallback(DuplicateThingCommand, onDuplicateThing);
             registerCallback(RemoveThingCommand, onRemoveThings);
             registerCallback(GetThingCommand, onGetThing);
+            registerCallback(GetThingListCommand, onGetThingList);
             registerCallback(FindThingCommand, onFindThing);
             
             // Sprite commands
@@ -296,6 +299,7 @@ package ob.core
             registerCallback(ReplaceSpritesCommand, onReplaceSprites);
             registerCallback(ReplaceSpritesFromFilesCommand, onReplaceSpritesFromFiles);
             registerCallback(RemoveSpritesCommand, onRemoveSprites);
+            registerCallback(GetSpriteListCommand, onGetSpriteList);
             registerCallback(FindSpritesCommand, onFindSprites);
             registerCallback(OptimizeSpritesCommand, onOptimizeSprites);
             
@@ -1064,6 +1068,14 @@ package ob.core
             }
         }
         
+        private function onGetThingList(targetId:uint, category:String):void
+        {
+            if (isNullOrEmpty(category))
+                throw new NullOrEmptyArgumentError("category");
+            
+            sendThingList(Vector.<uint>([ targetId ]), category);
+        }
+        
         private function onFindThing(category:String, properties:Vector.<ThingProperty>):void
         {
             if (!ThingCategory.getCategory(category)) {
@@ -1345,6 +1357,11 @@ package ob.core
                 list);
                 
             Log.info(message);
+        }
+        
+        private function onGetSpriteList(targetId:uint):void
+        {
+            sendSpriteList(Vector.<uint>([ targetId ]));
         }
         
         private function onNeedToReload(enableSpritesU32:Boolean, enableAlphaChannel:Boolean):void
