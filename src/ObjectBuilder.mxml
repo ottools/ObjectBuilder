@@ -1496,6 +1496,7 @@ THE SOFTWARE.
                 
                 _logger = mx.logging.Log.getLogger("ObjectBuilder");
                 _settingsManager = SettingsManager.getInstance();
+                _category = ThingCategory.ITEM;
                 
                 createLogging();
                 createWorker();
