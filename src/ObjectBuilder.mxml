@@ -919,7 +919,8 @@ THE SOFTWARE.
                 spriteStepper.minimum = info.minSpriteId;
                 spriteStepper.maximum = info.maxSpriteId;
                 
-                
+                compileButton.enabled = (_clientChanged && !_clientIsTemporary);
+                compileAsButton.enabled = _clientChanged;
             }
             
             private function onSetThingData(thingData:ThingData):void
@@ -2299,57 +2300,79 @@ THE SOFTWARE.
                   verticalAlign="middle"
                   paddingLeft="10"
                   paddingRight="10">
-            <s:Button width="25"
+            
+            <s:Button id="newButton"
+                      width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.new')}"
                       icon="{Assets.NEW_FILE}"
                       click="onCreateNew()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
-            <s:Button width="25"
+            
+            <s:Button id="openButton"
+                      width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.open')}"
                       icon="{Assets.OPEN}"
                       click="openClient()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
-            <s:Button width="25"
+            
+            <s:Button id="compileButton"
+                      width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.compile')}"
                       icon="{Assets.SAVE}"
+                      enabled="false"
                       click="compile()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
-            <s:Button width="25"
+            
+            <s:Button id="compileAsButton"
+                      width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.compileAs')}"
                       icon="{Assets.SAVE_AS}"
+                      enabled="false"
                       click="compileAs()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
+            
             <nail:ShadowLine height="20"/>
-            <s:Button width="25"
+            
+            <s:Button id="findButton"
+                      width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'find')}"
                       icon="{Assets.BINOCULARS}"
                       click="openFindWindow()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
-            <s:Button width="25"
+            
+            <s:Button id="objectViewerButton"
+                      width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'objectViewer')}"
                       icon="{Assets.VIEWER}"
                       click="openObjectViewer()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
-            <s:Button width="25"
+            
+            <s:Button id="slicerButton"
+                      width="25"
                       height="25"
                       toolTip="Slicer"
                       icon="{Assets.SLICER}"
                       click="openSlicer()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
-            <s:Button width="25"
+            
+            <s:Button id="animationEditorButton"
+                      width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'animationEditor')}"
                       icon="{Assets.ANIMATION}"
                       click="openAnimationEditor()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
+            
             <nail:ShadowLine height="20"/>
-            <s:Button width="25"
+            
+            <s:Button id="logWindowButton"
+                      width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.logWindow')}"
                       icon="{Assets.LOG}"
