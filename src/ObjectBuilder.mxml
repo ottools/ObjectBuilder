@@ -34,6 +34,7 @@ THE SOFTWARE.
                        showStatusBar="false"
                        visible="false"
                        backgroundColor="0x494949"
+                       invoke="applicationInvokeHandler(event)"
                        preinitialize="applicationPreinitializeHandler(event)"
                        creationComplete="creationCompleteHandler(event)"
                        applicationComplete="applicationCompleteHandler(event)"
@@ -172,6 +173,8 @@ THE SOFTWARE.
             [Embed(source="../workerswfs/ob/core/ObjectBuilderWorker.swf", mimeType="application/octet-stream")]
             public const ObjectBuilderWorker:Class;
             
+            private var _creationComplete:Boolean;
+            private var _invokeArgs:Array;
             private var _communicator:ICommunicator;
             private var _logger:ILogger;
             private var _logTarget:LogFileTarget;
@@ -758,7 +761,11 @@ THE SOFTWARE.
                 }
             }
             
-            protected function applicationLoadComplete():void
+            //--------------------------------------
+            // Private
+            //--------------------------------------
+            
+            private function applicationLoadComplete():void
             {
                 visible = true;
                 activate();
@@ -774,26 +781,31 @@ THE SOFTWARE.
                 showSpritesPanel = _settings.showSpritesPanel;
                 thingStepper.amount = _settings.objectsListAmount;
                 spriteStepper.amount = _settings.spritesListAmount;
+                
+                if (_invokeArgs) {
+                    setInvokeArgs(_invokeArgs);
+                    _invokeArgs = null;
+                }
+                
+                _creationComplete = true;
             }
             
-            protected function setInvokeArgs(args:Array):void
+            private function setInvokeArgs(args:Array):void
             {
-                if (args) {
+                if (args)
+                {
                     var path:String = args[0];
-                    if (!isNullOrEmpty(path)) {
+                    if (!isNullOrEmpty(path))
+                    {
                         var file:File = new File(path);
-                        if (file.extension == OTFormat.DAT || file.extension == OTFormat.SPR) {
+                        
+                        if (file.extension == OTFormat.DAT || file.extension == OTFormat.SPR)
                             openClient(FileUtil.getDirectory(file));
-                        } else if (file.extension == OTFormat.OBD) {
+                        else if (file.extension == OTFormat.OBD)
                             openObjectViewer(file);
-                        }
                     }
                 }
             }
-            
-            //--------------------------------------
-            // Private
-            //--------------------------------------
             
             private function createLogging():void 
             {
@@ -1464,6 +1476,17 @@ THE SOFTWARE.
             //--------------------------------------
             // Event Handlers
             //--------------------------------------
+            
+            protected function applicationInvokeHandler(event:InvokeEvent):void
+            {
+                if (event.arguments && event.arguments.length > 0)
+                {
+                    if (_creationComplete)
+                        this.setInvokeArgs(event.arguments);
+                    else
+                        _invokeArgs = event.arguments;
+                }
+            }
             
             protected function applicationPreinitializeHandler(event:FlexEvent):void
             {
