@@ -920,7 +920,7 @@ THE SOFTWARE.
                 spriteStepper.maximum = info.maxSpriteId;
                 
                 compileButton.enabled = (_clientChanged && !_clientIsTemporary);
-                compileAsButton.enabled = _clientChanged;
+                compileAsButton.enabled = (_clientChanged || _clientIsTemporary);
             }
             
             private function onSetThingData(thingData:ThingData):void

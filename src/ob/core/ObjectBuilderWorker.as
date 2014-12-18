@@ -146,14 +146,19 @@ package ob.core
         public function get running():Boolean { return _communicator.running; }
         public function get background():Boolean { return _communicator.background; }
         
-        public function get clientLoaded():Boolean
-        {
-            return (_things && _things.loaded && _sprites && _sprites.loaded);
-        }
-        
         public function get clientChanged():Boolean
         {
             return ((_things && _things.changed) || (_sprites && _sprites.changed));
+        }
+        
+        public function get clientIsTemporary():Boolean
+        {
+            return (_things && _things.isTemporary && _sprites && _sprites.isTemporary);
+        }
+        
+        public function get clientLoaded():Boolean
+        {
+            return (_things && _things.loaded && _sprites && _sprites.loaded);
         }
         
         //--------------------------------------------------------------------------
@@ -347,8 +352,6 @@ package ob.core
             
             // Create things.
             _things.createNew(version, _extended);
-            
-            this.clientLoadComplete();
             
             // Update preview.
             var thing:ThingType = _things.getItemType(ThingTypeStorage.MIN_ITEM_ID);
@@ -1439,6 +1442,7 @@ package ob.core
         private function clientCompileComplete():void
         {
             sendCommand(new HideProgressBarCommand(ProgressBarID.DAT_SPR));
+            sendClientInfo();
             Log.info(Resources.getString("compileComplete"));
         }
         
@@ -1466,7 +1470,7 @@ package ob.core
                 info.extended = (_extended || _version.value >= 960);
                 info.transparency = _transparency;
                 info.changed = clientChanged;
-                info.isTemporary = false;
+                info.isTemporary = clientIsTemporary;
             }
             
             sendCommand(new SetClientInfoCommand(info));

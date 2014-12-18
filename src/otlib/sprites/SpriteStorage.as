@@ -94,6 +94,7 @@ package otlib.sprites
         public function get isFull():Boolean { return (!_extended && _spritesCount == 0xFFFF); }
         public function get transparency():Boolean { return _transparency; }
         public function get alertSprite():Sprite { return _alertSprite; }
+        public function get isTemporary():Boolean { return (_loaded && _file == null); }
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
@@ -132,8 +133,7 @@ package otlib.sprites
             if (!version)
                 throw new NullArgumentError("version");
             
-            if (this.loaded)
-                return;
+            if (this.loaded) return;
             
             _version = version;
             _extended = (extended || version.value >= 960);
@@ -150,7 +150,6 @@ package otlib.sprites
             _loaded = true;
             
             dispatchEvent(new StorageEvent(StorageEvent.LOAD));
-            dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
         }
         
         public function addSprite(pixels:ByteArray):ChangeResult
@@ -424,13 +423,15 @@ package otlib.sprites
             var stream:FileStream;
             
             // If is unmodified and the version is equal only save raw bytes.
-            if (!_changed &&
+            if (!this.isTemporary &&
+                !this.changed &&
                 _version.equals(version) &&
                 _extended == extended &&
-                _transparency == transparency) {
-                if (!equal) {
+                _transparency == transparency)
+            {
+                if (!equal)
                     FileUtil.copyToAsync(_file, file);
-                }
+                
                 dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.SPR, _spritesCount, _spritesCount));
                 return true;
             }
@@ -506,25 +507,25 @@ package otlib.sprites
                 done = false;
             }
             
-            if (done) {
+            if (done)
+            {
                 // Closes the current spr file
-                if (equal) {
+                if (equal)
                     _stream.close();
-                }
                 
                 // Delete old file.
-                if (file.exists) {
+                if (file.exists)
                     file.deleteFile();
-                }
                 
                 // Rename the temporary file
-                FileUtil.rename(tmpFile, FileUtil.getName(file));
+                _file = FileUtil.rename(tmpFile, FileUtil.getName(file));
                 
                 // Reload all if equal.
-                if (equal) {
+                if (equal)
                     this.onLoad(file, version, extended, transparency, true);
-                }
-            } else if (tmpFile.exists) {
+            }
+            else if (tmpFile.exists)
+            {
                 tmpFile.deleteFile();
             }
             
