@@ -1,3 +1,9 @@
+### 0.3.4
+
+Features:
+
+* Added: New NumericStepper in the object list.
+
 ### 0.3.3
 
 Bug Fixes:
