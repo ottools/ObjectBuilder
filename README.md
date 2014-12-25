@@ -22,7 +22,7 @@ Download
 
 #### Latest release
 
-[ObjectBuilder 0.3.3](https://www.dropbox.com/s/jluqw0bi7e8wcef/ObjectBuilder0.3.3.air)
+[ObjectBuilder 0.3.4](https://www.dropbox.com/s/ye43g8q9rzst4ru/ObjectBuilder0.3.4.air)
 
 
 #### Latest commits compiled
