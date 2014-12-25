@@ -22,8 +22,9 @@ Download
 
 #### Latest release
 
-[ObjectBuilder 0.3.4](https://www.dropbox.com/s/ye43g8q9rzst4ru/ObjectBuilder0.3.4.air)
+[ObjectBuilder 0.3.4 - Installer](https://www.dropbox.com/s/ye43g8q9rzst4ru/ObjectBuilder0.3.4.air)
 
+[ObjectBuilder 0.3.4 - Captive Runtime](https://www.dropbox.com/s/qf1r7tnsxk8ydv9/ObjectBuilder0_3_4_CR.rar)
 
 #### Latest commits compiled
 
