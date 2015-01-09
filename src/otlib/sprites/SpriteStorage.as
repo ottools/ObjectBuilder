@@ -28,6 +28,7 @@ package otlib.sprites
     import flash.filesystem.File;
     import flash.filesystem.FileMode;
     import flash.filesystem.FileStream;
+    import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.utils.ByteArray;
     import flash.utils.Dictionary;
@@ -76,7 +77,7 @@ package otlib.sprites
         private var _transparency:Boolean;
         private var _loaded:Boolean;
         private var _rect:Rectangle;
-        private var _bitmap:BitmapData;
+        private var _point:Point;
         private var _blankSprite:Sprite;
         private var _alertSprite:Sprite;
         private var _headSize:uint;
@@ -102,7 +103,7 @@ package otlib.sprites
         public function SpriteStorage()
         {
             _rect = new Rectangle(0, 0, Sprite.DEFAULT_SIZE, Sprite.DEFAULT_SIZE);
-            _bitmap = new BitmapData(_rect.width, _rect.height, true, 0xFFFF00FF);
+            _point = new Point();
         }
         
         //--------------------------------------------------------------------------
@@ -302,17 +303,15 @@ package otlib.sprites
          */
         public function copyPixels(id:int, bitmap:BitmapData, x:int, y:int):void
         {
-            if (!this.loaded || !bitmap)
-                return;
+            if (!this.loaded || !bitmap) return;
             
-            var pixels:ByteArray = getPixels(id);
-            if (!pixels)
-                return;
+            var sprite:BitmapData = getBitmap(id, true);
+            if (!sprite) return;
             
-            _rect.x = x;
-            _rect.y = y;
+            _point.x = x;
+            _point.y = y;
             
-            bitmap.setPixels(_rect, pixels);
+            bitmap.copyPixels(sprite, _rect, _point, null, null, true);
         }
         
         /**

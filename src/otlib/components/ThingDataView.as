@@ -53,6 +53,7 @@ package otlib.components
         private var _spriteSheet:BitmapData;
         private var _textureIndex:Vector.<Rect>;
         private var _bitmap:BitmapData;
+        private var _fillRect:Rectangle;
         private var _point:Point;
         private var _rectangle:Rectangle;
         private var _frame:int;
@@ -209,7 +210,8 @@ package otlib.components
                 
                 _textureIndex = new Vector.<Rect>();
                 _spriteSheet = ThingData.getSpriteSheet(thingData, _textureIndex, 0);
-                _bitmap = new BitmapData(thingData.thing.width * 32, thingData.thing.height * 32);
+                _bitmap = new BitmapData(thingData.thing.width * 32, thingData.thing.height * 32, true);
+                _fillRect = _bitmap.rect;
                 _maxFrame = thingData.thing.frames;
                 _frame = 0;
                 this.width = _bitmap.width;
@@ -235,25 +237,23 @@ package otlib.components
             if (_spriteSheet)
             {
                 var thing:ThingType = thingData.thing;
+                var layers:uint = _drawBlendLayer ? thing.layers : 1;
                 var px:uint = _patternX % thing.patternX;
                 var pz:uint = _patternZ % thing.patternZ;
-                var index:int = thing.getTextureIndex(0, px, 0, pz, _frame);
                 
-                var rect:Rect = _textureIndex[index];
-                _rectangle.setTo(rect.x, rect.y, rect.width, rect.height);
-                _bitmap.copyPixels(_spriteSheet, _rectangle, _point);
+                _bitmap.fillRect(_fillRect, 0);
                 
-                if (_drawBlendLayer && thing.layers > 1) 
+                for (var l:uint = 0; l < layers; l++)
                 {
-                    index = thing.getTextureIndex(1 % thing.layers, px, 0, pz, _frame);
+                    var index:int = thing.getTextureIndex(l, px, 0, pz, _frame);
+                    var rect:Rect = _textureIndex[index];
                     
-                    rect = _textureIndex[index];
                     _rectangle.setTo(rect.x, rect.y, rect.width, rect.height);
                     _bitmap.copyPixels(_spriteSheet, _rectangle, _point, null, null, true);
                 }
                 
                 graphics.beginBitmapFill(_bitmap);
-                graphics.drawRect(0, 0, rect.width, rect.height);
+                graphics.drawRect(0, 0, _fillRect.width, _fillRect.height);
             }
            
             graphics.endFill();
