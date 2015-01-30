@@ -22,9 +22,7 @@
 
 package ob.commands.sprites
 {
-    import nail.workers.Command;
-    
-    import ob.commands.CommandType;
+    import nail.commands.Command;
     
     public class OptimizeSpritesCommand extends Command
     {
@@ -34,7 +32,7 @@ package ob.commands.sprites
         
         public function OptimizeSpritesCommand(unused:Boolean, empty:Boolean)
         {
-            super(CommandType.OPTIMIZE_SPRITES, unused, empty);
+            super(unused, empty);
         }
     }
 }

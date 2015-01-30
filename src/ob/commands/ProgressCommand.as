@@ -22,7 +22,7 @@
 
 package ob.commands
 {
-    import nail.workers.Command;
+    import nail.commands.Command;
     
     public class ProgressCommand extends Command
     {
@@ -32,7 +32,7 @@ package ob.commands
         
         public function ProgressCommand(id:uint, value:uint, total:uint, label:String = null)
         {
-            super(CommandType.PROGRESS, id, value, total, label);
+            super(id, value, total, label);
         }
     }
 }

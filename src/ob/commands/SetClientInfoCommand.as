@@ -20,19 +20,21 @@
 *  THE SOFTWARE.
 */
 
-package ob.commands.things
+package ob.commands
 {
     import nail.commands.Command;
     
-    public class GetThingCommand extends Command
+    import otlib.utils.ClientInfo;
+    
+    public class SetClientInfoCommand extends Command
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function GetThingCommand(id:uint, category:String)
+        public function SetClientInfoCommand(info:ClientInfo)
         {
-            super(id, category);
+            super(info);
         }
     }
 }

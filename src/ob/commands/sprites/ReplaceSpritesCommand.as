@@ -22,9 +22,9 @@
 
 package ob.commands.sprites
 {
-    import ob.commands.CommandType;
+    import nail.commands.Command;
+    
     import otlib.sprites.SpriteData;
-    import nail.workers.Command;
     
     public class ReplaceSpritesCommand extends Command
     {
@@ -34,7 +34,7 @@ package ob.commands.sprites
         
         public function ReplaceSpritesCommand(list:Vector.<SpriteData>)
         {
-            super(CommandType.REPLACE_SPRITES, list);
+            super(list);
         }
     }
 }

@@ -22,9 +22,9 @@
 
 package ob.commands.sprites
 {
+    import nail.commands.Command;
+    
     import otlib.sprites.SpriteData;
-    import nail.workers.Command;
-    import ob.commands.CommandType;
     
     public class SetSpriteListCommand extends Command
     {
@@ -34,7 +34,7 @@ package ob.commands.sprites
         
         public function SetSpriteListCommand(selectedIds:Vector.<uint>, sprites:Vector.<SpriteData>)
         {
-            super(CommandType.SET_SPRITE_LIST, selectedIds, sprites);
+            super(selectedIds, sprites);
         }
     }
 }

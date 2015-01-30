@@ -53,7 +53,7 @@ package otlib.utils
         private var _dat:File;
         private var _spr:File;
         private var _extended:Boolean;
-        private var _filesInfo:FilesInfo;
+        private var _filesInfo:ClientInfo;
         private var _total:uint;
         private var _loaded:uint;
         
@@ -61,7 +61,7 @@ package otlib.utils
         // Getters / Setters
         //--------------------------------------
         
-        public function get filesInfo():FilesInfo { return _filesInfo; }
+        public function get filesInfo():ClientInfo { return _filesInfo; }
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
@@ -96,7 +96,7 @@ package otlib.utils
             _dat = dat;
             _spr = spr;
             _extended = extended;
-            _filesInfo = new FilesInfo();
+            _filesInfo = new ClientInfo();
             _total = 2;
             
             loadNext();

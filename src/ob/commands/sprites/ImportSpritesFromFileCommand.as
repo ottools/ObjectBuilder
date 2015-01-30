@@ -22,9 +22,9 @@
 
 package ob.commands.sprites
 {
-    import ob.commands.CommandType;
+    import nail.commands.Command;
+    
     import otlib.loaders.PathHelper;
-    import nail.workers.Command;
     
     public class ImportSpritesFromFileCommand extends Command
     {
@@ -34,7 +34,7 @@ package ob.commands.sprites
         
         public function ImportSpritesFromFileCommand(list:Vector.<PathHelper>)
         {
-            super(CommandType.IMPORT_SPRITES_FROM_FILES, list);
+            super(list);
         }
     }
 }

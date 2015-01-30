@@ -22,8 +22,7 @@
 
 package ob.commands.sprites
 {
-    import nail.workers.Command;
-    import ob.commands.CommandType;
+    import nail.commands.Command;
     
     public class GetSpriteListCommand extends Command
     {
@@ -31,9 +30,9 @@ package ob.commands.sprites
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function GetSpriteListCommand(target:uint)
+        public function GetSpriteListCommand(targetId:uint)
         {
-            super(CommandType.GET_SPRITE_LIST, target);
+            super(targetId);
         }
     }
 }

@@ -41,11 +41,12 @@ THE SOFTWARE.
             import mx.core.FlexGlobals;
             import mx.events.FlexEvent;
             
-            import nail.workers.Command;
+            import nail.commands.Command;
             
-            import ob.commands.CommandType;
             import ob.commands.ProgressBarID;
+            import ob.commands.ProgressCommand;
             import ob.commands.sprites.OptimizeSpritesCommand;
+            import ob.commands.sprites.OptimizeSpritesResultCommand;
             import ob.core.IObjectBuilder;
             
             //--------------------------------------------------------------------------
@@ -89,8 +90,8 @@ THE SOFTWARE.
             protected function creationCompleteHandler(event:FlexEvent):void
             {
                 m_application = FlexGlobals.topLevelApplication as IObjectBuilder;
-                m_application.registerCallback(CommandType.PROGRESS, progressCallback);
-                m_application.registerCallback(CommandType.OPTIMIZE_SPRITES, optimizationResultCallback);
+                m_application.registerCallback(ProgressCommand, progressCallback);
+                m_application.registerCallback(OptimizeSpritesResultCommand, optimizationResultCallback);
             }
             
             protected function closingHandler(event:Event):void
@@ -101,8 +102,8 @@ THE SOFTWARE.
                     return;
                 }
                 
-                m_application.unregisterCallback(CommandType.PROGRESS, progressCallback);
-                m_application.unregisterCallback(CommandType.OPTIMIZE_SPRITES, optimizationResultCallback);
+                m_application.unregisterCallback(ProgressCommand, progressCallback);
+                m_application.unregisterCallback(OptimizeSpritesResultCommand, optimizationResultCallback);
             }
             
             protected function startButtonClickHandler(event:MouseEvent):void

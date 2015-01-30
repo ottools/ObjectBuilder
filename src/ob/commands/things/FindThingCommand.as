@@ -22,9 +22,9 @@
 
 package ob.commands.things
 {
+    import nail.commands.Command;
+    
     import otlib.things.ThingProperty;
-    import nail.workers.Command;
-    import ob.commands.CommandType;
     
     public class FindThingCommand extends Command
     {
@@ -34,7 +34,7 @@ package ob.commands.things
         
         public function FindThingCommand(category:String, properties:Vector.<ThingProperty>)
         {
-            super(CommandType.FIND_THING, category, properties);
+            super(category, properties);
         }
     }
 }

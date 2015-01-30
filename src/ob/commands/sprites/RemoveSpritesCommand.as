@@ -22,8 +22,7 @@
 
 package ob.commands.sprites
 {
-    import nail.workers.Command;
-    import ob.commands.CommandType;
+    import nail.commands.Command;
     
     public class RemoveSpritesCommand extends Command
     {
@@ -33,7 +32,7 @@ package ob.commands.sprites
         
         public function RemoveSpritesCommand(list:Vector.<uint>)
         {
-            super(CommandType.REMOVE_SPRITES, list);
+            super(list);
         }
     }
 }

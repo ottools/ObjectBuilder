@@ -22,8 +22,7 @@
 
 package ob.commands.sprites
 {
-    import nail.workers.Command;
-    import ob.commands.CommandType;
+    import nail.commands.Command;
     
     public class FindSpritesCommand extends Command
     {
@@ -33,7 +32,7 @@ package ob.commands.sprites
         
         public function FindSpritesCommand(unusedSprites:Boolean, emptySprites:Boolean)
         {
-            super(CommandType.FIND_SPRITES, unusedSprites, emptySprites);
+            super(unusedSprites, emptySprites);
         }
     }
 }

@@ -69,7 +69,7 @@ THE SOFTWARE.
             import otlib.things.ThingCategory;
             import otlib.things.ThingData;
             import otlib.things.ThingType;
-            import otlib.utils.FilesInfo;
+            import otlib.utils.ClientInfo;
             import otlib.utils.OutfitData;
             
             //--------------------------------------------------------------------------
@@ -89,7 +89,7 @@ THE SOFTWARE.
             private var _patternX:uint;
             private var _patternY:uint;
             private var _invalidateThingData:Boolean;
-            private var _filesInfo:FilesInfo;
+            private var _filesInfo:ClientInfo;
             private var _filesInfoChanged:Boolean;
             private var _previewMode:Boolean;
             private var _lastAnimationFrame:uint;
@@ -114,8 +114,8 @@ THE SOFTWARE.
             
             public function get changed():Boolean { return _thingData ? _changed : false; }
             
-            public function get filesInfo():FilesInfo { return _filesInfo; }
-            public function set filesInfo(value:FilesInfo):void
+            public function get filesInfo():ClientInfo { return _filesInfo; }
+            public function set filesInfo(value:ClientInfo):void
             {
                 if (_filesInfo != value) {
                     _filesInfo = value;
@@ -272,7 +272,7 @@ THE SOFTWARE.
                 checkThingOrder();
             }
             
-            private function setFilesInfo(info:FilesInfo):void
+            private function setFilesInfo(info:ClientInfo):void
             {
                 if (!this.thingData || !info) return;
                 

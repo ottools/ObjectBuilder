@@ -21,22 +21,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-<nail:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
-                  xmlns:s="library://ns.adobe.com/flex/spark"
-                  xmlns:mx="library://ns.adobe.com/flex/mx"
-                  xmlns:nail="library://ns.nail.com/naillib"
-                  xmlns:otlib="otlib.components.*"
-                  xmlns:menu="ob.menu.*"
-                  implements="ob.core.IObjectBuilder, slicer.core.ISlicerHost"
-                  minWidth="800"
-                  minHeight="600"
-                  fontSize="11"
-                  showStatusBar="false"
-                  visible="false"
-                  preinitialize="applicationPreinitializeHandler(event)"
-                  creationComplete="creationCompleteHandler(event)"
-                  applicationComplete="applicationCompleteHandler(event)"
-                  closing="applicationClosingHandler(event)">
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+                       xmlns:s="library://ns.adobe.com/flex/spark"
+                       xmlns:mx="library://ns.adobe.com/flex/mx"
+                       xmlns:nail="library://ns.nail.com/naillib"
+                       xmlns:otlib="otlib.components.*"
+                       xmlns:menu="ob.menu.*"
+                       implements="ob.core.IObjectBuilder, slicer.core.ISlicerHost"
+                       minWidth="800"
+                       minHeight="600"
+                       fontSize="11"
+                       showStatusBar="false"
+                       visible="false"
+                       backgroundColor="0x494949"
+                       invoke="applicationInvokeHandler(event)"
+                       preinitialize="applicationPreinitializeHandler(event)"
+                       creationComplete="creationCompleteHandler(event)"
+                       applicationComplete="applicationCompleteHandler(event)"
+                       closing="applicationClosingHandler(event)">
     
     <fx:Style source="../assets/styles/object_builder.css"/>
     
@@ -51,13 +53,20 @@ THE SOFTWARE.
             import mx.core.UIComponent;
             import mx.events.CloseEvent;
             import mx.events.FlexEvent;
+            import mx.logging.ILogger;
+            import mx.logging.LogEventLevel;
             import mx.managers.DragManager;
+            import mx.resources.ResourceManager;
             
             import spark.events.IndexChangeEvent;
             
             import air.update.ApplicationUpdaterUI;
             import air.update.events.UpdateEvent;
             
+            import nail.commands.Command;
+            import nail.commands.Communicator;
+            import nail.commands.ICommunicator;
+            import nail.commands.LogCommand;
             import nail.components.controls.AboutWindow;
             import nail.components.controls.Alert;
             import nail.core.nail_internal;
@@ -65,6 +74,7 @@ THE SOFTWARE.
             import nail.events.MenuEvent;
             import nail.loaders.BitmapLoader;
             import nail.logging.Log;
+            import nail.logging.LogFileTarget;
             import nail.managers.PopUpWindowManager;
             import nail.settings.ISettingsManager;
             import nail.settings.SettingsManager;
@@ -76,13 +86,16 @@ THE SOFTWARE.
             import nail.utils.StringUtil;
             import nail.utils.WindowUtil;
             import nail.utils.isNullOrEmpty;
-            import nail.workers.Command;
             
             import ob.animationeditor.AnimationEditor;
-            import ob.commands.CommandType;
+            import ob.commands.HideProgressBarCommand;
             import ob.commands.LoadVersionsCommand;
             import ob.commands.NeedToReloadCommand;
             import ob.commands.ProgressBarID;
+            import ob.commands.ProgressCommand;
+            import ob.commands.SetClientInfoCommand;
+            import ob.commands.SettingsCommand;
+            import ob.commands.ShowProgressBarCommand;
             import ob.commands.files.CompileAsCommand;
             import ob.commands.files.CompileCommand;
             import ob.commands.files.CreateNewFilesCommand;
@@ -92,9 +105,11 @@ THE SOFTWARE.
             import ob.commands.sprites.GetSpriteListCommand;
             import ob.commands.sprites.ImportSpritesCommand;
             import ob.commands.sprites.ImportSpritesFromFileCommand;
+            import ob.commands.sprites.NewSpriteCommand;
             import ob.commands.sprites.RemoveSpritesCommand;
             import ob.commands.sprites.ReplaceSpritesCommand;
             import ob.commands.sprites.ReplaceSpritesFromFilesCommand;
+            import ob.commands.sprites.SetSpriteListCommand;
             import ob.commands.things.DuplicateThingCommand;
             import ob.commands.things.ExportThingCommand;
             import ob.commands.things.GetThingCommand;
@@ -104,6 +119,8 @@ THE SOFTWARE.
             import ob.commands.things.RemoveThingCommand;
             import ob.commands.things.ReplaceThingsCommand;
             import ob.commands.things.ReplaceThingsFromFilesCommand;
+            import ob.commands.things.SetThingDataCommand;
+            import ob.commands.things.SetThingListCommand;
             import ob.commands.things.UpdateThingCommand;
             import ob.components.PreferencesWindow;
             import ob.components.SplashScreen;
@@ -130,6 +147,7 @@ THE SOFTWARE.
             import otlib.events.ThingEditorEvent;
             import otlib.geom.Rect;
             import otlib.loaders.PathHelper;
+            import otlib.resources.Resources;
             import otlib.sprites.SpriteData;
             import otlib.things.Animator;
             import otlib.things.FrameDuration;
@@ -139,7 +157,7 @@ THE SOFTWARE.
             import otlib.things.ThingData;
             import otlib.things.ThingProperty;
             import otlib.things.ThingType;
-            import otlib.utils.FilesInfo;
+            import otlib.utils.ClientInfo;
             import otlib.utils.OTFormat;
             import otlib.utils.SpriteUtils;
             import otlib.utils.ThingListItem;
@@ -155,6 +173,11 @@ THE SOFTWARE.
             [Embed(source="../workerswfs/ob/core/ObjectBuilderWorker.swf", mimeType="application/octet-stream")]
             public const ObjectBuilderWorker:Class;
             
+            private var _creationComplete:Boolean;
+            private var _invokeArgs:Array;
+            private var _communicator:ICommunicator;
+            private var _logger:ILogger;
+            private var _logTarget:LogFileTarget;
             private var _splashScreen:SplashScreen;
             private var _settingsManager:ISettingsManager;
             private var _settings:ObjectBuilderSettings;
@@ -164,7 +187,6 @@ THE SOFTWARE.
             private var _nextThingData:ThingData;
             private var _thingDataChanged:Boolean;
             private var _filesName:String;
-            private var _info:FilesInfo;
             private var _selectThingIndex:int;
             private var _logText:String = "";
             private var _logWindow:LogWindow;
@@ -184,30 +206,25 @@ THE SOFTWARE.
             private var _categoryChanged:Boolean;
             private var _objectViewer:ObjectViewer;
             private var _slicer:Slicer;
+            private var _clientInfo:ClientInfo;
+            private var _clientChanged:Boolean;
+            private var _clientIsTemporary:Boolean;
+            private var _clientLoaded:Boolean;
             
             //--------------------------------------
             // Getters / Setters 
             //--------------------------------------
             
-            public function get filesInfo():FilesInfo { return _info; }
-            public function get loaded():Boolean { return (_info != null); }
+            public function get running():Boolean { return _communicator.running; }
+            public function get background():Boolean { return _communicator.background; }
+            public function get settingsManager():ISettingsManager { return _settingsManager; }
+            public function get settings():ObjectBuilderSettings { return _settings; }
+            public function get versionStorage():IVersionStorage { return _versionStorage; }
             
-            public function get compiled():Boolean {
-                var value:* = getSharedProperty("compiled");
-                if (value !== undefined) {
-                    return value;
-                }
-                return false;
-            }
-            
-            public function get isTemporary():Boolean
-            {
-                var value:* = getSharedProperty("isTemporary");
-                if (value !== undefined) {
-                    return value;
-                }
-                return false;
-            }
+            public function get clientInfo():ClientInfo { return _clientInfo; }
+            public function get clientChanged():Boolean { return _clientChanged; }
+            public function get clientIsTemporary():Boolean { return _clientIsTemporary; }
+            public function get clientLoaded():Boolean { return _clientLoaded; }
             
             public function get thingData():ThingData { return _thingData; }
             public function set thingData(value:ThingData):void
@@ -259,10 +276,6 @@ THE SOFTWARE.
                 }
             }
             
-            public function get settingsManager():ISettingsManager { return _settingsManager; }
-            public function get settings():ObjectBuilderSettings { return _settings; }
-            public function get versionStorage():IVersionStorage { return _versionStorage; }
-            
             //--------------------------------------------------------------------------
             // METHODS
             //--------------------------------------------------------------------------
@@ -270,6 +283,26 @@ THE SOFTWARE.
             //--------------------------------------
             // Public
             //--------------------------------------
+            
+            public function registerCallback(commandClass:Class, callback:Function):void
+            {
+                _communicator.registerCallback(commandClass, callback);
+            }
+            
+            public function unregisterCallback(commandClass:Class, callback:Function):void
+            {
+                _communicator.unregisterCallback(commandClass, callback);
+            }
+            
+            public function sendCommand(command:Command):void
+            {
+                _communicator.sendCommand(command);
+            }
+            
+            public function start():void
+            {
+                //unused
+            }
             
             public function loadFiles(datFile:File, sprFile:File, version:Version, extended:Boolean, transparency:Boolean):void
             {
@@ -320,7 +353,7 @@ THE SOFTWARE.
             
             public function importThingsFromFiles(list:Vector.<PathHelper>):void
             {
-                if (!this.loaded || !list || list.length == 0) return;
+                if (!this.clientLoaded || !list || list.length == 0) return;
                 sendCommand(new ImportThingsFromFilesCommand(list));
             }
             
@@ -331,7 +364,7 @@ THE SOFTWARE.
                                          transparentBackground:Boolean,
                                          jpegQuality:uint):void
             {
-                if (!this.loaded || !fileDataList || fileDataList.length == 0 || isNullOrEmpty(category) || !version) return;
+                if (!this.clientLoaded || !fileDataList || fileDataList.length == 0 || isNullOrEmpty(category) || !version) return;
                 var length:uint = fileDataList.length;
                 var list:Vector.<PathHelper> = new Vector.<PathHelper>(length, true);
                 for (var i:uint = 0; i < length; i++) {
@@ -342,45 +375,45 @@ THE SOFTWARE.
             
             public function replaceThings(list:Vector.<ThingData>):void
             {
-                if (!this.loaded || !list || list.length == 0) return;
+                if (!this.clientLoaded || !list || list.length == 0) return;
                 sendCommand(new ReplaceThingsCommand(list));
             }
             
             public function duplicateThings(ids:Vector.<uint>, category:String):void
             {
-                if (!this.loaded || !ids || ids.length == 0 || isNullOrEmpty(category)) return;
+                if (!this.clientLoaded || !ids || ids.length == 0 || isNullOrEmpty(category)) return;
                 sendCommand(new DuplicateThingCommand(ids, category));
             }
             
             public function replaceThingsFromFiles(list:Vector.<PathHelper>):void
             {
-                if (!this.loaded || !list || list.length == 0) return;
+                if (!this.clientLoaded || !list || list.length == 0) return;
                 sendCommand(new ReplaceThingsFromFilesCommand(list));
             }
             
             public function removeThing(thing:ThingType, removeSprites:Boolean = false):void
             {
-                if (this.loaded && thing) {
+                if (this.clientLoaded && thing) {
                     sendCommand(new RemoveThingCommand(Vector.<uint>([thing.id]), thing.category, removeSprites));
                 }
             }
             
             public function removeThings(list:Vector.<uint>, category:String, removeSprites:Boolean = false):void
             {
-                if (this.loaded && list && !isNullOrEmpty(category)) {
+                if (this.clientLoaded && list && !isNullOrEmpty(category)) {
                     sendCommand(new RemoveThingCommand(list, category, removeSprites));
                 }
             }
             
             public function importSprites(list:Vector.<ByteArray>):void
             {
-                if (!this.loaded || !list || list.length == 0) return;
+                if (!this.clientLoaded || !list || list.length == 0) return;
                 sendCommand(new ImportSpritesCommand(list));
             }
             
             public function importSpritesFromFiles(list:Vector.<PathHelper>):void
             {
-                if (!this.loaded || !list || list.length == 0) return;
+                if (!this.clientLoaded || !list || list.length == 0) return;
                 sendCommand(new ImportSpritesFromFileCommand(list));
             }
             
@@ -388,7 +421,7 @@ THE SOFTWARE.
                                           transparentBackground:Boolean,
                                           jpegQuality:uint):void
             {
-                if (!this.loaded || !fileDataList || fileDataList.length == 0) return;
+                if (!this.clientLoaded || !fileDataList || fileDataList.length == 0) return;
                 var length:uint = fileDataList.length;
                 var list:Vector.<PathHelper> = new Vector.<PathHelper>(length, true);
                 for (var i:uint = 0; i < length; i++) {
@@ -399,33 +432,33 @@ THE SOFTWARE.
             
             public function replaceSprite(id:uint, bitmap:BitmapData):void
             {
-                if (!this.loaded || id == 0 || !bitmap) return;
+                if (!this.clientLoaded || id == 0 || !bitmap) return;
                 var spriteData:SpriteData = SpriteData.createSpriteData(id, bitmap.getPixels(bitmap.rect));
                 sendCommand(new ReplaceSpritesCommand(Vector.<SpriteData>([spriteData])));
             }
             
             public function replaceSprites(sprites:Vector.<SpriteData>):void
             {
-                if (!this.loaded || !sprites || sprites.length == 0) return;
+                if (!this.clientLoaded || !sprites || sprites.length == 0) return;
                 sendCommand(new ReplaceSpritesCommand(sprites));
             }
             
             public function replaceSpritesFromFiles(list:Vector.<PathHelper>):void
             {
-                if (!this.loaded || !list || list.length == 0) return;
+                if (!this.clientLoaded || !list || list.length == 0) return;
                 sendCommand(new ReplaceSpritesFromFilesCommand(list));
             }
             
             public function removeSpritesIds(sprites:Vector.<uint>):void
             {
-                if (!this.loaded || !sprites || sprites.length == 0) return;
+                if (!this.clientLoaded || !sprites || sprites.length == 0) return;
                 sprites.sort(Array.NUMERIC | Array.DESCENDING);
                 sendCommand(new RemoveSpritesCommand(sprites));
             }
             
             public function removeSprites(sprites:Vector.<SpriteData>):void
             {
-                if (!this.loaded || !sprites || sprites.length == 0) return;
+                if (!this.clientLoaded || !sprites || sprites.length == 0) return;
                 var length:uint = sprites.length;
                 var list:Vector.<uint> = new Vector.<uint>(length, true);
                 for (var i:uint = 0; i < length; i++) {
@@ -446,20 +479,21 @@ THE SOFTWARE.
                 
                 function closeHandler(event:Event):void
                 {
-                    if (window.detail == DialogDetail.CONFIRM) {
-                        setSharedProperty("objectsListAmount", _settings.objectsListAmount);
-                        setSharedProperty("spritesListAmount", _settings.spritesListAmount);
+                    if (window.detail == DialogDetail.CONFIRM)
+                    {
                         thingStepper.amount = _settings.objectsListAmount;
                         spriteStepper.amount = _settings.spritesListAmount;
+                        
+                        sendCommand(new SettingsCommand(_settings));
                     }
                 }
             }
             
             public function compile():void
             {
-                if (!loaded) return;
+                if (!clientLoaded) return;
                 
-                if (isTemporary) {
+                if (clientIsTemporary) {
                     compileAs();
                     return;
                 }
@@ -473,13 +507,13 @@ THE SOFTWARE.
             
             public function compileAs():void
             {
-                if (!this.loaded) return;
+                if (!this.clientLoaded) return;
                 
                 var window:CompileFilesWindow = new CompileFilesWindow();
                 window.directory = _settings.getLastDirectory();
-                window.version = _versionStorage.getFromFilesInfo(_info);
-                window.extended = _info.extended;
-                window.transparency = _info.transparency;
+                window.version = _versionStorage.getFromFilesInfo(_clientInfo);
+                window.extended = _clientInfo.extended;
+                window.transparency = _clientInfo.transparency;
                 window.filesName = isNullOrEmpty(_filesName) ? "Tibia" : _filesName;
                 window.addEventListener(Event.CLOSE, windowCloseHandler);
                 window.open();
@@ -506,7 +540,7 @@ THE SOFTWARE.
             
             public function unload():void
             {
-                if (!this.loaded) return;
+                if (!this.clientLoaded) return;
                 this.clear();
                 sendCommand(new UnloadFilesCommand());
             }
@@ -523,7 +557,7 @@ THE SOFTWARE.
             
             public function saveThingChanges():void
             {
-                if (this.loaded && this.thingData && this.thingTypeEditor.changed) {
+                if (this.clientLoaded && this.thingData && this.thingTypeEditor.changed) {
                     if (this.thingTypeEditor.saveChanges()) {
                         sendCommand(new UpdateThingCommand(thingTypeEditor.thingData, true));
                     }
@@ -619,7 +653,7 @@ THE SOFTWARE.
             
             private function openSpritesOptimizer():void
             {
-                if (!loaded) return;
+                if (!clientLoaded) return;
                 
                 var window:SpritesOptimizerWindow = new SpritesOptimizerWindow();
                 window.open();
@@ -642,7 +676,7 @@ THE SOFTWARE.
             {
                 _thingData = null;
                 _thingDataChanged = false;
-                _info = null;
+                _clientInfo = null;
                 _nextThingData = null;
                 _selectThingIndex = -1;
                 
@@ -661,11 +695,12 @@ THE SOFTWARE.
             // Override Public
             //--------------------------------------
             
-            override public function register():void
+            public function register():void
             {
+                registerClassAlias("ObjectBuilderSettings", ObjectBuilderSettings);
                 registerClassAlias("Version", Version);
                 registerClassAlias("ThingType", ThingType);
-                registerClassAlias("FilesInfo", FilesInfo);
+                registerClassAlias("ClientInfo", ClientInfo);
                 registerClassAlias("ThingData", ThingData);
                 registerClassAlias("SpriteData", SpriteData);
                 registerClassAlias("ByteArray", ByteArray);
@@ -677,40 +712,16 @@ THE SOFTWARE.
                 registerClassAlias("LoopStrategy", LoopStrategy);
                 registerClassAlias("Animator", Animator);
                 
-                registerCallback("internalLog", onInternalLog);
-                registerCallback(CommandType.PROGRESS, onProgress);
-                registerCallback(CommandType.SHOW_PROGRESS_BAR, onShowProgressBar);
-                registerCallback(CommandType.HIDE_PROGRESS_BAR, onHideProgressBar);
-                registerCallback(CommandType.LOAD_COMPLETE, onLoadComplete);
-                registerCallback(CommandType.CLIENT_CHANGED, onClientChanged);
-                registerCallback(CommandType.FILES_INFO, onSetAssetsInfo);
-                registerCallback(CommandType.SET_THING, onSetThingData);
-                registerCallback(CommandType.SET_THING_LIST, onSetThingList);
-                registerCallback(CommandType.SET_SPRITE_LIST, onSetSpriteList);
-                registerCallback(CommandType.NEED_TO_RELOAD, onNeedToReload);
-            }
-            
-            override public function onInternalLog(level:uint, message:String, stack:String, id:uint):void
-            {
-                this.hideDatSprProgressBar();
-                this.hideDefaultProgressBar();
+                registerCallback(LogCommand, onInternalLog);
+                registerCallback(ProgressCommand, onProgress);
+                registerCallback(ShowProgressBarCommand, onShowProgressBar);
+                registerCallback(HideProgressBarCommand, onHideProgressBar);
+                registerCallback(SetClientInfoCommand, onSetClientInfo);
                 
-                if (level != Log.INFO) {
-                    super.onInternalLog(level, message, stack, id);
-                    
-                    // Show message
-                    if (!_errorAlert) {
-                        _errorAlert = Alert.show(message,
-                            toLogString(level),
-                            Alert.OK, 
-                            this,
-                            errorAlertCloseHandler);
-                    } else {
-                        _errorAlert.text += "\n" + message;
-                    }
-                }
-                
-                this.appendLog(message);
+                registerCallback(SetThingDataCommand, onSetThingData);
+                registerCallback(SetThingListCommand, onSetThingList);
+                registerCallback(SetSpriteListCommand, onSetSpriteList);
+                registerCallback(NeedToReloadCommand, onNeedToReload);
             }
             
             //--------------------------------------
@@ -750,18 +761,17 @@ THE SOFTWARE.
                 }
             }
             
-            override protected function getWorkerByteClass():ByteArray
-            {
-                return new ObjectBuilderWorker() as ByteArray;
-            }
+            //--------------------------------------
+            // Private
+            //--------------------------------------
             
-            override protected function applicationLoadComplete():void
+            private function applicationLoadComplete():void
             {
-                loadVersions();
+                visible = true;
+                activate();
                 
-                if (_settings.maximized) {
+                if (_settings.maximized)
                     this.maximize();
-                }
                 
                 previewPanel.width = Math.max(previewPanel.minWidth, _settings.previewContainerWidth);
                 thingsPanel.width = Math.max(thingsPanel.minWidth, _settings.thingListContainerWidth);
@@ -769,32 +779,64 @@ THE SOFTWARE.
                 showPreviewPanel = _settings.showPreviewPanel;
                 showThingsPanel = _settings.showThingsPanel;
                 showSpritesPanel = _settings.showSpritesPanel;
-                setSharedProperty("objectsListAmount", _settings.objectsListAmount);
-                setSharedProperty("spritesListAmount", _settings.spritesListAmount);
                 thingStepper.amount = _settings.objectsListAmount;
                 spriteStepper.amount = _settings.spritesListAmount;
                 
-                super.applicationLoadComplete();
+                if (_invokeArgs) {
+                    setInvokeArgs(_invokeArgs);
+                    _invokeArgs = null;
+                }
+                
+                _creationComplete = true;
             }
             
-            override protected function setInvokeArgs(args:Array):void
+            private function setInvokeArgs(args:Array):void
             {
-                if (args) {
+                if (args)
+                {
                     var path:String = args[0];
-                    if (!isNullOrEmpty(path)) {
+                    if (!isNullOrEmpty(path))
+                    {
                         var file:File = new File(path);
-                        if (file.extension == OTFormat.DAT || file.extension == OTFormat.SPR) {
+                        
+                        if (file.extension == OTFormat.DAT || file.extension == OTFormat.SPR)
                             openClient(FileUtil.getDirectory(file));
-                        } else if (file.extension == OTFormat.OBD) {
+                        else if (file.extension == OTFormat.OBD)
                             openObjectViewer(file);
-                        }
                     }
                 }
             }
             
-            //--------------------------------------
-            // Private
-            //--------------------------------------
+            private function createLogging():void 
+            {
+                _logTarget = new LogFileTarget();
+                _logTarget.filters = ["*"];
+                _logTarget.level = LogEventLevel.ALL;
+                _logTarget.includeDate = true;
+                _logTarget.includeTime = true;
+                _logTarget.includeLevel = true;
+                
+                mx.logging.Log.addTarget(_logTarget);
+            }
+            
+            private function createWorker():void
+            {
+                var workerBytesClass:ByteArray = new ObjectBuilderWorker() as ByteArray;
+                _communicator = new Communicator(workerBytesClass);
+                _communicator.start();
+            }
+            
+            private function createSplashScreen():void
+            {
+                _splashScreen = new SplashScreen();
+                _splashScreen.addEventListener(Event.CLOSE,
+                    function():void
+                    { 
+                        applicationLoadComplete();
+                        _splashScreen = null;
+                    });
+                _splashScreen.open();
+            }
             
             private function loadSettings():void
             {
@@ -809,6 +851,8 @@ THE SOFTWARE.
                 }
                 
                 this.resourceManager.localeChain = _settings.getLanguage();
+                
+                sendCommand(new SettingsCommand(_settings));
                 
                 _splashScreen.status = resourceManager.getString("strings", "loadingSettings") + "...";
             }
@@ -854,21 +898,29 @@ THE SOFTWARE.
                 }
                 
                 // Clear the application log
-                this.logTarget.clear();
+                _logTarget.clear();
             }
             
-            private function onSetAssetsInfo(info:FilesInfo):void
+            private function onSetClientInfo(info:ClientInfo):void
             {
-                _info = info;
+                if (!info)
+                    throw new NullArgumentError("info");
+                
+                _clientInfo = info;
+                _clientChanged = info.changed;
+                _clientIsTemporary = info.isTemporary;
+                _clientLoaded = info.loaded;
+                
                 infoPanel.setFilesInfo(info);
                 thingTypeEditor.filesInfo = info;
                 
-                if (info) {
-                    thingStepper.minimum = getMinThingId();
-                    thingStepper.maximum = getMaxThingId();
-                    spriteStepper.minimum = info.minSpriteId;
-                    spriteStepper.maximum = info.maxSpriteId;
-                }
+                thingStepper.minimum = getMinThingId();
+                thingStepper.maximum = getMaxThingId();
+                spriteStepper.minimum = info.minSpriteId;
+                spriteStepper.maximum = info.maxSpriteId;
+                
+                compileButton.enabled = (_clientChanged && !_clientIsTemporary);
+                compileAsButton.enabled = (_clientChanged || _clientIsTemporary);
             }
             
             private function onSetThingData(thingData:ThingData):void
@@ -1008,7 +1060,7 @@ THE SOFTWARE.
             private function selectSprite(id:uint):void
             {
                 // Return if id is current selected.
-                if (!this.loaded || this.spritesList.selectedId == id)  return;
+                if (!this.clientLoaded || this.spritesList.selectedId == id)  return;
                 
                 // Search index if id is in range of loaded list.
                 if (id >= spritesList.minId && id <= spritesList.maxId) {
@@ -1022,7 +1074,7 @@ THE SOFTWARE.
             
             private function onCopySprite():void
             {
-                if (!this.loaded) return;
+                if (!this.clientLoaded) return;
                 
                 var data:SpriteData = spritesList.selectedSprite;
                 if (data) {
@@ -1034,7 +1086,7 @@ THE SOFTWARE.
             
             private function onPasteSprite():void
             {
-                if (!this.loaded) return;
+                if (!this.clientLoaded) return;
                 
                 if (Clipboard.generalClipboard.hasFormat(ClipboardFormats.BITMAP_FORMAT)) {
                     var bitmap:BitmapData = BitmapData(Clipboard.generalClipboard.getData(ClipboardFormats.BITMAP_FORMAT));
@@ -1116,7 +1168,7 @@ THE SOFTWARE.
             
             private function openFindWindow():void
             {
-                if (!this.loaded) return;
+                if (!this.clientLoaded) return;
                 
                 if (!_findThingWindow) {
                     _findThingWindow = new FindWindow();
@@ -1167,35 +1219,47 @@ THE SOFTWARE.
             
             private function getMinThingId():uint
             {
-                if (this.loaded) {
-                    switch (this.currentCategory) {
+                if (this.clientLoaded)
+                {
+                    switch (this.currentCategory)
+                    {
                         case ThingCategory.ITEM:
-                            return _info.minItemId;
+                            return _clientInfo.minItemId;
+                            
                         case ThingCategory.OUTFIT:
-                            return _info.minOutfitId;
+                            return _clientInfo.minOutfitId;
+                            
                         case ThingCategory.EFFECT:
-                            return _info.minEffectId;
+                            return _clientInfo.minEffectId;
+                            
                         case ThingCategory.MISSILE:
-                            return _info.minMissileId;
+                            return _clientInfo.minMissileId;
                     }
                 }
+                
                 return 0;
             }
             
             private function getMaxThingId():uint
             {
-                if (this.loaded) {
-                    switch(currentCategory) {
+                if (this.clientLoaded)
+                {
+                    switch(currentCategory)
+                    {
                         case ThingCategory.ITEM:
-                            return _info.maxItemId;
+                            return _clientInfo.maxItemId;
+                            
                         case ThingCategory.OUTFIT:
-                            return _info.maxOutfitId;
+                            return _clientInfo.maxOutfitId;
+                            
                         case ThingCategory.EFFECT:
-                            return _info.maxEffectId;
+                            return _clientInfo.maxEffectId;
+                            
                         case ThingCategory.MISSILE:
-                            return _info.maxMissileId;
+                            return _clientInfo.maxMissileId;
                     }
                 }
+                
                 return 0;
             }
             
@@ -1305,17 +1369,37 @@ THE SOFTWARE.
                 }
             }
             
-            private function onLoadComplete():void
+            private function onInternalLog(level:uint, message:String, stack:String, id:uint):void
             {
-                this.clear();
-                this.sendCommand(new Command(CommandType.FILES_INFO));
-                this.sendCommand(new GetSpriteListCommand(0));
-                this.sendCommand(new GetThingCommand(100, ThingCategory.ITEM));
-            }
-            
-            private function onClientChanged(thingsChanged:Boolean, spritesChanged:Boolean):void
-            {
-                //trace(spritesChanged, thingsChanged);
+                this.hideDatSprProgressBar();
+                this.hideDefaultProgressBar();
+                
+                if (level != Log.INFO)
+                {
+                    if (id != 0)
+                        message = StringUtil.format("#id {0}={1}", id, message);
+                    
+                    if (!isNullOrEmpty(stack))
+                        message = (message + File.lineEnding + stack);
+                    
+                    _logger.log(level, message);
+                    
+                    // Show message
+                    if (!_errorAlert)
+                    {
+                        _errorAlert = Alert.show(message,
+                            toLogString(level),
+                            Alert.OK, 
+                            this,
+                            errorAlertCloseHandler);
+                    }
+                    else
+                    {
+                        _errorAlert.text += "\n" + message;
+                    }
+                }
+                
+                this.appendLog(message);
             }
             
             private function onProgress(id:uint, loaded:uint, total:uint, label:String):void
@@ -1352,7 +1436,7 @@ THE SOFTWARE.
             
             private function onSetCategory(category:String):void
             {
-                if (this.loaded) {
+                if (this.clientLoaded) {
                     switch(category) {
                         case ThingCategory.ITEM:
                             categoryDropDownList.selectedIndex = 0;
@@ -1377,22 +1461,49 @@ THE SOFTWARE.
                 }
             }
             
+            private function updateTitle(info:String = "", saved:Boolean = true):void
+            {
+                var text:String = Descriptor.getName();
+                
+                if (!isNullOrEmpty(info))
+                    text += " - " + info;
+                
+                if (!saved)
+                    text += "*";
+                
+                this.title = text;
+            }
+            
             //--------------------------------------
             // Event Handlers
             //--------------------------------------
             
+            protected function applicationInvokeHandler(event:InvokeEvent):void
+            {
+                if (event.arguments && event.arguments.length > 0)
+                {
+                    if (_creationComplete)
+                        this.setInvokeArgs(event.arguments);
+                    else
+                        _invokeArgs = event.arguments;
+                }
+            }
+            
             protected function applicationPreinitializeHandler(event:FlexEvent):void
             {
-                _splashScreen = new SplashScreen();
-                _splashScreen.addEventListener(Event.CLOSE, splashScreenCloseHandler);
-                _splashScreen.open();
+                Resources.manager = ResourceManager.getInstance();
+                Log.communicator = this;
                 
+                _logger = mx.logging.Log.getLogger("ObjectBuilder");
                 _settingsManager = SettingsManager.getInstance();
+                _category = ThingCategory.ITEM;
                 
-                register();
                 createLogging();
                 createWorker();
+                register();
+                createSplashScreen();
                 loadSettings();
+                loadVersions();
             }
             
             protected function creationCompleteHandler(event:FlexEvent):void
@@ -1422,7 +1533,7 @@ THE SOFTWARE.
                 this.saveSettings();
                 this.saveVersions();
                 
-                if (this.loaded && !this.compiled) {
+                if (this.clientLoaded && this.clientChanged) {
                     event.preventDefault();
                     Alert.show(
                         resourceManager.getString("strings", "wantToCompile"),
@@ -1473,7 +1584,7 @@ THE SOFTWARE.
             
             protected function thingListChangeHandler(event:IndexChangeEvent):void
             {
-                if (!this.loaded) return;
+                if (!this.clientLoaded) return;
                 if (thingList.selectedId != 0) {
                     sendCommand(new GetThingCommand(thingList.selectedId, this.currentCategory));
                 }
@@ -1539,14 +1650,14 @@ THE SOFTWARE.
             
             protected function thingStepperChangeHandler(event:Event):void
             {
-                if (this.loaded && this.thingData) {
+                if (this.clientLoaded && this.thingData) {
                     sendCommand(new GetThingCommand(thingStepper.value, this.currentCategory));
                 }
             }
             
             protected function replaceThingHandler(event:Event):void
             {
-                if (!this.loaded) return;
+                if (!this.clientLoaded) return;
                 
                 var filter:FileFilter = new FileFilter("Object Builder Data", "*.obd;");
                 var file:File = _settings.getIODirectory() || File.userDirectory;
@@ -1584,7 +1695,7 @@ THE SOFTWARE.
             
             protected function importThingHandler(event:Event):void
             {
-                if (!this.loaded) return;
+                if (!this.clientLoaded) return;
                 
                 var filter:FileFilter = new FileFilter("Object Builder Data", "*.obd;");
                 var file:File = _settings.getIODirectory() || File.userDirectory;
@@ -1612,14 +1723,14 @@ THE SOFTWARE.
             
             protected function exportThingHandler(event:Event):void
             {
-                if (!this.loaded) return;
+                if (!this.clientLoaded) return;
                 
                 var things:Vector.<ThingType> = thingList.selectedThings;
                 if (things.length == 0) return;
                 
                 var version:Version = _settings.getLastExportThingVersion();
                 if (!version) {
-                    version = _versionStorage.getFromFilesInfo(_info);
+                    version = _versionStorage.getFromFilesInfo(_clientInfo);
                 }
                 
                 var window:ExportWindow = new ExportWindow();
@@ -1664,7 +1775,7 @@ THE SOFTWARE.
             
             protected function duplicateThingHandler(event:Event):void
             {
-                if (!this.loaded) return;
+                if (!this.clientLoaded) return;
                 var things:Vector.<uint> = thingList.selectedIds;
                 if (things && things.length > 0) {
                     duplicateThings(things, currentCategory);
@@ -1673,7 +1784,7 @@ THE SOFTWARE.
             
             protected function editThingHandler(event:Event):void
             {
-                if (!this.loaded || thingTypeEditor.thingData == this.thingData) return;
+                if (!this.clientLoaded || thingTypeEditor.thingData == this.thingData) return;
                 
                 if (_settings.autosaveThingChanges) {
                     this.saveThingChanges();
@@ -1715,7 +1826,7 @@ THE SOFTWARE.
             
             protected function newThingHandler(event:Event):void
             {
-                if (this.loaded) {
+                if (this.clientLoaded) {
                     if (this.currentCategory) {
                         sendCommand(new NewThingCommand(this.currentCategory));
                     }
@@ -1724,7 +1835,7 @@ THE SOFTWARE.
             
             protected function removeThingHandler(event:Event):void
             {
-                if (this.loaded) {
+                if (this.clientLoaded) {
                     var selectedIds:Vector.<uint> = thingList.selectedIds;
                     if (selectedIds && selectedIds.length > 0) {
                         removeThings(selectedIds, this.currentCategory);
@@ -1741,7 +1852,7 @@ THE SOFTWARE.
             
             protected function thingDataNativeDragEnterHandler(event:NativeDragEvent):void
             {
-                if (loaded && event.target === thingViewGroup || event.target === thingList) {
+                if (clientLoaded && event.target === thingViewGroup || event.target === thingList) {
                     if (event.clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) {
                         NativeDragManager.dropAction = NativeDragActions.LINK;
                         DragManager.acceptDragDrop(UIComponent(event.target));
@@ -1751,7 +1862,7 @@ THE SOFTWARE.
             
             protected function thingDataNativeDragDropHandler(event:NativeDragEvent):void
             {
-                if (!this.loaded) return;
+                if (!this.clientLoaded) return;
                 
                 var clipboard:Clipboard = event.clipboard;
                 if (clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) {
@@ -1774,7 +1885,7 @@ THE SOFTWARE.
             
             protected function thingEditorDragEnterHandler(event:NativeDragEvent):void
             {
-                if (loaded && event.target === thingTypeEditor.buttonsContainer) {
+                if (clientLoaded && event.target === thingTypeEditor.buttonsContainer) {
                     if (event.clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) {
                         NativeDragManager.dropAction = NativeDragActions.LINK;
                         DragManager.acceptDragDrop(thingTypeEditor.buttonsContainer);
@@ -1784,7 +1895,7 @@ THE SOFTWARE.
             
             protected function thingEditorDragDropHandler(event:NativeDragEvent):void
             {
-                if (!this.loaded) return;
+                if (!this.clientLoaded) return;
                 
                 var clipboard:Clipboard = event.clipboard;
                 if (clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) {
@@ -1819,7 +1930,7 @@ THE SOFTWARE.
             
             protected function replaceSpriteHandler(event:Event):void
             {
-                if (!this.loaded) return;
+                if (!this.clientLoaded) return;
                 
                 var filters:Array = ObUtils.createImagesFileFilter();
                 var file:File = _settings.getIODirectory() || File.userDirectory;
@@ -1860,7 +1971,7 @@ THE SOFTWARE.
             
             protected function importSpriteHandler(event:MouseEvent):void
             {
-                if (!this.loaded) return;
+                if (!this.clientLoaded) return;
                 
                 var filters:Array = ObUtils.createImagesFileFilter();
                 var file:File = _settings.getIODirectory() || File.userDirectory;
@@ -1890,7 +2001,7 @@ THE SOFTWARE.
             
             protected function exportSpriteHandler(event:Event):void
             {
-                if (!this.loaded) return;
+                if (!this.clientLoaded) return;
                 
                 var sprites:Vector.<SpriteData> = spritesList.selectedSprites;
                 if (sprites.length == 0) return;
@@ -1931,8 +2042,8 @@ THE SOFTWARE.
             
             protected function newSpriteButtonClickHandler(event:MouseEvent):void
             {
-                if (this.loaded) {
-                    sendCommand(new Command(CommandType.NEW_SPRITE));
+                if (this.clientLoaded) {
+                    sendCommand(new NewSpriteCommand());
                 }
             }
             
@@ -1943,7 +2054,7 @@ THE SOFTWARE.
             
             protected function spritesListChangeHandler(event:IndexChangeEvent):void
             {
-                if (this.loaded) {
+                if (this.clientLoaded) {
                     spriteStepper.value = this.spritesList.selectedId;
                     var enable:Boolean = !spritesList.multipleSelected;
                     copySpriteButton.enabled = enable;
@@ -1953,14 +2064,14 @@ THE SOFTWARE.
             
             protected function spriteStepperChangeHandler(event:Event):void
             {
-                if (this.loaded) {
+                if (this.clientLoaded) {
                     selectSprite(spriteStepper.value);
                 }
             }
             
             protected function spritesListNativeDragEnterHandler(event:NativeDragEvent):void
             {
-                if (loaded && event.target === spritesList) {
+                if (clientLoaded && event.target === spritesList) {
                     if (event.clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) {
                         NativeDragManager.dropAction = NativeDragActions.LINK;
                         DragManager.acceptDragDrop(spritesList);
@@ -1970,7 +2081,7 @@ THE SOFTWARE.
             
             protected function spritesListNativeDragDropHandler(event:NativeDragEvent):void
             {
-                if (!this.loaded) return;
+                if (!this.clientLoaded) return;
                 
                 var clipboard:Clipboard = event.clipboard;
                 if (clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) {
@@ -2161,10 +2272,10 @@ THE SOFTWARE.
         ]]>
     </fx:Script>
     
-    <nail:menu>
+    <s:menu>
         <menu:Menu id="nativeMenu"
                    selected="nativeMenuSelectedHandler(event)"/>
-    </nail:menu>
+    </s:menu>
     
     <!-- tool bar -->
     <s:Group width="100%"
@@ -2190,57 +2301,79 @@ THE SOFTWARE.
                   verticalAlign="middle"
                   paddingLeft="10"
                   paddingRight="10">
-            <s:Button width="25"
+            
+            <s:Button id="newButton"
+                      width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.new')}"
                       icon="{Assets.NEW_FILE}"
                       click="onCreateNew()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
-            <s:Button width="25"
+            
+            <s:Button id="openButton"
+                      width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.open')}"
                       icon="{Assets.OPEN}"
                       click="openClient()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
-            <s:Button width="25"
+            
+            <s:Button id="compileButton"
+                      width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.compile')}"
                       icon="{Assets.SAVE}"
+                      enabled="false"
                       click="compile()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
-            <s:Button width="25"
+            
+            <s:Button id="compileAsButton"
+                      width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.compileAs')}"
                       icon="{Assets.SAVE_AS}"
+                      enabled="false"
                       click="compileAs()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
+            
             <nail:ShadowLine height="20"/>
-            <s:Button width="25"
+            
+            <s:Button id="findButton"
+                      width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'find')}"
                       icon="{Assets.BINOCULARS}"
                       click="openFindWindow()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
-            <s:Button width="25"
+            
+            <s:Button id="objectViewerButton"
+                      width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'objectViewer')}"
                       icon="{Assets.VIEWER}"
                       click="openObjectViewer()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
-            <s:Button width="25"
+            
+            <s:Button id="slicerButton"
+                      width="25"
                       height="25"
                       toolTip="Slicer"
                       icon="{Assets.SLICER}"
                       click="openSlicer()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
-            <s:Button width="25"
+            
+            <s:Button id="animationEditorButton"
+                      width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'animationEditor')}"
                       icon="{Assets.ANIMATION}"
                       click="openAnimationEditor()"
                       skinClass="nail.components.skins.IconButtonSkin"/>
+            
             <nail:ShadowLine height="20"/>
-            <s:Button width="25"
+            
+            <s:Button id="logWindowButton"
+                      width="25"
                       height="25"
                       toolTip="{resourceManager.getString('strings', 'menu.logWindow')}"
                       icon="{Assets.LOG}"
@@ -2558,4 +2691,4 @@ THE SOFTWARE.
             </s:HGroup>
         </s:BorderContainer>
     </mx:HDividedBox>
-</nail:Application>
+</s:WindowedApplication>

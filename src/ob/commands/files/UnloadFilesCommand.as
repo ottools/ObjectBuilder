@@ -22,8 +22,7 @@
 
 package ob.commands.files
 {
-    import nail.workers.Command;
-    import ob.commands.CommandType;
+    import nail.commands.Command;
     
     public class UnloadFilesCommand extends Command
     {
@@ -33,7 +32,7 @@ package ob.commands.files
         
         public function UnloadFilesCommand()
         {
-            super(CommandType.UNLOAD_FILES);
+            super();
         }
     }
 }

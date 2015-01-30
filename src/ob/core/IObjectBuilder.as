@@ -26,10 +26,11 @@ package ob.core
     import flash.filesystem.File;
     import flash.utils.ByteArray;
     
-    import nail.core.IApplication;
-    import ob.settings.ObjectBuilderSettings;
+    import nail.commands.ICommunicator;
     import nail.settings.ISettingsManager;
     import nail.utils.FileData;
+    
+    import ob.settings.ObjectBuilderSettings;
     
     import otlib.core.IVersionStorage;
     import otlib.core.Version;
@@ -37,10 +38,30 @@ package ob.core
     import otlib.sprites.SpriteData;
     import otlib.things.ThingData;
     import otlib.things.ThingType;
-    import otlib.utils.FilesInfo;
+    import otlib.utils.ClientInfo;
     
-    public interface IObjectBuilder extends IApplication
+    public interface IObjectBuilder extends ICommunicator
     {
+        function get settingsManager():ISettingsManager;
+        function get settings():ObjectBuilderSettings;
+        function get versionStorage():IVersionStorage;
+        
+        function get clientInfo():ClientInfo;
+        function get clientChanged():Boolean;
+        function get clientIsTemporary():Boolean;
+        function get clientLoaded():Boolean;
+        
+        function get thingData():ThingData;
+        function set thingData(value:ThingData):void;
+        function get showPreviewPanel():Boolean;
+        function set showPreviewPanel(value:Boolean):void;
+        function get showThingsPanel():Boolean;
+        function set showThingsPanel(value:Boolean):void;
+        function get showSpritesPanel():Boolean;
+        function set showSpritesPanel(value:Boolean):void;
+        function get currentCategory():String;
+        function set currentCategory(value:String):void;
+        
         function loadFiles(datFile:File,
                            sprFile:File,
                            version:Version,
@@ -84,23 +105,5 @@ package ob.core
         function compile():void;
         function compileAs():void;
         function unload():void;
-        
-        function get filesInfo():FilesInfo;
-        function get loaded():Boolean;
-        function get compiled():Boolean;
-        function get isTemporary():Boolean;
-        function get thingData():ThingData;
-        function set thingData(value:ThingData):void;
-        function get currentCategory():String;
-        function set currentCategory(value:String):void;
-        function get showPreviewPanel():Boolean;
-        function set showPreviewPanel(value:Boolean):void;
-        function get showThingsPanel():Boolean;
-        function set showThingsPanel(value:Boolean):void;
-        function get showSpritesPanel():Boolean;
-        function set showSpritesPanel(value:Boolean):void;
-        function get settingsManager():ISettingsManager;
-        function get settings():ObjectBuilderSettings;
-        function get versionStorage():IVersionStorage;
     }
 }

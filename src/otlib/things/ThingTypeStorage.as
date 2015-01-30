@@ -97,6 +97,7 @@ package otlib.things
         public function get effectsCount():uint { return _effectsCount; }
         public function get missilesCount():uint { return _missilesCount; }
         public function get changed():Boolean { return _changed; }
+        public function get isTemporary():Boolean { return (_loaded && _file == null); }
         public function get loaded():Boolean { return _loaded; }
         
         //--------------------------------------------------------------------------
@@ -154,8 +155,7 @@ package otlib.things
             if (!version)
                 throw new NullArgumentError("version");
             
-            if (this.loaded)
-                return;
+            if (this.loaded) return;
             
             _version = version;
             _extended = (extended || version.value >= 960);
@@ -176,7 +176,6 @@ package otlib.things
             _loaded = true;
             
             dispatchEvent(new StorageEvent(StorageEvent.LOAD));
-            dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
         }
         
         public function addThing(thing:ThingType, category:String):ChangeResult
@@ -341,17 +340,20 @@ package otlib.things
                 done = false;
             }
             
-            if (done) {
+            if (done)
+            {
                 var fileName:String = FileUtil.getName(file);
                 
                 // Delete old file.
-                if (file.exists) {
+                if (file.exists)
                     file.deleteFile();
-                }
                 
                 // Rename temporary file
-                FileUtil.rename(tmpFile, fileName);
-            } else if (tmpFile.exists) {
+                _file = FileUtil.rename(tmpFile, fileName);
+                _changed = false;
+            }
+            else if (tmpFile.exists)
+            {
                 tmpFile.deleteFile();
             }
             

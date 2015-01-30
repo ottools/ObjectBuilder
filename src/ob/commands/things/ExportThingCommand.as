@@ -22,10 +22,10 @@
 
 package ob.commands.things
 {
-    import ob.commands.CommandType;
+    import nail.commands.Command;
+    
     import otlib.core.Version;
     import otlib.loaders.PathHelper;
-    import nail.workers.Command;
     
     public class ExportThingCommand extends Command
     {
@@ -40,8 +40,7 @@ package ob.commands.things
                                            transparentBackground:Boolean,
                                            jpegQuality:uint)
         {
-            super(CommandType.EXPORT_THINGS,
-                  list,
+            super(list,
                   category,
                   version,
                   spriteSheetFlag,

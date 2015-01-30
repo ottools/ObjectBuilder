@@ -22,9 +22,9 @@
 
 package ob.commands.sprites
 {
-    import ob.commands.CommandType;
+    import nail.commands.Command;
+    
     import otlib.loaders.PathHelper;
-    import nail.workers.Command;
     
     public class ExportSpritesCommand extends Command
     {
@@ -36,7 +36,7 @@ package ob.commands.sprites
                                              transparentBackground:Boolean,
                                              jpegQuality:uint)
         {
-            super(CommandType.EXPORT_SPRITES, list, transparentBackground, jpegQuality);
+            super(list, transparentBackground, jpegQuality);
         }
     }
 }

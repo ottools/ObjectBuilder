@@ -20,37 +20,21 @@
 *  THE SOFTWARE.
 */
 
-package otlib.utils
+package ob.commands.things
 {
-    public class FilesInfo
+    import nail.commands.Command;
+    
+    import otlib.things.ThingData;
+    
+    public class ImportThingsCommand extends Command
     {
-        //--------------------------------------------------------------------------
-        // PROPERTIES
-        //--------------------------------------------------------------------------
-        
-        public var clientVersion:uint;
-        public var clientVersionStr:String;
-        public var datSignature:uint;
-        public var minItemId:uint;
-        public var maxItemId:uint;
-        public var minOutfitId:uint;
-        public var maxOutfitId:uint;
-        public var minEffectId:uint;
-        public var maxEffectId:uint;
-        public var minMissileId:uint;
-        public var maxMissileId:uint;
-        public var sprSignature:uint;
-        public var minSpriteId:uint;
-        public var maxSpriteId:uint;
-        public var extended:Boolean;
-        public var transparency:Boolean;
-        
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function FilesInfo()
+        public function ImportThingsCommand(list:Vector.<ThingData>)
         {
+            super(list);
         }
     }
 }

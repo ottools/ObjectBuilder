@@ -22,9 +22,9 @@
 
 package ob.commands.things
 {
-    import ob.commands.CommandType;
+    import nail.commands.Command;
+    
     import otlib.things.ThingData;
-    import nail.workers.Command;
     
     public class ReplaceThingsCommand extends Command
     {
@@ -34,7 +34,7 @@ package ob.commands.things
         
         public function ReplaceThingsCommand(list:Vector.<ThingData>)
         {
-            super(CommandType.REPLACE_THINGS, list);
+            super(list);
         }
     }
 }

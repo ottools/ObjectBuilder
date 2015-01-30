@@ -23,14 +23,19 @@
 package ob.core
 {
     import flash.display.BitmapData;
+    import flash.display.Sprite;
     import flash.events.ErrorEvent;
     import flash.events.Event;
     import flash.filesystem.File;
     import flash.geom.Rectangle;
     import flash.net.registerClassAlias;
     import flash.utils.ByteArray;
-    import flash.utils.Dictionary;
     
+    import mx.resources.ResourceManager;
+    
+    import nail.commands.Command;
+    import nail.commands.Communicator;
+    import nail.commands.ICommunicator;
     import nail.errors.NullArgumentError;
     import nail.errors.NullOrEmptyArgumentError;
     import nail.image.ImageCodec;
@@ -41,23 +46,48 @@ package ob.core
     import nail.utils.StringUtil;
     import nail.utils.VectorUtils;
     import nail.utils.isNullOrEmpty;
-    import nail.workers.ApplicationWorker;
-    import nail.workers.Command;
     
-    import ob.commands.ClientChangedCommand;
-    import ob.commands.CommandType;
     import ob.commands.FindResultCommand;
     import ob.commands.HideProgressBarCommand;
+    import ob.commands.LoadVersionsCommand;
     import ob.commands.NeedToReloadCommand;
     import ob.commands.ProgressBarID;
     import ob.commands.ProgressCommand;
+    import ob.commands.SetClientInfoCommand;
+    import ob.commands.SettingsCommand;
     import ob.commands.ShowProgressBarCommand;
-    import ob.commands.files.SetFilesInfoCommand;
+    import ob.commands.files.CompileAsCommand;
+    import ob.commands.files.CompileCommand;
+    import ob.commands.files.CreateNewFilesCommand;
+    import ob.commands.files.LoadFilesCommand;
+    import ob.commands.files.UnloadFilesCommand;
+    import ob.commands.sprites.ExportSpritesCommand;
+    import ob.commands.sprites.FindSpritesCommand;
+    import ob.commands.sprites.GetSpriteListCommand;
+    import ob.commands.sprites.ImportSpritesCommand;
+    import ob.commands.sprites.ImportSpritesFromFileCommand;
+    import ob.commands.sprites.NewSpriteCommand;
     import ob.commands.sprites.OptimizeSpritesCommand;
     import ob.commands.sprites.OptimizeSpritesResultCommand;
+    import ob.commands.sprites.RemoveSpritesCommand;
+    import ob.commands.sprites.ReplaceSpritesCommand;
+    import ob.commands.sprites.ReplaceSpritesFromFilesCommand;
     import ob.commands.sprites.SetSpriteListCommand;
+    import ob.commands.things.DuplicateThingCommand;
+    import ob.commands.things.ExportThingCommand;
+    import ob.commands.things.FindThingCommand;
+    import ob.commands.things.GetThingCommand;
+    import ob.commands.things.GetThingListCommand;
+    import ob.commands.things.ImportThingsCommand;
+    import ob.commands.things.ImportThingsFromFilesCommand;
+    import ob.commands.things.NewThingCommand;
+    import ob.commands.things.RemoveThingCommand;
+    import ob.commands.things.ReplaceThingsCommand;
+    import ob.commands.things.ReplaceThingsFromFilesCommand;
     import ob.commands.things.SetThingDataCommand;
     import ob.commands.things.SetThingListCommand;
+    import ob.commands.things.UpdateThingCommand;
+    import ob.settings.ObjectBuilderSettings;
     import ob.utils.ObUtils;
     import ob.utils.SpritesFinder;
     import ob.utils.SpritesOptimizer;
@@ -83,19 +113,19 @@ package ob.core
     import otlib.things.ThingType;
     import otlib.things.ThingTypeStorage;
     import otlib.utils.ChangeResult;
-    import otlib.utils.FilesInfo;
+    import otlib.utils.ClientInfo;
     import otlib.utils.OTFormat;
     import otlib.utils.ThingListItem;
-    import otlib.utils.ThingUtils;
     
     [ResourceBundle("strings")]
     
-    public class ObjectBuilderWorker extends ApplicationWorker
+    public class ObjectBuilderWorker extends flash.display.Sprite implements ICommunicator
     {
         //--------------------------------------------------------------------------
         // PROPERTIES
         //--------------------------------------------------------------------------
         
+        private var _communicator:ICommunicator;
         private var _things:ThingTypeStorage;
         private var _sprites:SpriteStorage;
         private var _datFile:File;
@@ -106,55 +136,29 @@ package ob.core
         private var _errorMessage:String;
         private var _compiled:Boolean;
         private var _isTemporary:Boolean;
+        private var _thingListAmount:uint;
+        private var _spriteListAmount:uint;
         
         //--------------------------------------
         // Getters / Setters
         //--------------------------------------
         
-        public function get compiled():Boolean { return _compiled; }
-        public function set compiled(value:Boolean):void
+        public function get running():Boolean { return _communicator.running; }
+        public function get background():Boolean { return _communicator.background; }
+        
+        public function get clientChanged():Boolean
         {
-            if (_compiled != value) {
-                _compiled = value;
-                setSharedProperty("compiled", value);
-            }
+            return ((_things && _things.changed) || (_sprites && _sprites.changed));
         }
         
-        public function get isTemporary():Boolean { return _isTemporary; }
-        public function set isTemporary(value:Boolean):void
+        public function get clientIsTemporary():Boolean
         {
-            if (_isTemporary != value) {
-                _isTemporary = value;
-                setSharedProperty("isTemporary", value);
-            }
-        }
-        
-        public function get thingsListAmount():uint
-        {
-            var value:* = getSharedProperty("objectsListAmount");
-            if (value !== undefined) {
-                return value;
-            }
-            return 100;
-        }
-        
-        public function get spritesListAmount():uint
-        {
-            var value:* = getSharedProperty("spritesListAmount");
-            if (value !== undefined) {
-                return value;
-            }
-            return 100;
+            return (_things && _things.isTemporary && _sprites && _sprites.isTemporary);
         }
         
         public function get clientLoaded():Boolean
         {
             return (_things && _things.loaded && _sprites && _sprites.loaded);
-        }
-        
-        public function get clientChanged():Boolean
-        {
-            return ((_things && _things.changed) || (_sprites && _sprites.changed));
         }
         
         //--------------------------------------------------------------------------
@@ -163,7 +167,16 @@ package ob.core
         
         public function ObjectBuilderWorker()
         {
+            Resources.manager = ResourceManager.getInstance();
+            Log.communicator = this;
+            
+            _communicator = new Communicator();
+            _thingListAmount = 100;
+            _spriteListAmount = 100;
+            
             this.stage.frameRate = 60;
+            
+            register();
         }
         
         //--------------------------------------------------------------------------
@@ -174,17 +187,33 @@ package ob.core
         // Public
         //--------------------------------------
         
+        public function registerCallback(commandClass:Class, callback:Function):void
+        {
+            _communicator.registerCallback(commandClass, callback);
+        }
+        
+        public function unregisterCallback(commandClass:Class, callback:Function):void
+        {
+            _communicator.unregisterCallback(commandClass, callback);
+        }
+        
+        public function sendCommand(command:Command):void
+        {
+            if (_communicator)
+                _communicator.sendCommand(command);
+        }
+        
+        public function start():void
+        {
+            //unused
+        }
+        
         public function onGetThing(id:uint, category:String):void
         {
             var thingData:ThingData = getThingData(id, category);
             if (thingData) {
                 sendCommand(new SetThingDataCommand(thingData));
             }
-        }
-        
-        public function onGetThingList(id:uint, category:String):void
-        {
-            this.sendThingList(Vector.<uint>([id]), category);
         }
         
         public function onCompile():void
@@ -224,11 +253,12 @@ package ob.core
         // Override Protected
         //--------------------------------------
         
-        override public function register():void
+        public function register():void
         {
             // Register classes.
+            registerClassAlias("ObjectBuilderSettings", ObjectBuilderSettings);
             registerClassAlias("Version", Version);
-            registerClassAlias("FilesInfo", FilesInfo);
+            registerClassAlias("ClientInfo", ClientInfo);
             registerClassAlias("ThingType", ThingType);
             registerClassAlias("ThingData", ThingData);
             registerClassAlias("ThingProperty", ThingProperty);
@@ -241,44 +271,45 @@ package ob.core
             registerClassAlias("LoopStrategy", LoopStrategy);
             registerClassAlias("Animator", Animator);
             
-            registerCallback(CommandType.LOAD_VERSIONS, onLoadClientVersions);
+            registerCallback(LoadVersionsCommand, onLoadClientVersions);
+            
+            registerCallback(SettingsCommand, onSettings);
             
             // File commands
-            registerCallback(CommandType.CREATE_NEW_FILES, onCreateNewFiles);
-            registerCallback(CommandType.LOAD_FILES, onLoadFiles);
-            registerCallback(CommandType.FILES_INFO, onGetFilesInfo);
-            registerCallback(CommandType.COMPILE, onCompile);
-            registerCallback(CommandType.COMPILE_AS, onCompileAs);
-            registerCallback(CommandType.UNLOAD_FILES, onUnloadFiles);
+            registerCallback(CreateNewFilesCommand, onCreateNewFiles);
+            registerCallback(LoadFilesCommand, onLoadFiles);
+            registerCallback(CompileCommand, onCompile);
+            registerCallback(CompileAsCommand, onCompileAs);
+            registerCallback(UnloadFilesCommand, onUnloadFiles);
             
             // Thing commands
-            registerCallback(CommandType.NEW_THING, onNewThing);
-            registerCallback(CommandType.UPDATE_THING, onUpdateThing);
-            registerCallback(CommandType.IMPORT_THINGS, onImportThings);
-            registerCallback(CommandType.IMPORT_THINGS_FROM_FILES, onImportThingsFromFiles);
-            registerCallback(CommandType.EXPORT_THINGS, onExportThing);
-            registerCallback(CommandType.REPLACE_THINGS, onReplaceThings);
-            registerCallback(CommandType.REPLACE_THINGS_FROM_FILES, onReplaceThingsFromFiles);
-            registerCallback(CommandType.DUPLICATE_THINGS, onDuplicateThing);
-            registerCallback(CommandType.REMOVE_THINGS, onRemoveThings);
-            registerCallback(CommandType.GET_THING, onGetThing);
-            registerCallback(CommandType.GET_THING_LIST, onGetThingList);
-            registerCallback(CommandType.GET_SPRITE_LIST, onGetSpriteList);
-            registerCallback(CommandType.FIND_THING, onFindThing);
+            registerCallback(NewThingCommand, onNewThing);
+            registerCallback(UpdateThingCommand, onUpdateThing);
+            registerCallback(ImportThingsCommand, onImportThings);
+            registerCallback(ImportThingsFromFilesCommand, onImportThingsFromFiles);
+            registerCallback(ExportThingCommand, onExportThing);
+            registerCallback(ReplaceThingsCommand, onReplaceThings);
+            registerCallback(ReplaceThingsFromFilesCommand, onReplaceThingsFromFiles);
+            registerCallback(DuplicateThingCommand, onDuplicateThing);
+            registerCallback(RemoveThingCommand, onRemoveThings);
+            registerCallback(GetThingCommand, onGetThing);
+            registerCallback(GetThingListCommand, onGetThingList);
+            registerCallback(FindThingCommand, onFindThing);
             
             // Sprite commands
-            registerCallback(CommandType.NEW_SPRITE, onNewSprite);
-            registerCallback(CommandType.IMPORT_SPRITES, onAddSprites);
-            registerCallback(CommandType.IMPORT_SPRITES_FROM_FILES, onImportSpritesFromFiles);
-            registerCallback(CommandType.EXPORT_SPRITES, onExportSprites);
-            registerCallback(CommandType.REPLACE_SPRITES, onReplaceSprites);
-            registerCallback(CommandType.REPLACE_SPRITES_FROM_FILES, onReplaceSpritesFromFiles);
-            registerCallback(CommandType.REMOVE_SPRITES, onRemoveSprites);
-            registerCallback(CommandType.FIND_SPRITES, onFindSprites);
-            registerCallback(CommandType.OPTIMIZE_SPRITES, onOptimizeSprites);
+            registerCallback(NewSpriteCommand, onNewSprite);
+            registerCallback(ImportSpritesCommand, onAddSprites);
+            registerCallback(ImportSpritesFromFileCommand, onImportSpritesFromFiles);
+            registerCallback(ExportSpritesCommand, onExportSprites);
+            registerCallback(ReplaceSpritesCommand, onReplaceSprites);
+            registerCallback(ReplaceSpritesFromFilesCommand, onReplaceSpritesFromFiles);
+            registerCallback(RemoveSpritesCommand, onRemoveSprites);
+            registerCallback(GetSpriteListCommand, onGetSpriteList);
+            registerCallback(FindSpritesCommand, onFindSprites);
+            registerCallback(OptimizeSpritesCommand, onOptimizeSprites);
             
             // General commands
-            registerCallback(CommandType.NEED_TO_RELOAD, onNeedToReload);
+            registerCallback(NeedToReloadCommand, onNeedToReload);
         }
         
         //--------------------------------------
@@ -288,9 +319,19 @@ package ob.core
         private function onLoadClientVersions(path:String):void
         {
             if (isNullOrEmpty(path))
-                return;
+                throw new NullOrEmptyArgumentError("path");
             
             VersionStorage.instance.load( new File(path) );
+        }
+        
+        private function onSettings(settings:ObjectBuilderSettings):void
+        {
+            if (isNullOrEmpty(settings))
+                throw new NullOrEmptyArgumentError("settings");
+            
+            Resources.locale = settings.getLanguage()[0];
+            _thingListAmount = settings.objectsListAmount;
+            _spriteListAmount = settings.spritesListAmount;
         }
         
         private function onCreateNewFiles(version:Version, extended:Boolean, transparency:Boolean):void
@@ -312,16 +353,12 @@ package ob.core
             // Create things.
             _things.createNew(version, _extended);
             
-            this.compiled = false;
-            this.isTemporary = true;
-            this.assetsLoadComplete();
-            
             // Update preview.
             var thing:ThingType = _things.getItemType(ThingTypeStorage.MIN_ITEM_ID);
             this.onGetThing(thing.id, thing.category);
             
             // Send sprites.
-            this.onGetSpriteList(1);
+            this.sendSpriteList(Vector.<uint>([1]));
         }
         
         private function createStorage():void
@@ -371,11 +408,6 @@ package ob.core
             _sprites.load(_sprFile, _version, _extended, _transparency);
         }
         
-        private function onGetFilesInfo():void
-        {
-            this.sendFilesInfo();
-        }
-        
         private function onCompileAs(datPath:String,
                                      sprPath:String,
                                      version:Version,
@@ -409,7 +441,7 @@ package ob.core
                 return;
             }
             
-            assetsCompileComplete();
+            clientCompileComplete();
             
             if (!_datFile || !_sprFile) {
                 _datFile = dat;
@@ -421,7 +453,7 @@ package ob.core
                 if (structureChanged)
                     sendCommand(new NeedToReloadCommand(extended, transparency));
                 else
-                    sendFilesInfo();
+                    sendClientInfo();
             }
         }
         
@@ -444,9 +476,6 @@ package ob.core
                 _sprites.removeEventListener(ErrorEvent.ERROR, spritesErrorHandler);
                 _sprites = null;
             }
-            
-            this.compiled = true;
-            this.isTemporary = false;
             
             _datFile = null;
             _sprFile = null;
@@ -573,7 +602,9 @@ package ob.core
             
             // Thing change message
             onGetThing(thingData.id, thingData.category);
-            onGetThingList(thingData.id, thingData.category);
+            
+            sendThingList(Vector.<uint>([ thingData.id ]), thingData.category);
+            
             message = Resources.getString(
                 "logChanged",
                 toLocale(thing.category),
@@ -702,8 +733,10 @@ package ob.core
             var message:String;
             
             // Added sprites message
-            if (spritesIds.length > 0) {
-                onGetSpriteList(_sprites.spritesCount);
+            if (spritesIds.length > 0)
+            {
+                this.sendSpriteList(Vector.<uint>([_sprites.spritesCount]));
+                
                 message = Resources.getString(
                     "logAdded",
                     toLocale("sprite", spritesIds.length > 1),
@@ -818,8 +851,10 @@ package ob.core
             
             var message:String;
             
-            if (spritesIds.length > 0) {
-                onGetSpriteList(_sprites.spritesCount);
+            if (spritesIds.length > 0)
+            {
+                this.sendSpriteList(Vector.<uint>([_sprites.spritesCount]));
+                
                 message = Resources.getString(
                     "logAdded",
                     toLocale("sprite", spritesIds.length > 1),
@@ -1022,9 +1057,11 @@ package ob.core
             Log.info(message);
             
             // Sprites changes
-            if (removeSprites && spriteIds.length != 0) {
+            if (removeSprites && spriteIds.length != 0)
+            {
                 spriteIds.sort(Array.NUMERIC);
-                onGetSpriteList(spriteIds[0]);
+                sendSpriteList(Vector.<uint>([ spriteIds[0] ]));
+                
                 message = Resources.getString(
                     "logRemoved",
                     toLocale("sprite", spriteIds.length > 1),
@@ -1032,6 +1069,14 @@ package ob.core
                 
                 Log.info(message);
             }
+        }
+        
+        private function onGetThingList(targetId:uint, category:String):void
+        {
+            if (isNullOrEmpty(category))
+                throw new NullOrEmptyArgumentError("category");
+            
+            sendThingList(Vector.<uint>([ targetId ]), category);
         }
         
         private function onFindThing(category:String, properties:Vector.<ThingProperty>):void
@@ -1055,11 +1100,6 @@ package ob.core
                 list[i] = listItem;
             }
             sendCommand(new FindResultCommand(FindResultCommand.THINGS, list));
-        }
-        
-        private function onGetSpriteList(target:uint):void
-        {
-            this.sendSpriteList(Vector.<uint>([target]));
         }
         
         private function onReplaceSprites(sprites:Vector.<SpriteData>):void
@@ -1156,7 +1196,7 @@ package ob.core
                 ids[i] = spriteAddedList[i].id;
             }
             
-            this.onGetSpriteList(ids[0]);
+            sendSpriteList(Vector.<uint>([ ids[0] ]));
             
             ids.sort(Array.NUMERIC);
             var message:String = Resources.getString(
@@ -1272,7 +1312,7 @@ package ob.core
             //============================================================================
             // Add sprite
             
-            var rect:Rectangle = new Rectangle(0, 0, Sprite.DEFAULT_SIZE, Sprite.DEFAULT_SIZE);
+            var rect:Rectangle = new Rectangle(0, 0, otlib.sprites.Sprite.DEFAULT_SIZE, otlib.sprites.Sprite.DEFAULT_SIZE);
             var pixels:ByteArray = new BitmapData(rect.width, rect.height, true, 0).getPixels(rect);
             var result:ChangeResult = _sprites.addSprite(pixels);
             if (!result.done) {
@@ -1283,7 +1323,8 @@ package ob.core
             //============================================================================
             // Send changes
             
-            this.onGetSpriteList(_sprites.spritesCount);
+            sendSpriteList(Vector.<uint>([ _sprites.spritesCount ]));
+            
             var message:String = Resources.getString(
                 "logAdded",
                 Resources.getString("sprite"),
@@ -1319,6 +1360,11 @@ package ob.core
                 list);
                 
             Log.info(message);
+        }
+        
+        private function onGetSpriteList(targetId:uint):void
+        {
+            sendSpriteList(Vector.<uint>([ targetId ]));
         }
         
         private function onNeedToReload(enableSpritesU32:Boolean, enableAlphaChannel:Boolean):void
@@ -1371,7 +1417,7 @@ package ob.core
             {
                 if (optimizer.removedCount > 0)
                 {
-                    sendFilesInfo();
+                    sendClientInfo();
                     sendSpriteList(Vector.<uint>([0]));
                     sendThingList(Vector.<uint>([100]), ThingCategory.ITEM);
                 }
@@ -1384,51 +1430,50 @@ package ob.core
             }
         }
         
-        private function assetsLoadComplete():void
+        private function clientLoadComplete():void
         {
-            this.compiled = true;
             sendCommand(new HideProgressBarCommand(ProgressBarID.DAT_SPR));
-            sendCommand(new Command(CommandType.LOAD_COMPLETE));
+            sendClientInfo();
+            sendThingList(Vector.<uint>([ThingTypeStorage.MIN_ITEM_ID]), ThingCategory.ITEM);
+            sendSpriteList(Vector.<uint>([0]));
             Log.info(Resources.getString("loadComplete"));
         }
         
-        private function assetsCompileComplete():void
+        private function clientCompileComplete():void
         {
-            this.compiled = true;
-            this.isTemporary = false;
             sendCommand(new HideProgressBarCommand(ProgressBarID.DAT_SPR));
+            sendClientInfo();
             Log.info(Resources.getString("compileComplete"));
         }
         
-        public function sendFilesInfo():void
+        public function sendClientInfo():void
         {
-            if (!_things || !_things.loaded) {
-                throw new Error(Resources.getString("metadataNotLoaded"));
+            var info:ClientInfo = new ClientInfo();
+            info.loaded = clientLoaded;
+            
+            if (info.loaded)
+            {
+                info.clientVersion = _version.value;
+                info.clientVersionStr = _version.valueStr;
+                info.datSignature = _things.signature;
+                info.minItemId = ThingTypeStorage.MIN_ITEM_ID;
+                info.maxItemId = _things.itemsCount;
+                info.minOutfitId = ThingTypeStorage.MIN_OUTFIT_ID;
+                info.maxOutfitId = _things.outfitsCount;
+                info.minEffectId = ThingTypeStorage.MIN_EFFECT_ID;
+                info.maxEffectId = _things.effectsCount;
+                info.minMissileId = ThingTypeStorage.MIN_MISSILE_ID;
+                info.maxMissileId = _things.missilesCount;
+                info.sprSignature = _sprites.signature;
+                info.minSpriteId = 0;
+                info.maxSpriteId = _sprites.spritesCount;
+                info.extended = (_extended || _version.value >= 960);
+                info.transparency = _transparency;
+                info.changed = clientChanged;
+                info.isTemporary = clientIsTemporary;
             }
             
-            if (!_sprites || !_sprites.loaded) {
-                throw new Error(Resources.getString("spritesNotLoaded"));
-            }
-            
-            var info:FilesInfo = new FilesInfo();
-            info.clientVersion = _version.value;
-            info.clientVersionStr = _version.valueStr;
-            info.datSignature = _things.signature;
-            info.minItemId = ThingTypeStorage.MIN_ITEM_ID;
-            info.maxItemId = _things.itemsCount;
-            info.minOutfitId = ThingTypeStorage.MIN_OUTFIT_ID;
-            info.maxOutfitId = _things.outfitsCount;
-            info.minEffectId = ThingTypeStorage.MIN_EFFECT_ID;
-            info.maxEffectId = _things.effectsCount;
-            info.minMissileId = ThingTypeStorage.MIN_MISSILE_ID;
-            info.maxMissileId = _things.missilesCount;
-            info.sprSignature = _sprites.signature;
-            info.minSpriteId = 0;
-            info.maxSpriteId = _sprites.spritesCount;
-            info.extended = (_extended || _version.value >= 960);
-            info.transparency = _transparency;
-            
-            sendCommand(new SetFilesInfoCommand(info));
+            sendCommand(new SetClientInfoCommand(info));
         }
         
         private function sendThingList(selectedIds:Vector.<uint>, category:String):void
@@ -1451,7 +1496,7 @@ package ob.core
             var target:uint = length == 0 ? 0 : selectedIds[0];
             var min:uint = Math.max(first, ObUtils.hundredFloor(target));
             var diff:uint = (category != ThingCategory.ITEM && min == first) ? 1 : 0;
-            var max:uint = Math.min((min - diff) + (thingsListAmount - 1), last);
+            var max:uint = Math.min((min - diff) + (_thingListAmount - 1), last);
             var list:Vector.<ThingListItem> = new Vector.<ThingListItem>();
             
             for (var i:uint = min; i <= max; i++) {
@@ -1494,7 +1539,7 @@ package ob.core
             var first:uint = 0;
             var last:uint = _sprites.spritesCount;
             var min:uint = Math.max(first, ObUtils.hundredFloor(target));
-            var max:uint = Math.min(min + (spritesListAmount - 1), last);
+            var max:uint = Math.min(min + (_spriteListAmount - 1), last);
             var list:Vector.<SpriteData> = new Vector.<SpriteData>();
             
             for (var i:uint = min; i <= max; i++) {
@@ -1514,7 +1559,7 @@ package ob.core
         
         private function getBitmapPixels(thing:ThingType):ByteArray
         {
-            var size:uint = Sprite.DEFAULT_SIZE;
+            var size:uint = otlib.sprites.Sprite.DEFAULT_SIZE;
             var width:uint = thing.width;
             var height:uint = thing.height;
             var layers:uint = thing.layers;
@@ -1584,25 +1629,16 @@ package ob.core
         
         protected function storageLoadHandler(event:StorageEvent):void
         {
-            if (event.target === _things || event.target === _sprites)
+            if (event.target == _things || event.target == _sprites)
             {
                 if (_things.loaded && _sprites.loaded)
-                    this.assetsLoadComplete();
+                    this.clientLoadComplete();
             }
         }
         
         protected function storageChangeHandler(event:StorageEvent):void
         {
-            if (event.target === _things || event.target === _sprites) 
-            {
-                if (clientLoaded)
-                {
-                    sendCommand(new ClientChangedCommand(_things.changed, _sprites.changed));
-                    
-                    this.compiled = !this.clientChanged;
-                    sendFilesInfo();
-                }
-            }
+            sendClientInfo();
         }
         
         protected function thingsProgressHandler(event:ProgressEvent):void

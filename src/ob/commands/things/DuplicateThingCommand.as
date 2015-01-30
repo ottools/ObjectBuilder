@@ -22,8 +22,7 @@
 
 package ob.commands.things
 {
-    import ob.commands.CommandType;
-    import nail.workers.Command;
+    import nail.commands.Command;
     
     public class DuplicateThingCommand extends Command
     {
@@ -33,7 +32,7 @@ package ob.commands.things
         
         public function DuplicateThingCommand(ids:Vector.<uint>, category:String)
         {
-            super(CommandType.DUPLICATE_THINGS, ids, category);
+            super(ids, category);
         }
     }
 }

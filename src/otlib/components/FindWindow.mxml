@@ -51,9 +51,9 @@ THE SOFTWARE.
             import mx.events.FlexEvent;
             import mx.events.PropertyChangeEvent;
             
-            import ob.commands.CommandType;
             import ob.commands.FindResultCommand;
             import ob.commands.ProgressBarID;
+            import ob.commands.ProgressCommand;
             import ob.commands.sprites.FindSpritesCommand;
             import ob.commands.sprites.GetSpriteListCommand;
             import ob.commands.things.FindThingCommand;
@@ -211,8 +211,8 @@ THE SOFTWARE.
             protected function creationCompleteHandler(event:FlexEvent):void
             {
                 m_application = FlexGlobals.topLevelApplication as IObjectBuilder;
-                m_application.registerCallback(CommandType.PROGRESS, progressCallback);
-                m_application.registerCallback(CommandType.FIND_RESULT, findResultCallback);
+                m_application.registerCallback(ProgressCommand, progressCallback);
+                m_application.registerCallback(FindResultCommand, findResultCallback);
                 m_bindableThingType = new BindableThingType();
                 m_bindableThingType.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, thingPropertyChangeHandler);
                 m_properties = new Dictionary();
@@ -220,8 +220,8 @@ THE SOFTWARE.
             
             protected function closingHandler(event:Event):void
             {
-                m_application.unregisterCallback(CommandType.PROGRESS, progressCallback);
-                m_application.unregisterCallback(CommandType.FIND_RESULT, findResultCallback);
+                m_application.unregisterCallback(ProgressCommand, progressCallback);
+                m_application.unregisterCallback(FindResultCommand, findResultCallback);
             }
             
             protected function findButtonClickHandler(event:MouseEvent):void
