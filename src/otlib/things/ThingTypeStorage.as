@@ -915,7 +915,8 @@ package otlib.things
                         return false;
                 }
                 
-                if (!ThingSerializer.readSprites(thing, stream, _extended, type > 2, _version.value >= 1050)) return false;
+                if (!ThingSerializer.readSprites(thing, stream, _extended, _version.value >= 755, _version.value >= 1050))
+                    return false;
                 
                 list[id] = thing;
                 
@@ -981,7 +982,7 @@ package otlib.things
                             return false;
                     }
                     
-                    if (!ThingSerializer.writeSprites(thing, stream, extended, type > 2, version.value >= 1050))
+                    if (!ThingSerializer.writeSprites(thing, stream, extended, version.value >= 755, version.value >= 1050))
                         return false;
                     
                 } else {
