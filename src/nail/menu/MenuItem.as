@@ -76,7 +76,13 @@ package nail.menu
                 xml.@data = data;
             
             if (!isNullOrEmpty(keyEquivalent))
-                xml.@keyEquivalent = keyEquivalent.toLowerCase();
+            {
+                var key:String = keyEquivalent.toLowerCase();
+                if (key.length > 1 && key.charAt(0) == "f")
+                    key = key.toUpperCase();
+                
+                xml.@keyEquivalent = key;
+            }
             
             if (altKey)
                 xml.@altKey = altKey;
