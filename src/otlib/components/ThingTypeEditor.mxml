@@ -161,10 +161,10 @@ THE SOFTWARE.
                     animationCountLabel.text = (animationSlider.value + 1) + '/' + (animationSlider.maximum + 1);
                     addonCountLabel.text = (addonsSlider.value + 1) + '/' + (addonsSlider.maximum + 1);
                     mountCountLabel.text = (mountSlider.value + 1) + '/' + (mountSlider.maximum + 1);
+                    layerCountLabel.text = (layerSlider.value + 1) + '/' + (layerSlider.maximum + 1);
                     thingView.patternX = _patternX;
                     thingView.patternY = _patternY;
                     thingView.patternZ = mountSlider.value;
-                    thingView.drawBlendLayer = blendLayerCheckBox.selected;
                     
                     var frameDuration:FrameDuration = _thingBinding.getFrameDuration(animationSlider.value);
                     if (frameDuration) {
@@ -223,11 +223,12 @@ THE SOFTWARE.
                 thingView.thingData = thingData;
                 
                 _thingBinding.reset();
-                blendLayerCheckBox.selected = false;
                 animationSlider.value = 0;
                 mountSlider.value = 0;
                 addonsSlider.value = 0;
                 addonGroup.visible = false;
+                layerSlider.value = 0;
+                layerGroup.visible = false;
                 setPreviewMode(false);
                 
                 if (thingData) {
@@ -393,7 +394,7 @@ THE SOFTWARE.
                 var bitmapHeight:Number = Math.max(size, height * size);
                 var bitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0x00FF00FF);
                 var f:uint = animationSlider.value;
-                var l:uint = blendLayerCheckBox.selected ? 1 : 0;
+                var l:uint = layerSlider.value;
                 var x:uint = _patternX % _thingBinding.patternX;
                 var y:uint = (_patternY + addonsSlider.value) % _thingBinding.patternY;
                 var z:uint = mountSlider.value;
@@ -435,7 +436,7 @@ THE SOFTWARE.
                 var pixelsHeight:int = height * size;
                 var bitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0x00FF00FF);
                 var f:uint = animationSlider.value;
-                var l:uint = blendLayerCheckBox.selected ? 1 : 0;
+                var l:uint = layerSlider.value;
                 var z:uint = mountSlider.value;
                 
                 for (var y:uint = 0; y < patternY; y++) {
@@ -634,14 +635,16 @@ THE SOFTWARE.
                 thingView.visible = _previewMode;
                 if (_previewMode) thingView.play();
                 
-                bitmapView.visible = !_previewMode;
-                animationSlider.mouseChildren = !_previewMode;
-                mountGroup.enabled = !_previewMode;
-                addonGroup.enabled = !_previewMode;
-                patternsTileGroup.enabled = !_previewMode;
-                minimumGroup.enabled = !_previewMode;
-                maximumGroup.enabled = !_previewMode;
-                animationTileGroup.enabled = !_previewMode;
+                var controlsEnabled:Boolean = !_previewMode;
+                bitmapView.visible = controlsEnabled;
+                animationSlider.mouseChildren = controlsEnabled;
+                mountGroup.enabled = controlsEnabled;
+                addonGroup.enabled = controlsEnabled;
+                patternsTileGroup.enabled = controlsEnabled;
+                minimumGroup.enabled = controlsEnabled;
+                maximumGroup.enabled = controlsEnabled;
+                layerGroup.enabled = controlsEnabled;
+                animationTileGroup.enabled = controlsEnabled;
             }
             
             private function setAnimationSlide(value:uint):void
@@ -1012,10 +1015,19 @@ THE SOFTWARE.
                                      minWidth="40"/>
                         </s:HGroup>	
                         
-                        <s:CheckBox id="blendLayerCheckBox"
-                                    label="@Resource(key='blendLayer', bundle='strings')"
-                                    visible="{_thingBinding.layers > 1}"
-                                    change="updatePreview()"/>
+                        <s:HGroup id="layerGroup"
+                                  width="100%"
+                                  verticalAlign="middle"
+                                  horizontalAlign="right"
+                                  paddingRight="27"
+                                  visible="{_thingBinding.layers > 1}">
+                            <s:Label text="{resourceManager.getString('strings', 'layer') + ':'}"/>
+                            <otlib:PatternSlider id="layerSlider"
+                                                 maximum="{_thingBinding.layers - 1}"
+                                                 change="updatePreview()"/>
+                            <s:Label id="layerCountLabel"
+                                     minWidth="40"/>
+                        </s:HGroup>
                         
                         <s:CheckBox id="showCropSizeCheckBox"
                                     label="@Resource(key='showCropSize', bundle='strings')"
