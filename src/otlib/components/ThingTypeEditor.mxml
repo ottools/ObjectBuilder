@@ -372,7 +372,7 @@ THE SOFTWARE.
                 usableCheckBox.visible = visible;
                 usableCheckBox.includeInLayout = visible;
                 
-                visible = (info.clientVersion >= 1050 && category != ThingCategory.MISSILE);
+                visible = (_filesInfo.improvedAnimations && category == ThingCategory.ITEM);
                 minimumGroup.visible = visible;
                 minimumGroup.includeInLayout = visible;
                 maximumGroup.visible = visible;
