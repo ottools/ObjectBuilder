@@ -39,19 +39,19 @@ package otlib.assets
         // STATIC
         //--------------------------------------------------------------------------
         
-        [Embed(source="../../../assets/export.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/export.png", mimeType="image/png")]
         public static const EXPORT:Class;
         
-        [Embed(source="../../../assets/import.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/import.png", mimeType="image/png")]
         public static const IMPORT:Class;
         
-        [Embed(source="../../../assets/duplicate.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/duplicate.png", mimeType="image/png")]
         public static const DUPLICATE:Class;
         
-        [Embed(source="../../../assets/new.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/new.png", mimeType="image/png")]
         public static const NEW:Class;
         
-        [Embed(source="../../../assets/delete.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/delete.png", mimeType="image/png")]
         public static const DELETE:Class;
         
         [Embed(source="../../../assets/icons/edit_icon.png", mimeType="image/png")]
@@ -60,22 +60,22 @@ package otlib.assets
         [Embed(source="../../../assets/icons/replace_icon.png", mimeType="image/png")]
         public static const REPLACE:Class;
         
-        [Embed(source="../../../assets/open.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/open.png", mimeType="image/png")]
         public static const OPEN:Class;
         
-        [Embed(source="../../../assets/save.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/save.png", mimeType="image/png")]
         public static const SAVE:Class;
         
-        [Embed(source="../../../assets/save_as.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/save_as.png", mimeType="image/png")]
         public static const SAVE_AS:Class;
         
-        [Embed(source="../../../assets/info.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/info.png", mimeType="image/png")]
         public static const INFO:Class;
         
-        [Embed(source="../../../assets/log.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/log.png", mimeType="image/png")]
         public static const LOG:Class;
         
-        [Embed(source="../../../assets/new_files.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/new_files.png", mimeType="image/png")]
         public static const NEW_FILE:Class;
         
         [Embed(source="../../../assets/icons/paste.png", mimeType="image/png")]
@@ -87,49 +87,49 @@ package otlib.assets
         [Embed(source="../../../assets/icons/mini_paste.png", mimeType="image/png")]
         public static const MINI_PASTE:Class;
         
-        [Embed(source="../../../assets/binoculars.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/binoculars.png", mimeType="image/png")]
         public static const BINOCULARS:Class;
         
         [Embed(source="../../../assets/icons/viewer_icon.png", mimeType="image/png")]
         public static const VIEWER:Class;
         
-        [Embed(source="../../../assets/slicer.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/slicer.png", mimeType="image/png")]
         public static const SLICER:Class;
         
-        [Embed(source="../../../assets/animation.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/animation.png", mimeType="image/png")]
         public static const ANIMATION:Class;
         
-        [Embed(source="../../../assets/outfit.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/outfit.png", mimeType="image/png")]
         public static const OUTFIT:Class;
         
-        [Embed(source="../../../assets/show_list_icon.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/show_list_icon.png", mimeType="image/png")]
         public static const SHOW_LIST_ICON:Class;
         
-        [Embed(source="../../../assets/first.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/first.png", mimeType="image/png")]
         public static const FIRST:Class;
         
-        [Embed(source="../../../assets/previous.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/previous.png", mimeType="image/png")]
         public static const PREVIOUS:Class;
         
-        [Embed(source="../../../assets/back.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/back.png", mimeType="image/png")]
         public static const BACK:Class;
         
-        [Embed(source="../../../assets/play.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/play.png", mimeType="image/png")]
         public static const PLAY:Class;
         
-        [Embed(source="../../../assets/pause.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/pause.png", mimeType="image/png")]
         public static const PAUSE:Class;
         
-        [Embed(source="../../../assets/next.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/next.png", mimeType="image/png")]
         public static const NEXT:Class;
         
-        [Embed(source="../../../assets/last.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/last.png", mimeType="image/png")]
         public static const LAST:Class;
         
-        [Embed(source="../../../assets/error.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/error.png", mimeType="image/png")]
         public static const ERROR:Class;
         
-        [Embed(source="../../../assets/alert_sprite.png")]
+        [Embed(source="../../../assets/icons/alert_sprite.png")]
         public static const ALERT_IMAGE:Class;
         
         [Embed(source="../../../assets/icons/rotate_right_90.png")]

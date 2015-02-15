@@ -844,7 +844,7 @@ THE SOFTWARE.
                                                 top="0"
                                                 left="0"
                                                 toolTip="@Resource(key='northwest', bundle='strings')"
-                                                icon="@Embed('../../../assets/arrow_top_left.png')"
+                                                icon="@Embed('../../../assets/icons/arrow_top_left.png')"
                                                 skinClass="otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="topCenterButton"
@@ -853,7 +853,7 @@ THE SOFTWARE.
                                                 top="0"
                                                 horizontalCenter="0"
                                                 toolTip="@Resource(key='north', bundle='strings')"
-                                                icon="@Embed('../../../assets/arrow_up.png')"
+                                                icon="@Embed('../../../assets/icons/arrow_up.png')"
                                                 skinClass="otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="topRightButton"
@@ -862,7 +862,7 @@ THE SOFTWARE.
                                                 top="0"
                                                 right="0"
                                                 toolTip="@Resource(key='northeast', bundle='strings')"
-                                                icon="@Embed('../../../assets/arrow_top_right.png')"
+                                                icon="@Embed('../../../assets/icons/arrow_top_right.png')"
                                                 skinClass="otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="middleRightButton"
@@ -871,7 +871,7 @@ THE SOFTWARE.
                                                 verticalCenter="0"
                                                 right="0"
                                                 toolTip="@Resource(key='east', bundle='strings')"
-                                                icon="@Embed('../../../assets/arrow_right.png')"
+                                                icon="@Embed('../../../assets/icons/arrow_right.png')"
                                                 skinClass="otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="bottomRightButton"
@@ -880,7 +880,7 @@ THE SOFTWARE.
                                                 bottom="0"
                                                 right="0"
                                                 toolTip="@Resource(key='southeast', bundle='strings')"
-                                                icon="@Embed('../../../assets/arrow_bottom_right.png')"
+                                                icon="@Embed('../../../assets/icons/arrow_bottom_right.png')"
                                                 skinClass="otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="bottomCenterButton"
@@ -889,7 +889,7 @@ THE SOFTWARE.
                                                 bottom="0"
                                                 horizontalCenter="0"
                                                 toolTip="@Resource(key='south', bundle='strings')"
-                                                icon="@Embed('../../../assets/arrow_down.png')"
+                                                icon="@Embed('../../../assets/icons/arrow_down.png')"
                                                 skinClass="otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="bottomLeftButton"
@@ -898,7 +898,7 @@ THE SOFTWARE.
                                                 bottom="0"
                                                 left="0"
                                                 toolTip="@Resource(key='southwest', bundle='strings')"
-                                                icon="@Embed('../../../assets/arrow_bottom_left.png')"
+                                                icon="@Embed('../../../assets/icons/arrow_bottom_left.png')"
                                                 skinClass="otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                                 <s:ToggleButton id="middleLeftButton"
@@ -907,7 +907,7 @@ THE SOFTWARE.
                                                 bottom="0"
                                                 verticalCenter="0"
                                                 toolTip="@Resource(key='west', bundle='strings')"
-                                                icon="@Embed('../../../assets/arrow_left.png')"
+                                                icon="@Embed('../../../assets/icons/arrow_left.png')"
                                                 skinClass="otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                             </s:Group>
