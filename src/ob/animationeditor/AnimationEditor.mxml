@@ -61,8 +61,6 @@ THE SOFTWARE.
             import nail.image.ImageCodec;
             import nail.image.ImageFormat;
             import nail.managers.PopUpWindowManager;
-            import nail.settings.ISettingsManager;
-            import nail.settings.SettingsManager;
             import nail.utils.BitmapUtil;
             import nail.utils.FileUtil;
             import nail.utils.SaveHelper;
@@ -78,6 +76,8 @@ THE SOFTWARE.
             import otlib.components.SurfaceCells;
             import otlib.geom.Size;
             import otlib.obd.OBDEncoder;
+            import otlib.settings.ISettingsManager;
+            import otlib.settings.SettingsManager;
             import otlib.sprites.SpriteData;
             import otlib.things.AnimationMode;
             import otlib.things.Animator;

@@ -27,7 +27,6 @@ package ob.settings
     import mx.core.FlexGlobals;
     
     import nail.image.ImageFormat;
-    import nail.settings.Settings;
     import nail.utils.FileUtil;
     import nail.utils.isNullOrEmpty;
     
@@ -35,6 +34,7 @@ package ob.settings
     
     import otlib.core.IVersionStorage;
     import otlib.core.Version;
+    import otlib.settings.Settings;
     import otlib.utils.OTFormat;
     
     public class ObjectBuilderSettings extends Settings

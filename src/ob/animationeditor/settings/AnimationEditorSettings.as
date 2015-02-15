@@ -25,12 +25,12 @@ package ob.animationeditor.settings
     import flash.filesystem.File;
     
     import nail.image.ImageFormat;
-    import nail.settings.Settings;
     import nail.utils.FileUtil;
     import nail.utils.isNullOrEmpty;
     
     import otlib.core.Version;
     import otlib.core.VersionStorage;
+    import otlib.settings.Settings;
     import otlib.utils.OTFormat;
     
     public class AnimationEditorSettings extends Settings

@@ -52,8 +52,6 @@ THE SOFTWARE.
             import nail.assets.NailAssets;
             import nail.components.controls.Alert;
             import nail.image.ImageCodec;
-            import nail.settings.ISettingsManager;
-            import nail.settings.SettingsManager;
             import nail.utils.BitmapUtil;
             import nail.utils.FileUtil;
             import nail.utils.WindowUtil;
@@ -62,6 +60,8 @@ THE SOFTWARE.
             
             import otlib.assets.Assets;
             import otlib.components.SurfaceCells;
+            import otlib.settings.ISettingsManager;
+            import otlib.settings.SettingsManager;
             import otlib.sprites.Sprite;
             import otlib.utils.SpriteUtils;
             

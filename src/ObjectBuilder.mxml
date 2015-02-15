@@ -77,8 +77,6 @@ THE SOFTWARE.
             import nail.logging.Log;
             import nail.logging.LogFileTarget;
             import nail.managers.PopUpWindowManager;
-            import nail.settings.ISettingsManager;
-            import nail.settings.SettingsManager;
             import nail.utils.Descriptor;
             import nail.utils.DialogDetail;
             import nail.utils.FileData;
@@ -149,6 +147,8 @@ THE SOFTWARE.
             import otlib.geom.Size;
             import otlib.loaders.PathHelper;
             import otlib.resources.Resources;
+            import otlib.settings.ISettingsManager;
+            import otlib.settings.SettingsManager;
             import otlib.sprites.SpriteData;
             import otlib.things.Animator;
             import otlib.things.FrameDuration;

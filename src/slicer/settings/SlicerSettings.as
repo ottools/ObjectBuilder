@@ -24,9 +24,10 @@ package slicer.settings
 {
     import flash.filesystem.File;
     
-    import nail.settings.Settings;
     import nail.utils.FileUtil;
     import nail.utils.isNullOrEmpty;
+    
+    import otlib.settings.Settings;
     
     public class SlicerSettings extends Settings
     {
