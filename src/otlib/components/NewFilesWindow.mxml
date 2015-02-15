@@ -149,7 +149,7 @@ THE SOFTWARE.
             
             protected function creationCompleteHandler(event:FlexEvent):void
             {
-                versionsDropDownList.dataProvider = new ArrayCollection( VersionStorage.instance.getList() );
+                versionsDropDownList.dataProvider = new ArrayCollection( VersionStorage.getInstance().getList() );
                 versionsDropDownList.setSelectedIndex(0, true);
                 focusManager.setFocus(confirmButton);
                 focusManager.showFocus();

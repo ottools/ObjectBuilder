@@ -157,7 +157,7 @@ package otlib.utils
         {
             _filesInfo.sprSignature = stream.readUnsignedInt();
             
-            var version:Version = VersionStorage.instance.getBySignatures(
+            var version:Version = VersionStorage.getInstance().getBySignatures(
                 _filesInfo.datSignature,
                 _filesInfo.sprSignature);
             

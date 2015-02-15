@@ -240,7 +240,7 @@ THE SOFTWARE.
             
             protected function preinitializeHandler(event:FlexEvent):void
             {
-                _versionCollection = new ArrayCollection( VersionStorage.instance.getList() );
+                _versionCollection = new ArrayCollection( VersionStorage.getInstance().getList() );
             }
             
             protected function nameTextInputChangeHandler(event:TextOperationEvent):void

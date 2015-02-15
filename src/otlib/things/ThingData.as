@@ -198,11 +198,11 @@ package otlib.things
             
             if (newObd) {
                 bytes.readUnsignedByte(); // Reads obd minor version.
-                versions = VersionStorage.instance.getByValue( bytes.readUnsignedShort() );
+                versions = VersionStorage.getInstance().getByValue( bytes.readUnsignedShort() );
                 category = ThingCategory.getCategoryByValue( bytes.readUnsignedByte() );
             } else {
                 bytes.position = 0;
-                versions = VersionStorage.instance.getByValue( bytes.readUnsignedShort() );
+                versions = VersionStorage.getInstance().getByValue( bytes.readUnsignedShort() );
                 category = ThingCategory.getCategory( bytes.readUTF() );
             }
             

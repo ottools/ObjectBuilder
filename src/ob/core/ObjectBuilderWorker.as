@@ -29,6 +29,7 @@ package ob.core
     import flash.filesystem.File;
     import flash.geom.Rectangle;
     import flash.net.registerClassAlias;
+    import flash.system.Worker;
     import flash.utils.ByteArray;
     
     import mx.resources.ResourceManager;
@@ -143,8 +144,10 @@ package ob.core
         // Getters / Setters
         //--------------------------------------
         
+        public function get worker():Worker { return _communicator.worker; }
         public function get running():Boolean { return _communicator.running; }
         public function get background():Boolean { return _communicator.background; }
+        public function get applicationDescriptor():XML { return _communicator.applicationDescriptor; }
         
         public function get clientChanged():Boolean
         {
@@ -167,14 +170,13 @@ package ob.core
         
         public function ObjectBuilderWorker()
         {
+            super();
+            
             Resources.manager = ResourceManager.getInstance();
-            Log.communicator = this;
             
             _communicator = new Communicator();
             _thingListAmount = 100;
             _spriteListAmount = 100;
-            
-            this.stage.frameRate = 60;
             
             register();
         }
@@ -271,9 +273,9 @@ package ob.core
             registerClassAlias("LoopStrategy", LoopStrategy);
             registerClassAlias("Animator", Animator);
             
-            registerCallback(LoadVersionsCommand, onLoadClientVersions);
-            
             registerCallback(SettingsCommand, onSettings);
+            
+            registerCallback(LoadVersionsCommand, onLoadClientVersions);
             
             // File commands
             registerCallback(CreateNewFilesCommand, onCreateNewFiles);
@@ -321,7 +323,7 @@ package ob.core
             if (isNullOrEmpty(path))
                 throw new NullOrEmptyArgumentError("path");
             
-            VersionStorage.instance.load( new File(path) );
+            VersionStorage.getInstance().load( new File(path) );
         }
         
         private function onSettings(settings:ObjectBuilderSettings):void

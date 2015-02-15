@@ -182,7 +182,7 @@ THE SOFTWARE.
             private var _settingsManager:ISettingsManager;
             private var _settings:ObjectBuilderSettings;
             private var _updater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
-            private var _versionStorage:VersionStorage;
+            private var _versionStorage:IVersionStorage;
             private var _thingData:ThingData;
             private var _nextThingData:ThingData;
             private var _thingDataChanged:Boolean;
@@ -215,8 +215,10 @@ THE SOFTWARE.
             // Getters / Setters 
             //--------------------------------------
             
+            public function get worker():Worker { return _communicator.worker; }
             public function get running():Boolean { return _communicator.running; }
             public function get background():Boolean { return _communicator.background; }
+            public function get applicationDescriptor():XML { return _communicator.applicationDescriptor; }
             public function get settingsManager():ISettingsManager { return _settingsManager; }
             public function get settings():ObjectBuilderSettings { return _settings; }
             public function get versionStorage():IVersionStorage { return _versionStorage; }
@@ -712,7 +714,7 @@ THE SOFTWARE.
                 registerClassAlias("LoopStrategy", LoopStrategy);
                 registerClassAlias("Animator", Animator);
                 
-                registerCallback(LogCommand, onInternalLog);
+                registerCallback(LogCommand, onLog);
                 registerCallback(ProgressCommand, onProgress);
                 registerCallback(ShowProgressBarCommand, onShowProgressBar);
                 registerCallback(HideProgressBarCommand, onHideProgressBar);
@@ -866,7 +868,6 @@ THE SOFTWARE.
             {
                 var file:File = File.applicationStorageDirectory.resolvePath("versions.xml");
                 
-                _versionStorage = new VersionStorage();
                 _versionStorage.load(file);
                 
                 sendCommand(new LoadVersionsCommand(file));
@@ -1369,7 +1370,7 @@ THE SOFTWARE.
                 }
             }
             
-            private function onInternalLog(level:uint, message:String, stack:String, id:uint):void
+            private function onLog(level:uint, message:String, stack:String, id:uint):void
             {
                 this.hideDatSprProgressBar();
                 this.hideDefaultProgressBar();
@@ -1492,23 +1493,23 @@ THE SOFTWARE.
             protected function applicationPreinitializeHandler(event:FlexEvent):void
             {
                 Resources.manager = ResourceManager.getInstance();
-                Log.communicator = this;
                 
                 _logger = mx.logging.Log.getLogger("ObjectBuilder");
                 _settingsManager = SettingsManager.getInstance();
+                _versionStorage = VersionStorage.getInstance();
                 _category = ThingCategory.ITEM;
                 
                 createLogging();
                 createWorker();
                 register();
                 createSplashScreen();
-                loadSettings();
-                loadVersions();
             }
             
             protected function creationCompleteHandler(event:FlexEvent):void
             {
                 nativeMenu.create(systemManager.stage);
+                loadSettings();
+                loadVersions();
             }
             
             protected function applicationCompleteHandler(event:FlexEvent):void

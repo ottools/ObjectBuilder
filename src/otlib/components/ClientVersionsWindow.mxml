@@ -132,7 +132,7 @@ THE SOFTWARE.
             
             protected function creationCompleteHandler(event:FlexEvent):void
             {
-                _versionStorage = VersionStorage.instance;
+                _versionStorage = VersionStorage.getInstance();
                 _versionStorage.addEventListener(Event.CHANGE, storageChangeHandler);
                 setVersions();
             }

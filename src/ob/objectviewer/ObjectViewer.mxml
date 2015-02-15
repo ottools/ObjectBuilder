@@ -229,7 +229,7 @@ THE SOFTWARE.
                         resourceManager.getString("strings", "type"),
                         resourceManager.getString("strings", thingData.category),
                         resourceManager.getString("strings", "version"),
-                        VersionStorage.instance.getByValue( bytes.readUnsignedShort() )[0].valueStr);
+                        VersionStorage.getInstance().getByValue( bytes.readUnsignedShort() )[0].valueStr);
                     
                     this.descriptionText.textFlow = TextConverter.importToFlow(
                         statusText,

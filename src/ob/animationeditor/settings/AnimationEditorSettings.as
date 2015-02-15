@@ -108,7 +108,7 @@ package ob.animationeditor.settings
         
         public function getLastExportVersion():Version
         {
-            return VersionStorage.instance.getBySignatures(datSignature, sprSignature);
+            return VersionStorage.getInstance().getBySignatures(datSignature, sprSignature);
         }
         
         public function setLastExportVersion(version:Version):void

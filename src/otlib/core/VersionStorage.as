@@ -296,11 +296,10 @@ package otlib.core
         //--------------------------------------------------------------------------
         
         private static var _instance:IVersionStorage;
-        
-        public static function get instance():IVersionStorage
+        public static function getInstance():IVersionStorage
         {
             if (!_instance)
-                _instance = new VersionStorage();
+                new VersionStorage();
             
             return _instance;
         }

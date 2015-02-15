@@ -242,7 +242,7 @@ THE SOFTWARE.
                     
                     _datFile = dat;
                     _sprFile = spr;
-                    _version = VersionStorage.instance.getBySignatures(info.datSignature, info.sprSignature);
+                    _version = VersionStorage.getInstance().getBySignatures(info.datSignature, info.sprSignature);
                 }
                 
                 function progressHandler(event:ProgressEvent):void
