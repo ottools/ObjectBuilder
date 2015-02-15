@@ -23,6 +23,7 @@
 @namespace s "library://ns.adobe.com/flex/spark";
 @namespace mx "library://ns.adobe.com/flex/mx";
 @namespace otlib "otlib.components.*";
+@namespace ob "ob.components.*";
 
 @font-face
 {
@@ -107,4 +108,15 @@ otlib|EightBitColorPicker
 otlib|PatternSlider
 {
     skinClass: ClassReference("otlib.components.skins.PatternSliderSkin");
+}
+
+/*
+//--------------------------------------
+// ob components
+//--------------------------------------
+*/
+
+ob|Toolbar
+{
+    skinClass: ClassReference("ob.components.skins.ToolbarSkin");
 }

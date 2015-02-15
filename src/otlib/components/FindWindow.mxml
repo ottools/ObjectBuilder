@@ -56,8 +56,10 @@ THE SOFTWARE.
             import ob.commands.ProgressCommand;
             import ob.commands.sprites.FindSpritesCommand;
             import ob.commands.sprites.GetSpriteListCommand;
+            import ob.commands.sprites.RemoveSpritesCommand;
             import ob.commands.things.FindThingCommand;
             import ob.commands.things.GetThingCommand;
+            import ob.commands.things.RemoveThingCommand;
             import ob.core.IObjectBuilder;
             
             import otlib.assets.Assets;
@@ -177,7 +179,9 @@ THE SOFTWARE.
             
             private function removeThings():void
             {
-                m_application.removeThings(thingsList.selectedIds, getCurrentCategory());
+                m_application.sendCommand(new RemoveThingCommand(thingsList.selectedIds,
+                                                                 getCurrentCategory(),
+                                                                 false));
                 thingsList.removeSelectedIndices();
             }
             
@@ -200,7 +204,7 @@ THE SOFTWARE.
             
             private function removeSprites():void
             {
-                m_application.removeSpritesIds(spritesList.selectedIds);
+                m_application.sendCommand(new RemoveSpritesCommand(spritesList.selectedIds));
                 spritesList.removeSelectedIndices();
             }
             

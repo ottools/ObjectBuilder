@@ -24,17 +24,18 @@ package ob.commands.files
 {
     import nail.commands.Command;
     
-    import otlib.core.Version;
-    
     public class CreateNewFilesCommand extends Command
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function CreateNewFilesCommand(version:Version, extended:Boolean, transparency:Boolean)
+        public function CreateNewFilesCommand(datSignature:uint,
+                                              sprSignature:uint, 
+                                              extended:Boolean,
+                                              transparency:Boolean)
         {
-            super(version, extended, transparency);
+            super(datSignature, sprSignature, extended, transparency);
         }
     }
 }

@@ -48,6 +48,7 @@ THE SOFTWARE.
     
     <fx:Script>
         <![CDATA[
+            import mx.core.FlexGlobals;
             import mx.events.FlexEvent;
             import mx.events.MenuEvent;
             
@@ -58,6 +59,7 @@ THE SOFTWARE.
             import nail.utils.FileUtil;
             import nail.utils.StringUtil;
             
+            import ob.commands.things.ImportThingsFromFilesCommand;
             import ob.core.IObjectBuilder;
             
             import otlib.assets.Assets;
@@ -71,8 +73,7 @@ THE SOFTWARE.
             // PROPERTIES
             //--------------------------------------------------------------------------
             
-            public var application:IObjectBuilder;
-            
+            private var _application:IObjectBuilder;
             private var _file:File;
             private var _fileChanged:Boolean;
             private var _fileList:Vector.<File>;
@@ -284,8 +285,11 @@ THE SOFTWARE.
             
             protected function importButtonClickHandler(event:MouseEvent):void
             {
-                var helper:PathHelper = new PathHelper(_fileList[_index].nativePath);
-                application.importThingsFromFiles(Vector.<PathHelper>([helper]));
+                if (!_application.clientLoaded) return;
+                
+                var list:Vector.<PathHelper> = new Vector.<PathHelper>(1, true);
+                list[0] = new PathHelper(_fileList[_index].nativePath);
+                _application.sendCommand(new ImportThingsFromFilesCommand(list));
             }
             
             protected function deleteButtonClickHandler(event:MouseEvent):void
@@ -304,6 +308,7 @@ THE SOFTWARE.
             
             protected function creationCompleteHandler(event:FlexEvent):void
             {
+                _application = IObjectBuilder(FlexGlobals.topLevelApplication);
                 systemManager.stage.addEventListener(KeyboardEvent.KEY_UP, keyUpHandler);
             }
             

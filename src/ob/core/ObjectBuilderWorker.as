@@ -336,24 +336,24 @@ package ob.core
             _spriteListAmount = settings.spritesListAmount;
         }
         
-        private function onCreateNewFiles(version:Version, extended:Boolean, transparency:Boolean):void
+        private function onCreateNewFiles(datSignature:uint,
+                                          sprSignature:uint,
+                                          extended:Boolean,
+                                          transparency:Boolean):void
         {
-            if (!version)
-                throw new NullArgumentError("version");
-            
             this.onUnloadFiles();
             
-            _version = version;
+            _version = VersionStorage.getInstance().getBySignatures(datSignature, sprSignature);
             _extended = (extended || _version.value >= 960);
             _transparency = transparency;
             
             this.createStorage();
             
             // Create sprites.
-            _sprites.createNew(version, _extended, transparency)
+            _sprites.createNew(_version, _extended, transparency)
             
             // Create things.
-            _things.createNew(version, _extended);
+            _things.createNew(_version, _extended);
             
             // Update preview.
             var thing:ThingType = _things.getItemType(ThingTypeStorage.MIN_ITEM_ID);

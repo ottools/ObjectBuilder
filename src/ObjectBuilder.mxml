@@ -26,6 +26,7 @@ THE SOFTWARE.
                        xmlns:mx="library://ns.adobe.com/flex/mx"
                        xmlns:nail="library://ns.nail.com/naillib"
                        xmlns:otlib="otlib.components.*"
+                       xmlns:ob="ob.components.*"
                        xmlns:menu="ob.menu.*"
                        implements="ob.core.IObjectBuilder, slicer.core.ISlicerHost"
                        minWidth="800"
@@ -207,6 +208,9 @@ THE SOFTWARE.
             private var _objectViewer:ObjectViewer;
             private var _slicer:Slicer;
             private var _clientInfo:ClientInfo;
+            private var _version:Version;
+            private var _extendedEnabled:Boolean;
+            private var _transparencyEnabled:Boolean;
             private var _clientChanged:Boolean;
             private var _clientIsTemporary:Boolean;
             private var _clientLoaded:Boolean;
@@ -223,7 +227,10 @@ THE SOFTWARE.
             public function get settings():ObjectBuilderSettings { return _settings; }
             public function get versionStorage():IVersionStorage { return _versionStorage; }
             
+            public function get version():Version { return _version; }
             public function get clientInfo():ClientInfo { return _clientInfo; }
+            public function get clientExtendedEnabled():Boolean { return _extendedEnabled; }
+            public function get clientTransparencyEnabled():Boolean { return _transparencyEnabled; }
             public function get clientChanged():Boolean { return _clientChanged; }
             public function get clientIsTemporary():Boolean { return _clientIsTemporary; }
             public function get clientLoaded():Boolean { return _clientLoaded; }
@@ -306,19 +313,31 @@ THE SOFTWARE.
                 //unused
             }
             
-            public function loadFiles(datFile:File, sprFile:File, version:Version, extended:Boolean, transparency:Boolean):void
+            public function createNewProject():void
             {
-                if (!datFile || !sprFile || !version) return;
-                sendCommand(new LoadFilesCommand(datFile, sprFile, version, extended, transparency));
+                var window:NewFilesWindow = new NewFilesWindow();
+                window.extended = _settings.extended;
+                window.transparency = _settings.transparency;
+                window.addEventListener(Event.CLOSE, windowCloseHandler);
+                window.open();
+                
+                PopUpWindowManager.addWindow(window);
+                
+                function windowCloseHandler(event:Event):void
+                {
+                    if (window.detail == DialogDetail.CONFIRM)
+                    {
+                        // TODO: check if it's changed/compiled
+                        
+                        sendCommand(new CreateNewFilesCommand(window.version.datSignature,
+                                                              window.version.sprSignature,
+                                                              window.extended,
+                                                              window.transparency));
+                    }
+                }
             }
             
-            public function createFiles(version:Version, extended:Boolean, transparency:Boolean):void
-            {
-                if (!version) return;
-                sendCommand(new CreateNewFilesCommand(version, extended, transparency));
-            }
-            
-            public function openClient(directory:File = null):void
+            public function openProject(directory:File = null):void
             {
                 var window:OpenFilesWindow;
                 
@@ -342,15 +361,249 @@ THE SOFTWARE.
                 
                 function windowCloseHandler(event:Event):void
                 {
-                    if (window.detail == DialogDetail.CONFIRM &&
-                        window.datFile &&
-                        window.sprFile &&
-                        window.version) {
+                    if (window.detail == DialogDetail.CONFIRM)
+                    {
                         _settings.setLastDirectory(window.datFile);
                         _filesName = FileUtil.getName(window.datFile);
-                        loadFiles(window.datFile, window.sprFile, window.version, window.extended, window.transparency);
+                        
+                        sendCommand(new LoadFilesCommand(window.datFile,
+                                                         window.sprFile,
+                                                         window.version,
+                                                         window.extended,
+                                                         window.transparency));
                     }
                 }
+            }
+            
+            public function compileProject():void
+            {
+                if (!clientLoaded) return;
+                
+                if (clientIsTemporary) {
+                    compileProjectAs();
+                    return;
+                }
+                
+                if (_settings.autosaveThingChanges)
+                    saveThingChanges();
+                
+                sendCommand(new CompileCommand());
+            }
+            
+            public function compileProjectAs():void
+            {
+                if (!this.clientLoaded) return;
+                
+                var window:CompileFilesWindow = new CompileFilesWindow();
+                window.directory = _settings.getLastDirectory();
+                window.version = _versionStorage.getFromFilesInfo(_clientInfo);
+                window.extended = _clientInfo.extended;
+                window.transparency = _clientInfo.transparency;
+                window.filesName = isNullOrEmpty(_filesName) ? "Tibia" : _filesName;
+                window.addEventListener(Event.CLOSE, windowCloseHandler);
+                window.open();
+                
+                PopUpWindowManager.addWindow(window);
+                
+                function windowCloseHandler(event:Event):void
+                {
+                    _settings.setLastDirectory(window.directory);
+                    
+                    if (window.datFile && window.sprFile && window.version)
+                    {
+                        if (_settings.autosaveThingChanges)
+                            saveThingChanges();
+                        
+                        sendCommand(new CompileAsCommand(window.datFile,
+                                                         window.sprFile,
+                                                         window.version,
+                                                         window.extended,
+                                                         window.transparency));
+                    }
+                }
+            }
+            
+            public function unloadProject():void
+            {
+                if (!this.clientLoaded) return;
+                this.clear();
+                sendCommand(new UnloadFilesCommand());
+            }
+            
+            public function openPreferencesWindow():void
+            {
+                var window:PreferencesWindow = new PreferencesWindow();
+                window.settings = _settings;
+                window.addEventListener(Event.CLOSE, closeHandler);
+                window.open();
+                
+                PopUpWindowManager.addWindow(window);
+                
+                function closeHandler(event:Event):void
+                {
+                    if (window.detail == DialogDetail.CONFIRM)
+                    {
+                        thingStepper.amount = _settings.objectsListAmount;
+                        spriteStepper.amount = _settings.spritesListAmount;
+                        
+                        sendCommand(new SettingsCommand(_settings));
+                    }
+                }
+            }
+            
+            public function openFinder():void
+            {
+                if (_findThingWindow)
+                {
+                    _findThingWindow.activate();
+                }
+                else
+                {
+                    _findThingWindow = new FindWindow();
+                    _findThingWindow.width = _settings.findWindowWidth;
+                    _findThingWindow.height = _settings.findWindowHeight;
+                    _findThingWindow.addEventListener(Event.CLOSE,
+                        function(event:Event):void
+                        {
+                            _settings.findWindowWidth = _findThingWindow.width;
+                            _settings.findWindowHeight = _findThingWindow.height;
+                            _findThingWindow = null;
+                        });
+                    _findThingWindow.open();
+                    
+                    WindowUtil.centralizeWindowOnScreen(_findThingWindow);
+                }
+            }
+            
+            public function closeFinder():void
+            {
+                if (_findThingWindow && !_findThingWindow.closed)
+                    _findThingWindow.close();
+            }
+            
+            public function openObjectViewer(file:File = null):void
+            {
+                if (_objectViewer)
+                {
+                    _objectViewer.activate();
+                }
+                else
+                {
+                    _objectViewer = new ObjectViewer();
+                    _objectViewer.addEventListener(Event.CLOSE,
+                        function(event:Event):void
+                        {
+                            _objectViewer = null;
+                        });
+                    _objectViewer.open();
+                }
+                
+                _objectViewer.file = file;
+            }
+            
+            public function closeObjectViewer():void
+            {
+                if (_objectViewer && !_objectViewer.closed)
+                    _objectViewer.close();
+            }
+            
+            public function openSlicer(file:File = null):void
+            {
+                if (file && !FileUtil.hasBitmapFormat(file)) return;
+                
+                if (_slicer)
+                {
+                    _slicer.activate();
+                }
+                else
+                {
+                    _slicer = new Slicer();
+                    _slicer.addEventListener(Event.CLOSE,
+                        function(event:Event):void
+                        {
+                            _slicer = null;
+                        });
+                    
+                    _slicer.open();
+                }
+                
+                _slicer.file = file;
+            }
+            
+            public function closeSlicer():void
+            {
+                if (_slicer && !_slicer.closed)
+                    _slicer.close();
+            }
+            
+            public function openAnimationEditor():void
+            {
+                if (_animationWindow)
+                {
+                    _animationWindow.activate();
+                }
+                else
+                {
+                    _animationWindow = new AnimationEditor();
+                    _animationWindow.addEventListener(Event.CLOSE,
+                        function(event:Event):void
+                        {
+                            _animationWindow = null;
+                        });
+                    _animationWindow.open();
+                }
+            }
+            
+            public function closeAnimationEditor():void
+            {
+                if (_animationWindow && !_animationWindow.closed)
+                    _animationWindow.close();
+            }
+            
+            public function openSpritesOptimizer():void
+            {
+                if (!clientLoaded) return;
+                
+                var window:SpritesOptimizerWindow = new SpritesOptimizerWindow();
+                window.open();
+                
+                PopUpWindowManager.addWindow(window);
+            }
+            
+            public function openLogWindow():void
+            {
+                if (_logWindow)
+                {
+                    _logWindow.activate();
+                }
+                else
+                {
+                    _logWindow = new LogWindow();
+                    _logWindow.text = _logText;
+                    _logWindow.addEventListener(Event.CLEAR, clearHandler);
+                    _logWindow.addEventListener(Event.CLOSE, closeHandler);
+                    _logWindow.open();
+                    
+                    WindowUtil.centralizeWindowOnScreen(_logWindow);
+                }
+                
+                function clearHandler(event:Event):void
+                {
+                    _logWindow.text = _logText = "";
+                }
+                
+                function closeHandler(event:Event):void
+                {
+                    _logWindow.removeEventListener(Event.CLEAR, clearHandler);
+                    _logWindow.removeEventListener(Event.CLOSE, closeHandler);
+                    _logWindow = null;
+                }
+            }
+            
+            public function closeLogWindow():void
+            {
+                if (_logWindow && !_logWindow.closed)
+                    _logWindow.close();
             }
             
             public function importThingsFromFiles(list:Vector.<PathHelper>):void
@@ -470,83 +723,6 @@ THE SOFTWARE.
                 sendCommand(new RemoveSpritesCommand(list));
             }
             
-            public function openPreferencesWindow():void
-            {
-                var window:PreferencesWindow = new PreferencesWindow();
-                window.settings = _settings;
-                window.addEventListener(Event.CLOSE, closeHandler);
-                window.open();
-                
-                PopUpWindowManager.addWindow(window);
-                
-                function closeHandler(event:Event):void
-                {
-                    if (window.detail == DialogDetail.CONFIRM)
-                    {
-                        thingStepper.amount = _settings.objectsListAmount;
-                        spriteStepper.amount = _settings.spritesListAmount;
-                        
-                        sendCommand(new SettingsCommand(_settings));
-                    }
-                }
-            }
-            
-            public function compile():void
-            {
-                if (!clientLoaded) return;
-                
-                if (clientIsTemporary) {
-                    compileAs();
-                    return;
-                }
-                
-                if (_settings.autosaveThingChanges) {
-                    saveThingChanges();
-                }
-                
-                sendCommand(new CompileCommand());
-            }
-            
-            public function compileAs():void
-            {
-                if (!this.clientLoaded) return;
-                
-                var window:CompileFilesWindow = new CompileFilesWindow();
-                window.directory = _settings.getLastDirectory();
-                window.version = _versionStorage.getFromFilesInfo(_clientInfo);
-                window.extended = _clientInfo.extended;
-                window.transparency = _clientInfo.transparency;
-                window.filesName = isNullOrEmpty(_filesName) ? "Tibia" : _filesName;
-                window.addEventListener(Event.CLOSE, windowCloseHandler);
-                window.open();
-                
-                PopUpWindowManager.addWindow(window);
-                
-                function windowCloseHandler(event:Event):void
-                {
-                    _settings.setLastDirectory(window.directory);
-                    
-                    if (window.datFile && window.sprFile && window.version) {
-                        if (_settings.autosaveThingChanges) {
-                            saveThingChanges();
-                        }
-                        
-                        sendCommand(new CompileAsCommand(window.datFile,
-                            window.sprFile,
-                            window.version,
-                            window.extended,
-                            window.transparency));
-                    }
-                }
-            }
-            
-            public function unload():void
-            {
-                if (!this.clientLoaded) return;
-                this.clear();
-                sendCommand(new UnloadFilesCommand());
-            }
-            
             public function appendLog(text:String):void
             {
                 if (text) {
@@ -564,103 +740,6 @@ THE SOFTWARE.
                         sendCommand(new UpdateThingCommand(thingTypeEditor.thingData, true));
                     }
                 }
-            }
-            
-            public function openObjectViewer(file:File = null):void
-            {
-                if (file && file.extension != OTFormat.OBD) return;
-                
-                if (!_objectViewer) {
-                    _objectViewer = new ObjectViewer();
-                    _objectViewer.application = this;
-                    _objectViewer.file = file;
-                    _objectViewer.width = _settings.objectViewerWidth;
-                    _objectViewer.height = _settings.objectViewerHeight;
-                    _objectViewer.addEventListener(
-                        NativeWindowDisplayStateEvent.DISPLAY_STATE_CHANGING,
-                        windowStateChagingHandler);
-                    _objectViewer.addEventListener(Event.CLOSING, windowClosingHandler);
-                    _objectViewer.open();
-                    
-                    if (_settings.objectViewerMaximized) {
-                        _objectViewer.maximize();
-                    } else {
-                        WindowUtil.centralizeWindowOnScreen(_objectViewer);
-                    }
-                } else {
-                    _objectViewer.file = file;
-                    _objectViewer.activate();
-                }
-            }
-            
-            public function closeObjectViewer():void
-            {
-                if (_objectViewer) {
-                    _objectViewer.close();
-                }
-            }
-            
-            public function openSlicer(file:File = null):void
-            {
-                if (file && !FileUtil.hasBitmapFormat(file)) return;
-                
-                if (!_slicer)
-                {
-                    _slicer = new Slicer();
-                    _slicer.host = this;
-                    _slicer.file = file;
-                    _slicer.addEventListener(Event.CLOSE, slicerCloseHandler);
-                    _slicer.open();
-                }
-                else
-                {
-                    _slicer.file = file;
-                    _slicer.activate();
-                }
-                
-                function slicerCloseHandler(event:Event):void
-                {
-                    _slicer = null;
-                }
-            }
-            
-            public function closeSlicer():void
-            {
-                if (_slicer)
-                    _slicer.close();
-            }
-            
-            private function openAnimationEditor():void
-            {
-                if (!_animationWindow) {
-                    _animationWindow = new AnimationEditor();
-                    _animationWindow.addEventListener(Event.CLOSING, animationEditorCloseHandler);
-                    _animationWindow.open();
-                } else {
-                    _animationWindow.activate();
-                }
-                
-                function animationEditorCloseHandler(event:Event):void
-                {
-                    _animationWindow = null;
-                }
-            }
-            
-            private function closeAnimationEditor():void
-            {
-                if (_animationWindow) {
-                    _animationWindow.close();
-                }
-            }
-            
-            private function openSpritesOptimizer():void
-            {
-                if (!clientLoaded) return;
-                
-                var window:SpritesOptimizerWindow = new SpritesOptimizerWindow();
-                window.open();
-                
-                PopUpWindowManager.addWindow(window);
             }
             
             public function checkForUpdates():void
@@ -802,7 +881,7 @@ THE SOFTWARE.
                         var file:File = new File(path);
                         
                         if (file.extension == OTFormat.DAT || file.extension == OTFormat.SPR)
-                            openClient(FileUtil.getDirectory(file));
+                            openProject(FileUtil.getDirectory(file));
                         else if (file.extension == OTFormat.OBD)
                             openObjectViewer(file);
                     }
@@ -861,6 +940,7 @@ THE SOFTWARE.
             
             private function saveSettings():void
             {
+                _settings.maximized = (nativeWindow.displayState == NativeWindowDisplayState.MAXIMIZED);
                 _settingsManager.saveSettings(_settings);
             }
             
@@ -908,6 +988,9 @@ THE SOFTWARE.
                     throw new NullArgumentError("info");
                 
                 _clientInfo = info;
+                _version = _versionStorage.getBySignatures(info.datSignature, info.sprSignature);
+                _extendedEnabled = info.extended;
+                _transparencyEnabled = info.transparency;
                 _clientChanged = info.changed;
                 _clientIsTemporary = info.isTemporary;
                 _clientLoaded = info.loaded;
@@ -919,9 +1002,6 @@ THE SOFTWARE.
                 thingStepper.maximum = getMaxThingId();
                 spriteStepper.minimum = info.minSpriteId;
                 spriteStepper.maximum = info.maxSpriteId;
-                
-                compileButton.enabled = (_clientChanged && !_clientIsTemporary);
-                compileAsButton.enabled = (_clientChanged || _clientIsTemporary);
             }
             
             private function onSetThingData(thingData:ThingData):void
@@ -979,23 +1059,6 @@ THE SOFTWARE.
                     if (event.detail == Alert.YES) {
                         sendCommand(new NeedToReloadCommand(extended, transparency));
                     }
-                }
-            }
-            
-            private function onCreateNew():void
-            {
-                var window:NewFilesWindow = new NewFilesWindow();
-                window.extended = _settings.extended;
-                window.transparency = _settings.transparency;
-                window.addEventListener(Event.CLOSE, windowCloseHandler);
-                window.open();
-                
-                PopUpWindowManager.addWindow(window);
-                
-                function windowCloseHandler (event:Event):void
-                {
-                    if (window.detail == DialogDetail.CONFIRM && window.version)
-                        createFiles(window.version, window.extended, window.transparency);
                 }
             }
             
@@ -1125,28 +1188,6 @@ THE SOFTWARE.
                 }
             }
             
-            private function openLogWindow():void
-            {
-                if (!_logWindow) {
-                    _logWindow = new LogWindow();
-                    _logWindow.text = _logText;
-                    _logWindow.addEventListener(Event.CLEAR, logWindowClearHandler);
-                    _logWindow.addEventListener(Event.CLOSE, logWindowCloseHandler);
-                    _logWindow.open();
-                    
-                    WindowUtil.centralizeWindowOnScreen(_logWindow);
-                } else {
-                    _logWindow.activate();
-                }
-            }
-            
-            private function closeLogWindow():void
-            {
-                if (_logWindow && !_logWindow.closed) {
-                    _logWindow.close();
-                }
-            }
-            
             private function openVersionsWindow():void
             {
                 var window:ClientVersionsWindow = new ClientVersionsWindow();
@@ -1164,30 +1205,6 @@ THE SOFTWARE.
                         
                         sendCommand(new LoadVersionsCommand(_versionStorage.file));
                     }
-                }
-            }
-            
-            private function openFindWindow():void
-            {
-                if (!this.clientLoaded) return;
-                
-                if (!_findThingWindow) {
-                    _findThingWindow = new FindWindow();
-                    _findThingWindow.width = _settings.findWindowWidth;
-                    _findThingWindow.height = _settings.findWindowHeight;
-                    _findThingWindow.addEventListener(Event.CLOSE, fingThingWindowCloseHandler);
-                    _findThingWindow.open();
-                    
-                    WindowUtil.centralizeWindowOnScreen(_findThingWindow);
-                } else {
-                    _findThingWindow.activate();
-                }
-            }
-            
-            private function closeFindThingWindow():void
-            {
-                if (_findThingWindow && !_findThingWindow.closed) {
-                    _findThingWindow.close();
                 }
             }
             
@@ -1510,6 +1527,8 @@ THE SOFTWARE.
                 nativeMenu.create(systemManager.stage);
                 loadSettings();
                 loadVersions();
+                
+                _logTarget.writeStart();
             }
             
             protected function applicationCompleteHandler(event:FlexEvent):void
@@ -1525,7 +1544,7 @@ THE SOFTWARE.
             protected function applicationClosingHandler(event:Event):void
             {
                 this.closeLogWindow();
-                this.closeFindThingWindow();
+                this.closeFinder();
                 this.closeLookGenerator();
                 this.closeObjectViewer();
                 this.closeSlicer();
@@ -1533,6 +1552,8 @@ THE SOFTWARE.
                 this.saveWindowState();
                 this.saveSettings();
                 this.saveVersions();
+                
+                _logTarget.writeEnd();
                 
                 if (this.clientLoaded && this.clientChanged) {
                     event.preventDefault();
@@ -1547,7 +1568,7 @@ THE SOFTWARE.
                 function alertCloseHandler(event:CloseEvent):void
                 {
                     if (event.detail == Alert.YES)
-                        compile();
+                        compileProject();
                     else if (event.detail == Alert.NO)
                         exit();
                 }
@@ -2111,52 +2132,9 @@ THE SOFTWARE.
                 _lookGenerator = null;
             }
             
-            protected function logWindowClearHandler(event:Event):void
-            {
-                _logText = "";
-                _logWindow.text = _logText;
-            }
-            
-            protected function logWindowCloseHandler(event:Event):void
-            {
-                _logWindow.removeEventListener(Event.CLEAR, logWindowClearHandler);
-                _logWindow.removeEventListener(Event.CLOSE, logWindowCloseHandler);
-                _logWindow = null;
-            }
-            
-            protected function fingThingWindowCloseHandler(event:Event):void
-            {
-                _settings.findWindowWidth = _findThingWindow.width;
-                _settings.findWindowHeight = _findThingWindow.height;
-                _findThingWindow.removeEventListener(Event.CLOSE, logWindowCloseHandler);
-                _findThingWindow = null;
-            }
-            
             protected function errorAlertCloseHandler(event:CloseEvent):void
             {
                 _errorAlert = null;
-            }
-            
-            protected function windowStateChagingHandler(event:NativeWindowDisplayStateEvent):void
-            {
-                var maximized:Boolean = (event.afterDisplayState == NativeWindowDisplayState.MAXIMIZED);
-                if (event.target is ObjectViewer) {
-                    _settings.objectViewerMaximized = maximized
-                }
-            }
-            
-            protected function windowClosingHandler(event:Event):void
-            {
-                event.target.removeEventListener(
-                    NativeWindowDisplayStateEvent.DISPLAY_STATE_CHANGING,
-                    windowStateChagingHandler);
-                event.target.removeEventListener(Event.CLOSING, windowClosingHandler);
-                
-                if (event.target is ObjectViewer) {
-                    _settings.objectViewerWidth = _objectViewer.width;
-                    _settings.objectViewerHeight = _objectViewer.height;
-                    _objectViewer = null;
-                }
             }
             
             protected function updateInitializedHandler(event:UpdateEvent):void
@@ -2185,23 +2163,23 @@ THE SOFTWARE.
                 switch(event.data)
                 {
                     case Menu.FILE_NEW:
-                        this.onCreateNew();
+                        this.createNewProject();
                         break;
                     
                     case Menu.FILE_OPEN:
-                        this.openClient();
+                        this.openProject();
                         break;
                     
                     case Menu.FILE_COMPILE:
-                        this.compile();
+                        this.compileProject();
                         break;
                     
                     case Menu.FILE_COMPILE_AS:
-                        this.compileAs();
+                        this.compileProjectAs();
                         break;
                     
                     case Menu.FILE_CLOSE:
-                        this.unload();
+                        this.unloadProject();
                         break;
                     
                     case Menu.FILE_PREFERENCES:
@@ -2225,7 +2203,7 @@ THE SOFTWARE.
                         break;
                     
                     case Menu.TOOLS_FIND:
-                        this.openFindWindow();
+                        this.openFinder();
                         break;
                     
                     case Menu.TOOLS_LOOK_TYPE_GENERATOR:
@@ -2278,110 +2256,8 @@ THE SOFTWARE.
                    selected="nativeMenuSelectedHandler(event)"/>
     </s:menu>
     
-    <!-- tool bar -->
-    <s:Group width="100%"
-             height="35"
-             top="0">
-        
-        <!-- highlight -->
-        <s:Rect left="-1" right="-1" top="1" bottom="0">
-            <s:stroke>
-                <s:SolidColorStroke color="0x636363"/>
-            </s:stroke>
-        </s:Rect>
-        
-        <!-- border -->
-        <s:Rect left="-1" right="-1" top="0" bottom="0">
-            <s:stroke>
-                <s:SolidColorStroke color="0x272727"/>
-            </s:stroke>
-        </s:Rect>
-        
-        <s:HGroup width="100%"
-                  height="100%"
-                  verticalAlign="middle"
-                  paddingLeft="10"
-                  paddingRight="10">
-            
-            <s:Button id="newButton"
-                      width="25"
-                      height="25"
-                      toolTip="{resourceManager.getString('strings', 'menu.new')}"
-                      icon="{Assets.NEW_FILE}"
-                      click="onCreateNew()"
-                      skinClass="nail.components.skins.IconButtonSkin"/>
-            
-            <s:Button id="openButton"
-                      width="25"
-                      height="25"
-                      toolTip="{resourceManager.getString('strings', 'menu.open')}"
-                      icon="{Assets.OPEN}"
-                      click="openClient()"
-                      skinClass="nail.components.skins.IconButtonSkin"/>
-            
-            <s:Button id="compileButton"
-                      width="25"
-                      height="25"
-                      toolTip="{resourceManager.getString('strings', 'menu.compile')}"
-                      icon="{Assets.SAVE}"
-                      enabled="false"
-                      click="compile()"
-                      skinClass="nail.components.skins.IconButtonSkin"/>
-            
-            <s:Button id="compileAsButton"
-                      width="25"
-                      height="25"
-                      toolTip="{resourceManager.getString('strings', 'menu.compileAs')}"
-                      icon="{Assets.SAVE_AS}"
-                      enabled="false"
-                      click="compileAs()"
-                      skinClass="nail.components.skins.IconButtonSkin"/>
-            
-            <nail:ShadowLine height="20"/>
-            
-            <s:Button id="findButton"
-                      width="25"
-                      height="25"
-                      toolTip="{resourceManager.getString('strings', 'find')}"
-                      icon="{Assets.BINOCULARS}"
-                      click="openFindWindow()"
-                      skinClass="nail.components.skins.IconButtonSkin"/>
-            
-            <s:Button id="objectViewerButton"
-                      width="25"
-                      height="25"
-                      toolTip="{resourceManager.getString('strings', 'objectViewer')}"
-                      icon="{Assets.VIEWER}"
-                      click="openObjectViewer()"
-                      skinClass="nail.components.skins.IconButtonSkin"/>
-            
-            <s:Button id="slicerButton"
-                      width="25"
-                      height="25"
-                      toolTip="Slicer"
-                      icon="{Assets.SLICER}"
-                      click="openSlicer()"
-                      skinClass="nail.components.skins.IconButtonSkin"/>
-            
-            <s:Button id="animationEditorButton"
-                      width="25"
-                      height="25"
-                      toolTip="{resourceManager.getString('strings', 'animationEditor')}"
-                      icon="{Assets.ANIMATION}"
-                      click="openAnimationEditor()"
-                      skinClass="nail.components.skins.IconButtonSkin"/>
-            
-            <nail:ShadowLine height="20"/>
-            
-            <s:Button id="logWindowButton"
-                      width="25"
-                      height="25"
-                      toolTip="{resourceManager.getString('strings', 'menu.logWindow')}"
-                      icon="{Assets.LOG}"
-                      click="openLogWindow()"
-                      skinClass="nail.components.skins.IconButtonSkin"/>
-        </s:HGroup>
-    </s:Group>
+    <ob:Toolbar width="100%"
+                height="35"/>
     
     <mx:HDividedBox width="100%"
                     height="100%"
