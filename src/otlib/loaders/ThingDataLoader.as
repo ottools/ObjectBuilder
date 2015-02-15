@@ -32,9 +32,11 @@ package otlib.loaders
     import flash.utils.ByteArray;
     
     import nail.errors.NullArgumentError;
+    
     import ob.commands.ProgressBarID;
     
     import otlib.events.ProgressEvent;
+    import otlib.obd.OBDEncoder;
     import otlib.things.ThingData;
     import otlib.utils.OTFormat;
     
@@ -48,6 +50,7 @@ package otlib.loaders
         // PROPERTIES
         //--------------------------------------------------------------------------
         
+        private var _encoder:OBDEncoder;
         private var _thingDataList:Vector.<ThingData>;
         private var _files:Vector.<PathHelper>;
         private var _index:int;
@@ -65,6 +68,7 @@ package otlib.loaders
         
         public function ThingDataLoader()
         {
+            _encoder = new OBDEncoder();
         }
         
         //--------------------------------------------------------------------------
@@ -138,7 +142,7 @@ package otlib.loaders
             {
                 try
                 {
-                    var thingData:ThingData = ThingData.unserialize(ByteArray(loader.data));
+                    var thingData:ThingData = _encoder.decode(ByteArray(loader.data));
                     thingData.thing.id = id;
                     _thingDataList.push(thingData);
                 } catch(error:Error) {

@@ -77,6 +77,7 @@ THE SOFTWARE.
             import otlib.components.ExportWindow;
             import otlib.components.SurfaceCells;
             import otlib.geom.Size;
+            import otlib.obd.OBDEncoder;
             import otlib.sprites.SpriteData;
             import otlib.things.AnimationMode;
             import otlib.things.Animator;
@@ -378,11 +379,14 @@ THE SOFTWARE.
                     var format:String = file.extension;
                     
                     var helper:SaveHelper = new SaveHelper();
-                    if (ImageFormat.hasImageFormat(format)) {
+                    if (ImageFormat.hasImageFormat(format))
+                    {
                         bitmap = thingView.thingData.getSpriteSheet(null, backgoundColor);
                         bytes = ImageCodec.encode(bitmap, format);
-                    } else if (format == OTFormat.OBD) {
-                        bytes = ThingData.serialize(thingView.thingData, window.version);
+                    }
+                    else if (format == OTFormat.OBD)
+                    {
+                        bytes = new OBDEncoder().encode(thingView.thingData);
                     }
                     
                     helper.addFile(bytes, window.fileName, format, file);

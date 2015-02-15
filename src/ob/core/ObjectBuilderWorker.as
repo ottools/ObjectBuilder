@@ -100,6 +100,7 @@ package ob.core
     import otlib.loaders.PathHelper;
     import otlib.loaders.SpriteDataLoader;
     import otlib.loaders.ThingDataLoader;
+    import otlib.obd.OBDEncoder;
     import otlib.resources.Resources;
     import otlib.sprites.Sprite;
     import otlib.sprites.SpriteData;
@@ -639,6 +640,7 @@ package ob.core
             
             sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("exportingObjects")));
             
+            var encoder:OBDEncoder = new OBDEncoder();
             var helper:SaveHelper = new SaveHelper();
             var backgoundColor:uint = (_transparency || transparentBackground) ? 0x00FF00FF : 0xFFFF00FF;
             var bytes:ByteArray;
@@ -651,14 +653,17 @@ package ob.core
                 var name:String = FileUtil.getName(file);
                 var format:String = file.extension;
                 
-                if (ImageFormat.hasImageFormat(format)) {
+                if (ImageFormat.hasImageFormat(format))
+                {
                     bitmap = thingData.getSpriteSheet(null, backgoundColor);
                     bytes = ImageCodec.encode(bitmap, format, jpegQuality);
-                    if (spriteSheetFlag != 0) {
+                    if (spriteSheetFlag != 0)
                         helper.addFile(ObUtils.getPatternsString(thingData.thing, spriteSheetFlag), name, "txt", file);
-                    }
-                } else if (format == OTFormat.OBD) {
-                    bytes = ThingData.serialize(thingData, version);
+                    
+                }
+                else if (format == OTFormat.OBD)
+                {
+                    bytes = encoder.encode(thingData);
                 }
                 helper.addFile(bytes, name, format, file);
             }

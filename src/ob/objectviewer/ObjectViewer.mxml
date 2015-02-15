@@ -63,7 +63,6 @@ THE SOFTWARE.
             import ob.core.IObjectBuilder;
             
             import otlib.assets.Assets;
-            import otlib.core.VersionStorage;
             import otlib.loaders.PathHelper;
             import otlib.things.ThingCategory;
             import otlib.things.ThingData;
@@ -208,20 +207,7 @@ THE SOFTWARE.
             {
                 try
                 {
-                    var bytes:ByteArray = new ByteArray();
-                    var stream:FileStream = new FileStream();
-                    stream.open(file, FileMode.READ);
-                    stream.readBytes(bytes, 0, stream.bytesAvailable);
-                    stream.close();
-                    
-                    var thingData:ThingData = ThingData.unserialize(bytes);
-                    bytes.position = 0;
-                    
-                    // Skip Otb version
-                    if (bytes.readUnsignedByte() == ThingData.OBD_MAJOR_VERSION)
-                        bytes.readUnsignedByte();
-                    else 
-                        bytes.position = 0;
+                    var thingData:ThingData = ThingData.createFromFile(file);
                     
                     var statusText:String = StringUtil.format(
                         STATUS,
@@ -230,7 +216,7 @@ THE SOFTWARE.
                         resourceManager.getString("strings", "type"),
                         resourceManager.getString("strings", thingData.category),
                         resourceManager.getString("strings", "version"),
-                        VersionStorage.getInstance().getByValue( bytes.readUnsignedShort() )[0].valueStr);
+                        (thingData.version / 100).toString());
                     
                     this.descriptionText.textFlow = TextConverter.importToFlow(
                         statusText,

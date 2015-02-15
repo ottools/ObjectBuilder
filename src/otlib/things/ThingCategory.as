@@ -46,6 +46,11 @@ package otlib.things
         public static const EFFECT:String = "effect";
         public static const MISSILE:String = "missile";
         
+        public static function isValid(category:String):Boolean
+        {
+            return (category == ITEM || category == OUTFIT || category == EFFECT || category == MISSILE);
+        }
+        
         public static function getCategory(value:String):String
         {
             if (!isNullOrEmpty(value)) {
