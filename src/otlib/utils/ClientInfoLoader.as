@@ -33,6 +33,7 @@ package otlib.utils
     import flash.utils.Endian;
     
     import nail.errors.NullArgumentError;
+    import nail.utils.FileUtil;
     
     import otlib.core.Version;
     import otlib.core.VersionStorage;
@@ -44,30 +45,30 @@ package otlib.utils
     
     [ResourceBundle("strings")]
     
-    public class FilesInfoLoader extends EventDispatcher
+    public class ClientInfoLoader extends EventDispatcher
     {
         //--------------------------------------------------------------------------
         // PROPERTIES
         //--------------------------------------------------------------------------
         
-        private var _dat:File;
-        private var _spr:File;
-        private var _extended:Boolean;
-        private var _filesInfo:ClientInfo;
-        private var _total:uint;
-        private var _loaded:uint;
+        private var m_otfi:File;
+        private var m_dat:File;
+        private var m_spr:File;
+        private var m_clientInfo:ClientInfo;
+        private var m_total:uint;
+        private var m_loaded:uint;
         
         //--------------------------------------
         // Getters / Setters
         //--------------------------------------
         
-        public function get filesInfo():ClientInfo { return _filesInfo; }
+        public function get clientInfo():ClientInfo { return m_clientInfo; }
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function FilesInfoLoader()
+        public function ClientInfoLoader()
         {
         }
         
@@ -88,16 +89,21 @@ package otlib.utils
                 throw new NullArgumentError("spr");
             
             if (!dat.exists)
-                dispatchEvent( createErrorEvent( Resources.getString("datFileNotFound") ) );
+                dispatchEvent(createErrorEvent(Resources.getString("datFileNotFound")));
             
             if (!spr.exists)
-                dispatchEvent( createErrorEvent( Resources.getString("sprFileNotFound") ) );
+                dispatchEvent(createErrorEvent(Resources.getString("sprFileNotFound")));
             
-            _dat = dat;
-            _spr = spr;
-            _extended = extended;
-            _filesInfo = new ClientInfo();
-            _total = 2;
+            // Seachs for otfi file
+            var result:Vector.<File> = FileUtil.findExtension(dat, "otfi");
+            if (result.length != 0)
+                m_otfi = result[0];
+            
+            m_dat = dat;
+            m_spr = spr;
+            m_clientInfo = new ClientInfo();
+            m_clientInfo.extended = extended;
+            m_total = 3;
             
             loadNext();
         }
@@ -108,16 +114,35 @@ package otlib.utils
         
         private function loadNext():void
         {
-            _loaded++;
+            m_loaded++;
             
-            dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, false, false, _loaded, _total));
+            dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, false, false, m_loaded, m_total));
             
-            if (_loaded == 1)
+            if (m_loaded == 1)
+                loadOTFI();
+            if (m_loaded == 2)
                 loadDat();
-            else if (_loaded == 2)
+            else if (m_loaded == 3)
                 loadSpr();
             else
                 dispatchEvent(new Event(Event.COMPLETE));
+        }
+        
+        private function loadOTFI():void
+        {
+            if (m_otfi)
+            {
+                var otfi:OTFI = new OTFI();
+                if (otfi.load(m_otfi))
+                {
+                    m_clientInfo.extended = otfi.extended;
+                    m_clientInfo.transparency = otfi.transparency;
+                    //m_clientInfo.improvedAnimations = otfi.improvedAnimations;
+                    //m_clientInfo.frameGroups = otfi.frameGroups;
+                }
+            }
+            
+            loadNext();
         }
         
         private function loadDat():void
@@ -126,7 +151,7 @@ package otlib.utils
             stream.endian = Endian.LITTLE_ENDIAN;
             stream.addEventListener(ProgressEvent.PROGRESS, metadataProgressHandler);
             stream.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
-            stream.openAsync(_dat, FileMode.READ);
+            stream.openAsync(m_dat, FileMode.READ);
         }
         
         private function loadSpr():void
@@ -135,7 +160,7 @@ package otlib.utils
             stream.endian = Endian.LITTLE_ENDIAN;
             stream.addEventListener(ProgressEvent.PROGRESS, spritesProgressHandler);
             stream.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
-            stream.openAsync(_spr, FileMode.READ);
+            stream.openAsync(m_spr, FileMode.READ);
         }
         
         //--------------------------------------
@@ -144,45 +169,46 @@ package otlib.utils
         
         private function readMetadaInfo(stream:FileStream):void
         {
-            _filesInfo.datSignature = stream.readUnsignedInt();
-            _filesInfo.maxItemId = stream.readUnsignedShort();
-            _filesInfo.maxOutfitId = stream.readUnsignedShort();
-            _filesInfo.maxEffectId = stream.readUnsignedShort();
-            _filesInfo.maxMissileId = stream.readUnsignedShort();
+            m_clientInfo.datSignature = stream.readUnsignedInt();
+            m_clientInfo.maxItemId = stream.readUnsignedShort();
+            m_clientInfo.maxOutfitId = stream.readUnsignedShort();
+            m_clientInfo.maxEffectId = stream.readUnsignedShort();
+            m_clientInfo.maxMissileId = stream.readUnsignedShort();
             
             loadNext();
         }
         
         private function readSpritesInfo(stream:FileStream):void
         {
-            _filesInfo.sprSignature = stream.readUnsignedInt();
+            m_clientInfo.sprSignature = stream.readUnsignedInt();
             
             var version:Version = VersionStorage.getInstance().getBySignatures(
-                _filesInfo.datSignature,
-                _filesInfo.sprSignature);
+                m_clientInfo.datSignature,
+                m_clientInfo.sprSignature);
             
             if (!version)
             {
-                _filesInfo.maxItemId = 0;
-                _filesInfo.maxOutfitId = 0;
-                _filesInfo.maxEffectId = 0;
-                _filesInfo.maxMissileId = 0;
-                _filesInfo.maxSpriteId = 0;
+                m_clientInfo.maxItemId = 0;
+                m_clientInfo.maxOutfitId = 0;
+                m_clientInfo.maxEffectId = 0;
+                m_clientInfo.maxMissileId = 0;
+                m_clientInfo.maxSpriteId = 0;
                 
                 dispatchEvent(new Event(Event.COMPLETE));
                 dispatchEvent( createErrorEvent( Resources.getString("unsupportedVersion") ) );
                 return;
             }
             
-            _filesInfo.clientVersion = version.value;
-            _filesInfo.clientVersionStr = version.valueStr;
+            m_clientInfo.clientVersion = version.value;
+            m_clientInfo.clientVersionStr = version.valueStr;
             
-            if (_extended || version.value >= 960) {
-                _filesInfo.maxSpriteId = stream.readUnsignedInt();
-                _filesInfo.extended = true;
-            } else {
-                _filesInfo.maxSpriteId = stream.readUnsignedShort();
+            if (m_clientInfo.extended || version.value >= 960)
+            {
+                m_clientInfo.maxSpriteId = stream.readUnsignedInt();
+                m_clientInfo.extended = true;
             }
+            else
+                m_clientInfo.maxSpriteId = stream.readUnsignedShort();
             
             loadNext();
         }
@@ -211,7 +237,7 @@ package otlib.utils
         
         private function ioErrorHandler(event:IOErrorEvent):void
         {
-            _filesInfo = null;
+            m_clientInfo = null;
             dispatchEvent( createErrorEvent(event.text, event.errorID) );
         }
         

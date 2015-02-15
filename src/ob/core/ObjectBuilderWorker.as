@@ -116,6 +116,7 @@ package ob.core
     import otlib.things.ThingTypeStorage;
     import otlib.utils.ChangeResult;
     import otlib.utils.ClientInfo;
+    import otlib.utils.OTFI;
     import otlib.utils.OTFormat;
     import otlib.utils.ThingListItem;
     
@@ -443,6 +444,12 @@ package ob.core
                 !_sprites.compile(spr, version, extended, transparency)) {
                 return;
             }
+            
+            // Save .otfi file
+            var dir:File = FileUtil.getDirectory(dat);
+            var otfiFile:File = dir.resolvePath(FileUtil.getName(dat) + ".otfi");
+            var otfi:OTFI = new OTFI(extended, transparency);
+            otfi.save(otfiFile);
             
             clientCompileComplete();
             

@@ -64,7 +64,7 @@ THE SOFTWARE.
             import otlib.core.VersionStorage;
             import otlib.events.FileTextInputEvent;
             import otlib.utils.ClientInfo;
-            import otlib.utils.FilesInfoLoader;
+            import otlib.utils.ClientInfoLoader;
             import otlib.utils.OTFormat;
             
             //--------------------------------------------------------------------------
@@ -212,7 +212,7 @@ THE SOFTWARE.
             
             private function loadFiles(dat:File, spr:File):void
             {
-                var loader:FilesInfoLoader = new FilesInfoLoader();
+                var loader:ClientInfoLoader = new ClientInfoLoader();
                 loader.addEventListener(Event.COMPLETE, completeHandler);
                 loader.addEventListener(ProgressEvent.PROGRESS, progressHandler);
                 loader.addEventListener(ErrorEvent.ERROR, errorHandler);
@@ -228,7 +228,9 @@ THE SOFTWARE.
                     progressBar.includeInLayout = false;
                     progressBar.setProgress(0, 1);
                     
-                    var info:ClientInfo = loader.filesInfo;
+                    var info:ClientInfo = loader.clientInfo;
+                    extended = info.extended;
+                    transparency = info.transparency;
                     clientVersionLabel.text = info.clientVersionStr;
                     datSignatureLabel.text = info.datSignature.toString(16).toUpperCase();
                     itemsCountLabel.text = info.maxItemId.toString();
