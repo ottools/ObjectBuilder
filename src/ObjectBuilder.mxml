@@ -138,7 +138,7 @@ THE SOFTWARE.
             import otlib.components.LogWindow;
             import otlib.components.LookGenerator;
             import otlib.components.NewFilesWindow;
-            import otlib.components.OpenFilesWindow;
+            import ob.components.OpenFilesWindow;
             import otlib.components.renders.ThingListRenderer;
             import otlib.core.IVersionStorage;
             import otlib.core.Version;
