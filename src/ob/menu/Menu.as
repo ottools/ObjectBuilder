@@ -314,23 +314,52 @@ package ob.menu
         
         protected function showMenuItem(event:FlexNativeMenuEvent):void
         {
-            // menu View > Show Preview Panel
             if (m_isMac)
+            {
+                // menu File > Compile
+                nativeMenu.items[1].submenu.items[2].enabled = (m_application.clientChanged && !m_application.clientIsTemporary);
+                
+                // menu File > Compile As
+                nativeMenu.items[1].submenu.items[3].enabled = m_application.clientLoaded;
+                
+                // menu File > Close
+                nativeMenu.items[1].submenu.items[5].enabled = m_application.clientLoaded;
+                
+                // menu View > Show Preview Panel
                 nativeMenu.items[2].submenu.items[0].checked = m_application.showPreviewPanel;
-            else
-                nativeMenu.items[1].submenu.items[0].checked = m_application.showPreviewPanel;
-            
-            // menu View > Show Objects Panel
-            if (m_isMac)
+                
+                // menu View > Show Things Panel
                 nativeMenu.items[2].submenu.items[1].checked = m_application.showThingsPanel;
-            else
-                nativeMenu.items[1].submenu.items[1].checked = m_application.showThingsPanel;
-            
-            // menu View > Show Sprites Panel
-            if (m_isMac)
+                
+                // menu View > Show Sprites Panel
                 nativeMenu.items[2].submenu.items[2].checked = m_application.showSpritesPanel;
+                
+                // menu Tools > Find
+                nativeMenu.items[3].submenu.items[0].enabled = m_application.clientLoaded;
+            }
             else
+            {
+                // menu File > Compile
+                nativeMenu.items[0].submenu.items[2].enabled = (m_application.clientChanged && !m_application.clientIsTemporary);
+                
+                // menu File > Compile As
+                nativeMenu.items[0].submenu.items[3].enabled = m_application.clientLoaded;
+                
+                // menu File > Close
+                nativeMenu.items[0].submenu.items[5].enabled = m_application.clientLoaded;
+                
+                // menu View > Show Preview Panel
+                nativeMenu.items[1].submenu.items[0].checked = m_application.showPreviewPanel;
+                
+                // menu View > Show Things Panel
+                nativeMenu.items[1].submenu.items[1].checked = m_application.showThingsPanel;
+                
+                // menu View > Show Sprites Panel
                 nativeMenu.items[1].submenu.items[2].checked = m_application.showSpritesPanel;
+                
+                // menu Tools > Find
+                nativeMenu.items[2].submenu.items[0].enabled = m_application.clientLoaded;
+            }
         }
         
         protected function keyDownHandler(event:KeyboardEvent):void
