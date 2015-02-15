@@ -121,6 +121,8 @@ THE SOFTWARE.
             import ob.commands.things.SetThingDataCommand;
             import ob.commands.things.SetThingListCommand;
             import ob.commands.things.UpdateThingCommand;
+            import ob.components.CompileFilesWindow;
+            import ob.components.NewFilesWindow;
             import ob.components.OpenFilesWindow;
             import ob.components.PreferencesWindow;
             import ob.components.SplashScreen;
@@ -131,14 +133,12 @@ THE SOFTWARE.
             
             import otlib.assets.Assets;
             import otlib.components.ClientVersionsWindow;
-            import ob.components.CompileFilesWindow;
             import otlib.components.DatSprProgressBar;
             import otlib.components.DefaultProgressBar;
             import otlib.components.ExportWindow;
             import otlib.components.FindWindow;
             import otlib.components.LogWindow;
             import otlib.components.LookGenerator;
-            import ob.components.NewFilesWindow;
             import otlib.components.renders.ThingListRenderer;
             import otlib.core.IVersionStorage;
             import otlib.core.Version;
