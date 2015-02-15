@@ -310,7 +310,8 @@ THE SOFTWARE.
                     }
                 }
                 
-                this.thingView.thingData = ThingData.createThingData(thing, sprites);
+                // TODO temporary version
+                this.thingView.thingData = ThingData.createThingData(1041, thing, sprites);
                 this.saveButton.enabled = true;
             }
             
@@ -378,7 +379,7 @@ THE SOFTWARE.
                     
                     var helper:SaveHelper = new SaveHelper();
                     if (ImageFormat.hasImageFormat(format)) {
-                        bitmap = ThingData.getSpriteSheet(thingView.thingData, null, backgoundColor);
+                        bitmap = thingView.thingData.getSpriteSheet(null, backgoundColor);
                         bytes = ImageCodec.encode(bitmap, format);
                     } else if (format == OTFormat.OBD) {
                         bytes = ThingData.serialize(thingView.thingData, window.version);
@@ -503,7 +504,7 @@ THE SOFTWARE.
                 if (!thingData)
                     return;
                 
-                var bitmap:BitmapData = ThingData.getSpriteSheet(thingData, null, 0);
+                var bitmap:BitmapData = thingData.getSpriteSheet();
                 setBitmap(bitmap);
             }
             

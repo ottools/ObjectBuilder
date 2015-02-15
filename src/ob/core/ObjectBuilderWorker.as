@@ -652,7 +652,7 @@ package ob.core
                 var format:String = file.extension;
                 
                 if (ImageFormat.hasImageFormat(format)) {
-                    bitmap = ThingData.getSpriteSheet(thingData, null, backgoundColor);
+                    bitmap = thingData.getSpriteSheet(null, backgoundColor);
                     bytes = ImageCodec.encode(bitmap, format, jpegQuality);
                     if (spriteSheetFlag != 0) {
                         helper.addFile(ObUtils.getPatternsString(thingData.thing, spriteSheetFlag), name, "txt", file);
@@ -1617,7 +1617,7 @@ package ob.core
                 spriteData.pixels = pixels;
                 sprites.push(spriteData);
             }
-            return ThingData.createThingData(thing, sprites);
+            return ThingData.createThingData(_version.value, thing, sprites);
         }
         
         private function toLocale(bundle:String, plural:Boolean = false):String

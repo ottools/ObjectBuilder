@@ -205,11 +205,14 @@ package otlib.components
                     if (thingData.thing.animator)
                         thingData.thing.animator.skipFirstFrame = true;
                     
-                    thingData = ThingData.colorizeOutfit(thingData, _outfitData);
+                    if (!_outfitData)
+                        _outfitData = new OutfitData();
+                    
+                    thingData.colorize(_outfitData);
                 }
                 
                 _textureIndex = new Vector.<Rect>();
-                _spriteSheet = ThingData.getSpriteSheet(thingData, _textureIndex, 0);
+                _spriteSheet = thingData.getSpriteSheet(_textureIndex, 0);
                 _bitmap = new BitmapData(thingData.thing.width * 32, thingData.thing.height * 32, true);
                 _fillRect = _bitmap.rect;
                 _maxFrame = thingData.thing.frames;

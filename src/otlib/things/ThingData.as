@@ -36,7 +36,9 @@ package otlib.things
     import flash.utils.Endian;
     
     import nail.errors.NullArgumentError;
+    import nail.errors.NullOrEmptyArgumentError;
     import nail.utils.StringUtil;
+    import nail.utils.isNullOrEmpty;
     
     import otlib.core.Version;
     import otlib.core.VersionStorage;
@@ -54,17 +56,52 @@ package otlib.things
         // PROPERTIES
         //--------------------------------------------------------------------------
         
-        public var thing:ThingType;
-        public var sprites:Vector.<SpriteData>;
+        private var m_version:uint;
+        private var m_thing:ThingType;
+        private var m_sprites:Vector.<SpriteData>;
         
         //--------------------------------------
         // Getters / Setters 
         //--------------------------------------
         
-        public function get id():uint { return thing.id; }
-        public function get category():String { return thing.category; }
-        public function get length():uint { return sprites.length; }
-        public function get animator():Animator { return thing.animator; }
+        public function get id():uint { return m_thing.id; }
+        public function get category():String { return m_thing.category; }
+        public function get length():uint { return m_sprites.length; }
+        public function get animator():Animator { return m_thing.animator; }
+        
+        public function get version():uint { return m_version; }
+        public function set version(value:uint):void
+        {
+            if (value < 710)
+                throw new ArgumentError(StringUtil.format("Invalid version {0}.", value));
+            
+            m_version = value;
+        }
+        
+        public function get thing():ThingType { return m_thing; }
+        public function set thing(value:ThingType):void
+        {
+            if (!value)
+                throw new NullArgumentError("thing");
+            
+            m_thing = value;
+        }
+        
+        public function get sprites():Vector.<SpriteData> { return m_sprites; }
+        public function set sprites(value:Vector.<SpriteData>):void
+        {
+            if (isNullOrEmpty(value))
+                throw new NullOrEmptyArgumentError("sprites");
+            
+            var length:uint = value.length;
+            for (var i:uint = 0; i < length; i++)
+            {
+                if (value[i] == null)
+                    throw new ArgumentError("Invalid sprite list");
+            }
+            
+            m_sprites = value;
+        }
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
@@ -82,18 +119,268 @@ package otlib.things
         // Public
         //--------------------------------------
         
+        public function getSpriteSheet(textureIndex:Vector.<Rect> = null,
+                                       backgroundColor:uint = 0xFFFF00FF):BitmapData
+        {
+            // Measures and creates bitmap
+            var size:uint = Sprite.DEFAULT_SIZE;
+            var totalX:int = m_thing.patternZ * m_thing.patternX * m_thing.layers;
+            var totalY:int = m_thing.frames * m_thing.patternY;
+            var bitmapWidth:Number = (totalX * m_thing.width) * size;
+            var bitmapHeight:Number = (totalY * m_thing.height) * size;
+            var pixelsWidth:int = m_thing.width * size;
+            var pixelsHeight:int = m_thing.height * size;
+            var bitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, backgroundColor);
+            
+            if (textureIndex)
+                textureIndex.length = m_thing.layers * m_thing.patternX * m_thing.patternY * m_thing.patternZ * m_thing.frames;
+            
+            for (var f:uint = 0; f < m_thing.frames; f++)
+            {
+                for (var z:uint = 0; z < m_thing.patternZ; z++)
+                {
+                    for (var y:uint = 0; y < m_thing.patternY; y++)
+                    {
+                        for (var x:uint = 0; x < m_thing.patternX; x++)
+                        {
+                            for (var l:uint = 0; l < m_thing.layers; l++)
+                            {
+                                var index:uint = thing.getTextureIndex(l, x, y, z, f);
+                                var fx:int = (index % totalX) * pixelsWidth;
+                                var fy:int = Math.floor(index / totalX) * pixelsHeight;
+                                
+                                if (textureIndex)
+                                    textureIndex[index] = new Rect(fx, fy, pixelsWidth, pixelsHeight);
+                                
+                                for (var w:uint = 0; w < m_thing.width; w++)
+                                {
+                                    for (var h:uint = 0; h < m_thing.height; h++)
+                                    {
+                                        index = thing.getSpriteIndex(w, h, l, x, y, z, f);
+                                        var px:int = ((m_thing.width - w - 1) * size);
+                                        var py:int = ((m_thing.height - h - 1) * size);
+                                        copyPixels(index, bitmap, px + fx, py + fy);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return bitmap;
+        }
+        
+        public function getColoredSpriteSheet(outfitData:OutfitData):BitmapData
+        {
+            if (!outfitData)
+                throw new NullArgumentError("outfitData");
+            
+            var textureRectList:Vector.<Rect> = new Vector.<Rect>();
+            var spriteSheet:BitmapData = getSpriteSheet(textureRectList, 0x00000000);
+            spriteSheet = SpriteUtils.removeMagenta(spriteSheet);
+            
+            if (m_thing.layers != 2)
+                return spriteSheet;
+            
+            var size:uint = Sprite.DEFAULT_SIZE;
+            var totalX:int = m_thing.patternZ * m_thing.patternX * m_thing.layers;
+            var totalY:int = m_thing.height;
+            var pixelsWidth:int  = m_thing.width * size;
+            var pixelsHeight:int = m_thing.height * size;
+            var bitmapWidth:uint = m_thing.patternZ * m_thing.patternX * pixelsWidth;
+            var bitmapHeight:uint = m_thing.frames * pixelsHeight;
+            var numSprites:uint = m_thing.layers * m_thing.patternX * m_thing.patternY * m_thing.patternZ * m_thing.frames;
+            var grayBitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
+            var blendBitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
+            var colorBitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
+            var bitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
+            var bitmapRect:Rectangle = bitmap.rect;
+            var rectList:Vector.<Rect> = new Vector.<Rect>(numSprites, true);
+            var index:uint;
+            var f:uint;
+            var x:uint;
+            var y:uint;
+            var z:uint;
+            
+            for (f = 0; f < m_thing.frames; f++)
+            {
+                for (z = 0; z < m_thing.patternZ; z++)
+                {
+                    for (x = 0; x < m_thing.patternX; x++)
+                    {
+                        index = (((f % m_thing.frames * m_thing.patternZ + z) * m_thing.patternY + y) * m_thing.patternX + x) * m_thing.layers;
+                        rectList[index] = new Rect((z * m_thing.patternX + x) * pixelsWidth, f * pixelsHeight, pixelsWidth, pixelsHeight);
+                    }
+                }
+            }
+            
+            for (y = 0; y < m_thing.patternY; y++) {
+                if (y == 0 || (outfitData.addons & 1 << (y - 1)) != 0) {
+                    for (f = 0; f < m_thing.frames; f++) {
+                        for (z = 0; z < m_thing.patternZ; z++) {
+                            for (x = 0; x < m_thing.patternX; x++) {
+                                var i:uint = (((f % m_thing.frames * m_thing.patternZ + z) * m_thing.patternY + y) * m_thing.patternX + x) * m_thing.layers;
+                                var rect:Rect = textureRectList[i];
+                                RECTANGLE.setTo(rect.x, rect.y, rect.width, rect.height);
+                                
+                                index = (((f * m_thing.patternZ + z) * m_thing.patternY) * m_thing.patternX + x) * m_thing.layers;
+                                rect = rectList[index];
+                                POINT.setTo(rect.x, rect.y);
+                                grayBitmap.copyPixels(spriteSheet, RECTANGLE, POINT);
+                                
+                                i++;
+                                rect = textureRectList[i];
+                                RECTANGLE.setTo(rect.x, rect.y, rect.width, rect.height);
+                                blendBitmap.copyPixels(spriteSheet, RECTANGLE, POINT);
+                            }
+                        }
+                    }
+                    
+                    POINT.setTo(0, 0);
+                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.BLUE, ColorUtils.HSItoARGB(outfitData.feet));
+                    blendBitmap.applyFilter(blendBitmap, bitmapRect, POINT, MATRIX_FILTER);
+                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.BLUE, ColorUtils.HSItoARGB(outfitData.head));
+                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.RED, ColorUtils.HSItoARGB(outfitData.body));
+                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.GREEN, ColorUtils.HSItoARGB(outfitData.legs));
+                    bitmap.copyPixels(grayBitmap, bitmapRect, POINT, null, null, true);
+                }
+            }
+            
+            grayBitmap.dispose();
+            blendBitmap.dispose();
+            colorBitmap.dispose();
+            return bitmap;
+        }
+        
+        public function setSpriteSheet(bitmap:BitmapData):void
+        {
+            if (!bitmap)
+                throw new NullArgumentError("bitmap");
+            
+            var rectSize:Rect = SpriteUtils.getSpriteSheetSize(thing);
+            if (bitmap.width != rectSize.width ||
+                bitmap.height != rectSize.height) return;
+            
+            bitmap = SpriteUtils.removeMagenta(bitmap);
+            
+            var size:uint = Sprite.DEFAULT_SIZE;
+            var totalX:int = m_thing.patternZ * m_thing.patternX * m_thing.layers;
+            var pixelsWidth:int  = m_thing.width * size;
+            var pixelsHeight:int = m_thing.height * size;
+            
+            POINT.setTo(0, 0);
+            
+            for (var f:uint = 0; f < m_thing.frames; f++)
+            {
+                for (var z:uint = 0; z < m_thing.patternZ; z++)
+                {
+                    for (var y:uint = 0; y < m_thing.patternY; y++)
+                    {
+                        for (var x:uint = 0; x < m_thing.patternX; x++)
+                        {
+                            for (var l:uint = 0; l < m_thing.layers; l++)
+                            {
+                                var index:uint = m_thing.getTextureIndex(l, x, y, z, f);
+                                var fx:int = (index % totalX) * pixelsWidth;
+                                var fy:int = Math.floor(index / totalX) * pixelsHeight;
+                                
+                                for (var w:uint = 0; w < m_thing.width; w++)
+                                {
+                                    for (var h:uint = 0; h < m_thing.height; h++)
+                                    {
+                                        index = m_thing.getSpriteIndex(w, h, l, x, y, z, f);
+                                        var px:int = ((m_thing.width - w - 1) * size);
+                                        var py:int = ((m_thing.height - h - 1) * size);
+                                        
+                                        RECTANGLE.setTo(px + fx, py + fy, size, size);
+                                        var bmp:BitmapData = new BitmapData(size, size, true, 0x00000000);
+                                        bmp.copyPixels(bitmap, RECTANGLE, POINT);
+                                        
+                                        var sd:SpriteData = new SpriteData();
+                                        sd.pixels = bmp.getPixels(bmp.rect);
+                                        sd.id = uint.MAX_VALUE;
+                                        
+                                        m_sprites[index] = sd;
+                                        m_thing.spriteIndex[index] = sd.id;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        public function colorize(outfitData:OutfitData):void
+        {
+            if (!outfitData)
+                throw new NullArgumentError("outfitData");
+            
+            if (m_thing.category != ThingCategory.OUTFIT) return;
+            
+            var bitmap:BitmapData = getColoredSpriteSheet(outfitData);
+            
+            m_thing.patternY = 1; // Decrease addons
+            m_thing.layers = 1; // Decrease layers 
+            m_thing.spriteIndex = new Vector.<uint>(m_thing.getTotalSprites(), true);
+            m_sprites = new Vector.<SpriteData>(m_thing.getTotalSprites(), true);
+            setSpriteSheet(bitmap);
+        }
+        
         public function clone():ThingData
         {
-            var spritesCopy:Vector.<SpriteData> = new Vector.<SpriteData>();
+            var length:uint = m_sprites.length;
             
-            var length:uint = sprites.length;
+            var td:ThingData = new ThingData();
+            td.m_version = m_version;
+            td.m_thing = m_thing.clone();
+            td.m_sprites = new Vector.<SpriteData>(length, true);
+            
             for (var i:uint = 0; i < length; i++)
-                spritesCopy[i] = sprites[i].clone();
+                td.m_sprites[i] = m_sprites[i].clone();
+           
+            return td;
+        }
+        
+        //--------------------------------------
+        // Private
+        //--------------------------------------
+        
+        private function copyPixels(index:uint, bitmap:BitmapData, x:uint, y:uint):void
+        {
+            if (index < m_sprites.length)
+            {
+                var sd:SpriteData = m_sprites[index];
+                if (sd && sd.pixels)
+                {
+                    var bmp:BitmapData = sd.getBitmap();
+                    if (bmp)
+                    {
+                        sd.pixels.position = 0;
+                        RECTANGLE.setTo(0, 0, bmp.width, bmp.height);
+                        POINT.setTo(x, y);
+                        bitmap.copyPixels(bmp, RECTANGLE, POINT, null, null, true);
+                    }
+                }
+            }
+        }
+        
+        private function setColor(canvas:BitmapData,
+                                  grey:BitmapData,
+                                  blend:BitmapData,
+                                  rect:Rectangle,
+                                  channel:uint,
+                                  color:uint):void
+        {
+            POINT.setTo(0, 0);
+            COLOR_TRANSFORM.redMultiplier = (color >> 16 & 0xFF) / 0xFF;
+            COLOR_TRANSFORM.greenMultiplier = (color >> 8 & 0xFF) / 0xFF;
+            COLOR_TRANSFORM.blueMultiplier = (color & 0xFF) / 0xFF;
             
-            var thingData:ThingData = new ThingData();
-            thingData.thing = this.thing.clone();
-            thingData.sprites = spritesCopy;
-            return thingData;
+            canvas.copyPixels(grey, rect, POINT);
+            canvas.copyChannel(blend, rect, POINT, channel, BitmapDataChannel.ALPHA);
+            canvas.colorTransform(rect, COLOR_TRANSFORM);
+            grey.copyPixels(canvas, rect, POINT, null, null, true);
         }
         
         //--------------------------------------------------------------------------
@@ -112,21 +399,19 @@ package otlib.things
                                                                                       0,  0, -255, 0,
                                                                                       0, -1,    1, 0]);
         
-        public static function createThingData(thing:ThingType, sprites:Vector.<SpriteData>):ThingData
+        public static function createThingData(version:uint, thing:ThingType, sprites:Vector.<SpriteData>):ThingData
         {
-            if (!thing) {
+            if (!thing)
                 throw new NullArgumentError("thing");
-            }
             
-            if (!sprites) {
+            if (!sprites)
                 throw new NullArgumentError("sprites");
-            }
             
-            if (thing.spriteIndex.length != sprites.length) {
+            if (thing.spriteIndex.length != sprites.length)
                 throw new ArgumentError("Invalid sprites length.");
-            }
             
             var thingData:ThingData = new ThingData();
+            thingData.version = version;
             thingData.thing = thing;
             thingData.sprites = sprites;
             return thingData;
@@ -234,270 +519,9 @@ package otlib.things
             if (!done) return null;
             
             if (newObd)
-                return readSprites(thing, bytes);
+                return readSprites(version.value, thing, bytes);
             
-            return readThingSprites(thing, bytes);
-        }
-        
-        public static function getSpriteSheet(data:ThingData,
-                                              textureIndex:Vector.<Rect> = null,
-                                              backgroundColor:uint = 0xFFFF00FF):BitmapData
-        {
-            if (!data)
-                throw new NullArgumentError("data");
-            
-            var thing:ThingType = data.thing;
-            var width:uint = thing.width;
-            var height:uint = thing.height;
-            var layers:uint = thing.layers;
-            var patternX:uint = thing.patternX;
-            var patternY:uint = thing.patternY;
-            var patternZ:uint = thing.patternZ;
-            var frames:uint = thing.frames;
-            var size:uint = Sprite.DEFAULT_SIZE;
-            
-            // -----< Measure and create bitmap>-----
-            var totalX:int = patternZ * patternX * layers;
-            var totalY:int = frames * patternY;
-            var bitmapWidth:Number = (totalX * width) * size;
-            var bitmapHeight:Number = (totalY * height) * size;
-            var pixelsWidth:int = width * size;
-            var pixelsHeight:int = height * size;
-            var bitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, backgroundColor);
-            
-            if (textureIndex) {
-                textureIndex.length = layers * patternX * patternY * patternZ * frames;
-            }
-            
-            for (var f:uint = 0; f < frames; f++) {
-                for (var z:uint = 0; z < patternZ; z++) {
-                    for (var y:uint = 0; y < patternY; y++) {
-                        for (var x:uint = 0; x < patternX; x++) {
-                            for (var l:uint = 0; l < layers; l++) {
-                                
-                                var index:uint = thing.getTextureIndex(l, x, y, z, f);
-                                var fx:int = (index % totalX) * pixelsWidth;
-                                var fy:int = Math.floor(index / totalX) * pixelsHeight;
-                                
-                                if (textureIndex)
-                                    textureIndex[index] = new Rect(fx, fy, pixelsWidth, pixelsHeight);
-                                
-                                for (var w:uint = 0; w < width; w++) {
-                                    for (var h:uint = 0; h < height; h++) {
-                                        index = thing.getSpriteIndex(w, h, l, x, y, z, f);
-                                        var px:int = ((width - w - 1) * size);
-                                        var py:int = ((height - h - 1) * size);
-                                        copyPixels(data, index, bitmap, px + fx, py + fy);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return bitmap;
-        }
-        
-        public static function setSpriteSheet(bitmap:BitmapData, thing:ThingType):ThingData
-        {
-            if (!bitmap) {
-                throw new NullArgumentError("bitmap");
-            }
-            
-            if (!thing) {
-                throw new NullArgumentError("thing");
-            }
-            
-            var rectSize:Rect = SpriteUtils.getSpriteSheetSize(thing);
-            if (bitmap.width != rectSize.width || bitmap.height != rectSize.height) return null;
-            
-            bitmap = SpriteUtils.removeMagenta(bitmap);
-            
-            var width:uint = thing.width;
-            var height: uint = thing.height;
-            var layers:uint = thing.layers;
-            var patternX:uint = thing.patternX;
-            var patternY:uint = thing.patternY;
-            var patternZ:uint = thing.patternZ;
-            var frames:uint = thing.frames;
-            var size:uint = Sprite.DEFAULT_SIZE;
-            var totalX:int = patternZ * patternX * layers;
-            var pixelsWidth:int  = width * size;
-            var pixelsHeight:int = height * size;
-            var sprites:Vector.<SpriteData> = new Vector.<SpriteData>( thing.getTotalSprites() );
-            
-            POINT.setTo(0, 0);
-            
-            for (var f:uint = 0; f < frames; f++) {
-                for (var z:uint = 0; z < patternZ; z++) {
-                    for (var y:uint = 0; y < patternY; y++) {
-                        for (var x:uint = 0; x < patternX; x++) {
-                            for (var l:uint = 0; l < layers; l++) {
-                                
-                                var index:uint = thing.getTextureIndex(l, x, y, z, f);
-                                var fx:int = (index % totalX) * pixelsWidth;
-                                var fy:int = Math.floor(index / totalX) * pixelsHeight;
-                                
-                                for (var w:uint = 0; w < width; w++) {
-                                    for (var h:uint = 0; h < height; h++) {
-                                        index = thing.getSpriteIndex(w, h, l, x, y, z, f);
-                                        var px:int = ((width - w - 1) * size);
-                                        var py:int = ((height - h - 1) * size);
-                                        RECTANGLE.setTo(px + fx, py + fy, size, size);
-                                        var bmp:BitmapData = new BitmapData(size, size, true, 0x00000000);
-                                        bmp.copyPixels(bitmap, RECTANGLE, POINT);
-                                        var spriteData:SpriteData = new SpriteData();
-                                        spriteData.pixels = bmp.getPixels(bmp.rect);
-                                        spriteData.id = uint.MAX_VALUE;
-                                        sprites[index] = spriteData;
-                                        thing.spriteIndex[index] = spriteData.id;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return createThingData(thing, sprites);
-        }
-        
-        public static function colorizeSpriteSheet(thingData:ThingData,
-                                                   outfitData:OutfitData,
-                                                   backgroundColor:uint = 0xFFFF00FF):BitmapData
-        {
-            if (!thingData)
-                throw NullArgumentError("thingData");
-            
-            if (!outfitData)
-                throw NullArgumentError("outfitData");
-            
-            var textureRectList:Vector.<Rect> = new Vector.<Rect>();
-            var spriteSheet:BitmapData = getSpriteSheet(thingData, textureRectList, backgroundColor);
-            spriteSheet = SpriteUtils.removeMagenta(spriteSheet);
-            
-            var thing:ThingType = thingData.thing;
-            if (thing.layers != 2)
-                return spriteSheet;
-            
-            var width:uint = thing.width;
-            var height:uint = thing.height;
-            var layers:uint = thing.layers;
-            var patternX:uint = thing.patternX;
-            var patternY:uint = thing.patternY;
-            var patternZ:uint = thing.patternZ;
-            var frames:uint = thing.frames;
-            var size:uint = Sprite.DEFAULT_SIZE;
-            var totalX:int = patternZ * patternX * layers;
-            var totalY:int = height;
-            var pixelsWidth:int  = width * size;
-            var pixelsHeight:int = height * size;
-            var bitmapWidth:uint = patternZ * patternX * pixelsWidth;
-            var bitmapHeight:uint = frames * pixelsHeight;
-            var numSprites:uint = layers * patternX * patternY * patternZ * frames;
-            var grayBitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
-            var blendBitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
-            var colorBitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
-            var bitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
-            var bitmapRect:Rectangle = bitmap.rect;
-            var rectList:Vector.<Rect> = new Vector.<Rect>(numSprites, true);
-            var index:uint;
-            var f:uint;
-            var x:uint;
-            var y:uint;
-            var z:uint;
-            
-            for (f = 0; f < frames; f++) {
-                for (z = 0; z < patternZ; z++) {
-                    for (x = 0; x < patternX; x++) {
-                        index = (((f % frames * patternZ + z) * patternY + y) * patternX + x) * layers;
-                        rectList[index] = new Rect((z * patternX + x) * pixelsWidth, f * pixelsHeight, pixelsWidth, pixelsHeight);
-                    }
-                }
-            }
-            
-            for (y = 0; y < patternY; y++) {
-                if (y == 0 || (outfitData.addons & 1 << (y - 1)) != 0) {
-                    for (f = 0; f < frames; f++) {
-                        for (z = 0; z < patternZ; z++) {
-                            for (x = 0; x < patternX; x++) {
-                                var i:uint = (((f % frames * patternZ + z) * patternY + y) * patternX + x) * layers;
-                                var rect:Rect = textureRectList[i];
-                                RECTANGLE.setTo(rect.x, rect.y, rect.width, rect.height);
-                                
-                                index = (((f * patternZ + z) * patternY) * patternX + x) * layers;
-                                rect = rectList[index];
-                                POINT.setTo(rect.x, rect.y);
-                                grayBitmap.copyPixels(spriteSheet, RECTANGLE, POINT);
-                                
-                                i++;
-                                rect = textureRectList[i];
-                                RECTANGLE.setTo(rect.x, rect.y, rect.width, rect.height);
-                                blendBitmap.copyPixels(spriteSheet, RECTANGLE, POINT);
-                            }
-                        }
-                    }
-                    
-                    POINT.setTo(0, 0);
-                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.BLUE, ColorUtils.HSItoARGB(outfitData.feet));
-                    blendBitmap.applyFilter(blendBitmap, bitmapRect, POINT, MATRIX_FILTER);
-                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.BLUE, ColorUtils.HSItoARGB(outfitData.head));
-                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.RED, ColorUtils.HSItoARGB(outfitData.body));
-                    setColor(colorBitmap, grayBitmap, blendBitmap, bitmapRect, BitmapDataChannel.GREEN, ColorUtils.HSItoARGB(outfitData.legs));
-                    bitmap.copyPixels(grayBitmap, bitmapRect, POINT, null, null, true);
-                }
-            }
-            
-            grayBitmap.dispose();
-            blendBitmap.dispose();
-            colorBitmap.dispose();
-            return bitmap;
-        }
-        
-        public static function colorizeOutfit(outfit:ThingData,
-                                              outfitData:OutfitData,
-                                              backgroundColor:uint = 0xFFFF00FF):ThingData
-        {
-            if (!outfit || outfit.category != ThingCategory.OUTFIT || !outfitData)
-                return outfit;
-            
-            var spriteSheet:BitmapData = colorizeSpriteSheet(outfit, outfitData, backgroundColor);
-            var thing:ThingType = outfit.thing.clone();
-            thing.patternY = 1;
-            thing.layers = 1;
-            thing.spriteIndex = new Vector.<uint>(thing.getTotalSprites(), true);
-            return setSpriteSheet(spriteSheet, thing);
-        }
-        
-        public static function setAlpha(thingData:ThingData, alpha:Number):ThingData
-        {
-            if (!thingData) return null;
-            
-            if (isNaN(alpha) || alpha < 0)
-                alpha = 0;
-            else if (alpha > 1)
-                alpha = 1;
-            
-            var colorTransform:ColorTransform = new ColorTransform();
-            colorTransform.alphaMultiplier = alpha;
-            var bitmapData:BitmapData = getSpriteSheet(thingData, null, 0);
-            bitmapData.colorTransform(bitmapData.rect, colorTransform);
-            return setSpriteSheet(bitmapData, thingData.thing);
-        }
-        
-        private static function copyPixels(data:ThingData, index:uint, bitmap:BitmapData, x:uint, y:uint):void
-        {
-            if (index < data.length) {
-                var spriteData:SpriteData = data.sprites[index];
-                if (spriteData && spriteData.pixels) {
-                    var bmp:BitmapData = spriteData.getBitmap();
-                    if (bmp) {
-                        spriteData.pixels.position = 0;
-                        RECTANGLE.setTo(0, 0, bmp.width, bmp.height);
-                        POINT.setTo(x, y);
-                        bitmap.copyPixels(bmp, RECTANGLE, POINT, null, null, true);
-                    }
-                }
-            }
+            return readThingSprites(version.value, thing, bytes);
         }
         
         private static function writeSprites(data:ThingData, bytes:ByteArray):Boolean
@@ -555,7 +579,7 @@ package otlib.things
             return true;
         }
         
-        private static function readSprites(thing:ThingType, bytes:ByteArray):ThingData
+        private static function readSprites(version:uint, thing:ThingType, bytes:ByteArray):ThingData
         {
             thing.width  = bytes.readUnsignedByte();
             thing.height = bytes.readUnsignedByte();
@@ -616,7 +640,7 @@ package otlib.things
                 sprites[i] = spriteData;
             }
             
-            return createThingData(thing, sprites);
+            return createThingData(version, thing, sprites);
         }
         
         /**
@@ -624,7 +648,7 @@ package otlib.things
          * 
          * Reads old OBD files. It will be removed in future revision.
          */
-        private static function readThingSprites(thing:ThingType, bytes:ByteArray):ThingData
+        private static function readThingSprites(version:uint, thing:ThingType, bytes:ByteArray):ThingData
         {
             thing.width  = bytes.readUnsignedByte();
             thing.height = bytes.readUnsignedByte();
@@ -683,25 +707,7 @@ package otlib.things
                 spriteData.pixels = pixels;
                 sprites[i] = spriteData;
             }
-            return createThingData(thing, sprites);
-        }
-        
-        private static function setColor(canvas:BitmapData,
-                                         grey:BitmapData,
-                                         blend:BitmapData,
-                                         rect:Rectangle,
-                                         channel:uint,
-                                         color:uint):void
-        {
-            POINT.setTo(0, 0);
-            COLOR_TRANSFORM.redMultiplier = (color >> 16 & 0xFF) / 0xFF;
-            COLOR_TRANSFORM.greenMultiplier = (color >> 8 & 0xFF) / 0xFF;
-            COLOR_TRANSFORM.blueMultiplier = (color & 0xFF) / 0xFF;
-            
-            canvas.copyPixels(grey, rect, POINT);
-            canvas.copyChannel(blend, rect, POINT, channel, BitmapDataChannel.ALPHA);
-            canvas.colorTransform(rect, COLOR_TRANSFORM);
-            grey.copyPixels(canvas, rect, POINT, null, null, true);
+            return createThingData(version, thing, sprites);
         }
     }
 }

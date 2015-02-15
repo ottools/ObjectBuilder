@@ -1935,14 +1935,21 @@ THE SOFTWARE.
                     var thing:ThingType = thingTypeEditor.getThingTypeResult();
                     var rect:otlib.geom.Rect = SpriteUtils.getSpriteSheetSize(thing);
                     
-                    if (bitmap.width == rect.width && rect.height == bitmap.height) {
-                        var data:ThingData = ThingData.setSpriteSheet(bitmap, thing);
-                        if (data != null) {
-                            thingTypeEditor.thingData = data;
-                            confirmButton.enabled = true;
-                            thingTypeEditor.invalidateThingData();
-                        }
-                    } else {
+                    if (bitmap.width == rect.width && rect.height == bitmap.height)
+                    {
+                        var length:uint = thing.spriteIndex.length;
+                        var sprites:Vector.<SpriteData> = new Vector.<SpriteData>(length, true);
+                        for (var i:uint = 0; i < length; i++)
+                            sprites[i] = SpriteData.createSpriteData(thing.spriteIndex[i]);
+                        
+                        var data:ThingData = ThingData.createThingData(_version.value, thing, sprites);
+                        data.setSpriteSheet(bitmap);
+                        thingTypeEditor.thingData = data;
+                        confirmButton.enabled = true;
+                        thingTypeEditor.invalidateThingData();
+                    }
+                    else
+                    {
                         var message:String = resourceManager.getString("strings", "invalidSpriteSheetSize");
                         Alert.show(StringUtil.format(message, rect.width, rect.height),
                             resourceManager.getString("strings", "invalidSpriteSheetSizeTitle"));

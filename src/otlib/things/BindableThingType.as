@@ -333,12 +333,17 @@ package otlib.things
         {
             if (!copyToThingType(data.thing)) return false;
             
-            if (this.sprites) {
-                data.sprites.length = 0;
+            if (this.sprites)
+            {
                 var length:uint = this.sprites.length;
+                var sprites:Vector.<SpriteData> = new Vector.<SpriteData>(length, true);
+                
                 for (var i:uint = 0; i < length; i++)
-                    data.sprites[i] = sprites[i];
+                    sprites[i] = this.sprites[i];
+                
+                data.sprites = sprites;
             }
+            
             return true;
         }
         
