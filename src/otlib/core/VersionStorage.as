@@ -231,7 +231,7 @@ package otlib.core
             return list;
         }
         
-        public function getFromFilesInfo(info:ClientInfo):Version
+        public function getFromClientInfo(info:ClientInfo):Version
         {
             for each (var version:Version in _versions) {
                 if (version.value == info.clientVersion &&

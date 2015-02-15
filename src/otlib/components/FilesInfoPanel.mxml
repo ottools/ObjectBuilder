@@ -75,6 +75,7 @@ THE SOFTWARE.
                     spritesCountLabel.text = info.maxSpriteId.toString();
                     extendedValueLabel.text = resourceManager.getString("strings", info.extended ? "yes" : "no");
                     transparencyValueLabel.text = resourceManager.getString("strings", info.transparency ? "yes" : "no");
+                    improvedAnimationsValueLabel.text = resourceManager.getString("strings", info.improvedAnimations ? "yes" : "no");
                 }
                 else
                     this.clear();
@@ -92,6 +93,7 @@ THE SOFTWARE.
                 spritesCountLabel.text = null;
                 extendedValueLabel.text = null;
                 transparencyValueLabel.text = null;
+                improvedAnimationsValueLabel.text = null;
             }
             
             //--------------------------------------
@@ -191,6 +193,14 @@ THE SOFTWARE.
         <s:Label text="{resourceManager.getString('strings', 'transparency') + ':'}"
                  textAlign="right"/>
         <s:RichEditableText id="transparencyValueLabel"
+                            editable="false"
+                            focusEnabled="false"
+                            height="13"
+                            color="0x9AC9F8"/>
+        
+        <s:Label text="{resourceManager.getString('strings', 'improvAnim') + ':'}"
+                 textAlign="right"/>
+        <s:RichEditableText id="improvedAnimationsValueLabel"
                             editable="false"
                             focusEnabled="false"
                             height="13"

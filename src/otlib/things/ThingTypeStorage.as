@@ -78,6 +78,7 @@ package otlib.things
         private var _missilesCount:uint;
         private var _thingsCount:uint;
         private var _extended:Boolean;
+        private var _improvedAnimations:Boolean;
         private var _progressCount:uint;
         private var _loaded:Boolean;
         
@@ -116,7 +117,10 @@ package otlib.things
         //  Public
         //---------------------------------- 
         
-        public function load(file:File, version:Version, extended:Boolean = false):void
+        public function load(file:File,
+                             version:Version,
+                             extended:Boolean = false,
+                             improvedAnimations:Boolean = false):void
         {
             if (!file)
                 throw new NullArgumentError("file");
@@ -124,11 +128,11 @@ package otlib.things
             if (!version)
                 throw new NullArgumentError("version");
             
-            if (this.loaded)
-                return;
+            if (this.loaded) return;
             
             _version = version;
-            _extended = (extended || version.value >= 960);
+            _extended = (extended || _version.value >= 960);
+            _improvedAnimations = (improvedAnimations || _version.value >= 1050);
             
             try
             {
@@ -137,7 +141,9 @@ package otlib.things
                 stream.endian = Endian.LITTLE_ENDIAN;
                 readBytes(stream);
                 stream.close();
-            } catch(error:Error) {
+            }
+            catch(error:Error)
+            {
                 dispatchEvent(new ErrorEvent(ErrorEvent.ERROR, false, false, error.getStackTrace(), error.errorID));
                 return;
             }
@@ -150,7 +156,9 @@ package otlib.things
             dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
         }
         
-        public function createNew(version:Version, extended:Boolean):void
+        public function createNew(version:Version,
+                                  extended:Boolean,
+                                  improvedAnimations:Boolean):void
         {
             if (!version)
                 throw new NullArgumentError("version");
@@ -158,7 +166,8 @@ package otlib.things
             if (this.loaded) return;
             
             _version = version;
-            _extended = (extended || version.value >= 960);
+            _extended = (extended || _version.value >= 960);
+            _improvedAnimations = (improvedAnimations || _version.value >= 1050);
             _items = new Dictionary();
             _outfits = new Dictionary();
             _effects = new Dictionary();
@@ -296,7 +305,10 @@ package otlib.things
             return result;
         }
         
-        public function compile(file:File, version:Version, extended:Boolean = false):Boolean
+        public function compile(file:File,
+                                version:Version,
+                                extended:Boolean,
+                                improvedAnimations:Boolean):Boolean
         {
             if (!file) {
                 throw new NullArgumentError("file");
@@ -307,6 +319,9 @@ package otlib.things
             }
             
             if (!_loaded) return false;
+            
+            extended = (extended || version.value >= 960);
+            improvedAnimations = (improvedAnimations || version.value >= 1050);
             
             var tmpFile:File = FileUtil.getDirectory(file).resolvePath("tmp_" + file.name);
             var done:Boolean = true;
@@ -324,10 +339,10 @@ package otlib.things
                 stream.writeShort(_outfitsCount); // Write outfits count
                 stream.writeShort(_effectsCount); // Write effects count
                 stream.writeShort(_missilesCount); // Write missiles count
-                if (!writeThingList(stream, _items, MIN_ITEM_ID, _itemsCount, version, extended) ||
-                    !writeThingList(stream, _outfits, MIN_OUTFIT_ID, _outfitsCount, version, extended) ||
-                    !writeThingList(stream, _effects, MIN_EFFECT_ID, _effectsCount, version, extended) ||
-                    !writeThingList(stream, _missiles, MIN_MISSILE_ID, _missilesCount, version, extended)) {
+                if (!writeThingList(stream, _items, MIN_ITEM_ID, _itemsCount, version, extended, improvedAnimations) ||
+                    !writeThingList(stream, _outfits, MIN_OUTFIT_ID, _outfitsCount, version, extended, improvedAnimations) ||
+                    !writeThingList(stream, _effects, MIN_EFFECT_ID, _effectsCount, version, extended, improvedAnimations) ||
+                    !writeThingList(stream, _missiles, MIN_MISSILE_ID, _missilesCount, version, extended, improvedAnimations)) {
                     done = false;
                 }
                 stream.close();
@@ -915,7 +930,7 @@ package otlib.things
                         return false;
                 }
                 
-                if (!ThingSerializer.readSprites(thing, stream, _extended, _version.value >= 755, _version.value >= 1050))
+                if (!ThingSerializer.readSprites(thing, stream, _extended, _version.value >= 755, _improvedAnimations))
                     return false;
                 
                 list[id] = thing;
@@ -937,7 +952,8 @@ package otlib.things
                                           minId:uint,
                                           maxId:uint,
                                           version:Version,
-                                          extended:Boolean):Boolean
+                                          extended:Boolean,
+                                          improvedAnimations:Boolean):Boolean
         {
             var type:uint;
             if (version.value <= 730)
@@ -953,7 +969,6 @@ package otlib.things
             else
                 type = 6;
             
-            extended = (extended || version.value >= 960);
             var dispatchProgress:Boolean = this.hasEventListener(ProgressEvent.PROGRESS);
             
             for (var id:uint = minId; id <= maxId; id++) {
@@ -982,7 +997,7 @@ package otlib.things
                             return false;
                     }
                     
-                    if (!ThingSerializer.writeSprites(thing, stream, extended, version.value >= 755, version.value >= 1050))
+                    if (!ThingSerializer.writeSprites(thing, stream, extended, version.value >= 755, improvedAnimations))
                         return false;
                     
                 } else {

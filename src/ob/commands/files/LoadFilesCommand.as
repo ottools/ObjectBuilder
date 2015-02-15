@@ -38,13 +38,15 @@ package ob.commands.files
                                          sprFile:File,
                                          version:Version,
                                          extended:Boolean,
-                                         transparency:Boolean)
+                                         transparency:Boolean,
+                                         improvedAnimations:Boolean)
         {
             super(datFile.nativePath, 
                   sprFile.nativePath,
                   version,
                   extended,
-                  transparency);
+                  transparency,
+                  improvedAnimations);
         }
     }
 }

@@ -60,6 +60,7 @@ package ob.settings
         public var language:String = "en_US";
         public var extended:Boolean;
         public var transparency:Boolean;
+        public var improvedAnimations:Boolean;
         public var savingSpriteSheet:Number = 0;
         public var findWindowWidth:Number = 0;
         public var findWindowHeight:Number = 0;

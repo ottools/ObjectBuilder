@@ -121,6 +121,7 @@ THE SOFTWARE.
             import ob.commands.things.SetThingDataCommand;
             import ob.commands.things.SetThingListCommand;
             import ob.commands.things.UpdateThingCommand;
+            import ob.components.OpenFilesWindow;
             import ob.components.PreferencesWindow;
             import ob.components.SplashScreen;
             import ob.components.SpritesOptimizerWindow;
@@ -130,15 +131,14 @@ THE SOFTWARE.
             
             import otlib.assets.Assets;
             import otlib.components.ClientVersionsWindow;
-            import otlib.components.CompileFilesWindow;
+            import ob.components.CompileFilesWindow;
             import otlib.components.DatSprProgressBar;
             import otlib.components.DefaultProgressBar;
             import otlib.components.ExportWindow;
             import otlib.components.FindWindow;
             import otlib.components.LogWindow;
             import otlib.components.LookGenerator;
-            import otlib.components.NewFilesWindow;
-            import ob.components.OpenFilesWindow;
+            import ob.components.NewFilesWindow;
             import otlib.components.renders.ThingListRenderer;
             import otlib.core.IVersionStorage;
             import otlib.core.Version;
@@ -318,6 +318,7 @@ THE SOFTWARE.
                 var window:NewFilesWindow = new NewFilesWindow();
                 window.extended = _settings.extended;
                 window.transparency = _settings.transparency;
+                window.improvedAnimations = _settings.improvedAnimations;
                 window.addEventListener(Event.CLOSE, windowCloseHandler);
                 window.open();
                 
@@ -332,7 +333,8 @@ THE SOFTWARE.
                         sendCommand(new CreateNewFilesCommand(window.version.datSignature,
                                                               window.version.sprSignature,
                                                               window.extended,
-                                                              window.transparency));
+                                                              window.transparency,
+                                                              window.improvedAnimations));
                     }
                 }
             }
@@ -346,6 +348,7 @@ THE SOFTWARE.
                     window.clientDirectory = directory || _settings.getLastDirectory();
                     window.extended = _settings.extended;
                     window.transparency = _settings.transparency;
+                    window.improvedAnimations = _settings.improvedAnimations;
                 }
                 else 
                 {
@@ -353,6 +356,7 @@ THE SOFTWARE.
                     window.clientDirectory = directory || _settings.getLastDirectory();
                     window.extended = _settings.extended;
                     window.transparency = _settings.transparency;
+                    window.improvedAnimations = _settings.improvedAnimations;
                     window.addEventListener(Event.CLOSE, windowCloseHandler);
                     window.open();
                     
@@ -370,7 +374,8 @@ THE SOFTWARE.
                                                          window.sprFile,
                                                          window.version,
                                                          window.extended,
-                                                         window.transparency));
+                                                         window.transparency,
+                                                         window.improvedAnimations));
                     }
                 }
             }
@@ -396,9 +401,10 @@ THE SOFTWARE.
                 
                 var window:CompileFilesWindow = new CompileFilesWindow();
                 window.directory = _settings.getLastDirectory();
-                window.version = _versionStorage.getFromFilesInfo(_clientInfo);
+                window.version = _versionStorage.getFromClientInfo(_clientInfo);
                 window.extended = _clientInfo.extended;
                 window.transparency = _clientInfo.transparency;
+                window.improvedAnimations = _clientInfo.improvedAnimations;
                 window.filesName = isNullOrEmpty(_filesName) ? "Tibia" : _filesName;
                 window.addEventListener(Event.CLOSE, windowCloseHandler);
                 window.open();
@@ -409,7 +415,7 @@ THE SOFTWARE.
                 {
                     _settings.setLastDirectory(window.directory);
                     
-                    if (window.datFile && window.sprFile && window.version)
+                    if (window.detail == DialogDetail.CONFIRM)
                     {
                         if (_settings.autosaveThingChanges)
                             saveThingChanges();
@@ -418,7 +424,8 @@ THE SOFTWARE.
                                                          window.sprFile,
                                                          window.version,
                                                          window.extended,
-                                                         window.transparency));
+                                                         window.transparency,
+                                                         window.improvedAnimations));
                     }
                 }
             }
@@ -1752,7 +1759,7 @@ THE SOFTWARE.
                 
                 var version:Version = _settings.getLastExportThingVersion();
                 if (!version) {
-                    version = _versionStorage.getFromFilesInfo(_clientInfo);
+                    version = _versionStorage.getFromClientInfo(_clientInfo);
                 }
                 
                 var window:ExportWindow = new ExportWindow();

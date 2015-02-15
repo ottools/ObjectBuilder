@@ -44,6 +44,7 @@ package otlib.utils
         public var maxSpriteId:uint;
         public var extended:Boolean;
         public var transparency:Boolean;
+        public var improvedAnimations:Boolean;
         public var changed:Boolean;
         public var isTemporary:Boolean;
         public var loaded:Boolean;

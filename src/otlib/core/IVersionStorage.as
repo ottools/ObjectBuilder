@@ -38,7 +38,7 @@ package otlib.core
         function removeVersion(version:Version):Version;
         function save(file:File):void;
         function getList():Array;
-        function getFromFilesInfo(info:ClientInfo):Version;
+        function getFromClientInfo(info:ClientInfo):Version;
         function getByValue(value:uint):Vector.<Version>;
         function getByValueString(value:String):Version;
         function getBySignatures(datSignature:uint, sprSignature:uint):Version;

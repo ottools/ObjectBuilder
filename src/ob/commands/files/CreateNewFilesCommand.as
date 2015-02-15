@@ -33,9 +33,14 @@ package ob.commands.files
         public function CreateNewFilesCommand(datSignature:uint,
                                               sprSignature:uint, 
                                               extended:Boolean,
-                                              transparency:Boolean)
+                                              transparency:Boolean,
+                                              improvedAnimations:Boolean)
         {
-            super(datSignature, sprSignature, extended, transparency);
+            super(datSignature,
+                  sprSignature,
+                  extended,
+                  transparency,
+                  improvedAnimations);
         }
     }
 }

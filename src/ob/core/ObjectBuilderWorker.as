@@ -136,6 +136,7 @@ package ob.core
         private var _version:Version;
         private var _extended:Boolean;
         private var _transparency:Boolean;
+        private var _improvedAnimations:Boolean;
         private var _errorMessage:String;
         private var _compiled:Boolean;
         private var _isTemporary:Boolean;
@@ -223,10 +224,11 @@ package ob.core
         public function onCompile():void
         {
             this.onCompileAs(_datFile.nativePath,
-                _sprFile.nativePath,
-                _version,
-                _extended,
-                _transparency);
+                            _sprFile.nativePath,
+                            _version,
+                            _extended,
+                            _transparency,
+                            _improvedAnimations);
         }
         
         public function setSelectedThingIds(value:Vector.<uint>, category:String):void
@@ -341,21 +343,23 @@ package ob.core
         private function onCreateNewFiles(datSignature:uint,
                                           sprSignature:uint,
                                           extended:Boolean,
-                                          transparency:Boolean):void
+                                          transparency:Boolean,
+                                          improvedAninations:Boolean):void
         {
             this.onUnloadFiles();
             
             _version = VersionStorage.getInstance().getBySignatures(datSignature, sprSignature);
             _extended = (extended || _version.value >= 960);
             _transparency = transparency;
+            _improvedAnimations = (improvedAninations || _version.value >= 1050);
             
             this.createStorage();
             
-            // Create sprites.
-            _sprites.createNew(_version, _extended, transparency)
-            
             // Create things.
-            _things.createNew(_version, _extended);
+            _things.createNew(_version, _extended, _improvedAnimations);
+            
+            // Create sprites.
+            _sprites.createNew(_version, _extended, _transparency)
             
             // Update preview.
             var thing:ThingType = _things.getItemType(ThingTypeStorage.MIN_ITEM_ID);
@@ -384,7 +388,8 @@ package ob.core
                                      sprPath:String,
                                      version:Version,
                                      extended:Boolean,
-                                     transparency:Boolean):void
+                                     transparency:Boolean,
+                                     improvedAnimations:Boolean):void
         {
             if (isNullOrEmpty(datPath))
                 throw new NullOrEmptyArgumentError("datPath");
@@ -402,13 +407,14 @@ package ob.core
             _version = version;
             _extended = (extended || _version.value >= 960);
             _transparency = transparency;
+            _improvedAnimations = (improvedAnimations || _version.value >= 1050);
             
             var title:String = Resources.getString("loading");
             sendCommand(new ShowProgressBarCommand(ProgressBarID.DAT_SPR, title));
             
             createStorage();
             
-            _things.load(_datFile, _version, _extended);
+            _things.load(_datFile, _version, _extended, _improvedAnimations);
             _sprites.load(_sprFile, _version, _extended, _transparency);
         }
         
@@ -416,7 +422,8 @@ package ob.core
                                      sprPath:String,
                                      version:Version,
                                      extended:Boolean,
-                                     transparency:Boolean):void
+                                     transparency:Boolean,
+                                     improvedAnimations:Boolean):void
         {
             if (isNullOrEmpty(datPath))
                 throw new NullOrEmptyArgumentError("datPath");
@@ -435,12 +442,14 @@ package ob.core
             
             var dat:File = new File(datPath);
             var spr:File = new File(sprPath);
-            var structureChanged:Boolean = (_extended != extended || _transparency != transparency);
+            var structureChanged:Boolean = (_extended != extended ||
+                                            _transparency != transparency ||
+                                            _improvedAnimations != improvedAnimations);
             var title:String = Resources.getString("compiling");
             
             sendCommand(new ShowProgressBarCommand(ProgressBarID.DAT_SPR, title));
             
-            if (!_things.compile(dat, version, extended) ||
+            if (!_things.compile(dat, version, extended, improvedAnimations) ||
                 !_sprites.compile(spr, version, extended, transparency)) {
                 return;
             }
@@ -448,7 +457,7 @@ package ob.core
             // Save .otfi file
             var dir:File = FileUtil.getDirectory(dat);
             var otfiFile:File = dir.resolvePath(FileUtil.getName(dat) + ".otfi");
-            var otfi:OTFI = new OTFI(extended, transparency);
+            var otfi:OTFI = new OTFI(extended, transparency, improvedAnimations);
             otfi.save(otfiFile);
             
             clientCompileComplete();
@@ -1381,13 +1390,16 @@ package ob.core
             sendSpriteList(Vector.<uint>([ targetId ]));
         }
         
-        private function onNeedToReload(enableSpritesU32:Boolean, enableAlphaChannel:Boolean):void
+        private function onNeedToReload(extended:Boolean,
+                                        transparency:Boolean,
+                                        improvedAnimations:Boolean):void
         {
             onLoadFiles(_datFile.nativePath,
-                _sprFile.nativePath,
-                _version,
-                enableSpritesU32,
-                enableAlphaChannel);
+                        _sprFile.nativePath,
+                        _version,
+                        extended,
+                        transparency,
+                        improvedAnimations);
         }
         
         private function onFindSprites(unusedSprites:Boolean, emptySprites:Boolean):void
@@ -1481,8 +1493,9 @@ package ob.core
                 info.sprSignature = _sprites.signature;
                 info.minSpriteId = 0;
                 info.maxSpriteId = _sprites.spritesCount;
-                info.extended = (_extended || _version.value >= 960);
+                info.extended = _extended;
                 info.transparency = _transparency;
+                info.improvedAnimations = _improvedAnimations;
                 info.changed = clientChanged;
                 info.isTemporary = clientIsTemporary;
             }
@@ -1663,20 +1676,25 @@ package ob.core
         protected function thingsErrorHandler(event:ErrorEvent):void
         {
             // Try load as extended.
-            if (!_things.loaded && !_extended) {
+            if (!_things.loaded && !_extended)
+            {
                 _errorMessage = event.text;
                 onLoadFiles(_datFile.nativePath,
-                    _sprFile.nativePath,
-                    _version,
-                    true,
-                    _transparency);
-            } else {
-                if (_errorMessage) {
+                            _sprFile.nativePath,
+                            _version,
+                            true,
+                            _transparency,
+                            _improvedAnimations);
+            }
+            else
+            {
+                if (_errorMessage)
+                {
                     Log.error(_errorMessage);
                     _errorMessage = null;
-                } else {
-                    Log.error(event.text);
                 }
+                else
+                    Log.error(event.text);
             }
         }
         
