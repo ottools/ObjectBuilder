@@ -54,10 +54,10 @@ package otlib.assets
         [Embed(source="../../../assets/delete.png", mimeType="image/png")]
         public static const DELETE:Class;
         
-        [Embed(source="../../../assets/edit.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/edit_icon.png", mimeType="image/png")]
         public static const EDIT:Class;
         
-        [Embed(source="../../../assets/replace.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/replace_icon.png", mimeType="image/png")]
         public static const REPLACE:Class;
         
         [Embed(source="../../../assets/open.png", mimeType="image/png")]
@@ -90,7 +90,7 @@ package otlib.assets
         [Embed(source="../../../assets/binoculars.png", mimeType="image/png")]
         public static const BINOCULARS:Class;
         
-        [Embed(source="../../../assets/viewer.png", mimeType="image/png")]
+        [Embed(source="../../../assets/icons/viewer_icon.png", mimeType="image/png")]
         public static const VIEWER:Class;
         
         [Embed(source="../../../assets/slicer.png", mimeType="image/png")]
