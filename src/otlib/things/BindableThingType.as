@@ -415,23 +415,19 @@ package otlib.things
             dispatchEvent(new PropertyChangeEvent(PropertyChangeEvent.PROPERTY_CHANGE));
         }
         
-        public function toThingData():ThingData
+        public function toThingData(version:uint):ThingData
         {
-            var thingData:ThingData = new ThingData();
-            thingData.thing = new ThingType();
-            thingData.sprites = new Vector.<SpriteData>();
-            
-            if (!copyToThingType(thingData.thing))
+            var thing:ThingType = new ThingType();
+            if (!copyToThingType(thing) || !this.sprites)
                 return null;
             
-            if (this.sprites) {
-                thingData.sprites.length = 0;
-                var length:uint = this.sprites.length;
-                for (var i:uint = 0; i < length; i++)
-                    thingData.sprites[i] = sprites[i];
-            }
+            var length:uint = this.sprites.length;
+            var sprites:Vector.<SpriteData> = new Vector.<SpriteData>(length, true);
             
-            return thingData;
+            for (var i:uint = 0; i < length; i++)
+                sprites[i] = this.sprites[i];
+            
+            return ThingData.createThingData(version, thing, sprites);
         }
         
         public function getAnimationMode():uint
