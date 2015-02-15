@@ -24,7 +24,9 @@ package otlib.things
 {
     import flash.utils.describeType;
     
+    import otlib.geom.Size;
     import otlib.resources.Resources;
+    import otlib.sprites.Sprite;
     
     public class ThingType
     {
@@ -134,6 +136,15 @@ package otlib.things
                    this.layers;
         }
         
+        public function getTotalTextures():uint
+        {
+            return this.patternX *
+                   this.patternY *
+                   this.patternZ *
+                   this.frames *
+                   this.layers;
+        }
+        
         public function getSpriteIndex(width:uint,
                                        height:uint,
                                        layer:uint,
@@ -162,6 +173,14 @@ package otlib.things
                     this.patternY + patternY) *
                     this.patternX + patternX) *
                     this.layers + layer;
+        }
+        
+        public function getSpriteSheetSize():Size
+        {
+            var size:Size = new Size();
+            size.width = this.patternZ * this.patternX * this.layers * this.width * Sprite.DEFAULT_SIZE;
+            size.height = this.frames * this.patternY * this.height * Sprite.DEFAULT_SIZE;
+            return size;
         }
         
         public function resetAnimation():void

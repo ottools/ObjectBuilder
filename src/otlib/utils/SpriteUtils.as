@@ -29,9 +29,7 @@ package otlib.utils
     import nail.errors.AbstractClassError;
     import nail.utils.BitmapUtil;
     
-    import otlib.geom.Rect;
     import otlib.sprites.Sprite;
-    import otlib.things.ThingType;
     
     public final class SpriteUtils
     {
@@ -75,16 +73,6 @@ package otlib.utils
             var bounds:Rectangle = sprite.getColorBoundsRect(0xFF000000, 0x00000000, false);
             if (bounds.width == 0 && bounds.height == 0) return true;
             return false;
-        }
-        
-        public static function getSpriteSheetSize(thing:ThingType):Rect
-        {
-            var totalX:uint = thing.patternZ * thing.patternX * thing.layers;
-            var totalY:uint = thing.frames * thing.patternY;
-            var rect:Rect = new Rect();
-            rect.width = (totalX * thing.width) * Sprite.DEFAULT_SIZE;
-            rect.height = (totalY * thing.height) * Sprite.DEFAULT_SIZE;
-            return rect;
         }
     }
 }

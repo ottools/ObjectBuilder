@@ -39,6 +39,7 @@ package otlib.things
     import nail.utils.isNullOrEmpty;
     
     import otlib.geom.Rect;
+    import otlib.geom.Size;
     import otlib.obd.OBDEncoder;
     import otlib.sprites.Sprite;
     import otlib.sprites.SpriteData;
@@ -130,7 +131,7 @@ package otlib.things
             var bitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, backgroundColor);
             
             if (textureIndex)
-                textureIndex.length = m_thing.layers * m_thing.patternX * m_thing.patternY * m_thing.patternZ * m_thing.frames;
+                textureIndex.length = m_thing.getTotalTextures();
             
             for (var f:uint = 0; f < m_thing.frames; f++)
             {
@@ -186,13 +187,12 @@ package otlib.things
             var pixelsHeight:int = m_thing.height * size;
             var bitmapWidth:uint = m_thing.patternZ * m_thing.patternX * pixelsWidth;
             var bitmapHeight:uint = m_thing.frames * pixelsHeight;
-            var numSprites:uint = m_thing.layers * m_thing.patternX * m_thing.patternY * m_thing.patternZ * m_thing.frames;
             var grayBitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
             var blendBitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
             var colorBitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
             var bitmap:BitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
             var bitmapRect:Rectangle = bitmap.rect;
-            var rectList:Vector.<Rect> = new Vector.<Rect>(numSprites, true);
+            var rectList:Vector.<Rect> = new Vector.<Rect>(m_thing.getTotalTextures(), true);
             var index:uint;
             var f:uint;
             var x:uint;
@@ -254,9 +254,9 @@ package otlib.things
             if (!bitmap)
                 throw new NullArgumentError("bitmap");
             
-            var rectSize:Rect = SpriteUtils.getSpriteSheetSize(thing);
-            if (bitmap.width != rectSize.width ||
-                bitmap.height != rectSize.height) return;
+            var ss:Size = m_thing.getSpriteSheetSize();
+            if (bitmap.width != ss.width ||
+                bitmap.height != ss.height) return;
             
             bitmap = SpriteUtils.removeMagenta(bitmap);
             
