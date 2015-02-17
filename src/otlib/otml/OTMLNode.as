@@ -351,6 +351,11 @@ package otlib.otml
             return null;
         }
         
+        public function toBoolean():Boolean
+        {
+            return this.value == "true" ? true : false;
+        }
+        
         public function sizeAt(childTag:String, def:Size = null):Size
         {
             var child:OTMLNode = getChild(childTag);
@@ -383,6 +388,15 @@ package otlib.otml
             var child:OTMLNode = getChild(childTag);
             if (child && !child.isNull)
                 return child.toArray();
+            
+            return def;
+        }
+        
+        public function booleanAt(childTag:String, def:Boolean = false):Boolean
+        {
+            var child:OTMLNode = getChild(childTag);
+            if (child && !child.isNull)
+                return child.toBoolean();
             
             return def;
         }
