@@ -23,7 +23,6 @@
 package otlib.utils
 {
     import flash.filesystem.File;
-    import flash.utils.describeType;
     
     import nail.errors.NullArgumentError;
     
@@ -83,17 +82,10 @@ package otlib.utils
             if (!doc.load(file) || doc.length == 0 || !doc.hasChild("DatSpr")) return false;
             
             var node:OTMLNode = doc.getChild("DatSpr");
-            var properties:XMLList = describeType(this).variable;
-            
-            for each (var property:XML in properties)
-            {
-                var name:String = property.@name;
-                if (node.hasChild(name))
-                {
-                    this[name] = node.getValueAt(name) == "true" ? true : false;
-                }
-            }
-            
+            this.extended = node.booleanAt("extended");
+            this.transparency = node.booleanAt("transparency");
+            this.improvedAnimations = node.booleanAt("frame-durations");
+            this.frameGroups = node.booleanAt("frame-groups");
             return true;
         }
         
@@ -104,22 +96,15 @@ package otlib.utils
             
             if (file.isDirectory) return false;
             
+            var node:OTMLNode = new OTMLNode();
+            node.tag = "DatSpr";
+            node.writeAt("extended", this.extended);
+            node.writeAt("transparency", this.transparency);
+            node.writeAt("frame-durations", this.improvedAnimations);
+            node.writeAt("frame-groups", this.frameGroups);
+            
             var doc:OTMLDocument = OTMLDocument.create();
-            
-            var mainNode:OTMLNode = new OTMLNode();
-            mainNode.tag = "DatSpr";
-            doc.addChild(mainNode);
-            
-            var properties:XMLList = describeType(this).variable;
-            
-            for each (var property:XML in properties)
-            {
-                var node:OTMLNode = new OTMLNode();
-                node.tag = property.@name;
-                node.value = this[node.tag].toString();
-                mainNode.addChild(node);
-            }
-            
+            doc.addChild(node);
             return doc.save(file);
         }
     }
