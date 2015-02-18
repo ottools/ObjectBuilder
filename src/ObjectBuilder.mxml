@@ -28,7 +28,7 @@ THE SOFTWARE.
                        xmlns:otlib="otlib.components.*"
                        xmlns:ob="ob.components.*"
                        xmlns:menu="ob.menu.*"
-                       implements="ob.core.IObjectBuilder, slicer.core.ISlicerHost"
+                       implements="ob.core.IObjectBuilder"
                        minWidth="800"
                        minHeight="600"
                        fontSize="11"

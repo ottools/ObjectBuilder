@@ -44,6 +44,7 @@ THE SOFTWARE.
     <fx:Script>
         <![CDATA[
             import mx.collections.ArrayCollection;
+            import mx.core.FlexGlobals;
             import mx.events.CollectionEvent;
             import mx.events.FlexEvent;
             import mx.events.MoveEvent;
@@ -56,6 +57,9 @@ THE SOFTWARE.
             import nail.utils.FileUtil;
             import nail.utils.WindowUtil;
             
+            import ob.commands.SetClientInfoCommand;
+            import ob.commands.sprites.ImportSpritesCommand;
+            import ob.core.IObjectBuilder;
             import ob.utils.ObUtils;
             
             import otlib.assets.Assets;
@@ -63,17 +67,16 @@ THE SOFTWARE.
             import otlib.settings.ISettingsManager;
             import otlib.settings.SettingsManager;
             import otlib.sprites.Sprite;
+            import otlib.utils.ClientInfo;
             import otlib.utils.SpriteUtils;
             
-            import slicer.core.ISlicerHost;
             import slicer.settings.SlicerSettings;
             
             //--------------------------------------------------------------------------
             // PROPERTIES
             //--------------------------------------------------------------------------
             
-            public var host:ISlicerHost;
-            
+            private var _application:IObjectBuilder;
             private var _settingsManager:ISettingsManager;
             private var _settings:SlicerSettings;
             private var _sprites:ArrayCollection = new ArrayCollection();
@@ -304,6 +307,11 @@ THE SOFTWARE.
             // Private
             //--------------------------------------
             
+            private function onClientInfo(info:ClientInfo):void
+            {
+                importButton.enabled = (_sprites.length != 0 && info.loaded);
+            }
+            
             private function loadSettings():void
             {
                 _settings = new SlicerSettings();
@@ -392,7 +400,10 @@ THE SOFTWARE.
             
             protected function creationCompleteHandler(event:FlexEvent):void
             {
+                _application = IObjectBuilder(FlexGlobals.topLevelApplication);
+                _application.registerCallback(SetClientInfoCommand, onClientInfo);
                 _settingsManager = SettingsManager.getInstance();
+                _sprites.addEventListener(CollectionEvent.COLLECTION_CHANGE, spritesCollectionChange);
                 
                 spritePartList.dataProvider = _sprites;
                 
@@ -405,6 +416,7 @@ THE SOFTWARE.
             
             protected function slicerClosingHandler(event:Event):void
             {
+                _application.unregisterCallback(SetClientInfoCommand, onClientInfo);
                 systemManager.stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
                 
                 saveSettings();
@@ -412,7 +424,7 @@ THE SOFTWARE.
             
             protected function spritesCollectionChange(event:CollectionEvent):void
             {
-                importButton.enabled = (_sprites.length != 0);
+                importButton.enabled = (_sprites.length != 0 && _application.clientLoaded);
             }
             
             protected function imageContainerMouseMoveHandler(event:MouseEvent):void
@@ -525,7 +537,8 @@ THE SOFTWARE.
                         var bitmap:BitmapData = _sprites.getItemAt(i) as BitmapData;
                         list[i] = bitmap.getPixels(rect);;
                     }
-                    host.importSprites(list);
+                    
+                    _application.sendCommand(new ImportSpritesCommand(list));
                 }
             }
             
@@ -842,6 +855,7 @@ THE SOFTWARE.
             <s:Button id="importButton"
                       label="@Resource(key='import', bundle='strings')"
                       width="100%"
+                      enabled="false"
                       click="importButtonClickHandler(event)"/>
             
             <s:Button id="clearButton"
