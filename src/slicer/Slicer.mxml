@@ -406,11 +406,7 @@ THE SOFTWARE.
                 _sprites.addEventListener(CollectionEvent.COLLECTION_CHANGE, spritesCollectionChange);
                 
                 spritePartList.dataProvider = _sprites;
-                
-                _sprites.addEventListener(CollectionEvent.COLLECTION_CHANGE, spritesCollectionChange);
-                
                 loadSettings();
-                
                 systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
             }
             
@@ -418,7 +414,6 @@ THE SOFTWARE.
             {
                 _application.unregisterCallback(SetClientInfoCommand, onClientInfo);
                 systemManager.stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
-                
                 saveSettings();
             }
             
@@ -483,30 +478,23 @@ THE SOFTWARE.
                     }
                 }
                 
-                if (list.length > 0) {
+                if (list.length > 0)
                     importImagesFromFiles(list);
-                }
             }
             
             protected function surfaceCellsMouseDownHandler(event:MouseEvent):void
             {
                 _mouseDown = true;
-                
                 cursorManager.setCursor(NailAssets.MOVE_CURSOR, 2, -8, -8);
-                
                 _surfaceCells.startDrag(false, _dragBounds);
-                
                 systemManager.stage.addEventListener(MouseEvent.MOUSE_UP, surfaceCellsMouseUpHandler);
             }
             
             protected function surfaceCellsMouseUpHandler(event:MouseEvent):void
             {
                 systemManager.stage.removeEventListener(MouseEvent.MOUSE_UP, surfaceCellsMouseUpHandler);
-                
                 _mouseDown = false;
-                
                 _surfaceCells.stopDrag();
-                
                 cursorManager.removeCursor(cursorManager.currentCursorID);
             }
             
