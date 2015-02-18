@@ -135,12 +135,20 @@ package ob.menu
             fileCompileAsMenu.shiftKey = true;
             fileMenu.addMenuItem(fileCompileAsMenu);
             
+            // Separator
+            fileMenu.addMenuItem(separator);
+            
             // File > Close
             var fileCloseMenu:MenuItem = new MenuItem();
             fileCloseMenu.label = Resources.getString("menu.close");
             fileCloseMenu.data = FILE_CLOSE;
             fileCloseMenu.keyEquivalent = "W"
             fileCloseMenu.controlKey = true;
+            fileMenu.addMenuItem(fileCloseMenu);
+            
+            // Separator
+            if (!m_isMac)
+                fileMenu.addMenuItem(separator);
             
             // File > Preferences
             var filePreferencesMenu:MenuItem = new MenuItem();
@@ -278,17 +286,14 @@ package ob.menu
             {
                 objectBuilderMenu.addMenuItem(aboutMenu);
                 objectBuilderMenu.addMenuItem(separator);
-                objectBuilderMenu.addMenuItem(fileCloseMenu);
-                objectBuilderMenu.addMenuItem(separator);
                 objectBuilderMenu.addMenuItem(filePreferencesMenu);
+                objectBuilderMenu.addMenuItem(separator);
                 objectBuilderMenu.addMenuItem(fileExitMenu);
             }
             else
             {
-                fileMenu.addMenuItem(separator);
-                fileMenu.addMenuItem(fileCloseMenu);
-                fileMenu.addMenuItem(separator);
                 fileMenu.addMenuItem(filePreferencesMenu);
+                fileMenu.addMenuItem(separator);
                 fileMenu.addMenuItem(fileExitMenu);
                 
                 helpMenu.addMenuItem(separator);
