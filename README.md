@@ -44,18 +44,18 @@ Install
 
 If you don't want to install the Abobe AIR:
 
-1. Download the [latest commit](https://github.com/Mignari/ObjectBuilder#latest-commits-compiled) with the captive runtime.
+1. Download the [Portable version](https://www.dropbox.com/s/qf1r7tnsxk8ydv9/ObjectBuilder0_3_4_CR.rar) with the captive runtime.
 
 Or
 
-1. Install [Adobe AIR] (http://get.adobe.com/air/)
-2. Install [latest release](https://github.com/Mignari/ObjectBuilder#latest-release)
+1. Install the [Adobe AIR] (http://get.adobe.com/air/)
+2. Install the [latest release](https://github.com/Mignari/ObjectBuilder/releases)
 
 
 #### Mac OS X
 
-1. Install [Adobe AIR] (http://get.adobe.com/air/)
-2. Install [latest release](https://github.com/Mignari/ObjectBuilder#latest-release)
+1. Install the [Adobe AIR] (http://get.adobe.com/air/)
+2. Install the [latest release](https://github.com/Mignari/ObjectBuilder/releases)
 
 
 #### Ubuntu
