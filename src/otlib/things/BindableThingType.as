@@ -339,7 +339,13 @@ package otlib.things
                 var sprites:Vector.<SpriteData> = new Vector.<SpriteData>(length, true);
                 
                 for (var i:uint = 0; i < length; i++)
-                    sprites[i] = this.sprites[i];
+                {
+                    var sd:SpriteData = this.sprites[i];
+                    if (!sd)
+                        sd = SpriteData.createSpriteData();
+                    
+                    sprites[i] = sd;
+                }
                 
                 data.sprites = sprites;
             }
