@@ -7,20 +7,20 @@
 What is Object Builder?
 ----
 
-Object Builder is a dat and spr files editor.
+Object Builder is an editor for creating graphic objects for OTClient. You can edit or add new items, outfits, effects or missiles to your client.
 
-* Faster loading and compiling.
-* Export and import sprite sheets.
-* Support for versions 10.xx
-* Cut imported images.
+Some freatures:
+
+* It's faster to load or compile your projects.
+* Import or export your objects as sprite sheet.
+* Support for transparent sprites.
+* You're able to cut the imported images.
 
 
-
-Supported versions:
+Supported client versions:
 ----
 
 * 7.10 - 10.41
-
 
 
 Download
@@ -28,14 +28,13 @@ Download
 
 #### Latest release
 
-[ObjectBuilder 0.3.4 - Installer](https://www.dropbox.com/s/ye43g8q9rzst4ru/ObjectBuilder0.3.4.air)
+[ObjectBuilder 0.3.4 - Installer Win/Mac](https://www.dropbox.com/s/ye43g8q9rzst4ru/ObjectBuilder0.3.4.air)
 
-[ObjectBuilder 0.3.4 - Captive Runtime](https://www.dropbox.com/s/qf1r7tnsxk8ydv9/ObjectBuilder0_3_4_CR.rar)
+[ObjectBuilder 0.3.4 - Portable Win](https://www.dropbox.com/s/qf1r7tnsxk8ydv9/ObjectBuilder0_3_4_CR.rar)
 
 #### Latest commits compiled
 
 [Latest commits](https://www.dropbox.com/sh/l6u5ponwfr77bhm/AAAY3xbcGudRzvcjUbizt0tha)
-
 
 
 Install
@@ -45,13 +44,12 @@ Install
 
 If you don't want to install the Abobe AIR:
 
-1. Download the [latest commit](https://github.com/Mignari/ObjectBuilder#latest-commits-compiled) compiled of the captive runtime. Something like ObjectBuilder_x_x_x_CR
+1. Download the [latest commit](https://github.com/Mignari/ObjectBuilder#latest-commits-compiled) with the captive runtime.
 
 Or
 
 1. Install [Adobe AIR] (http://get.adobe.com/air/)
 2. Install [latest release](https://github.com/Mignari/ObjectBuilder#latest-release)
-
 
 
 #### Mac OS X
@@ -60,12 +58,11 @@ Or
 2. Install [latest release](https://github.com/Mignari/ObjectBuilder#latest-release)
 
 
-
 #### Ubuntu
 
 Adobe AIR isn't officially supported under Linux anymore, but it's easy enough to run the Object Builder using Wine.
 
-1. Install Wine, winetricks, and wininet if you don't already have them:
+1. Install Wine, winetricks and wininet if you don't already have them:
 
 ```
 sudo add-apt-repository ppa:ubuntu-wine/ppa
@@ -73,9 +70,8 @@ sudo apt-get update
 sudo apt-get install wine1.7 winetricks
 winetricks wininet
 ```
-2. Download the [latest commit](https://github.com/Mignari/ObjectBuilder#latest-commits-compiled) compiled of the captive runtime. Something like ObjectBuilder_x_x_x_CR
+2. Download the [latest commit](https://github.com/Mignari/ObjectBuilder#latest-commits-compiled) with the captive runtime.
 3. Uncompress the file, right-click in ObjectBuilder.exe and set to open with Wine Windows Program Loader.
-
 
 
 Compiling
@@ -87,8 +83,6 @@ Follow this tutorial:
 
 References
 ----
-
-Some projects were used as references:
 
 [OTClient](https://github.com/edubart/otclient)
 
