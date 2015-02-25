@@ -122,6 +122,7 @@ THE SOFTWARE.
             import ob.commands.things.SetThingListCommand;
             import ob.commands.things.UpdateThingCommand;
             import ob.components.CompileFilesWindow;
+            import ob.components.ErrorWindow;
             import ob.components.NewFilesWindow;
             import ob.components.OpenFilesWindow;
             import ob.components.PreferencesWindow;
@@ -202,7 +203,6 @@ THE SOFTWARE.
             private var _showPanelChanged:Boolean;
             private var _datSprProgressBar:DatSprProgressBar;
             private var _defaultProgressBar:DefaultProgressBar;
-            private var _errorAlert:Alert;
             private var _category:String;
             private var _categoryChanged:Boolean;
             private var _objectViewer:ObjectViewer;
@@ -1401,30 +1401,12 @@ THE SOFTWARE.
                 
                 if (level != Log.INFO)
                 {
-                    if (id != 0)
-                        message = StringUtil.format("#id {0}={1}", id, message);
-                    
-                    if (!isNullOrEmpty(stack))
-                        message = (message + File.lineEnding + stack);
-                    
-                    _logger.log(level, message);
-                    
-                    // Show message
-                    if (!_errorAlert)
-                    {
-                        _errorAlert = Alert.show(message,
-                            toLogString(level),
-                            Alert.OK, 
-                            this,
-                            errorAlertCloseHandler);
-                    }
-                    else
-                    {
-                        _errorAlert.text += "\n" + message;
-                    }
+                    var text:String = isNullOrEmpty(stack) ? message : stack;
+                    _logTarget.write(text);
+                    openErrorWindow(text);
                 }
-                
-                this.appendLog(message);
+                else
+                    this.appendLog(message);
             }
             
             private function onProgress(id:uint, loaded:uint, total:uint, label:String):void
@@ -1497,6 +1479,23 @@ THE SOFTWARE.
                     text += "*";
                 
                 this.title = text;
+            }
+            
+            private function openErrorWindow(message:String):void
+            {
+                if (!PopUpWindowManager.currentWindow)
+                {
+                    var window:ErrorWindow = new ErrorWindow();
+                    window.addEventListener(Event.CLOSE, function(event:Event):void { exit(); });
+                    window.open();
+                    window.message = message;
+                    
+                    PopUpWindowManager.addWindow(window);
+                }
+                else if (PopUpWindowManager.currentWindow is ErrorWindow)
+                {
+                    ErrorWindow(PopUpWindowManager.currentWindow).appendMessage(message);
+                }
             }
             
             //--------------------------------------
@@ -2144,11 +2143,6 @@ THE SOFTWARE.
             {
                 _lookGenerator.removeEventListener(Event.CLOSE, lookGeneratorCloseHandler);
                 _lookGenerator = null;
-            }
-            
-            protected function errorAlertCloseHandler(event:CloseEvent):void
-            {
-                _errorAlert = null;
             }
             
             protected function updateInitializedHandler(event:UpdateEvent):void
