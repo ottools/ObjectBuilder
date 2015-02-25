@@ -304,13 +304,21 @@ package otlib.sprites
         {
             if (!this.loaded || !bitmap) return;
             
-            var sprite:BitmapData = getBitmap(id, true);
-            if (!sprite) return;
-            
-            _point.x = x;
-            _point.y = y;
-            
-            bitmap.copyPixels(sprite, _rect, _point, null, null, true);
+            try
+            {
+                var sprite:BitmapData = getBitmap(id, true);
+                if (!sprite) return;
+                
+                _point.x = x;
+                _point.y = y;
+                
+                bitmap.copyPixels(sprite, _rect, _point, null, null, true);
+            } 
+            catch(error:Error)
+            {
+                bitmap.copyPixels((new Assets.ALERT_IMAGE).bitmapData, _rect, _point, null, null, true);
+                Log.error(Resources.getString("failedToGetSprite", id), error.getStackTrace());
+            }
         }
         
         /**
