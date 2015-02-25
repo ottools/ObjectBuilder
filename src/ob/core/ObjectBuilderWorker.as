@@ -215,10 +215,7 @@ package ob.core
         
         public function onGetThing(id:uint, category:String):void
         {
-            var thingData:ThingData = getThingData(id, category);
-            if (thingData) {
-                sendCommand(new SetThingDataCommand(thingData));
-            }
+            sendThingData(id, category);
         }
         
         public function onCompile():void
@@ -1461,6 +1458,7 @@ package ob.core
             sendCommand(new HideProgressBarCommand(ProgressBarID.DAT_SPR));
             sendClientInfo();
             sendThingList(Vector.<uint>([ThingTypeStorage.MIN_ITEM_ID]), ThingCategory.ITEM);
+            sendThingData(Vector.<uint>([ThingTypeStorage.MIN_ITEM_ID]), ThingCategory.ITEM);
             sendSpriteList(Vector.<uint>([0]));
             Log.info(Resources.getString("loadComplete"));
         }
@@ -1542,6 +1540,13 @@ package ob.core
             }
             
             sendCommand(new SetThingListCommand(selectedIds, list));
+        }
+        
+        private function sendThingData(id:uint, category:String):void
+        {
+            var thingData:ThingData = getThingData(id, category);
+            if (thingData)
+                sendCommand(new SetThingDataCommand(thingData));
         }
         
         private function sendSpriteList(selectedIds:Vector.<uint>):void
