@@ -285,7 +285,16 @@ package otlib.obd
             bytes.writeShort(version);                                  // Write client version
             bytes.writeByte( ThingCategory.getValue(thing.category) );  // Write thing category
             
+            var spritesPosition:uint = bytes.position;
+            bytes.position += 4; // Skipping the texture patterns position.
+            
             if (!writeProperties(thing, bytes)) return null;
+            
+            // Write the texture patterns position.
+            var pos:uint = bytes.position;
+            bytes.position = spritesPosition;
+            bytes.writeUnsignedInt(pos); 
+            bytes.position = pos;
             
             bytes.writeByte(thing.width);  // Write width
             bytes.writeByte(thing.height); // Write height
@@ -560,6 +569,9 @@ package otlib.obd
             var category:String = ThingCategory.getCategoryByValue( bytes.readUnsignedByte() );
             if (!ThingCategory.isValid(category))
                 throw new Error("Invalid object category.");
+            
+            // Skipping the texture patterns position.
+            bytes.readUnsignedInt();
             
             var version:uint = versions[0].value;
             var thing:ThingType = new ThingType();
