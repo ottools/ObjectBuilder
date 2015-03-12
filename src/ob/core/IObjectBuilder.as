@@ -24,6 +24,9 @@ package ob.core
 {
     import flash.filesystem.File;
     
+    import mx.core.IUIComponent;
+    import mx.core.IWindow;
+    
     import nail.commands.ICommunicator;
     
     import ob.settings.ObjectBuilderSettings;
@@ -32,7 +35,7 @@ package ob.core
     import otlib.core.Version;
     import otlib.utils.ClientInfo;
     
-    public interface IObjectBuilder extends ICommunicator
+    public interface IObjectBuilder extends IUIComponent, IWindow, ICommunicator
     {
         function get settings():ObjectBuilderSettings;
         function get versionStorage():IVersionStorage;

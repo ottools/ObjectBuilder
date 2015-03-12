@@ -938,6 +938,7 @@ THE SOFTWARE.
                     firstRun();
                 }
                 
+                Resources.locale = _settings.getLanguage()[0];
                 this.resourceManager.localeChain = _settings.getLanguage();
                 
                 sendCommand(new SettingsCommand(_settings));
@@ -1530,7 +1531,6 @@ THE SOFTWARE.
             
             protected function creationCompleteHandler(event:FlexEvent):void
             {
-                nativeMenu.create(systemManager.stage);
                 loadSettings();
                 loadVersions();
                 

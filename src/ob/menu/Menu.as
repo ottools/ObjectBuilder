@@ -22,15 +22,14 @@
 
 package ob.menu
 {
-    import flash.display.Stage;
     import flash.events.KeyboardEvent;
     import flash.ui.Keyboard;
     
     import mx.controls.FlexNativeMenu;
     import mx.core.FlexGlobals;
+    import mx.events.FlexEvent;
     import mx.events.FlexNativeMenuEvent;
     
-    import nail.errors.NullArgumentError;
     import nail.events.MenuEvent;
     import nail.menu.MenuItem;
     import nail.utils.CapabilitiesUtil;
@@ -59,6 +58,7 @@ package ob.menu
         public function Menu()
         {
             m_application = FlexGlobals.topLevelApplication as IObjectBuilder;
+            m_application.addEventListener(FlexEvent.APPLICATION_COMPLETE, applicationCompleteHandler);
             m_isMac = CapabilitiesUtil.isMac;
             
             super();
@@ -76,14 +76,11 @@ package ob.menu
         //--------------------------------------------------------------------------
         
         //--------------------------------------
-        // Public
+        // Private
         //--------------------------------------
         
-        public function create(stage:Stage):void
+        private function create():void
         {
-            if (!stage)
-                throw new NullArgumentError("stage");
-            
             // Root menu
             var menu:MenuItem = new MenuItem();
             
@@ -301,13 +298,18 @@ package ob.menu
             }
             
             this.dataProvider = menu.serialize();
-            
-            stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
         }
         
         //--------------------------------------
         // Event Handlers
         //--------------------------------------
+        
+        protected function applicationCompleteHandler(event:FlexEvent):void
+        {
+            m_application.removeEventListener(FlexEvent.APPLICATION_COMPLETE, applicationCompleteHandler);
+            m_application.systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
+            create();
+        }
         
         protected function itemClickHandler(event:FlexNativeMenuEvent):void
         {
