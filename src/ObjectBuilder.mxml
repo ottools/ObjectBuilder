@@ -1491,7 +1491,7 @@ THE SOFTWARE.
                 if (!PopUpWindowManager.currentWindow)
                 {
                     var window:ErrorWindow = new ErrorWindow();
-                    window.addEventListener(Event.CLOSE, function(event:Event):void { exit(); });
+                    //window.addEventListener(Event.CLOSE, function(event:Event):void { exit(); });
                     window.open();
                     window.message = message;
                     
