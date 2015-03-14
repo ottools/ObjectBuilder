@@ -128,7 +128,6 @@ THE SOFTWARE.
             import ob.components.PreferencesWindow;
             import ob.components.SplashScreen;
             import ob.components.SpritesOptimizerWindow;
-            import ob.objectviewer.ObjectViewer;
             import ob.settings.ObjectBuilderSettings;
             import ob.utils.ObUtils;
             
@@ -147,7 +146,6 @@ THE SOFTWARE.
             import otlib.events.ThingEditorEvent;
             import otlib.geom.Size;
             import otlib.loaders.PathHelper;
-            import otlib.obd.OBDEncoder;
             import otlib.obd.OBDVersions;
             import otlib.resources.Resources;
             import otlib.settings.ISettingsManager;
@@ -165,6 +163,8 @@ THE SOFTWARE.
             import otlib.utils.OTFormat;
             import otlib.utils.SpriteUtils;
             import otlib.utils.ThingListItem;
+            
+            import ov.ObjectViewer;
             
             import slicer.Slicer;
             
