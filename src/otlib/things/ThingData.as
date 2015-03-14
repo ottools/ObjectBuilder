@@ -340,6 +340,7 @@ package otlib.things
             var length:uint = m_sprites.length;
             
             var td:ThingData = new ThingData();
+            td.m_obdVersion = m_obdVersion;
             td.m_clientVersion = m_clientVersion;
             td.m_thing = m_thing.clone();
             td.m_sprites = new Vector.<SpriteData>(length, true);
