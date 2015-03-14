@@ -54,7 +54,6 @@ THE SOFTWARE.
             
             import flashx.textLayout.conversion.TextConverter;
             
-            import nail.assets.NailAssets;
             import nail.components.controls.Alert;
             import nail.utils.FileUtil;
             import nail.utils.StringUtil;
@@ -383,7 +382,7 @@ THE SOFTWARE.
                   toolTip="@Resource(key='previous', bundle='strings')"
                   width="30"
                   height="30"
-                  icon="{NailAssets.PREVIOUS}"
+                  icon="{Assets.FIRST}"
                   enabled="false"
                   autoRepeat="true"
                   repeatInterval="200"
@@ -406,7 +405,7 @@ THE SOFTWARE.
                   toolTip="@Resource(key='next', bundle='strings')"
                   width="30"
                   height="30"
-                  icon="{Assets.NEXT}"
+                  icon="{Assets.LAST}"
                   enabled="false"
                   autoRepeat="true"
                   repeatInterval="200"
