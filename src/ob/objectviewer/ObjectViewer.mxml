@@ -80,7 +80,7 @@ THE SOFTWARE.
             private var _lastDirectory:File;
             private var _zoom:Number;
             private var _zoomChanged:Boolean;
-            private const STATUS:String = "<b>{0}</b>: {1} - <b>{2}</b>: {3} - <b>{4}</b>: {5}";
+            private const STATUS:String = "<b>{0}</b>: {1} - <b>{2}</b>: {3} - <b>{4}</b>: {5} - <b>{6}</b>: {7}";
             
             //--------------------------------------
             // Getters / Setters
@@ -215,8 +215,10 @@ THE SOFTWARE.
                         FileUtil.getName(file),
                         resourceManager.getString("strings", "type"),
                         resourceManager.getString("strings", thingData.category),
-                        resourceManager.getString("strings", "version"),
-                        (thingData.version / 100).toString());
+                        resourceManager.getString("strings", "client"),
+                        (thingData.clientVersion / 100).toString(),
+                        "OBD",
+                        (thingData.obdVersion / 100).toString());
                     
                     this.descriptionText.textFlow = TextConverter.importToFlow(
                         statusText,

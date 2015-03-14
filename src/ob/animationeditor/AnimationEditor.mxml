@@ -76,6 +76,7 @@ THE SOFTWARE.
             import otlib.components.SurfaceCells;
             import otlib.geom.Size;
             import otlib.obd.OBDEncoder;
+            import otlib.obd.OBDVersions;
             import otlib.settings.ISettingsManager;
             import otlib.settings.SettingsManager;
             import otlib.sprites.SpriteData;
@@ -312,7 +313,7 @@ THE SOFTWARE.
                 }
                 
                 // TODO temporary version
-                this.thingView.thingData = ThingData.createThingData(1041, thing, sprites);
+                this.thingView.thingData = ThingData.create(OBDVersions.OBD_VERSION_2, 1041, thing, sprites);
                 this.saveButton.enabled = true;
             }
             

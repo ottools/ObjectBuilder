@@ -31,6 +31,7 @@ package otlib.obd
     import flash.utils.IDataInput;
     import flash.utils.IDataOutput;
     
+    import nail.errors.FileNotFoundError;
     import nail.errors.NullArgumentError;
     import nail.utils.StringUtil;
     
@@ -48,7 +49,7 @@ package otlib.obd
     import otlib.things.ThingSerializer;
     import otlib.things.ThingType;
     import otlib.utils.OTFormat;
-
+    
     public class OBDEncoder
     {
         //--------------------------------------------------------------------------
@@ -57,7 +58,6 @@ package otlib.obd
         
         public function OBDEncoder()
         {
-            
         }
         
         //--------------------------------------------------------------------------
@@ -68,19 +68,17 @@ package otlib.obd
         // Public
         //--------------------------------------
         
-        public function encode(data:ThingData, obdVersion:uint = 25):ByteArray
+        public function encode(data:ThingData):ByteArray
         {
             if (!data)
                 throw new NullArgumentError("data");
             
-            if (obdVersion == 25)
-                return encodeV2_5(data);
-            else if (obdVersion == 2)
+            if (data.obdVersion == OBDVersions.OBD_VERSION_2)
                 return encodeV2(data);
-            else if (obdVersion == 1)
+            else if (data.obdVersion == OBDVersions.OBD_VERSION_1)
                 return encodeV1(data);
-            
-            throw new Error(StringUtil.format("Invalid OBD version {0}", obdVersion));
+            else
+                throw new Error(StringUtil.format("Invalid OBD version {0}", data.obdVersion));
         }
         
         public function decode(bytes:ByteArray):ThingData
@@ -92,30 +90,25 @@ package otlib.obd
             bytes.endian = Endian.LITTLE_ENDIAN;
             bytes.uncompress(CompressionAlgorithm.LZMA);
             
-            var version:uint = bytes.readUnsignedByte();
-            if (version == 2)
-            {
-                var minor:uint = bytes.readUnsignedByte();
-                if (minor == 5)
-                    return decodeV2_5(bytes);
-                else if (minor == 0)
-                    return decodeV2(bytes);
-            }
+            var version:uint = bytes.readUnsignedShort();
+            if (version == OBDVersions.OBD_VERSION_2)
+                return decodeV2(bytes);
+            else if (version >= 710) // OBD version 1: client version in the first two bytes.
+                return decodeV1(bytes);
             else
-            {
-                bytes.position = 0;
-                
-                if (bytes.readUnsignedShort() >= 710)
-                    return decodeV1(bytes);
-            }
-            
-            throw new Error(StringUtil.format("Invalid OBD version {0}", version));
+                throw new Error(StringUtil.format("Invalid OBD version {0}", version));
         }
         
         public function decodeFromFile(file:File):ThingData
         {
-            if (!file || file.extension != OTFormat.OBD || !file.exists)
-                return null;
+            if (!file)
+                throw new NullArgumentError("file");
+            
+            if (file.extension != OTFormat.OBD)
+                throw new ArgumentError("Invalid file extension.");
+            
+            if (!file.exists)
+                throw new FileNotFoundError(file);
             
             var bytes:ByteArray = new ByteArray();
             var stream:FileStream = new FileStream();
@@ -133,22 +126,23 @@ package otlib.obd
         private function encodeV1(data:ThingData):ByteArray
         {
             var thing:ThingType = data.thing;
-            var version:uint = data.version;
+            
             var bytes:ByteArray = new ByteArray();
             bytes.endian = Endian.LITTLE_ENDIAN;
-            bytes.writeShort(version);      // Write client version
-            bytes.writeUTF(thing.category); // Write object category
+            bytes.writeShort(data.clientVersion);   // Write client version
+            bytes.writeUTF(thing.category);         // Write object category
             
             var done:Boolean;
-            if (version <= 730)
+            var clientVersion:uint = data.clientVersion;
+            if (clientVersion <= 730)
                 done = ThingSerializer.writeProperties1(thing, bytes);
-            else if (version <= 750)
+            else if (clientVersion <= 750)
                 done = ThingSerializer.writeProperties2(thing, bytes);
-            else if (version <= 772)
+            else if (clientVersion <= 772)
                 done = ThingSerializer.writeProperties3(thing, bytes);
-            else if (version <= 854)
+            else if (clientVersion <= 854)
                 done = ThingSerializer.writeProperties4(thing, bytes);
-            else if (version <= 986)
+            else if (clientVersion <= 986)
                 done = ThingSerializer.writeProperties5(thing, bytes);
             else
                 done = ThingSerializer.writeProperties6(thing, bytes);
@@ -193,96 +187,11 @@ package otlib.obd
         private function encodeV2(data:ThingData):ByteArray
         {
             var thing:ThingType = data.thing;
-            var version:uint = data.version;
+            
             var bytes:ByteArray = new ByteArray();
             bytes.endian = Endian.LITTLE_ENDIAN;
-            bytes.writeByte(2);                                         // Write major file version
-            bytes.writeByte(0);                                         // Write minor file version
-            bytes.writeShort(version);                                  // Write client version
-            bytes.writeByte( ThingCategory.getValue(thing.category) ); // Write thing category
-            
-            var done:Boolean;
-            if (version <= 730)
-                done = ThingSerializer.writeProperties1(thing, bytes);
-            else if (version <= 750)
-                done = ThingSerializer.writeProperties2(thing, bytes);
-            else if (version <= 772)
-                done = ThingSerializer.writeProperties3(thing, bytes);
-            else if (version <= 854)
-                done = ThingSerializer.writeProperties4(thing, bytes);
-            else if (version <= 986)
-                done = ThingSerializer.writeProperties5(thing, bytes);
-            else
-                done = ThingSerializer.writeProperties6(thing, bytes);
-            
-            if (!done) return null;
-            
-            bytes.writeByte(thing.width);  // Write width
-            bytes.writeByte(thing.height); // Write height
-            
-            if (thing.width > 1 || thing.height > 1)
-                bytes.writeByte(thing.exactSize); // Write exact size
-            
-            bytes.writeByte(thing.layers);          // Write layers
-            bytes.writeByte(thing.patternX);        // Write pattern X
-            bytes.writeByte(thing.patternY);        // Write pattern Y
-            bytes.writeByte(thing.patternZ || 1);   // Write pattern Z
-            bytes.writeByte(thing.frames);          // Write frames
-            
-            var length:uint;
-            var i:uint;
-            
-            if (thing.isAnimation)
-            {
-                var animator:Animator = thing.animator;
-                bytes.writeByte(animator.animationMode); // Write animation type
-                bytes.writeInt(animator.frameStrategy);  // Write frame Strategy
-                bytes.writeByte(animator.startFrame);    // Write start frame
-                
-                var frameDuration:Vector.<FrameDuration> = animator.frameDurations;
-                length = frameDuration.length;
-                for (i = 0; i < length; i++)
-                {
-                    bytes.writeUnsignedInt(frameDuration[i].minimum); // Write minimum duration
-                    bytes.writeUnsignedInt(frameDuration[i].maximum); // Write maximum duration
-                }
-            }
-            
-            var sprites:Vector.<SpriteData> = data.sprites;
-            var spriteList:Vector.<uint> = thing.spriteIndex;
-            length = spriteList.length;
-            
-            for (i = 0; i < length; i++)
-            {
-                var spriteId:uint = spriteList[i];
-                var spriteData:SpriteData = sprites[i];
-                
-                if (!spriteData || !spriteData.pixels)
-                    throw new Error(StringUtil.format("Invalid sprite id {0}.", spriteId));
-                
-                var pixels:ByteArray = spriteData.pixels;
-                pixels.position = 0;
-                
-                if (pixels.bytesAvailable != 4096)
-                    throw new Error(StringUtil.format("Invalid pixels length."));
-                
-                bytes.writeUnsignedInt(spriteId);
-                bytes.writeBytes(pixels, 0, pixels.bytesAvailable);
-            }
-            
-            bytes.compress(CompressionAlgorithm.LZMA);
-            return bytes;
-        }
-        
-        private function encodeV2_5(data:ThingData):ByteArray
-        {
-            var thing:ThingType = data.thing;
-            var version:uint = data.version;
-            var bytes:ByteArray = new ByteArray();
-            bytes.endian = Endian.LITTLE_ENDIAN;
-            bytes.writeByte(2);                                         // Write major file version
-            bytes.writeByte(5);                                         // Write minor file version
-            bytes.writeShort(version);                                  // Write client version
+            bytes.writeShort(data.obdVersion);                          // Write obd version
+            bytes.writeShort(data.clientVersion);                       // Write client version
             bytes.writeByte( ThingCategory.getValue(thing.category) );  // Write thing category
             
             var spritesPosition:uint = bytes.position;
@@ -355,34 +264,32 @@ package otlib.obd
         
         private function decodeV1(bytes:ByteArray):ThingData
         {
-            if (!bytes)
-                throw new NullArgumentError("bytes");
-            
             bytes.position = 0;
             
-            var versionValue:uint = bytes.readUnsignedShort();
-            var versions:Vector.<Version> = VersionStorage.getInstance().getByValue(versionValue);
+            var obdVersion:uint = OBDVersions.OBD_VERSION_1;
+            var clientVersion:uint = bytes.readUnsignedShort();
+            
+            var versions:Vector.<Version> = VersionStorage.getInstance().getByValue(clientVersion);
             if (versions.length == 0)
-                throw new Error(StringUtil.format("Unsupported version {0}.", versionValue));
+                throw new Error(StringUtil.format("Unsupported version {0}.", clientVersion));
             
             var category:String = bytes.readUTF();
             if (!ThingCategory.isValid(category))
                 throw new Error("Invalid thing category.");
             
-            var version:uint = versions[0].value;
             var thing:ThingType = new ThingType();
             thing.category = category;
             
             var done:Boolean;
-            if (version <= 730)
+            if (clientVersion <= 730)
                 done = ThingSerializer.readProperties1(thing, bytes);
-            else if (version <= 750)
+            else if (clientVersion <= 750)
                 done = ThingSerializer.readProperties2(thing, bytes);
-            else if (version <= 772)
+            else if (clientVersion <= 772)
                 done = ThingSerializer.readProperties3(thing, bytes);
-            else if (version <= 854)
+            else if (clientVersion <= 854)
                 done = ThingSerializer.readProperties4(thing, bytes);
-            else if (version <= 986)
+            else if (clientVersion <= 986)
                 done = ThingSerializer.readProperties5(thing, bytes);
             else
                 done = ThingSerializer.readProperties6(thing, bytes);
@@ -452,119 +359,19 @@ package otlib.obd
                 sprites[i] = spriteData;
             }
             
-            return ThingData.createThingData(version, thing, sprites);
+            return ThingData.create(OBDVersions.OBD_VERSION_1, clientVersion, thing, sprites);
         }
         
         private function decodeV2(bytes:ByteArray):ThingData
         {
             bytes.position = 0;
-            bytes.readUnsignedByte(); // OBD major version
-            bytes.readUnsignedByte(); // OBD minor version
             
-            var versionValue:uint = bytes.readUnsignedShort(); // Client version
-            var versions:Vector.<Version> = VersionStorage.getInstance().getByValue(versionValue);
+            var obdVersion:uint = bytes.readUnsignedShort();
+            var clientVersion:uint = bytes.readUnsignedShort();
+            
+            var versions:Vector.<Version> = VersionStorage.getInstance().getByValue(clientVersion);
             if (versions.length == 0)
-                throw new Error(StringUtil.format("Unsupported version {0}.", versionValue));
-            
-            var category:String = ThingCategory.getCategoryByValue( bytes.readUnsignedByte() );
-            if (!ThingCategory.isValid(category))
-                throw new Error("Invalid object category.");
-            
-            var version:uint = versions[0].value;
-            var thing:ThingType = new ThingType();
-            thing.category = category;
-            
-            var done:Boolean;
-            if (version <= 730)
-                done = ThingSerializer.readProperties1(thing, bytes);
-            else if (version <= 750)
-                done = ThingSerializer.readProperties2(thing, bytes);
-            else if (version <= 772)
-                done = ThingSerializer.readProperties3(thing, bytes);
-            else if (version <= 854)
-                done = ThingSerializer.readProperties4(thing, bytes);
-            else if (version <= 986)
-                done = ThingSerializer.readProperties5(thing, bytes);
-            else
-                done = ThingSerializer.readProperties6(thing, bytes);
-            
-            if (!done) return null;
-            
-            thing.width = bytes.readUnsignedByte();
-            thing.height = bytes.readUnsignedByte();
-            
-            if (thing.width > 1 || thing.height > 1)
-                thing.exactSize = bytes.readUnsignedByte();
-            else 
-                thing.exactSize = Sprite.DEFAULT_SIZE;
-            
-            thing.layers = bytes.readUnsignedByte();
-            thing.patternX = bytes.readUnsignedByte();
-            thing.patternY = bytes.readUnsignedByte();
-            thing.patternZ = bytes.readUnsignedByte();
-            thing.frames = bytes.readUnsignedByte();
-            
-            var i:uint = 0;
-            
-            if (thing.frames > 1)
-            {
-                thing.isAnimation = true;
-                
-                var animationMode:uint = bytes.readUnsignedByte();
-                var frameStrategy:int = bytes.readInt();
-                var startFrame:int = bytes.readByte();
-                var frameDurations:Vector.<FrameDuration> = new Vector.<FrameDuration>(thing.frames, true);
-                
-                for (i = 0; i < thing.frames; i++)
-                {
-                    var minimum:uint = bytes.readUnsignedInt();
-                    var maximum:uint = bytes.readUnsignedInt();
-                    frameDurations[i] = new FrameDuration(minimum, maximum);
-                }
-                
-                thing.animator = Animator.create(thing.frames,
-                                                 startFrame,
-                                                 frameStrategy,
-                                                 animationMode,
-                                                 frameDurations);
-            }
-            
-            var totalSprites:uint = thing.getTotalSprites();
-            if (totalSprites > 4096)
-                throw new Error("The Object Data has more than 4096 sprites.");
-            
-            thing.spriteIndex = new Vector.<uint>(totalSprites, true);
-            var sprites:Vector.<SpriteData> = new Vector.<SpriteData>(totalSprites, true);
-            
-            for (i = 0; i < totalSprites; i++)
-            {
-                var spriteId:uint = bytes.readUnsignedInt();
-                thing.spriteIndex[i] = spriteId;
-                
-                var pixels:ByteArray = new ByteArray();
-                pixels.endian = Endian.BIG_ENDIAN;
-                
-                bytes.readBytes(pixels, 0, 4096);
-                
-                var spriteData:SpriteData = new SpriteData();
-                spriteData.id = spriteId;
-                spriteData.pixels = pixels;
-                sprites[i] = spriteData;
-            }
-            
-            return ThingData.createThingData(version, thing, sprites);
-        }
-        
-        private function decodeV2_5(bytes:ByteArray):ThingData
-        {
-            bytes.position = 0;
-            bytes.readUnsignedByte(); // OBD major version
-            bytes.readUnsignedByte(); // OBD minor version
-            
-            var versionValue:uint = bytes.readUnsignedShort(); // Client version
-            var versions:Vector.<Version> = VersionStorage.getInstance().getByValue(versionValue);
-            if (versions.length == 0)
-                throw new Error(StringUtil.format("Unsupported version {0}.", versionValue));
+                throw new Error(StringUtil.format("Unsupported version {0}.", clientVersion));
             
             var category:String = ThingCategory.getCategoryByValue( bytes.readUnsignedByte() );
             if (!ThingCategory.isValid(category))
@@ -573,7 +380,6 @@ package otlib.obd
             // Skipping the texture patterns position.
             bytes.readUnsignedInt();
             
-            var version:uint = versions[0].value;
             var thing:ThingType = new ThingType();
             thing.category = category;
             
@@ -641,7 +447,7 @@ package otlib.obd
                 sprites[i] = spriteData;
             }
             
-            return ThingData.createThingData(version, thing, sprites);
+            return ThingData.create(obdVersion, clientVersion, thing, sprites);
         }
         
         private static function readProperties(thing:ThingType, input:IDataInput):Boolean
@@ -1022,6 +828,6 @@ package otlib.obd
         private static const HAS_CHARGES:uint       = 0xFC;
         private static const FLOOR_CHANGE:uint      = 0xFD;
         private static const USABLE:uint            = 0xFE;
-        private static const LAST_FLAG:uint         = 0xFE;
+        private static const LAST_FLAG:uint         = 0xFF;
     }
 }

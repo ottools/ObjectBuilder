@@ -20,34 +20,26 @@
 *  THE SOFTWARE.
 */
 
-package ob.commands.things
+package otlib.obd
 {
-    import nail.commands.Command;
-    
-    import otlib.core.Version;
-    import otlib.loaders.PathHelper;
-    
-    public class ExportThingCommand extends Command
+    import nail.errors.AbstractClassError;
+
+    public final class OBDVersions
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function ExportThingCommand(list:Vector.<PathHelper>,
-                                           category:String,
-                                           obdVersion:uint,
-                                           clientVersion:Version,
-                                           spriteSheetFlag:uint,
-                                           transparentBackground:Boolean,
-                                           jpegQuality:uint)
+        public function OBDVersions()
         {
-            super(list,
-                  category,
-                  obdVersion,
-                  clientVersion,
-                  spriteSheetFlag,
-                  transparentBackground,
-                  jpegQuality);
+            throw new AbstractClassError(OBDVersions);
         }
+        
+        //--------------------------------------------------------------------------
+        // STATIC
+        //--------------------------------------------------------------------------
+        
+        public static const OBD_VERSION_1:uint = 100;
+        public static const OBD_VERSION_2:uint = 200;
     }
 }

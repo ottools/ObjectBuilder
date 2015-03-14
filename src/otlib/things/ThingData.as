@@ -41,6 +41,7 @@ package otlib.things
     import otlib.geom.Rect;
     import otlib.geom.Size;
     import otlib.obd.OBDEncoder;
+    import otlib.obd.OBDVersions;
     import otlib.sprites.Sprite;
     import otlib.sprites.SpriteData;
     import otlib.utils.ColorUtils;
@@ -54,7 +55,8 @@ package otlib.things
         // PROPERTIES
         //--------------------------------------------------------------------------
         
-        private var m_version:uint;
+        private var m_obdVersion:uint;
+        private var m_clientVersion:uint;
         private var m_thing:ThingType;
         private var m_sprites:Vector.<SpriteData>;
         
@@ -67,13 +69,22 @@ package otlib.things
         public function get length():uint { return m_sprites.length; }
         public function get animator():Animator { return m_thing.animator; }
         
-        public function get version():uint { return m_version; }
-        public function set version(value:uint):void
+        public function get obdVersion():uint { return m_obdVersion; }
+        public function set obdVersion(value:uint):void
+        {
+            if (value < OBDVersions.OBD_VERSION_1)
+                throw new ArgumentError(StringUtil.format("Invalid obd version {0}.", value));
+            
+            m_obdVersion = value;
+        }
+        
+        public function get clientVersion():uint { return m_clientVersion; }
+        public function set clientVersion(value:uint):void
         {
             if (value < 710)
-                throw new ArgumentError(StringUtil.format("Invalid version {0}.", value));
+                throw new ArgumentError(StringUtil.format("Invalid client version {0}.", value));
             
-            m_version = value;
+            m_clientVersion = value;
         }
         
         public function get thing():ThingType { return m_thing; }
@@ -329,7 +340,7 @@ package otlib.things
             var length:uint = m_sprites.length;
             
             var td:ThingData = new ThingData();
-            td.m_version = m_version;
+            td.m_clientVersion = m_clientVersion;
             td.m_thing = m_thing.clone();
             td.m_sprites = new Vector.<SpriteData>(length, true);
             
@@ -393,8 +404,14 @@ package otlib.things
                                                                                       0,  0, -255, 0,
                                                                                       0, -1,    1, 0]);
         
-        public static function createThingData(version:uint, thing:ThingType, sprites:Vector.<SpriteData>):ThingData
+        public static function create(obdVersion:uint, clientVersion:uint, thing:ThingType, sprites:Vector.<SpriteData>):ThingData
         {
+            if (obdVersion < OBDVersions.OBD_VERSION_1)
+                throw new ArgumentError(StringUtil.format("Invalid OBD version {0}", obdVersion));
+            
+            if (clientVersion < 710)
+                throw new ArgumentError(StringUtil.format("Invalid client version {0}", clientVersion));
+            
             if (!thing)
                 throw new NullArgumentError("thing");
             
@@ -405,7 +422,8 @@ package otlib.things
                 throw new ArgumentError("Invalid sprites length.");
             
             var thingData:ThingData = new ThingData();
-            thingData.version = version;
+            thingData.obdVersion = obdVersion;
+            thingData.clientVersion = clientVersion;
             thingData.thing = thing;
             thingData.sprites = sprites;
             return thingData;

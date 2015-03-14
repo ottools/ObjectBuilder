@@ -101,6 +101,7 @@ package ob.core
     import otlib.loaders.SpriteDataLoader;
     import otlib.loaders.ThingDataLoader;
     import otlib.obd.OBDEncoder;
+    import otlib.obd.OBDVersions;
     import otlib.resources.Resources;
     import otlib.sprites.Sprite;
     import otlib.sprites.SpriteData;
@@ -631,7 +632,8 @@ package ob.core
         
         private function onExportThing(list:Vector.<PathHelper>,
                                        category:String,
-                                       version:Version,
+                                       obdVersion:uint,
+                                       clientVersion:Version,
                                        spriteSheetFlag:uint,
                                        transparentBackground:Boolean,
                                        jpegQuality:uint):void
@@ -642,7 +644,7 @@ package ob.core
             if (!ThingCategory.getCategory(category))
                 throw new ArgumentError(Resources.getString("invalidCategory"));
             
-            if (!version)
+            if (!clientVersion)
                 throw new NullArgumentError("version");
             
             var length:uint = list.length;
@@ -661,7 +663,7 @@ package ob.core
             
             for (var i:uint = 0; i < length; i++) {
                 var pathHelper:PathHelper = list[i];
-                var thingData:ThingData = getThingData(pathHelper.id, category);
+                var thingData:ThingData = getThingData(pathHelper.id, category, obdVersion, clientVersion.value);
                 var file:File = new File(pathHelper.nativePath);
                 var name:String = FileUtil.getName(file);
                 var format:String = file.extension;
@@ -1544,7 +1546,7 @@ package ob.core
         
         private function sendThingData(id:uint, category:String):void
         {
-            var thingData:ThingData = getThingData(id, category);
+            var thingData:ThingData = getThingData(id, category, OBDVersions.OBD_VERSION_2, _version.value);
             if (thingData)
                 sendCommand(new SetThingDataCommand(thingData));
         }
@@ -1616,7 +1618,7 @@ package ob.core
             return bitmap.getPixels(bitmap.rect);
         }
         
-        private function getThingData(id:uint, category:String):ThingData
+        private function getThingData(id:uint, category:String, obdVersion:uint, clientVersion:uint):ThingData
         {
             if (!ThingCategory.getCategory(category)) {
                 throw new Error(Resources.getString("invalidCategory"));
@@ -1647,7 +1649,7 @@ package ob.core
                 spriteData.pixels = pixels;
                 sprites.push(spriteData);
             }
-            return ThingData.createThingData(_version.value, thing, sprites);
+            return ThingData.create(obdVersion, clientVersion, thing, sprites);
         }
         
         private function toLocale(bundle:String, plural:Boolean = false):String

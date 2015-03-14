@@ -147,6 +147,8 @@ THE SOFTWARE.
             import otlib.events.ThingEditorEvent;
             import otlib.geom.Size;
             import otlib.loaders.PathHelper;
+            import otlib.obd.OBDEncoder;
+            import otlib.obd.OBDVersions;
             import otlib.resources.Resources;
             import otlib.settings.ISettingsManager;
             import otlib.settings.SettingsManager;
@@ -621,18 +623,19 @@ THE SOFTWARE.
             
             public function exportThings(fileDataList:Vector.<FileData>,
                                          category:String,
-                                         version:Version,
+                                         obdVersion:uint,
+                                         clientVersion:Version,
                                          spriteSheetFlags:uint,
                                          transparentBackground:Boolean,
                                          jpegQuality:uint):void
             {
-                if (!this.clientLoaded || !fileDataList || fileDataList.length == 0 || isNullOrEmpty(category) || !version) return;
+                if (!this.clientLoaded || !fileDataList || fileDataList.length == 0 || isNullOrEmpty(category) || !clientVersion) return;
                 var length:uint = fileDataList.length;
                 var list:Vector.<PathHelper> = new Vector.<PathHelper>(length, true);
                 for (var i:uint = 0; i < length; i++) {
                     list[i] = new PathHelper(fileDataList[i].nativePath, fileDataList[i].data as uint);
                 }
-                sendCommand(new ExportThingCommand(list, category, version, spriteSheetFlags, transparentBackground, jpegQuality));
+                sendCommand(new ExportThingCommand(list, category, obdVersion, clientVersion, spriteSheetFlags, transparentBackground, jpegQuality));
             }
             
             public function replaceThings(list:Vector.<ThingData>):void
@@ -1073,7 +1076,8 @@ THE SOFTWARE.
             private function onExportThingData(fileName:String,
                                                format:String,
                                                directory:File,
-                                               version:Version,
+                                               clientVersion:Version,
+                                               obdVersion:uint,
                                                things:Vector.<ThingType>,
                                                category:String,
                                                spriteSheetFlag:uint,
@@ -1096,7 +1100,7 @@ THE SOFTWARE.
                 function completeHandler(event:Event):void
                 {
                     if (queue.result && queue.result.length > 0) {
-                        exportThings(queue.result, category, version, spriteSheetFlag, transparentBackground, jpegQuality);
+                        exportThings(queue.result, category, obdVersion, clientVersion, spriteSheetFlag, transparentBackground, jpegQuality);
                     }
                 }
             }
@@ -1792,6 +1796,7 @@ THE SOFTWARE.
                                           window.format,
                                           window.directory,
                                           window.version,
+                                          window.obdVersion,
                                           things,
                                           thingData.category,
                                           _settings.savingSpriteSheet,
@@ -1948,7 +1953,7 @@ THE SOFTWARE.
                         for (var i:uint = 0; i < length; i++)
                             sprites[i] = SpriteData.createSpriteData(thing.spriteIndex[i]);
                         
-                        var data:ThingData = ThingData.createThingData(_version.value, thing, sprites);
+                        var data:ThingData = ThingData.create(OBDVersions.OBD_VERSION_2, _version.value, thing, sprites);
                         data.setSpriteSheet(bitmap);
                         thingTypeEditor.thingData = data;
                         confirmButton.enabled = true;

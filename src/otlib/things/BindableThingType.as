@@ -33,6 +33,7 @@ package otlib.things
     
     import nail.utils.isNullOrEmpty;
     
+    import otlib.obd.OBDVersions;
     import otlib.sprites.SpriteData;
     
     [Event(name="propertyChange", type="mx.events.PropertyChangeEvent")]
@@ -433,7 +434,7 @@ package otlib.things
             for (var i:uint = 0; i < length; i++)
                 sprites[i] = this.sprites[i];
             
-            return ThingData.createThingData(version, thing, sprites);
+            return ThingData.create(OBDVersions.OBD_VERSION_2, version, thing, sprites);
         }
         
         public function getAnimationMode():uint

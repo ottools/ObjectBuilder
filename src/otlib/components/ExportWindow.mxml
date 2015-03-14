@@ -70,6 +70,7 @@ THE SOFTWARE.
             import otlib.core.Version;
             import otlib.core.VersionStorage;
             import otlib.events.FileTextInputEvent;
+            import otlib.obd.OBDVersions;
             import otlib.utils.OTFormat;
             
             //--------------------------------------------------------------------------
@@ -94,6 +95,8 @@ THE SOFTWARE.
             private var _enableObdFormatChanged:Boolean;
             private var _version:Version;
             private var _versionChanged:Boolean;
+            private var _obdVersion:uint = OBDVersions.OBD_VERSION_2;
+            private var _obdVersionChanged:Boolean;
             private var _detail:uint;
             
             //--------------------------------------
@@ -155,6 +158,16 @@ THE SOFTWARE.
                 }
             }
             
+            public function get obdVersion():uint { return _obdVersion; }
+            public function set obdVersion(value:uint):void
+            {
+                if (_obdVersion != value) {
+                    _obdVersion = value;
+                    _obdVersionChanged = true;
+                    invalidateProperties();
+                }
+            }
+            
             public function get detail():uint { return _detail; }
             
             //--------------------------------------------------------------------------
@@ -197,6 +210,15 @@ THE SOFTWARE.
                     versionDropDownList.selectedIndex = _versionCollection.getItemIndex(_version);
                     _versionChanged = false;
                     check();
+                }
+                
+                if (_obdVersionChanged) {
+                    if (_obdVersion == OBDVersions.OBD_VERSION_2) 
+                        obdVersionDropDownList.selectedIndex = 0;
+                    else if (_obdVersion == OBDVersions.OBD_VERSION_1)
+                        obdVersionDropDownList.selectedIndex = 1;
+                    
+                    _obdVersionChanged = false;
                 }
             }
             
@@ -274,6 +296,14 @@ THE SOFTWARE.
             protected function versionDropDownListChangeHandler(event:IndexChangeEvent):void
             {
                 this.version = versionDropDownList.selectedItem as Version;
+            }
+            
+            protected function obdVersionDropDownListChangeHandler(event:IndexChangeEvent):void
+            {
+                if (obdVersionDropDownList.selectedIndex == 0)
+                    this.obdVersion = OBDVersions.OBD_VERSION_2;
+                else if (obdVersionDropDownList.selectedIndex == 1)
+                    this.obdVersion = OBDVersions.OBD_VERSION_1;
             }
             
             protected function confirmButtonClickHandler(event:MouseEvent):void
@@ -426,12 +456,25 @@ THE SOFTWARE.
                 </s:layout>
                 
                 <s:Label text="{resourceManager.getString('strings', 'version') + ':'}"/>
-                
                 <s:DropDownList id="versionDropDownList"
-                                width="120"
+                                minWidth="100"
                                 enabled="{obdFormatRadioButton.selected}"
                                 dataProvider="{_versionCollection}"
                                 change="versionDropDownListChangeHandler(event)"/>
+                
+                <s:Label text="OBD:"/>
+                <s:DropDownList id="obdVersionDropDownList"
+                                minWidth="80"
+                                requireSelection="true"
+                                enabled="{obdFormatRadioButton.selected}"
+                                change="obdVersionDropDownListChangeHandler(event)">
+                    <s:dataProvider>
+                        <s:ArrayList>
+                            <fx:String>2</fx:String>
+                            <fx:String>1</fx:String>
+                        </s:ArrayList>
+                    </s:dataProvider>
+                </s:DropDownList>
             </s:NavigatorContent>
         </mx:ViewStack>
     </nail:GroupBox>

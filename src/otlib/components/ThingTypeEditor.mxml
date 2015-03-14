@@ -621,7 +621,7 @@ THE SOFTWARE.
                 
                 _previewMode = enabled;
                 if (_previewMode) {
-                    thingData = _thingBinding.toThingData(_thingData.version);
+                    thingData = _thingBinding.toThingData(_thingData.clientVersion);
                     thingView.outfitData = new OutfitData(0, 0, 0, 0, addonsSlider.value);
                     _lastAnimationFrame = animationSlider.value;
                 } else {
