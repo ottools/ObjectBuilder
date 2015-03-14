@@ -42,9 +42,12 @@ THE SOFTWARE.
             import flashx.textLayout.conversion.TextConverter;
             
             import nail.components.controls.Alert;
+            import nail.errors.NullArgumentError;
             import nail.utils.FileUtil;
             import nail.utils.StringUtil;
+            import nail.utils.isNullOrEmpty;
             
+            import ob.commands.SetClientInfoCommand;
             import ob.commands.things.ImportThingsFromFilesCommand;
             import ob.core.IObjectBuilder;
             
@@ -52,6 +55,7 @@ THE SOFTWARE.
             import otlib.loaders.PathHelper;
             import otlib.things.ThingCategory;
             import otlib.things.ThingData;
+            import otlib.utils.ClientInfo;
             import otlib.utils.OTFormat;
             
             //--------------------------------------------------------------------------
@@ -92,6 +96,8 @@ THE SOFTWARE.
                 }
             }
             
+            public function get hasFiles():Boolean { return !isNullOrEmpty(m_fileList); }
+            
             //--------------------------------------------------------------------------
             // METHODS
             //--------------------------------------------------------------------------
@@ -119,6 +125,14 @@ THE SOFTWARE.
             //--------------------------------------
             // Private
             //--------------------------------------
+            
+            private function onClientInfo(info:ClientInfo):void
+            {
+                if (!info)
+                    throw new NullArgumentError("info");
+                
+                importButton.enabled = (info.loaded && hasFiles);
+            }
             
             private function setFile(fileTarget:File):void
             {
@@ -172,10 +186,10 @@ THE SOFTWARE.
             {
                 m_fileList = list;
                 
-                previousButton.enabled = (list && list.length > 1);
-                nextButton.enabled = previousButton.enabled;
-                importButton.enabled = (list && list.length != 0);
-                deleteButton.enabled = importButton.enabled;
+                previousButton.enabled = this.hasFiles;
+                nextButton.enabled = this.hasFiles;
+                importButton.enabled = (m_application && m_application.clientLoaded && this.hasFiles);
+                deleteButton.enabled = this.hasFiles;
                 
                 loadThingData(target);
                 
@@ -245,6 +259,22 @@ THE SOFTWARE.
             // Event Handlers
             //--------------------------------------
             
+            protected function creationCompleteHandler(event:FlexEvent):void
+            {
+                m_application = IObjectBuilder(FlexGlobals.topLevelApplication);
+                m_application.registerCallback(SetClientInfoCommand, onClientInfo);
+                
+                systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
+                importButton.enabled = (m_application.clientLoaded && this.hasFiles);
+            }
+            
+            protected function closingHandler(event:Event):void
+            {
+                m_application.unregisterCallback(SetClientInfoCommand, onClientInfo);
+                
+                systemManager.stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
+            }
+            
             protected function previousButtonDownHandler(event:FlexEvent):void
             {
                 this.previousObject();
@@ -278,13 +308,7 @@ THE SOFTWARE.
                 } catch(error:Error) { }
             }
             
-            protected function creationCompleteHandler(event:FlexEvent):void
-            {
-                m_application = IObjectBuilder(FlexGlobals.topLevelApplication);
-                systemManager.stage.addEventListener(KeyboardEvent.KEY_UP, keyUpHandler);
-            }
-            
-            override protected function keyUpHandler(event:KeyboardEvent):void
+            override protected function keyDownHandler(event:KeyboardEvent):void
             {
                 var keyCode:uint = event.keyCode;
                 
