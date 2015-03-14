@@ -32,7 +32,8 @@ THE SOFTWARE.
           showStatusBar="false"
           backgroundColor="0x494949"
           title="@Resource(key='objectViewer', bundle='strings')"
-          creationComplete="creationCompleteHandler(event)">
+          creationComplete="creationCompleteHandler(event)"
+          closing="closingHandler(event)">
     
     <fx:Script>
         <![CDATA[
@@ -45,6 +46,7 @@ THE SOFTWARE.
             import nail.errors.NullArgumentError;
             import nail.utils.FileUtil;
             import nail.utils.StringUtil;
+            import nail.utils.WindowUtil;
             import nail.utils.isNullOrEmpty;
             
             import ob.commands.SetClientInfoCommand;
@@ -53,16 +55,22 @@ THE SOFTWARE.
             
             import otlib.assets.Assets;
             import otlib.loaders.PathHelper;
+            import otlib.settings.ISettingsManager;
+            import otlib.settings.SettingsManager;
             import otlib.things.ThingCategory;
             import otlib.things.ThingData;
             import otlib.utils.ClientInfo;
             import otlib.utils.OTFormat;
+            
+            import ov.settings.ObjectViewerSettings;
             
             //--------------------------------------------------------------------------
             // PROPERTIES
             //--------------------------------------------------------------------------
             
             private var m_application:IObjectBuilder;
+            private var m_settingsManager:ISettingsManager;
+            private var m_settings:ObjectViewerSettings;
             private var m_file:File;
             private var m_fileChanged:Boolean;
             private var m_fileList:Vector.<File>;
@@ -126,6 +134,23 @@ THE SOFTWARE.
             // Private
             //--------------------------------------
             
+            private function loadSettings():void
+            {
+                m_settings = new ObjectViewerSettings();
+                m_settingsManager.loadSettings(m_settings);
+                
+                if (m_settings.maximized)
+                    this.maximize();
+                else
+                    WindowUtil.centralizeWindowOnScreen(this);
+            }
+            
+            private function saveSettings():void
+            {
+                m_settings.maximized = (nativeWindow.displayState == NativeWindowDisplayState.MAXIMIZED);
+                m_settingsManager.saveSettings(m_settings);
+            }
+            
             private function onClientInfo(info:ClientInfo):void
             {
                 if (!info)
@@ -172,12 +197,13 @@ THE SOFTWARE.
             private function onOpenFile():void
             {
                 var filter:FileFilter = new FileFilter("Object Builder Data", "*.obd;");
-                var file:File = m_lastDirectory ? new File(m_lastDirectory.nativePath) : File.userDirectory;
+                var file:File = m_lastDirectory ? new File(m_lastDirectory.nativePath) : m_settings.getLastDirectory();
                 file.addEventListener(Event.SELECT, fileSelectHandler);
-                file.browseForOpen("Select File", [filter]);
+                file.browseForOpen(resourceManager.getString("strings", "selectFile"), [filter]);
                 
                 function fileSelectHandler(event:Event):void
                 {
+                    m_settings.setLastDirectory(file);
                     setFile(file);
                 }
             }
@@ -263,16 +289,17 @@ THE SOFTWARE.
             {
                 m_application = IObjectBuilder(FlexGlobals.topLevelApplication);
                 m_application.registerCallback(SetClientInfoCommand, onClientInfo);
-                
+                m_settingsManager = SettingsManager.getInstance();
                 systemManager.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
                 importButton.enabled = (m_application.clientLoaded && this.hasFiles);
+                loadSettings();
             }
             
             protected function closingHandler(event:Event):void
             {
                 m_application.unregisterCallback(SetClientInfoCommand, onClientInfo);
-                
                 systemManager.stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
+                saveSettings();
             }
             
             protected function previousButtonDownHandler(event:FlexEvent):void
