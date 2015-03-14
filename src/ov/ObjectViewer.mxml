@@ -28,10 +28,10 @@ THE SOFTWARE.
           xmlns:otlib="otlib.components.*"
           minWidth="500"
           minHeight="400"
+          fontSize="11"
           showStatusBar="false"
           backgroundColor="0x494949"
           title="@Resource(key='objectViewer', bundle='strings')"
-          fontSize="11"
           creationComplete="creationCompleteHandler(event)">
     
     <fx:Script>
@@ -58,35 +58,36 @@ THE SOFTWARE.
             // PROPERTIES
             //--------------------------------------------------------------------------
             
-            private var _application:IObjectBuilder;
-            private var _file:File;
-            private var _fileChanged:Boolean;
-            private var _fileList:Vector.<File>;
-            private var _index:int;
-            private var _lastDirectory:File;
-            private var _zoom:Number;
-            private var _zoomChanged:Boolean;
+            private var m_application:IObjectBuilder;
+            private var m_file:File;
+            private var m_fileChanged:Boolean;
+            private var m_fileList:Vector.<File>;
+            private var m_index:int;
+            private var m_lastDirectory:File;
+            private var m_zoom:Number;
+            private var m_zoomChanged:Boolean;
+            
             private const STATUS:String = "<b>{0}</b>: {1} - <b>{2}</b>: {3} - <b>{4}</b>: {5} - <b>{6}</b>: {7}";
             
             //--------------------------------------
             // Getters / Setters
             //--------------------------------------
             
-            public function get file():File { return _file; }
+            public function get file():File { return m_file; }
             public function set file(value:File):void
             {
-                _file = value;
-                _fileChanged = true;
+                m_file = value;
+                m_fileChanged = true;
                 invalidateProperties();
             }
             
             [Bindable]
-            public function get zoom():Number { return _zoom; }
+            public function get zoom():Number { return m_zoom; }
             public function set zoom(value:Number):void
             {
-                if (_zoom != value && value >= zoomSlider.minimum && value <= zoomSlider.maximum) {
-                    _zoom = value;
-                    _zoomChanged = true;
+                if (m_zoom != value && value >= zoomSlider.minimum && value <= zoomSlider.maximum) {
+                    m_zoom = value;
+                    m_zoomChanged = true;
                     invalidateProperties();
                 }
             }
@@ -103,15 +104,15 @@ THE SOFTWARE.
             {
                 super.commitProperties();
                 
-                if (_fileChanged) {
-                    setFile(_file);
-                    _fileChanged = false;
+                if (m_fileChanged) {
+                    setFile(m_file);
+                    m_fileChanged = false;
                 }
                 
-                if (_zoomChanged) {
-                    thingView.scaleX = _zoom;
-                    thingView.scaleY = _zoom;
-                    _zoomChanged = false;
+                if (m_zoomChanged) {
+                    thingView.scaleX = m_zoom;
+                    thingView.scaleY = m_zoom;
+                    m_zoomChanged = false;
                 }
             }
             
@@ -121,8 +122,7 @@ THE SOFTWARE.
             
             private function setFile(fileTarget:File):void
             {
-                if (!fileTarget || fileTarget.extension != OTFormat.OBD)
-                {
+                if (!fileTarget || fileTarget.extension != OTFormat.OBD) {
                     thingView.thingData = null;
                     descriptionText.text = "";
                     previousButton.enabled = false;
@@ -135,8 +135,8 @@ THE SOFTWARE.
                 var directory:File = FileUtil.getDirectory(fileTarget);
                 
                 // Checks if new directory and current directory are equal.
-                if (_fileList && _lastDirectory && FileUtil.equals(_lastDirectory, directory)) {
-                    setFileList(fileTarget, _fileList);
+                if (m_fileList && m_lastDirectory && FileUtil.equals(m_lastDirectory, directory)) {
+                    setFileList(fileTarget, m_fileList);
                     return;
                 }
                 
@@ -146,12 +146,11 @@ THE SOFTWARE.
                 
                 for (var i:uint = 0; i < length; i++) {
                     var file:File = files[i];
-                    if (file.extension == OTFormat.OBD) {
+                    if (file.extension == OTFormat.OBD)
                         fileFoundList[fileFoundList.length] = file;
-                    }
                 }
                 
-                _lastDirectory = directory;
+                m_lastDirectory = directory;
                 FileUtil.sortFiles(fileFoundList, Array.NUMERIC);
                 setFileList(fileTarget, fileFoundList);
             }
@@ -159,7 +158,7 @@ THE SOFTWARE.
             private function onOpenFile():void
             {
                 var filter:FileFilter = new FileFilter("Object Builder Data", "*.obd;");
-                var file:File = _lastDirectory ? new File(_lastDirectory.nativePath) : File.userDirectory;
+                var file:File = m_lastDirectory ? new File(m_lastDirectory.nativePath) : File.userDirectory;
                 file.addEventListener(Event.SELECT, fileSelectHandler);
                 file.browseForOpen("Select File", [filter]);
                 
@@ -171,7 +170,7 @@ THE SOFTWARE.
             
             private function setFileList(target:File, list:Vector.<File>):void
             {
-                _fileList = list;
+                m_fileList = list;
                 
                 previousButton.enabled = (list && list.length > 1);
                 nextButton.enabled = previousButton.enabled;
@@ -183,7 +182,7 @@ THE SOFTWARE.
                 var length:uint = list.length;
                 for (var i:uint = 0; i < length; i++) {
                     if (target.nativePath == list[i].nativePath) {
-                        _index = i;
+                        m_index = i;
                         break;
                     }
                 }
@@ -229,18 +228,17 @@ THE SOFTWARE.
             
             private function previousObject():void
             {
-                _index = (_index - 1 < 0) ? (_fileList.length - 1) : (_index - 1);
-                loadThingData(_fileList[_index]);
+                m_index = (m_index - 1 < 0) ? (m_fileList.length - 1) : (m_index - 1);
+                loadThingData(m_fileList[m_index]);
             }
             
             private function nextObject():void
             {
-                if (_fileList.length != 0) {
-                    _index = (_index + 1) % _fileList.length;
-                    loadThingData(_fileList[_index]);
-                } else {
+                if (m_fileList.length != 0) {
+                    m_index = (m_index + 1) % m_fileList.length;
+                    loadThingData(m_fileList[m_index]);
+                } else
                     this.file = null;
-                }
             }
             
             //--------------------------------------
@@ -259,30 +257,30 @@ THE SOFTWARE.
             
             protected function importButtonClickHandler(event:MouseEvent):void
             {
-                if (!_application.clientLoaded) return;
+                if (!m_application.clientLoaded) return;
                 
                 var list:Vector.<PathHelper> = new Vector.<PathHelper>(1, true);
-                list[0] = new PathHelper(_fileList[_index].nativePath);
-                _application.sendCommand(new ImportThingsFromFilesCommand(list));
+                list[0] = new PathHelper(m_fileList[m_index].nativePath);
+                m_application.sendCommand(new ImportThingsFromFilesCommand(list));
             }
             
             protected function deleteButtonClickHandler(event:MouseEvent):void
             {
                 if (!thingView.thingData) return;
                 
-                var file:File = _fileList[_index];
+                var file:File = m_fileList[m_index];
                 
                 try
                 {
                     file.moveToTrash();
-                    _fileList.splice(_index, 1);
+                    m_fileList.splice(m_index, 1);
                     nextObject();
                 } catch(error:Error) { }
             }
             
             protected function creationCompleteHandler(event:FlexEvent):void
             {
-                _application = IObjectBuilder(FlexGlobals.topLevelApplication);
+                m_application = IObjectBuilder(FlexGlobals.topLevelApplication);
                 systemManager.stage.addEventListener(KeyboardEvent.KEY_UP, keyUpHandler);
             }
             
@@ -296,7 +294,7 @@ THE SOFTWARE.
                             this.onOpenFile();
                             break;
                     }
-                } else if (_fileList && _fileList.length > 1) {
+                } else if (m_fileList && m_fileList.length > 1) {
                     switch(keyCode) {
                         case Keyboard.LEFT:
                             this.previousObject();
@@ -360,12 +358,14 @@ THE SOFTWARE.
               height="100%"
               horizontalAlign="center"
               verticalAlign="middle">
+        
         <otlib:ThingDataView id="thingView"/>
     </s:HGroup>
     
     <s:HGroup width="100%"
               horizontalAlign="center"
               verticalAlign="middle">
+        
         <s:Button id="previousButton"
                   toolTip="@Resource(key='previous', bundle='strings')"
                   width="30"
@@ -375,6 +375,7 @@ THE SOFTWARE.
                   autoRepeat="true"
                   repeatInterval="200"
                   buttonDown="previousButtonDownHandler(event)"/>
+        
         <s:Button id="importButton"
                   toolTip="@Resource(key='import', bundle='strings')"
                   width="30"
@@ -382,6 +383,7 @@ THE SOFTWARE.
                   icon="{Assets.IMPORT}"
                   enabled="false"
                   click="importButtonClickHandler(event)"/>
+        
         <s:Button id="deleteButton"
                   toolTip="@Resource(key='delete', bundle='strings')"
                   width="30"
@@ -389,6 +391,7 @@ THE SOFTWARE.
                   icon="{Assets.DELETE}"
                   enabled="false"
                   click="deleteButtonClickHandler(event)"/>
+        
         <s:Button id="nextButton"
                   toolTip="@Resource(key='next', bundle='strings')"
                   width="30"
@@ -402,17 +405,23 @@ THE SOFTWARE.
     
     <nail:StatusBar width="100%"
                     height="24">
+        
         <nail:layout>
             <s:HorizontalLayout verticalAlign="middle"
                                 paddingLeft="10"
                                 paddingRight="10"/>
         </nail:layout>
+        
         <s:Spacer width="100%"/>
+        
         <s:RichEditableText id="descriptionText"
                             editable="false"
                             focusEnabled="false"/>
+        
         <s:Spacer width="100%"/>
+        
         <s:Label text="{resourceManager.getString('strings', 'zoom')+':'}"/>
+        
         <s:HSlider id="zoomSlider"
                    width="100"
                    minimum="1.0"
