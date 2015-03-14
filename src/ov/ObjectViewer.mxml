@@ -134,7 +134,7 @@ THE SOFTWARE.
                 
                 var directory:File = FileUtil.getDirectory(fileTarget);
                 
-                // Checks if new directory and current directory are equal.
+                // Checks if the new directory and the current directory are equal.
                 if (m_fileList && m_lastDirectory && FileUtil.equals(m_lastDirectory, directory)) {
                     setFileList(fileTarget, m_fileList);
                     return;
@@ -368,8 +368,8 @@ THE SOFTWARE.
         
         <s:Button id="previousButton"
                   toolTip="@Resource(key='previous', bundle='strings')"
-                  width="30"
-                  height="30"
+                  width="25"
+                  height="25"
                   icon="{Assets.FIRST}"
                   enabled="false"
                   autoRepeat="true"
@@ -378,24 +378,24 @@ THE SOFTWARE.
         
         <s:Button id="importButton"
                   toolTip="@Resource(key='import', bundle='strings')"
-                  width="30"
-                  height="30"
+                  width="25"
+                  height="25"
                   icon="{Assets.IMPORT}"
                   enabled="false"
                   click="importButtonClickHandler(event)"/>
         
         <s:Button id="deleteButton"
                   toolTip="@Resource(key='delete', bundle='strings')"
-                  width="30"
-                  height="30"
+                  width="25"
+                  height="25"
                   icon="{Assets.DELETE}"
                   enabled="false"
                   click="deleteButtonClickHandler(event)"/>
         
         <s:Button id="nextButton"
                   toolTip="@Resource(key='next', bundle='strings')"
-                  width="30"
-                  height="30"
+                  width="25"
+                  height="25"
                   icon="{Assets.LAST}"
                   enabled="false"
                   autoRepeat="true"
