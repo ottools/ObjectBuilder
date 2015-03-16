@@ -1056,7 +1056,7 @@ THE SOFTWARE.
                 spritesList.selectedIds = selectedIds;
             }
             
-            private function onNeedToReload(extended:Boolean, transparency:Boolean):void
+            private function onNeedToReload(extended:Boolean, transparency:Boolean, improvedAnimations:Boolean):void
             {
                 Alert.show(
                     resourceManager.getString("strings", "needToReload"),
@@ -1068,7 +1068,7 @@ THE SOFTWARE.
                 function alertCloseHandler(event:CloseEvent):void
                 {
                     if (event.detail == Alert.YES) {
-                        sendCommand(new NeedToReloadCommand(extended, transparency));
+                        sendCommand(new NeedToReloadCommand(extended, transparency, improvedAnimations));
                     }
                 }
             }

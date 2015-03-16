@@ -30,9 +30,9 @@ package ob.commands
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function NeedToReloadCommand(extended:Boolean, transparency:Boolean)
+        public function NeedToReloadCommand(extended:Boolean, transparency:Boolean, improvedAnimations:Boolean)
         {
-            super(extended, transparency);
+            super(extended, transparency, improvedAnimations);
         }
     }
 }

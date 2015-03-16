@@ -468,7 +468,7 @@ package ob.core
             // If extended or alpha channel was changed need to reload.
             if (FileUtil.equals(dat, _datFile) && FileUtil.equals(spr, _sprFile)) {
                 if (structureChanged)
-                    sendCommand(new NeedToReloadCommand(extended, transparency));
+                    sendCommand(new NeedToReloadCommand(extended, transparency, improvedAnimations));
                 else
                     sendClientInfo();
             }
