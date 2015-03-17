@@ -1,3 +1,18 @@
+### 0.4.0
+
+Features:
+
+* Support for versions 10.50 - 10.56
+* Find a item by name(or part of the name).
+* New Versions window.
+* Optimize Sprites tool.
+* Rotate and flip image in the Slicer tool.
+* Move the cells by using the arrows in the Slicer tool.
+* OTFI files.
+* Support for improved animations for old versions.
+* OBD version 2.0
+* Lots of UI tweaks.
+	
 ### 0.3.4
 
 Features:
