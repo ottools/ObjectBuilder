@@ -372,13 +372,13 @@ THE SOFTWARE.
                 usableCheckBox.visible = visible;
                 usableCheckBox.includeInLayout = visible;
                 
-                visible = (_filesInfo.improvedAnimations && category == ThingCategory.ITEM);
+                visible = (_filesInfo.improvedAnimations && _thingBinding.frames > 1 && (category == ThingCategory.ITEM || category == ThingCategory.EFFECT));
+                animationGroupBox.visible = visible;
+                animationGroupBox.includeInLayout = visible;
                 minimumGroup.visible = visible;
                 minimumGroup.includeInLayout = visible;
                 maximumGroup.visible = visible;
                 maximumGroup.includeInLayout = visible;
-                animationGroupBox.visible = visible;
-                animationGroupBox.includeInLayout = visible;
             }
             
             private function updateViewWithDirection():void
@@ -936,11 +936,7 @@ THE SOFTWARE.
                             </s:Group>
                         </s:Group>
                         
-                        <s:Line width="100%">
-                            <s:stroke>
-                                <s:SolidColorStroke color="0x353535"/>
-                            </s:stroke>
-                        </s:Line>
+                        <nail:ShadowLine width="100%"/>
                         
                         <s:Spacer height="5"/>
                         
@@ -965,7 +961,8 @@ THE SOFTWARE.
                                   verticalAlign="middle"
                                   horizontalAlign="right"
                                   paddingRight="72"
-                                  visible="{_thingBinding.frames > 1}">
+                                  visible="{_thingBinding.frames > 1}"
+                                  includeInLayout="{_thingBinding.frames > 1}">
                             <s:Label text="{resourceManager.getString('strings', 'minimumDuration') + ':'}"/>
                             <s:NumericStepper id="minimumNumericStepper"
                                               width="100"
@@ -978,7 +975,8 @@ THE SOFTWARE.
                                   verticalAlign="middle"
                                   horizontalAlign="right"
                                   paddingRight="72"
-                                  visible="{_thingBinding.frames > 1}">
+                                  visible="{_thingBinding.frames > 1}"
+                                  includeInLayout="{_thingBinding.frames > 1}">
                             <s:Label text="{resourceManager.getString('strings', 'maximumDuration') + ':'}"/>
                             <s:NumericStepper id="maximumNumericStepper"
                                               width="100"
