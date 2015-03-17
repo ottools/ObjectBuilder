@@ -334,23 +334,15 @@ package otlib.things
         {
             if (!copyToThingType(data.thing)) return false;
             
-            if (this.sprites)
-            {
+            if (this.sprites) {
                 var length:uint = this.sprites.length;
                 var sprites:Vector.<SpriteData> = new Vector.<SpriteData>(length, true);
                 
                 for (var i:uint = 0; i < length; i++)
-                {
-                    var sd:SpriteData = this.sprites[i];
-                    if (!sd)
-                        sd = SpriteData.createSpriteData();
-                    
-                    sprites[i] = sd;
-                }
+                    sprites[i] = this.sprites[i] || SpriteData.createSpriteData();
                 
                 data.sprites = sprites;
             }
-            
             return true;
         }
         
@@ -432,7 +424,7 @@ package otlib.things
             var sprites:Vector.<SpriteData> = new Vector.<SpriteData>(length, true);
             
             for (var i:uint = 0; i < length; i++)
-                sprites[i] = this.sprites[i];
+                sprites[i] = this.sprites[i] || SpriteData.createSpriteData();
             
             return ThingData.create(OBDVersions.OBD_VERSION_2, version, thing, sprites);
         }
