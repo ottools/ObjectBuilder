@@ -3,7 +3,7 @@
 Features:
 
 * Support for versions 10.50 - 10.56
-* Find a item by name(or part of the name).
+* Finds an item by name or part of the name.
 * New Versions window.
 * Optimize Sprites tool.
 * Rotate and flip image in the Slicer tool.
