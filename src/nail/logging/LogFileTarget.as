@@ -72,7 +72,7 @@ package nail.logging
         
         public function writeStart():void
         {
-            var text:String = "=== Aplication started at " + (new Date()).toString() + " ===";
+            var text:String = StringUtil.format("\n=== {0} {1} started at " + (new Date()).toString() + " ===\n", Descriptor.getName(), Descriptor.getVersionNumber());
             write(text);
         }
         
