@@ -75,6 +75,31 @@ global
 //--------------------------------------
 */
 
+mx|HDividedBox
+{
+    dividerSkin: ClassReference("nail.assets.NailAssets_DIVIDER");
+    dividerColor: #272727;
+    horizontalGap: 6;
+}
+
+mx|ToolTip
+{
+    backgroundAlpha: 1.0;
+    backgroundColor: #272727;
+    color: #355D89;
+    cornerRadius: 0;
+    fontSize: 12;
+    shadowColor: #DFDFDF;
+    borderColor: #DFDFDF;
+    borderStyle: solid;
+    borderAlpha: 1.0;
+}
+
+mx|ProgressBar
+{
+    barSkin: ClassReference("nail.components.skins.ProgressBarSkin");
+}
+
 mx|ToolTip
 {
     backgroundAlpha: 1.0;
@@ -82,6 +107,91 @@ mx|ToolTip
     color: #DFDFDF;
     cornerRadius: 0;
     fontSize: 11;
+}
+
+/*
+//--------------------------------------
+// spark components
+//--------------------------------------
+*/
+
+s|Button
+{
+    skinClass: ClassReference("nail.components.skins.ButtonSkin");
+}
+
+s|CheckBox
+{
+    skinClass: ClassReference("nail.components.skins.CheckBoxSkin");
+}
+
+s|ComboBox
+{
+    paddingBottom: 3;
+    paddingLeft: 3;
+    paddingRight: 3;
+    paddingTop: 5;
+    skinClass: ClassReference("nail.components.skins.ComboBoxSkin");
+}
+
+s|DropDownList
+{
+    skinClass: ClassReference("nail.components.skins.DropDownListSkin");
+}
+
+s|HScrollBar
+{
+    skinClass: ClassReference("nail.components.skins.HScrollBarSkin");
+}
+
+s|HSlider
+{
+    skinClass: ClassReference("nail.components.skins.HSliderSkin");
+}
+
+s|NumericStepper
+{
+    color: #000000;
+    skinClass: ClassReference("nail.components.skins.NumericStepperSkin");
+}
+
+s|RadioButton
+{
+    skinClass: ClassReference("nail.components.skins.RadioButtonSkin");
+}
+
+s|SkinnableComponent
+{
+    errorSkin: ClassReference("nail.components.skins.ErrorSkin");
+    focusSkin: ClassReference("nail.components.skins.FocusSkin");
+}
+
+s|TextInput
+{
+    paddingBottom: 3;
+    paddingLeft: 3;
+    paddingRight: 3;
+    paddingTop: 5;
+    color: #272727;
+    borderColor: #272727;
+    contentBackgroundColor: #A2A2A2;
+    focusedTextSelectionColor: #CCCCCC;
+    skinClass: ClassReference("nail.components.skins.TextInputSkin");
+}
+
+s|ToggleButton
+{
+    skinClass: ClassReference("nail.components.skins.ToggleButtonSkin");
+}
+
+s|VScrollBar
+{
+    skinClass: ClassReference("nail.components.skins.VScrollBarSkin");
+}
+
+s|VSlider
+{
+    skinClass: ClassReference("nail.components.skins.VSliderSkin");
 }
 
 /*
