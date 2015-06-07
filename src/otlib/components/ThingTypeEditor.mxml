@@ -60,12 +60,8 @@ THE SOFTWARE.
             import otlib.events.ThingEditorEvent;
             import otlib.sprites.Sprite;
             import otlib.sprites.SpriteData;
-            import otlib.things.AnimationMode;
             import otlib.things.BindableThingType;
-            import otlib.things.FrameDuration;
-            import otlib.things.IFrameStrategy;
-            import otlib.things.LoopStrategy;
-            import otlib.things.PingPongStrategy;
+            import otlib.animation.FrameDuration;
             import otlib.things.ThingCategory;
             import otlib.things.ThingData;
             import otlib.things.ThingType;
@@ -245,21 +241,10 @@ THE SOFTWARE.
                     
                     _thingBinding.copyFrom(thingData);
                     
-                    var nextFrameStrategy:IFrameStrategy = _thingBinding.getNextFrameStrategy();
-                    if (nextFrameStrategy) {
-                        if (nextFrameStrategy is PingPongStrategy) 
-                            frameStrategyDropDownList.selectedIndex = 0;
-                        else if (nextFrameStrategy is LoopStrategy)
-                            frameStrategyDropDownList.selectedIndex = 1;
-                    }
                     
-                    if (_thingBinding.getAnimationMode() == AnimationMode.ASYNCHRONOUS)
-                        animationModeDropDownList.selectedIndex = 0;
-                    else 
-                        animationModeDropDownList.selectedIndex = 1;
                     
-                    repeatNumericStepper.value = _thingBinding.getLoopCount();
-                    startFrameNumericStepper.value = _thingBinding.getStartFrame();
+                    repeatNumericStepper.value = _thingBinding.loopCount;
+                    startFrameNumericStepper.value = _thingBinding.startFrame;
                     
                     if (isOutfit || isMissile)
                         selectDirectionButton(bottomCenterButton);
@@ -768,35 +753,22 @@ THE SOFTWARE.
             
             protected function animationModeDropDownListChangeHandler(event:IndexChangeEvent):void
             {
-                _thingBinding.setAnimationMode(animationModeDropDownList.selectedIndex);
+                _thingBinding.animationMode = animationModeDropDownList.selectedIndex;
             }
             
             protected function frameStrategyDropDownListChangeHandler(event:IndexChangeEvent):void
             {
-                var strategy:IFrameStrategy;
-                if (frameStrategyDropDownList.selectedIndex == 0)
-                {
-                    strategy = new PingPongStrategy();
-                    repeatNumericStepper.enabled = false;
-                }
-                else
-                {
-                    strategy = new LoopStrategy();
-                    LoopStrategy(strategy).loopCount = Math.max(0, repeatNumericStepper.value);
-                    repeatNumericStepper.enabled = true;
-                }
                 
-                _thingBinding.setNextFrameStrategy(strategy);
             }
             
             protected function repeatNumericStepperChangeHandler(event:Event):void
             {
-                _thingBinding.setLoopCount(repeatNumericStepper.value);
+                _thingBinding.loopCount = repeatNumericStepper.value;
             }
             
             protected function startFrameNumericStepperChangeHandler(event:Event):void
             {
-                _thingBinding.setStartFrame(startFrameNumericStepper.value);
+                _thingBinding.startFrame = startFrameNumericStepper.value;
             }
             
         ]]>

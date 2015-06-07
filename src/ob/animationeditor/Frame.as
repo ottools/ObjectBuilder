@@ -25,7 +25,7 @@ package ob.animationeditor
     import flash.display.BitmapData;
     
     import otlib.components.IListObject;
-    import otlib.things.FrameDuration;
+    import otlib.animation.FrameDuration;
     
     public class Frame implements IListObject
     {

@@ -30,9 +30,9 @@ package otlib.components
     
     import mx.core.UIComponent;
     
+    import otlib.animation.Animator;
+    import otlib.animation.FrameDuration;
     import otlib.geom.Rect;
-    import otlib.things.Animator;
-    import otlib.things.FrameDuration;
     import otlib.things.ThingCategory;
     import otlib.things.ThingData;
     import otlib.things.ThingType;
@@ -50,6 +50,7 @@ package otlib.components
         private var _thingData:ThingData;
         private var _proposedThingData:ThingData;
         private var _thingDataChanged:Boolean;
+        private var _animator:Animator;
         private var _spriteSheet:BitmapData;
         private var _textureIndex:Vector.<Rect>;
         private var _bitmap:BitmapData;
@@ -173,8 +174,8 @@ package otlib.components
         
         public function getFrameDuration(index:int):FrameDuration
         {
-            if (thingData && thingData.thing.animator)
-                return thingData.thing.animator.frameDurations[index];
+            if (thingData)
+                return thingData.thing.frameDurations[index];
             
             return null;
         }
@@ -201,9 +202,10 @@ package otlib.components
         {
             if (thingData) {
                 
-                if (thingData.category == ThingCategory.OUTFIT) {
-                    if (thingData.thing.animator)
-                        thingData.thing.animator.skipFirstFrame = true;
+                var type:ThingType = thingData.thing;
+                
+                if (type.category == ThingCategory.OUTFIT) {
+                    
                     
                     if (!_outfitData)
                         _outfitData = new OutfitData();
@@ -213,15 +215,21 @@ package otlib.components
                 
                 _textureIndex = new Vector.<Rect>();
                 _spriteSheet = thingData.getSpriteSheet(_textureIndex, 0);
-                _bitmap = new BitmapData(thingData.thing.width * 32, thingData.thing.height * 32, true);
+                _bitmap = new BitmapData(type.width * 32, type.height * 32, true);
                 _fillRect = _bitmap.rect;
-                _maxFrame = thingData.thing.frames;
+                _maxFrame = type.frames;
                 _frame = 0;
                 this.width = _bitmap.width;
                 this.height = _bitmap.height;
+                
+                if (type.isAnimation) {
+                    _animator = new Animator(type.animationMode, type.loopCount, type.startFrame, type.frameDurations, type.frames);
+                    _animator.skipFirstFrame = thingData.category == ThingCategory.OUTFIT;
+                }
             } else {
                 _textureIndex = null;
                 _spriteSheet = null;
+                _animator = null;
                 _bitmap = null;
                 _maxFrame = -1;
                 _frame = -1;
@@ -278,15 +286,14 @@ package otlib.components
                 return;
             
             var elapsed:Number = getTimer();
-            var animator:Animator = thingData.thing.animator;
-            if (animator) {
-                animator.update(elapsed);
-                if (animator.isComplete) {
+            if (_animator) {
+                _animator.update(elapsed);
+                if (_animator.isComplete) {
                     pause();
                     dispatchEvent(new Event(Event.COMPLETE));
                 }
                 
-                this.frame = animator.frame;
+                this.frame = _animator.frame;
             }
         }
     }

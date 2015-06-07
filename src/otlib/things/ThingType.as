@@ -24,6 +24,7 @@ package otlib.things
 {
     import flash.utils.describeType;
     
+    import otlib.animation.FrameDuration;
     import otlib.geom.Size;
     import otlib.resources.Resources;
     import otlib.sprites.Sprite;
@@ -101,8 +102,12 @@ package otlib.things
         public var hasDefaultAction:Boolean;
         public var defaultAction:uint;
         public var usable:Boolean;
+        
         public var isAnimation:Boolean;
-        public var animator:Animator;
+        public var animationMode:uint;
+        public var loopCount:int;
+        public var startFrame:int;
+        public var frameDurations:Vector.<FrameDuration>;
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
@@ -183,12 +188,6 @@ package otlib.things
             return size;
         }
         
-        public function resetAnimation():void
-        {
-            if (animator)
-                animator.reset();
-        }
-        
         public function clone():ThingType
         {
             var newThing:ThingType = new ThingType();
@@ -201,8 +200,19 @@ package otlib.things
             if (this.spriteIndex)
                 newThing.spriteIndex = this.spriteIndex.concat();
             
-            if (this.animator)
-                newThing.animator = this.animator.clone();
+            if (this.isAnimation) {
+                
+                var durations:Vector.<FrameDuration> = new Vector.<FrameDuration>(this.frames, true);
+                for (var i:uint = 0; i < this.frames; i++)
+                {
+                    durations[i] = this.frameDurations[i].clone();
+                }
+                
+                newThing.animationMode = this.animationMode;
+                newThing.loopCount = this.loopCount;
+                newThing.startFrame = this.startFrame;
+                newThing.frameDurations = durations;
+            }
             
             return newThing;
         }
@@ -233,18 +243,11 @@ package otlib.things
                 thing.patternX = 4; // Directions
                 thing.frames = 3;   // Animations
                 thing.isAnimation = true;
+                thing.frameDurations = new Vector.<FrameDuration>(thing.frames, true);
                 
                 var duration:uint = FrameDuration.getDefaultDuration(category);
-                var frameDurations:Vector.<FrameDuration> = new Vector.<FrameDuration>(thing.frames, true);
-                
                 for (var i:uint = 0; i < thing.frames; i++)
-                    frameDurations[i] = new FrameDuration(duration, duration);
-                
-                thing.animator = Animator.create(thing.frames,
-                                                 0,
-                                                 FrameStrategyType.LOOP,
-                                                 AnimationMode.SYNCHRONOUS,
-                                                 frameDurations);
+                    thing.frameDurations[i] = new FrameDuration(duration, duration);
             }
             else if (category == ThingCategory.MISSILE)
             {
