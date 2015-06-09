@@ -283,14 +283,25 @@ package otlib.components
         protected function enterFramehandler(event:Event):void
         {
             if (!_playing || !thingData)
+            {
                 return;
+            }
             
             var elapsed:Number = getTimer();
-            if (_animator) {
+            if (_animator)
+            {
                 _animator.update(elapsed);
-                if (_animator.isComplete) {
-                    pause();
-                    dispatchEvent(new Event(Event.COMPLETE));
+                if (_animator.isComplete)
+                {
+                    if (_thingData.thing.animateAlways)
+                    {
+                        _animator.reset();
+                    }
+                    else
+                    {
+                        pause();
+                        dispatchEvent(new Event(Event.COMPLETE));
+                    }
                 }
                 
                 this.frame = _animator.frame;

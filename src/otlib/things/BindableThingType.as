@@ -252,8 +252,7 @@ package otlib.things
         public var animationMode:uint;
         public var loopCount:int;
         public var startFrame:int;
-        
-        private var m_frameDurations:Vector.<FrameDuration>;
+        public var frameDurations:Vector.<FrameDuration>;
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
@@ -329,9 +328,9 @@ package otlib.things
                 this.sprites = data.sprites.concat();
             
             if (thing.isAnimation){
-                m_frameDurations = new Vector.<FrameDuration>(this.frames, true);
+                this.frameDurations = new Vector.<FrameDuration>(this.frames, true);
                 for (var i:uint = 0; i < this.frames; i++)
-                    m_frameDurations[i] = thing.frameDurations[i].clone();
+                    this.frameDurations[i] = thing.frameDurations[i].clone();
             }
                 
             return true;
@@ -371,7 +370,7 @@ package otlib.things
             if (this.isAnimation) {
                 thing.frameDurations = new Vector.<FrameDuration>(this.frames, true);
                 for (var i:uint = 0; i < this.frames; i++)
-                    thing.frameDurations[i] = m_frameDurations[i].clone();
+                    thing.frameDurations[i] = this.frameDurations[i].clone();
             }
             
             return true;
@@ -388,11 +387,13 @@ package otlib.things
                 var duration:uint = FrameDuration.getDefaultDuration(this.category);
                 var frameDurations:Vector.<FrameDuration> = new Vector.<FrameDuration>(this.frames, true);
                 for (var i:uint = 0; i < this.frames; i++) {
-                    if (m_frameDurations && i < m_frameDurations.length)
-                        frameDurations[i] = m_frameDurations[i];
+                    if (this.frameDurations && i < this.frameDurations.length)
+                        frameDurations[i] = this.frameDurations[i];
                     else
                         frameDurations[i] = new FrameDuration(duration, duration);
                 }
+                
+                this.frameDurations = frameDurations;
             }
             
             dispatchEvent(new PropertyChangeEvent(PropertyChangeEvent.PROPERTY_CHANGE));
@@ -416,14 +417,9 @@ package otlib.things
         public function getFrameDuration(index:int):FrameDuration
         {
             if (this.isAnimation)
-                return m_frameDurations[index];
+                return this.frameDurations[index];
             
             return null;
-        }
-        
-        public function setFrameDuration(index:int, minimum:uint, maximum:uint):void
-        {
-            
         }
         
         public function getTotalSprites():uint
@@ -516,7 +512,7 @@ package otlib.things
             PROPERTY_LABEL["minimumDuration"] = resource.getString("strings", "minimumDuration");
             PROPERTY_LABEL["maximumDuration"] = resource.getString("strings", "maximumDuration");
             PROPERTY_LABEL["startFrame"] = resource.getString("strings", "startFrame");
-            PROPERTY_LABEL["repeat"] = resource.getString("strings", "repeat");
+            PROPERTY_LABEL["loopCount"] = resource.getString("strings", "loopCount");
             PROPERTY_LABEL["isAnimation"] = resource.getString("strings", "isAnimation");
         }
         startPropertyLabels();

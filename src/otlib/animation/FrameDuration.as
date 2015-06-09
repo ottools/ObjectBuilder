@@ -75,6 +75,11 @@ package otlib.animation
             return "[FrameDuration minimum=" + minimum + ", maximum=" + maximum + "]";
         }
         
+        public function equals(frameDuration:FrameDuration):Boolean
+        {
+            return (this.minimum == frameDuration.minimum && this.maximum == frameDuration.maximum);
+        }
+        
         public function clone():FrameDuration
         {
             return new FrameDuration(this.minimum, this.maximum);

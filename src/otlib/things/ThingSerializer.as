@@ -27,9 +27,9 @@ package otlib.things
     
     import nail.errors.AbstractClassError;
     
+    import otlib.animation.FrameDuration;
     import otlib.resources.Resources;
     import otlib.sprites.Sprite;
-    import otlib.animation.FrameDuration;
     
     public final class ThingSerializer
     {

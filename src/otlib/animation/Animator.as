@@ -210,7 +210,7 @@ package otlib.animation
                 if (elapsed >= totalTime && elapsed < totalTime + duration)
                 {
                     m_currentFrame = i;
-                    m_currentFrameDuration = duration - elapsed - totalTime;
+                    m_currentFrameDuration = duration - (elapsed - totalTime);
                     break;
                 }
                 
