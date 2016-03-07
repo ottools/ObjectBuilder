@@ -20,7 +20,7 @@
   </applications>
   <modules/>
   <workers managerFilePath="src/Workers.as">
-    <worker embed="true" path="src/ob/core/ObjectBuilderWorker.as"/>
+    <worker embed="true" path="src/ObjectBuilderWorker.as"/>
   </workers>
   <buildCSSFiles/>
   <flashCatalyst validateFlashCatalystCompatibility="false"/>
@@ -38,4 +38,3 @@
     </buildTarget>
   </buildTargets>
 </actionScriptProperties>
-

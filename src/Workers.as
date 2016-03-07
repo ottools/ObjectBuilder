@@ -20,46 +20,33 @@
 *  THE SOFTWARE.
 */
 
-package otlib.components
+package
 {
-    import spark.components.ToggleButton;
+    import flash.utils.ByteArray;
     
-    import otlib.assets.Assets;
+    import nail.errors.AbstractClassError;
     
-    public class PlayButton extends ToggleButton
+    public final class Workers
     {
-        
-        //--------------------------------------------------------------------------
-        // PROPERTIES
-        //--------------------------------------------------------------------------
-        
-        //--------------------------------------
-        // Getters / Setters
-        //--------------------------------------
-        
-        override public function set selected(value:Boolean):void
-        {
-            if (selected == value) return;
-            
-            super.selected = value;
-            
-            if (value) {
-                setStyle("icon", Assets.PAUSE);
-                toolTip = resourceManager.getString("strings", "pause");
-            } else {
-                setStyle("icon", Assets.PLAY);
-                toolTip = resourceManager.getString("strings", "play");
-            }
-        }
-        
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function PlayButton()
+        public function Workers()
         {
-            super();
-            setStyle("icon", Assets.PLAY);
+            throw new AbstractClassError(Workers);
+        }
+        
+        //--------------------------------------------------------------------------
+        // STATIC
+        //--------------------------------------------------------------------------
+        
+        [Embed(source="../workerswfs/ObjectBuilderWorker.swf", mimeType="application/octet-stream")]
+        private static var ObjectBuilderWorker_ByteClass:Class;
+        
+        public static function get ObjectBuilderWorker():ByteArray
+        {
+            return new ObjectBuilderWorker_ByteClass();
         }
     }
 }

@@ -20,7 +20,7 @@
 *  THE SOFTWARE.
 */
 
-package ob.core
+package 
 {
     import flash.display.BitmapData;
     import flash.display.Sprite;

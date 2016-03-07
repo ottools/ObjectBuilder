@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (c) 2015 Object Builder <https://github.com/Mignari/ObjectBuilder>
+Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -131,6 +131,7 @@ THE SOFTWARE.
             import ob.settings.ObjectBuilderSettings;
             import ob.utils.ObUtils;
             
+            import otlib.animation.FrameDuration;
             import otlib.assets.Assets;
             import otlib.components.ClientVersionsWindow;
             import otlib.components.DatSprProgressBar;
@@ -151,7 +152,6 @@ THE SOFTWARE.
             import otlib.settings.ISettingsManager;
             import otlib.settings.SettingsManager;
             import otlib.sprites.SpriteData;
-            import otlib.animation.FrameDuration;
             import otlib.things.ThingCategory;
             import otlib.things.ThingData;
             import otlib.things.ThingProperty;
@@ -170,9 +170,6 @@ THE SOFTWARE.
             //--------------------------------------------------------------------------
             // PROPERTIES
             //--------------------------------------------------------------------------
-            
-            [Embed(source="../workerswfs/ob/core/ObjectBuilderWorker.swf", mimeType="application/octet-stream")]
-            public const ObjectBuilderWorker:Class;
             
             private var _creationComplete:Boolean;
             private var _invokeArgs:Array;
@@ -906,8 +903,7 @@ THE SOFTWARE.
             
             private function createWorker():void
             {
-                var workerBytesClass:ByteArray = new ObjectBuilderWorker() as ByteArray;
-                _communicator = new Communicator(workerBytesClass);
+                _communicator = new Communicator(Workers.ObjectBuilderWorker);
                 _communicator.start();
             }
             
