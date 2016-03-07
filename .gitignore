@@ -7,7 +7,7 @@ bin-release/
 .settings/
 
 # Worker
-workerswfs/ob/core/ObjectBuilderWorker.swf
+workerswfs/ObjectBuilderWorker.swf
 
 # Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
 # should NOT be excluded as they contain compiler settings and other important
