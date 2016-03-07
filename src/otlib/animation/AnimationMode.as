@@ -20,10 +20,10 @@
 *  THE SOFTWARE.
 */
 
-package otlib.things
+package otlib.animation
 {
     import nail.errors.AbstractClassError;
-
+    
     public final class AnimationMode
     {
         //--------------------------------------------------------------------------
@@ -39,7 +39,7 @@ package otlib.things
         // STATIC
         //--------------------------------------------------------------------------
         
-        public static const ASYNCHRONOUS:uint = 0;
-        public static const SYNCHRONOUS:uint = 1;
+        static public const ASYNCHRONOUS:uint = 0;
+        static public const SYNCHRONOUS:uint = 1;
     }
 }

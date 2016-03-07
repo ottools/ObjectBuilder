@@ -40,10 +40,7 @@ package otlib.obd
     import otlib.resources.Resources;
     import otlib.sprites.Sprite;
     import otlib.sprites.SpriteData;
-    import otlib.things.AnimationMode;
-    import otlib.things.Animator;
-    import otlib.things.FrameDuration;
-    import otlib.things.FrameStrategyType;
+    import otlib.animation.FrameDuration;
     import otlib.things.ThingCategory;
     import otlib.things.ThingData;
     import otlib.things.ThingSerializer;
@@ -217,28 +214,24 @@ package otlib.obd
             bytes.writeByte(thing.patternZ || 1);   // Write pattern Z
             bytes.writeByte(thing.frames);          // Write frames
             
-            var length:uint;
             var i:uint;
             
             if (thing.isAnimation)
             {
-                var animator:Animator = thing.animator;
-                bytes.writeByte(animator.animationMode); // Write animation type
-                bytes.writeInt(animator.frameStrategy);  // Write frame Strategy
-                bytes.writeByte(animator.startFrame);    // Write start frame
+                bytes.writeByte(thing.animationMode); // Write animation type
+                bytes.writeInt(thing.loopCount);      // Write loop count
+                bytes.writeByte(thing.startFrame);    // Write start frame
                 
-                var frameDuration:Vector.<FrameDuration> = animator.frameDurations;
-                length = frameDuration.length;
-                for (i = 0; i < length; i++)
+                for (i = 0; i < thing.frames; i++)
                 {
-                    bytes.writeUnsignedInt(frameDuration[i].minimum); // Write minimum duration
-                    bytes.writeUnsignedInt(frameDuration[i].maximum); // Write maximum duration
+                    bytes.writeUnsignedInt(thing.frameDurations[i].minimum); // Write minimum duration
+                    bytes.writeUnsignedInt(thing.frameDurations[i].maximum); // Write maximum duration
                 }
             }
             
             var sprites:Vector.<SpriteData> = data.sprites;
             var spriteList:Vector.<uint> = thing.spriteIndex;
-            length = spriteList.length;
+            var length:uint = spriteList.length;
             
             for (i = 0; i < length; i++)
             {
@@ -315,21 +308,11 @@ package otlib.obd
             if (thing.frames > 1)
             {
                 thing.isAnimation = true;
+                thing.frameDurations = new Vector.<FrameDuration>(thing.frames, true);
                 
-                var animationMode:uint = AnimationMode.ASYNCHRONOUS;
-                var frameStrategy:int = FrameStrategyType.LOOP;
-                var startFrame:int = -1;
-                var frameDurations:Vector.<FrameDuration> = new Vector.<FrameDuration>(thing.frames, true);
                 var duration:uint = FrameDuration.getDefaultDuration(thing.category);
-                
                 for (i = 0; i < thing.frames; i++)
-                    frameDurations[i] = new FrameDuration(duration, duration);
-                
-                thing.animator = Animator.create(thing.frames,
-                                                 startFrame,
-                                                 frameStrategy,
-                                                 animationMode,
-                                                 frameDurations);
+                    thing.frameDurations[i] = new FrameDuration(duration, duration);
             }
             
             var totalSprites:uint = thing.getTotalSprites();
@@ -404,24 +387,17 @@ package otlib.obd
             if (thing.frames > 1)
             {
                 thing.isAnimation = true;
-                
-                var animationMode:uint = bytes.readUnsignedByte();
-                var frameStrategy:int = bytes.readInt();
-                var startFrame:int = bytes.readByte();
-                var frameDurations:Vector.<FrameDuration> = new Vector.<FrameDuration>(thing.frames, true);
+                thing.animationMode = bytes.readUnsignedByte();
+                thing.loopCount = bytes.readInt();
+                thing.startFrame = bytes.readByte();
+                thing.frameDurations = new Vector.<FrameDuration>(thing.frames, true);
                 
                 for (i = 0; i < thing.frames; i++)
                 {
                     var minimum:uint = bytes.readUnsignedInt();
                     var maximum:uint = bytes.readUnsignedInt();
-                    frameDurations[i] = new FrameDuration(minimum, maximum);
+                    thing.frameDurations[i] = new FrameDuration(minimum, maximum);
                 }
-                
-                thing.animator = Animator.create(thing.frames,
-                                                 startFrame,
-                                                 frameStrategy,
-                                                 animationMode,
-                                                 frameDurations);
             }
             
             var totalSprites:uint = thing.getTotalSprites();

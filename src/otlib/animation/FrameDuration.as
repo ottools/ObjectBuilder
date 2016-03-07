@@ -20,8 +20,10 @@
 *  THE SOFTWARE.
 */
 
-package otlib.things
+package otlib.animation
 {
+    import otlib.things.ThingCategory;
+
     public class FrameDuration
     {
         //--------------------------------------------------------------------------
@@ -38,7 +40,9 @@ package otlib.things
         public function get duration():uint
         {
             if (minimum == maximum)
+            {
                 return minimum;
+            }
             
             return minimum + Math.round(Math.random() * (maximum - minimum));
         }
@@ -50,7 +54,9 @@ package otlib.things
         public function FrameDuration(minimum:uint = 0, maximum:uint = 0)
         {
             if (minimum > maximum)
+            {
                 throw new ArgumentError("The minimum value may not be greater than the maximum value.");
+            }
             
             this.minimum = minimum;
             this.maximum = maximum;
@@ -69,6 +75,11 @@ package otlib.things
             return "[FrameDuration minimum=" + minimum + ", maximum=" + maximum + "]";
         }
         
+        public function equals(frameDuration:FrameDuration):Boolean
+        {
+            return (this.minimum == frameDuration.minimum && this.maximum == frameDuration.maximum);
+        }
+        
         public function clone():FrameDuration
         {
             return new FrameDuration(this.minimum, this.maximum);
@@ -78,7 +89,7 @@ package otlib.things
         // STATIC
         //--------------------------------------------------------------------------
         
-        public static function getDefaultDuration(category:String):uint
+        static public function getDefaultDuration(category:String):uint
         {
             switch(category)
             {

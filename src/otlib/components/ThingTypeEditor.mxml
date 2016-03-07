@@ -56,16 +56,12 @@ THE SOFTWARE.
             import spark.components.Button;
             import spark.events.IndexChangeEvent;
             
+            import otlib.animation.FrameDuration;
             import otlib.components.skins.SpriteButtonSkin;
             import otlib.events.ThingEditorEvent;
             import otlib.sprites.Sprite;
             import otlib.sprites.SpriteData;
-            import otlib.things.AnimationMode;
             import otlib.things.BindableThingType;
-            import otlib.things.FrameDuration;
-            import otlib.things.IFrameStrategy;
-            import otlib.things.LoopStrategy;
-            import otlib.things.PingPongStrategy;
             import otlib.things.ThingCategory;
             import otlib.things.ThingData;
             import otlib.things.ThingType;
@@ -245,21 +241,10 @@ THE SOFTWARE.
                     
                     _thingBinding.copyFrom(thingData);
                     
-                    var nextFrameStrategy:IFrameStrategy = _thingBinding.getNextFrameStrategy();
-                    if (nextFrameStrategy) {
-                        if (nextFrameStrategy is PingPongStrategy) 
-                            frameStrategyDropDownList.selectedIndex = 0;
-                        else if (nextFrameStrategy is LoopStrategy)
-                            frameStrategyDropDownList.selectedIndex = 1;
-                    }
-                    
-                    if (_thingBinding.getAnimationMode() == AnimationMode.ASYNCHRONOUS)
-                        animationModeDropDownList.selectedIndex = 0;
-                    else 
-                        animationModeDropDownList.selectedIndex = 1;
-                    
-                    repeatNumericStepper.value = _thingBinding.getLoopCount();
-                    startFrameNumericStepper.value = _thingBinding.getStartFrame();
+                    animationModeDropDownList.selectedIndex = _thingBinding.animationMode;
+                    loopCountNumericStepper.value = _thingBinding.loopCount;
+                    startFrameNumericStepper.value = _thingBinding.startFrame;
+                    frameStrategyDropDownList.selectedIndex = _thingBinding.loopCount != -1 ? 0 : 1;
                     
                     if (isOutfit || isMissile)
                         selectDirectionButton(bottomCenterButton);
@@ -533,7 +518,7 @@ THE SOFTWARE.
                     * thing.patternX + x)
                     * thing.layers + l)
                     * thing.height + h)
-                * thing.width + w;
+                    * thing.width + w;
             }
             
             private function copyPixels(index:uint, bitmap:BitmapData, x:uint, y:uint):void
@@ -653,6 +638,19 @@ THE SOFTWARE.
                 animationCountLabel.text = (value + 1) + '/' + (animationSlider.maximum + 1);
             }
             
+            private function propertyChanged(property:String, oldValue:Object, newValue:Object):void
+            {
+                _changed = true;
+                
+                //trace(property, oldValue, newValue);
+                
+                var evt:ThingEditorEvent = new ThingEditorEvent(ThingEditorEvent.THING_PROPERTY_CHANGE, this.thingData);
+                evt.property = BindableThingType.toLabel(property);
+                evt.oldValue = oldValue;
+                evt.newValue = newValue;
+                dispatchEvent(evt);
+            }
+            
             //--------------------------------------
             // Event Handlers
             //--------------------------------------
@@ -734,22 +732,6 @@ THE SOFTWARE.
                 checkThingOrder();
             }
             
-            protected function minimumNumericStepperChangeHandler(event:Event):void
-            {
-                if (minimumNumericStepper.value > maximumNumericStepper.value)
-                    maximumNumericStepper.value = minimumNumericStepper.value;
-                
-                _thingBinding.setFrameDuration(animationSlider.value, minimumNumericStepper.value, maximumNumericStepper.value);
-            }
-            
-            protected function maximumNumericStepperChangeHandler(event:Event):void
-            {
-                if (maximumNumericStepper.value < minimumNumericStepper.value)
-                    minimumNumericStepper.value = maximumNumericStepper.value;
-                
-                _thingBinding.setFrameDuration(animationSlider.value, minimumNumericStepper.value, maximumNumericStepper.value);
-            }
-            
             protected function playAnimationButtonClickHandler(event:MouseEvent):void
             {
                 setPreviewMode(playAnimationButton.selected);
@@ -766,37 +748,77 @@ THE SOFTWARE.
                 setPreviewMode(false);
             }
             
+            protected function minimumNumericStepperChangeHandler(event:Event):void
+            {
+                if (minimumNumericStepper.value > maximumNumericStepper.value)
+                    maximumNumericStepper.value = minimumNumericStepper.value;
+                
+                var oldDuration:FrameDuration = _thingBinding.frameDurations[animationSlider.value];
+                var newDuration:FrameDuration = oldDuration.clone();
+                newDuration.minimum = minimumNumericStepper.value;
+                newDuration.maximum = maximumNumericStepper.value;
+                
+                if (!oldDuration.equals(newDuration)) {
+                    _thingBinding.frameDurations[animationSlider.value] = newDuration;
+                    
+                    if (oldDuration.minimum != newDuration.minimum)
+                        propertyChanged("minimumDuration", oldDuration.minimum, newDuration.minimum);
+                    
+                    if (oldDuration.maximum != newDuration.maximum)
+                        propertyChanged("maximumDuration", oldDuration.maximum, newDuration.maximum);
+                }
+            }
+            
+            protected function maximumNumericStepperChangeHandler(event:Event):void
+            {
+                if (maximumNumericStepper.value < minimumNumericStepper.value)
+                    minimumNumericStepper.value = maximumNumericStepper.value;
+                
+                var oldDuration:FrameDuration = _thingBinding.frameDurations[animationSlider.value];
+                var newDuration:FrameDuration = oldDuration.clone();
+                newDuration.minimum = minimumNumericStepper.value;
+                newDuration.maximum = maximumNumericStepper.value;
+                
+                if (!oldDuration.equals(newDuration)) {
+                    _thingBinding.frameDurations[animationSlider.value] = newDuration;
+                    
+                    if (oldDuration.minimum != newDuration.minimum)
+                        propertyChanged("minimumDuration", oldDuration.minimum, newDuration.minimum);
+                    
+                    if (oldDuration.maximum != newDuration.maximum)
+                        propertyChanged("maximumDuration", oldDuration.maximum, newDuration.maximum);
+                }
+            }
+            
             protected function animationModeDropDownListChangeHandler(event:IndexChangeEvent):void
             {
-                _thingBinding.setAnimationMode(animationModeDropDownList.selectedIndex);
+                var oldValue:uint = _thingBinding.animationMode;
+                _thingBinding.animationMode = animationModeDropDownList.selectedIndex;
+                propertyChanged("animationMode", oldValue, _thingBinding.animationMode);
             }
             
             protected function frameStrategyDropDownListChangeHandler(event:IndexChangeEvent):void
             {
-                var strategy:IFrameStrategy;
-                if (frameStrategyDropDownList.selectedIndex == 0)
-                {
-                    strategy = new PingPongStrategy();
-                    repeatNumericStepper.enabled = false;
-                }
-                else
-                {
-                    strategy = new LoopStrategy();
-                    LoopStrategy(strategy).loopCount = Math.max(0, repeatNumericStepper.value);
-                    repeatNumericStepper.enabled = true;
-                }
+                var loop:Boolean = frameStrategyDropDownList.selectedIndex == 0;
                 
-                _thingBinding.setNextFrameStrategy(strategy);
+                var oldValue:int = _thingBinding.loopCount;
+                _thingBinding.loopCount = loop ? loopCountNumericStepper.value : -1;
+                loopCountNumericStepper.enabled = loop;
+                propertyChanged("loopCount", oldValue, _thingBinding.loopCount);
             }
             
-            protected function repeatNumericStepperChangeHandler(event:Event):void
+            protected function loopCountNumericStepperChangeHandler(event:Event):void
             {
-                _thingBinding.setLoopCount(repeatNumericStepper.value);
+                var oldValue:int = _thingBinding.loopCount;
+                _thingBinding.loopCount = loopCountNumericStepper.value;
+                propertyChanged("loopCount", oldValue, _thingBinding.loopCount);
             }
             
             protected function startFrameNumericStepperChangeHandler(event:Event):void
             {
-                _thingBinding.setStartFrame(startFrameNumericStepper.value);
+                var oldValue:int = _thingBinding.startFrame;
+                _thingBinding.startFrame = startFrameNumericStepper.value;
+                propertyChanged("startFrame", oldValue, _thingBinding.startFrame);
             }
             
         ]]>
@@ -1155,19 +1177,19 @@ THE SOFTWARE.
                                             change="frameStrategyDropDownListChangeHandler(event)">
                                 <s:dataProvider>
                                     <s:ArrayList>
-                                        <fx:String>{resourceManager.getString('strings', 'pingPong')}</fx:String>
                                         <fx:String>{resourceManager.getString('strings', 'loop')}</fx:String>
+                                        <fx:String>{resourceManager.getString('strings', 'pingPong')}</fx:String>
                                     </s:ArrayList>
                                 </s:dataProvider>
                             </s:DropDownList>
                             
                             <!-- loop count -->
-                            <s:Label text="{resourceManager.getString('strings', 'repeat') + ':'}"
+                            <s:Label text="{resourceManager.getString('strings', 'loopCount') + ':'}"
                                      verticalAlign="middle"
                                      textAlign="right"/>
-                            <s:NumericStepper id="repeatNumericStepper"
+                            <s:NumericStepper id="loopCountNumericStepper"
                                               width="170"
-                                              change="repeatNumericStepperChangeHandler(event)"/>
+                                              change="loopCountNumericStepperChangeHandler(event)"/>
                             
                             <s:Label text="{resourceManager.getString('strings', 'startFrame') + ':'}"
                                      verticalAlign="middle"
@@ -1728,7 +1750,7 @@ THE SOFTWARE.
                                         change="{_thingBinding.blockPathfind = blockPathfindCheckBox.selected;}"/>
                         </s:VGroup>
                         
-                        <s:VGroup id="flagsRightColumn" 
+                        <s:VGroup id="flagsRightColumn"
                                   width="100%"
                                   height="100%">
                             

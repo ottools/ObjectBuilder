@@ -27,6 +27,7 @@ package otlib.things
     
     import nail.errors.AbstractClassError;
     
+    import otlib.animation.FrameDuration;
     import otlib.resources.Resources;
     import otlib.sprites.Sprite;
     
@@ -873,37 +874,25 @@ package otlib.things
             thing.frames = input.readUnsignedByte();
             if (thing.frames > 1) {
                 thing.isAnimation = true;
-                
-                var animationMode:uint = AnimationMode.ASYNCHRONOUS;
-                var frameStrategy:int = FrameStrategyType.LOOP;
-                var startFrame:int = -1;
-                var frameDurations:Vector.<FrameDuration> = new Vector.<FrameDuration>(thing.frames, true);
+                thing.frameDurations = new Vector.<FrameDuration>(thing.frames, true);
                 
                 if (readFrameDuration) {
-                    animationMode = input.readUnsignedByte();
-                    frameStrategy = input.readInt();
-                    startFrame = input.readByte();
+                    thing.animationMode = input.readUnsignedByte();
+                    thing.loopCount = input.readInt();
+                    thing.startFrame = input.readByte();
                     
                     for (i = 0; i < thing.frames; i++)
                     {
                         var minimum:uint = input.readUnsignedInt();
                         var maximum:uint = input.readUnsignedInt();
-                        frameDurations[i] = new FrameDuration(minimum, maximum);
+                        thing.frameDurations[i] = new FrameDuration(minimum, maximum);
                     }
-                        
                 } else {
                     
                     var duration:uint = FrameDuration.getDefaultDuration(thing.category);
-                    
                     for (i = 0; i < thing.frames; i++)
-                        frameDurations[i] = new FrameDuration(duration, duration);
+                        thing.frameDurations[i] = new FrameDuration(duration, duration);
                 }
-                
-                thing.animator = Animator.create(thing.frames,
-                                                 startFrame,
-                                                 frameStrategy,
-                                                 animationMode,
-                                                 frameDurations);
             }
             
             var totalSprites:uint = thing.getTotalSprites();
@@ -1390,17 +1379,14 @@ package otlib.things
             if (writePatternZ) output.writeByte(thing.patternZ); // Write pattern Z
             output.writeByte(thing.frames);   // Write frames
             
-            if (thing.isAnimation && writeFrameDuration) {
-                var animator:Animator = thing.animator;
-                output.writeByte(animator.animationMode);   // Write animation type
-                output.writeInt(animator.frameStrategy);    // Write frame strategy
-                output.writeByte(animator.startFrame);      // Write start frame
+            if (writeFrameDuration && thing.isAnimation) {
+                output.writeByte(thing.animationMode);   // Write animation type
+                output.writeInt(thing.loopCount);        // Write loop count
+                output.writeByte(thing.startFrame);      // Write start frame
                 
-                var frameDurations:Vector.<FrameDuration> = animator.frameDurations;
-                length = frameDurations.length;
-                for (i = 0; i < length; i++) {
-                    output.writeUnsignedInt(frameDurations[i].minimum); // Write minimum duration
-                    output.writeUnsignedInt(frameDurations[i].maximum); // Write maximum duration
+                for (i = 0; i < thing.frames; i++) {
+                    output.writeUnsignedInt(thing.frameDurations[i].minimum); // Write minimum duration
+                    output.writeUnsignedInt(thing.frameDurations[i].maximum); // Write maximum duration
                 }
             }
             

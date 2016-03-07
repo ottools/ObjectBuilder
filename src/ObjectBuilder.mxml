@@ -151,10 +151,7 @@ THE SOFTWARE.
             import otlib.settings.ISettingsManager;
             import otlib.settings.SettingsManager;
             import otlib.sprites.SpriteData;
-            import otlib.things.Animator;
-            import otlib.things.FrameDuration;
-            import otlib.things.LoopStrategy;
-            import otlib.things.PingPongStrategy;
+            import otlib.animation.FrameDuration;
             import otlib.things.ThingCategory;
             import otlib.things.ThingData;
             import otlib.things.ThingProperty;
@@ -799,9 +796,6 @@ THE SOFTWARE.
                 registerClassAlias("ThingListItem", ThingListItem);
                 registerClassAlias("PathHelper", PathHelper);
                 registerClassAlias("FrameDuration", FrameDuration);
-                registerClassAlias("PingPongStrategy", PingPongStrategy);
-                registerClassAlias("LoopStrategy", LoopStrategy);
-                registerClassAlias("Animator", Animator);
                 
                 registerCallback(LogCommand, onLog);
                 registerCallback(ProgressCommand, onProgress);

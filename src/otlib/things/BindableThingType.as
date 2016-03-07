@@ -33,6 +33,7 @@ package otlib.things
     
     import nail.utils.isNullOrEmpty;
     
+    import otlib.animation.FrameDuration;
     import otlib.obd.OBDVersions;
     import otlib.sprites.SpriteData;
     
@@ -244,12 +245,14 @@ package otlib.things
         [Bindable]
         public var usable:Boolean;
         
-        [Bindable]
-        public var isAnimation:Boolean;
-        
-        public var animator:Animator;
         public var spriteIndex:Vector.<uint>;
         public var sprites:Vector.<SpriteData>;
+        
+        public var isAnimation:Boolean;
+        public var animationMode:uint;
+        public var loopCount:int;
+        public var startFrame:int;
+        public var frameDurations:Vector.<FrameDuration>;
         
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
@@ -316,7 +319,7 @@ package otlib.things
                 var name:String = property.@name;
                 if (this.hasOwnProperty(name))
                     this[name] = thing[name];
-            }	
+            }
             
             if (thing.spriteIndex)
                 this.spriteIndex = thing.spriteIndex.concat();
@@ -324,8 +327,11 @@ package otlib.things
             if (data.sprites)
                 this.sprites = data.sprites.concat();
             
-            if (thing.animator)
-                this.animator = thing.animator.clone();
+            if (thing.isAnimation){
+                this.frameDurations = new Vector.<FrameDuration>(this.frames, true);
+                for (var i:uint = 0; i < this.frames; i++)
+                    this.frameDurations[i] = thing.frameDurations[i].clone();
+            }
                 
             return true;
         }
@@ -361,8 +367,11 @@ package otlib.things
             if (this.spriteIndex)
                 thing.spriteIndex = this.spriteIndex.concat();
             
-            if (animator)
-                thing.animator = animator.clone();
+            if (this.isAnimation) {
+                thing.frameDurations = new Vector.<FrameDuration>(this.frames, true);
+                for (var i:uint = 0; i < this.frames; i++)
+                    thing.frameDurations[i] = this.frameDurations[i].clone();
+            }
             
             return true;
         }
@@ -374,41 +383,17 @@ package otlib.things
             this.sprites.length = spriteCount;
             this.isAnimation = (this.frames > 1);
             
-            if (isAnimation && (!animator || animator.frames != this.frames)) {
-                
-                var startFrame:int;
-                var frameStrategy:int;
-                var animationType:int;
-                var frameDurations:Vector.<FrameDuration> = new Vector.<FrameDuration>(this.frames, true);
+            if (this.isAnimation) {
                 var duration:uint = FrameDuration.getDefaultDuration(this.category);
-                var i:uint;
-                
-                if (animator) {
-                    startFrame = animator.startFrame;
-                    frameStrategy = animator.frameStrategy;
-                    animationType = animator.animationMode;
-                    
-                    for (i = 0; i < this.frames; i++) {
-                        
-                        if (i < animator.frames)
-                            frameDurations[i] = animator.frameDurations[i];
-                        else
-                            frameDurations[i] = new FrameDuration(duration, duration);
-                    }
-                } else {
-                    startFrame = 0;
-                    frameStrategy = category == ThingCategory.EFFECT ? 1 : 0;
-                    animationType = category == ThingCategory.ITEM ? 1 : 0;
-                    
-                    for (i = 0; i < this.frames; i++)
+                var frameDurations:Vector.<FrameDuration> = new Vector.<FrameDuration>(this.frames, true);
+                for (var i:uint = 0; i < this.frames; i++) {
+                    if (this.frameDurations && i < this.frameDurations.length)
+                        frameDurations[i] = this.frameDurations[i];
+                    else
                         frameDurations[i] = new FrameDuration(duration, duration);
                 }
                 
-                this.animator = Animator.create(this.frames,
-                                                startFrame,
-                                                frameStrategy,
-                                                animationType,
-                                                frameDurations);
+                this.frameDurations = frameDurations;
             }
             
             dispatchEvent(new PropertyChangeEvent(PropertyChangeEvent.PROPERTY_CHANGE));
@@ -429,131 +414,12 @@ package otlib.things
             return ThingData.create(OBDVersions.OBD_VERSION_2, version, thing, sprites);
         }
         
-        public function getAnimationMode():uint
+        public function getFrameDuration(index:int):FrameDuration
         {
-            if (animator)
-                return animator.animationMode;
-            
-            return AnimationMode.ASYNCHRONOUS;
-        }
-        
-        public function setAnimationMode(value:uint):void
-        {
-            if (!animator || animator.animationMode == value) return;
-            
-            var oldValue:uint = animator.animationMode;
-            animator.animationMode = value;
-            
-            var event:PropertyChangeEvent = new PropertyChangeEvent(PropertyChangeEvent.PROPERTY_CHANGE);
-            event.property = "animationMode";
-            event.oldValue = oldValue;
-            event.newValue = value;
-            dispatchEvent(event);
-        }
-        
-        public function getFrameDuration(index:uint):FrameDuration
-        {
-            if (animator && index < animator.frameDurations.length)
-                return animator.frameDurations[index];
+            if (this.isAnimation)
+                return this.frameDurations[index];
             
             return null;
-        }
-        
-        public function setFrameDuration(index:uint, minimum:uint, maximum:uint):void
-        {
-            if (!animator || index >= animator.frameDurations.length) return;
-            
-            var frameDuration:FrameDuration = animator.frameDurations[index];
-            var event:PropertyChangeEvent;
-            
-            if (minimum != frameDuration.minimum) {
-                frameDuration.minimum = minimum;
-                event = new PropertyChangeEvent(PropertyChangeEvent.PROPERTY_CHANGE);
-                event.property = "minimumDuration";
-                event.oldValue = frameDuration.minimum;
-                event.newValue = minimum;
-                dispatchEvent(event);
-            }
-           
-            if (maximum != frameDuration.maximum) {
-                frameDuration.maximum = maximum;
-                event = new PropertyChangeEvent(PropertyChangeEvent.PROPERTY_CHANGE);
-                event.property = "maximumDuration";
-                event.oldValue = frameDuration.maximum;
-                event.newValue = maximum;
-                dispatchEvent(event);
-            }
-        }
-        
-        public function getNextFrameStrategy():IFrameStrategy
-        {
-            return animator ? animator.nextFrameStrategy : null;
-        }
-        
-        public function setNextFrameStrategy(strategy:IFrameStrategy):void
-        {
-            if (!strategy) return;
-            
-            if (strategy is PingPongStrategy)
-                animator.frameStrategy = -1;
-            else if (strategy is LoopStrategy)
-                animator.frameStrategy = LoopStrategy(strategy).loopCount;
-            
-            var oldValue:IFrameStrategy = animator.nextFrameStrategy;
-            animator.nextFrameStrategy = strategy;
-            
-            var event:PropertyChangeEvent = new PropertyChangeEvent(PropertyChangeEvent.PROPERTY_CHANGE);
-            event.property = "nextFrameStrategy";
-            event.oldValue = oldValue;
-            event.newValue = strategy;
-            dispatchEvent(event);
-        }
-        
-        public function getLoopCount():uint
-        {
-            if (animator && animator.nextFrameStrategy is LoopStrategy)
-                return LoopStrategy(animator.nextFrameStrategy).loopCount;
-            
-            return 0;
-        }
-        
-        public function setLoopCount(value:int):void
-        {
-            if (!animator) return;
-            
-            var strategy:LoopStrategy = animator.nextFrameStrategy as LoopStrategy;
-            if (!strategy || strategy.loopCount == value) return;
-            
-            var oldValue:int = strategy.loopCount;
-            strategy.loopCount = value;
-            
-            var event:PropertyChangeEvent = new PropertyChangeEvent(PropertyChangeEvent.PROPERTY_CHANGE);
-            event.property = "repeat";
-            event.oldValue = oldValue;
-            event.newValue = value;
-            dispatchEvent(event);
-        }
-        
-        public function getStartFrame():int
-        {
-            if (animator)
-                return animator.startFrame;
-            
-            return 0;
-        }
-        
-        public function setStartFrame(value:int):void
-        {
-            if (!animator || value == animator.startFrame) return;
-            
-            var oldValue:int = animator.startFrame;
-            animator.startFrame = value;
-            
-            var event:PropertyChangeEvent = new PropertyChangeEvent(PropertyChangeEvent.PROPERTY_CHANGE);
-            event.property = "startFrame";
-            event.oldValue = oldValue;
-            event.newValue = value;
-            dispatchEvent(event);
         }
         
         public function getTotalSprites():uint
@@ -646,7 +512,7 @@ package otlib.things
             PROPERTY_LABEL["minimumDuration"] = resource.getString("strings", "minimumDuration");
             PROPERTY_LABEL["maximumDuration"] = resource.getString("strings", "maximumDuration");
             PROPERTY_LABEL["startFrame"] = resource.getString("strings", "startFrame");
-            PROPERTY_LABEL["repeat"] = resource.getString("strings", "repeat");
+            PROPERTY_LABEL["loopCount"] = resource.getString("strings", "loopCount");
             PROPERTY_LABEL["isAnimation"] = resource.getString("strings", "isAnimation");
         }
         startPropertyLabels();

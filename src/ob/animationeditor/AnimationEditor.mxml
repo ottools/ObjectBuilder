@@ -80,10 +80,7 @@ THE SOFTWARE.
             import otlib.settings.ISettingsManager;
             import otlib.settings.SettingsManager;
             import otlib.sprites.SpriteData;
-            import otlib.things.AnimationMode;
-            import otlib.things.Animator;
-            import otlib.things.FrameDuration;
-            import otlib.things.FrameStrategyType;
+            import otlib.animation.FrameDuration;
             import otlib.things.ThingCategory;
             import otlib.things.ThingData;
             import otlib.things.ThingType;
@@ -276,23 +273,18 @@ THE SOFTWARE.
                 var f:uint;
                 
                 if (thing.frames > 1) {
+                    thing.isAnimation = true;
+                    thing.frameDurations = new Vector.<FrameDuration>(thing.frames, true);
                     
-                    var frameDurations:Vector.<FrameDuration> = new Vector.<FrameDuration>(thing.frames, true);
-                    var defaultDuration:uint = FrameDuration.getDefaultDuration(thing.category);
+                    var duration:uint = FrameDuration.getDefaultDuration(thing.category);
                     
                     for (f = 0; f < thing.frames; f++) {
                         var frame:Frame = framesList.getObjectAt(f) as Frame;
                         if (frame && frame.duration)
-                            frameDurations[f] = frame.duration;
+                            thing.frameDurations[f] = frame.duration;
                         else 
-                            frameDurations[f] = new FrameDuration(defaultDuration, defaultDuration);
+                            thing.frameDurations[f] = new FrameDuration(duration, duration);
                     }
-                    
-                    thing.animator = Animator.create(thing.frames,
-                                                     0,
-                                                     FrameStrategyType.LOOP,
-                                                     AnimationMode.SYNCHRONOUS,
-                                                     frameDurations);
                 }
                 
                 for (f = 0; f < thing.frames; f++) {

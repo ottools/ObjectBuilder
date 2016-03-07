@@ -61,13 +61,12 @@ package otlib.things
         private var m_sprites:Vector.<SpriteData>;
         
         //--------------------------------------
-        // Getters / Setters 
+        // Getters / Setters
         //--------------------------------------
         
         public function get id():uint { return m_thing.id; }
         public function get category():String { return m_thing.category; }
         public function get length():uint { return m_sprites.length; }
-        public function get animator():Animator { return m_thing.animator; }
         
         public function get obdVersion():uint { return m_obdVersion; }
         public function set obdVersion(value:uint):void
