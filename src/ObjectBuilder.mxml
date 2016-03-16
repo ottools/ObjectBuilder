@@ -68,7 +68,6 @@ THE SOFTWARE.
             import nail.commands.Communicator;
             import nail.commands.ICommunicator;
             import nail.commands.LogCommand;
-            import nail.components.controls.AboutWindow;
             import nail.components.controls.Alert;
             import nail.core.nail_internal;
             import nail.errors.NullArgumentError;
@@ -121,6 +120,7 @@ THE SOFTWARE.
             import ob.commands.things.SetThingDataCommand;
             import ob.commands.things.SetThingListCommand;
             import ob.commands.things.UpdateThingCommand;
+            import ob.components.AboutWindow;
             import ob.components.CompileFilesWindow;
             import ob.components.ErrorWindow;
             import ob.components.NewFilesWindow;
@@ -1217,7 +1217,7 @@ THE SOFTWARE.
             
             private function onAboutApplication():void
             {
-                var window : AboutWindow = new AboutWindow();
+                var window:AboutWindow = new AboutWindow();
                 window.open();
                 
                 PopUpWindowManager.addWindow(window);

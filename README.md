@@ -11,7 +11,7 @@ Some features:
 * You're able to cut the imported images.
 
 
-Supported client versions:
+Client versions:
 ----
 
 * 7.10 - 10.41
@@ -74,15 +74,10 @@ Compiling
 Follow this tutorial:
 [Compiling](https://github.com/Mignari/ObjectBuilder/wiki/Compiling)
 
-
-References
+Supported By:
 ----
 
-[OTClient](https://github.com/edubart/otclient)
-
-[TibiaEditor](https://github.com/asamy45/TibiaEditor)
-
-[Remere's Map Editor](https://github.com/hjnilsson/rme)
+[![otpokemon](https://otpokemon.com/images/img/otp.ico)](https://otpokemon.com/)
 
 Donate
 ----
