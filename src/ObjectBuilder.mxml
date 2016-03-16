@@ -289,16 +289,6 @@ THE SOFTWARE.
             // Public
             //--------------------------------------
             
-            public function registerCallback(commandClass:Class, callback:Function):void
-            {
-                _communicator.registerCallback(commandClass, callback);
-            }
-            
-            public function unregisterCallback(commandClass:Class, callback:Function):void
-            {
-                _communicator.unregisterCallback(commandClass, callback);
-            }
-            
             public function sendCommand(command:Command):void
             {
                 _communicator.sendCommand(command);
@@ -463,6 +453,7 @@ THE SOFTWARE.
                 else
                 {
                     _findThingWindow = new FindWindow();
+                    _findThingWindow.communicator = _communicator;
                     _findThingWindow.width = _settings.findWindowWidth;
                     _findThingWindow.height = _settings.findWindowHeight;
                     _findThingWindow.addEventListener(Event.CLOSE,
@@ -493,6 +484,7 @@ THE SOFTWARE.
                 else
                 {
                     _objectViewer = new ObjectViewer();
+                    _objectViewer.communicator = _communicator;
                     _objectViewer.addEventListener(Event.CLOSE,
                         function(event:Event):void
                         {
@@ -521,6 +513,7 @@ THE SOFTWARE.
                 else
                 {
                     _slicer = new Slicer();
+                    _slicer.communicator = _communicator;
                     _slicer.addEventListener(Event.CLOSE,
                         function(event:Event):void
                         {
@@ -568,6 +561,7 @@ THE SOFTWARE.
                 if (!clientLoaded) return;
                 
                 var window:SpritesOptimizerWindow = new SpritesOptimizerWindow();
+                window.communicator = _communicator;
                 window.open();
                 
                 PopUpWindowManager.addWindow(window);
@@ -794,16 +788,16 @@ THE SOFTWARE.
                 registerClassAlias("PathHelper", PathHelper);
                 registerClassAlias("FrameDuration", FrameDuration);
                 
-                registerCallback(LogCommand, onLog);
-                registerCallback(ProgressCommand, onProgress);
-                registerCallback(ShowProgressBarCommand, onShowProgressBar);
-                registerCallback(HideProgressBarCommand, onHideProgressBar);
-                registerCallback(SetClientInfoCommand, onSetClientInfo);
+                _communicator.registerCallback(LogCommand, onLog);
+                _communicator.registerCallback(ProgressCommand, onProgress);
+                _communicator.registerCallback(ShowProgressBarCommand, onShowProgressBar);
+                _communicator.registerCallback(HideProgressBarCommand, onHideProgressBar);
+                _communicator.registerCallback(SetClientInfoCommand, onSetClientInfo);
                 
-                registerCallback(SetThingDataCommand, onSetThingData);
-                registerCallback(SetThingListCommand, onSetThingList);
-                registerCallback(SetSpriteListCommand, onSetSpriteList);
-                registerCallback(NeedToReloadCommand, onNeedToReload);
+                _communicator.registerCallback(SetThingDataCommand, onSetThingData);
+                _communicator.registerCallback(SetThingListCommand, onSetThingList);
+                _communicator.registerCallback(SetSpriteListCommand, onSetSpriteList);
+                _communicator.registerCallback(NeedToReloadCommand, onNeedToReload);
             }
             
             //--------------------------------------
@@ -1525,6 +1519,8 @@ THE SOFTWARE.
             
             protected function creationCompleteHandler(event:FlexEvent):void
             {
+                this.toobar.communicator = _communicator;
+                
                 loadSettings();
                 loadVersions();
                 
@@ -2259,8 +2255,7 @@ THE SOFTWARE.
                    selected="nativeMenuSelectedHandler(event)"/>
     </s:menu>
     
-    <ob:Toolbar width="100%"
-                height="35"/>
+    <ob:Toolbar id="toobar" width="100%" height="35" />
     
     <mx:HDividedBox width="100%"
                     height="100%"

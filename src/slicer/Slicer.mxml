@@ -51,6 +51,7 @@ THE SOFTWARE.
             import mx.managers.DragManager;
             
             import nail.assets.NailAssets;
+            import nail.commands.ICommunicator;
             import nail.components.controls.Alert;
             import nail.image.ImageCodec;
             import nail.utils.BitmapUtil;
@@ -77,6 +78,7 @@ THE SOFTWARE.
             //--------------------------------------------------------------------------
             
             private var _application:IObjectBuilder;
+            private var _communicator:ICommunicator;
             private var _settingsManager:ISettingsManager;
             private var _settings:SlicerSettings;
             private var _sprites:ArrayCollection = new ArrayCollection();
@@ -93,8 +95,23 @@ THE SOFTWARE.
             private var _lastValues:Rectangle = new Rectangle();
             
             //--------------------------------------
-            // Getters / Setters 
+            // Getters / Setters
             //--------------------------------------
+            
+            public function get communicator():ICommunicator { return _communicator; }
+            public function set communicator(value:ICommunicator):void
+            {
+                if (_communicator) {
+                    _communicator.unregisterCallback(SetClientInfoCommand, clientInfoCallback);
+                    _communicator = null;
+                }
+                
+                _communicator = value;
+                
+                if (_communicator) {
+                    _communicator.registerCallback(SetClientInfoCommand, clientInfoCallback);
+                }
+            }
             
             public function get file():File { return _file; }
             public function set file(value:File):void
@@ -307,7 +324,7 @@ THE SOFTWARE.
             // Private
             //--------------------------------------
             
-            private function onClientInfo(info:ClientInfo):void
+            private function clientInfoCallback(info:ClientInfo):void
             {
                 importButton.enabled = (_sprites.length != 0 && info.loaded);
             }
@@ -401,7 +418,6 @@ THE SOFTWARE.
             protected function creationCompleteHandler(event:FlexEvent):void
             {
                 _application = IObjectBuilder(FlexGlobals.topLevelApplication);
-                _application.registerCallback(SetClientInfoCommand, onClientInfo);
                 _settingsManager = SettingsManager.getInstance();
                 _sprites.addEventListener(CollectionEvent.COLLECTION_CHANGE, spritesCollectionChange);
                 
@@ -412,7 +428,7 @@ THE SOFTWARE.
             
             protected function slicerClosingHandler(event:Event):void
             {
-                _application.unregisterCallback(SetClientInfoCommand, onClientInfo);
+                this.communicator = null;
                 systemManager.stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
                 saveSettings();
             }
@@ -526,7 +542,7 @@ THE SOFTWARE.
                         list[i] = bitmap.getPixels(rect);;
                     }
                     
-                    _application.sendCommand(new ImportSpritesCommand(list));
+                    _communicator.sendCommand(new ImportSpritesCommand(list));
                 }
             }
             

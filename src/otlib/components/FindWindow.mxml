@@ -51,6 +51,8 @@ THE SOFTWARE.
             import mx.events.FlexEvent;
             import mx.events.PropertyChangeEvent;
             
+            import nail.commands.ICommunicator;
+            
             import ob.commands.FindResultCommand;
             import ob.commands.ProgressBarID;
             import ob.commands.ProgressCommand;
@@ -76,8 +78,30 @@ THE SOFTWARE.
             //--------------------------------------------------------------------------
             
             private var m_application:IObjectBuilder;
+            private var m_communicator:ICommunicator;
             private var m_bindableThingType:BindableThingType;
             private var m_properties:Dictionary;
+            
+            //--------------------------------------
+            // Getters / Setters
+            //--------------------------------------
+            
+            public function get communicator():ICommunicator { return m_communicator; }
+            public function set communicator(value:ICommunicator):void
+            {
+                if (m_communicator) {
+                    m_communicator.unregisterCallback(ProgressCommand, progressCallback);
+                    m_communicator.unregisterCallback(FindResultCommand, findResultCallback);
+                    m_communicator = null;
+                }
+                
+                m_communicator = value;
+                
+                if (m_communicator) {
+                    m_communicator.registerCallback(ProgressCommand, progressCallback);
+                    m_communicator.registerCallback(FindResultCommand, findResultCallback);
+                }
+            }
             
             //--------------------------------------------------------------------------
             // METHODS
@@ -164,7 +188,7 @@ THE SOFTWARE.
                 var category:String = getCurrentCategory();
                 if (list.length > 0 && category)
                 {
-                    m_application.sendCommand(new FindThingCommand(category, list));
+                    m_communicator.sendCommand(new FindThingCommand(category, list));
                     progressBar.visible = true;
                 }
             }
@@ -173,15 +197,15 @@ THE SOFTWARE.
             {
                 var listItem:ThingListItem = thingsList.selectedItem as ThingListItem;
                 if (listItem && listItem.thing)
-                    m_application.sendCommand(new GetThingCommand(listItem.thing.id,
-                                                                  listItem.thing.category));
+                    m_communicator.sendCommand(new GetThingCommand(listItem.thing.id,
+                                                                   listItem.thing.category));
             }
             
             private function removeThings():void
             {
-                m_application.sendCommand(new RemoveThingCommand(thingsList.selectedIds,
-                                                                 getCurrentCategory(),
-                                                                 false));
+                m_communicator.sendCommand(new RemoveThingCommand(thingsList.selectedIds,
+                                                                  getCurrentCategory(),
+                                                                  false));
                 thingsList.removeSelectedIndices();
             }
             
@@ -189,8 +213,8 @@ THE SOFTWARE.
             {
                 if (unusedSpritesCheckBox.selected || emptySpritesCheckBox.selected)
                 {
-                    m_application.sendCommand(new FindSpritesCommand(unusedSpritesCheckBox.selected,
-                                                                     emptySpritesCheckBox.selected));
+                    m_communicator.sendCommand(new FindSpritesCommand(unusedSpritesCheckBox.selected,
+                                                                      emptySpritesCheckBox.selected));
                     progressBar.visible = true;
                 }
             }
@@ -199,12 +223,12 @@ THE SOFTWARE.
             {
                 var spriteData:SpriteData = spritesList.selectedItem as SpriteData;
                 if (spriteData) 
-                    m_application.sendCommand(new GetSpriteListCommand(spriteData.id));
+                    m_communicator.sendCommand(new GetSpriteListCommand(spriteData.id));
             }
             
             private function removeSprites():void
             {
-                m_application.sendCommand(new RemoveSpritesCommand(spritesList.selectedIds));
+                m_communicator.sendCommand(new RemoveSpritesCommand(spritesList.selectedIds));
                 spritesList.removeSelectedIndices();
             }
             
@@ -215,8 +239,6 @@ THE SOFTWARE.
             protected function creationCompleteHandler(event:FlexEvent):void
             {
                 m_application = FlexGlobals.topLevelApplication as IObjectBuilder;
-                m_application.registerCallback(ProgressCommand, progressCallback);
-                m_application.registerCallback(FindResultCommand, findResultCallback);
                 m_bindableThingType = new BindableThingType();
                 m_bindableThingType.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, thingPropertyChangeHandler);
                 m_properties = new Dictionary();
@@ -224,8 +246,7 @@ THE SOFTWARE.
             
             protected function closingHandler(event:Event):void
             {
-                m_application.unregisterCallback(ProgressCommand, progressCallback);
-                m_application.unregisterCallback(FindResultCommand, findResultCallback);
+                this.communicator = null;
             }
             
             protected function findButtonClickHandler(event:MouseEvent):void

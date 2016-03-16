@@ -29,7 +29,6 @@ package
     import flash.filesystem.File;
     import flash.geom.Rectangle;
     import flash.net.registerClassAlias;
-    import flash.system.Worker;
     import flash.utils.ByteArray;
     
     import mx.resources.ResourceManager;
@@ -93,6 +92,7 @@ package
     import ob.utils.SpritesFinder;
     import ob.utils.SpritesOptimizer;
     
+    import otlib.animation.FrameDuration;
     import otlib.core.Version;
     import otlib.core.VersionStorage;
     import otlib.events.ProgressEvent;
@@ -106,7 +106,6 @@ package
     import otlib.sprites.Sprite;
     import otlib.sprites.SpriteData;
     import otlib.sprites.SpriteStorage;
-    import otlib.animation.FrameDuration;
     import otlib.things.ThingCategory;
     import otlib.things.ThingData;
     import otlib.things.ThingProperty;
@@ -120,7 +119,7 @@ package
     
     [ResourceBundle("strings")]
     
-    public class ObjectBuilderWorker extends flash.display.Sprite implements ICommunicator
+    public class ObjectBuilderWorker extends flash.display.Sprite
     {
         //--------------------------------------------------------------------------
         // PROPERTIES
@@ -144,11 +143,6 @@ package
         //--------------------------------------
         // Getters / Setters
         //--------------------------------------
-        
-        public function get worker():Worker { return _communicator.worker; }
-        public function get running():Boolean { return _communicator.running; }
-        public function get background():Boolean { return _communicator.background; }
-        public function get applicationDescriptor():XML { return _communicator.applicationDescriptor; }
         
         public function get clientChanged():Boolean
         {
@@ -190,27 +184,6 @@ package
         // Public
         //--------------------------------------
         
-        public function registerCallback(commandClass:Class, callback:Function):void
-        {
-            _communicator.registerCallback(commandClass, callback);
-        }
-        
-        public function unregisterCallback(commandClass:Class, callback:Function):void
-        {
-            _communicator.unregisterCallback(commandClass, callback);
-        }
-        
-        public function sendCommand(command:Command):void
-        {
-            if (_communicator)
-                _communicator.sendCommand(command);
-        }
-        
-        public function start():void
-        {
-            //unused
-        }
-        
         public function onGetThing(id:uint, category:String):void
         {
             sendThingData(id, category);
@@ -250,6 +223,11 @@ package
             }
         }
         
+        public function sendCommand(command:Command):void
+        {
+            _communicator.sendCommand(command);
+        }
+        
         //--------------------------------------
         // Override Protected
         //--------------------------------------
@@ -269,45 +247,45 @@ package
             registerClassAlias("PathHelper", PathHelper);
             registerClassAlias("FrameDuration", FrameDuration);
             
-            registerCallback(SettingsCommand, onSettings);
+            _communicator.registerCallback(SettingsCommand, onSettings);
             
-            registerCallback(LoadVersionsCommand, onLoadClientVersions);
+            _communicator.registerCallback(LoadVersionsCommand, onLoadClientVersions);
             
             // File commands
-            registerCallback(CreateNewFilesCommand, onCreateNewFiles);
-            registerCallback(LoadFilesCommand, onLoadFiles);
-            registerCallback(CompileCommand, onCompile);
-            registerCallback(CompileAsCommand, onCompileAs);
-            registerCallback(UnloadFilesCommand, onUnloadFiles);
+            _communicator.registerCallback(CreateNewFilesCommand, onCreateNewFiles);
+            _communicator.registerCallback(LoadFilesCommand, onLoadFiles);
+            _communicator.registerCallback(CompileCommand, onCompile);
+            _communicator.registerCallback(CompileAsCommand, onCompileAs);
+            _communicator.registerCallback(UnloadFilesCommand, onUnloadFiles);
             
             // Thing commands
-            registerCallback(NewThingCommand, onNewThing);
-            registerCallback(UpdateThingCommand, onUpdateThing);
-            registerCallback(ImportThingsCommand, onImportThings);
-            registerCallback(ImportThingsFromFilesCommand, onImportThingsFromFiles);
-            registerCallback(ExportThingCommand, onExportThing);
-            registerCallback(ReplaceThingsCommand, onReplaceThings);
-            registerCallback(ReplaceThingsFromFilesCommand, onReplaceThingsFromFiles);
-            registerCallback(DuplicateThingCommand, onDuplicateThing);
-            registerCallback(RemoveThingCommand, onRemoveThings);
-            registerCallback(GetThingCommand, onGetThing);
-            registerCallback(GetThingListCommand, onGetThingList);
-            registerCallback(FindThingCommand, onFindThing);
+            _communicator.registerCallback(NewThingCommand, onNewThing);
+            _communicator.registerCallback(UpdateThingCommand, onUpdateThing);
+            _communicator.registerCallback(ImportThingsCommand, onImportThings);
+            _communicator.registerCallback(ImportThingsFromFilesCommand, onImportThingsFromFiles);
+            _communicator.registerCallback(ExportThingCommand, onExportThing);
+            _communicator.registerCallback(ReplaceThingsCommand, onReplaceThings);
+            _communicator.registerCallback(ReplaceThingsFromFilesCommand, onReplaceThingsFromFiles);
+            _communicator.registerCallback(DuplicateThingCommand, onDuplicateThing);
+            _communicator.registerCallback(RemoveThingCommand, onRemoveThings);
+            _communicator.registerCallback(GetThingCommand, onGetThing);
+            _communicator.registerCallback(GetThingListCommand, onGetThingList);
+            _communicator.registerCallback(FindThingCommand, onFindThing);
             
             // Sprite commands
-            registerCallback(NewSpriteCommand, onNewSprite);
-            registerCallback(ImportSpritesCommand, onAddSprites);
-            registerCallback(ImportSpritesFromFileCommand, onImportSpritesFromFiles);
-            registerCallback(ExportSpritesCommand, onExportSprites);
-            registerCallback(ReplaceSpritesCommand, onReplaceSprites);
-            registerCallback(ReplaceSpritesFromFilesCommand, onReplaceSpritesFromFiles);
-            registerCallback(RemoveSpritesCommand, onRemoveSprites);
-            registerCallback(GetSpriteListCommand, onGetSpriteList);
-            registerCallback(FindSpritesCommand, onFindSprites);
-            registerCallback(OptimizeSpritesCommand, onOptimizeSprites);
+            _communicator.registerCallback(NewSpriteCommand, onNewSprite);
+            _communicator.registerCallback(ImportSpritesCommand, onAddSprites);
+            _communicator.registerCallback(ImportSpritesFromFileCommand, onImportSpritesFromFiles);
+            _communicator.registerCallback(ExportSpritesCommand, onExportSprites);
+            _communicator.registerCallback(ReplaceSpritesCommand, onReplaceSprites);
+            _communicator.registerCallback(ReplaceSpritesFromFilesCommand, onReplaceSpritesFromFiles);
+            _communicator.registerCallback(RemoveSpritesCommand, onRemoveSprites);
+            _communicator.registerCallback(GetSpriteListCommand, onGetSpriteList);
+            _communicator.registerCallback(FindSpritesCommand, onFindSprites);
+            _communicator.registerCallback(OptimizeSpritesCommand, onOptimizeSprites);
             
             // General commands
-            registerCallback(NeedToReloadCommand, onNeedToReload);
+            _communicator.registerCallback(NeedToReloadCommand, onNeedToReload);
         }
         
         //--------------------------------------

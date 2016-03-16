@@ -27,15 +27,13 @@ package ob.core
     import mx.core.IUIComponent;
     import mx.core.IWindow;
     
-    import nail.commands.ICommunicator;
-    
     import ob.settings.ObjectBuilderSettings;
     
     import otlib.core.IVersionStorage;
     import otlib.core.Version;
     import otlib.utils.ClientInfo;
     
-    public interface IObjectBuilder extends IUIComponent, IWindow, ICommunicator
+    public interface IObjectBuilder extends IUIComponent, IWindow
     {
         function get settings():ObjectBuilderSettings;
         function get versionStorage():IVersionStorage;

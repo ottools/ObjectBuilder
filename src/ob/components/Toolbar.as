@@ -30,6 +30,8 @@ package ob.components
     import spark.components.Button;
     import spark.components.SkinnableContainer;
     
+    import nail.commands.ICommunicator;
+    
     import ob.commands.SetClientInfoCommand;
     import ob.core.IObjectBuilder;
     
@@ -70,6 +72,27 @@ package ob.components
         
         private var m_application:IObjectBuilder;
         
+        private var m_communicator:ICommunicator;
+        
+        //--------------------------------------
+        // Getters / Setters
+        //--------------------------------------
+        
+        public function get communicator():ICommunicator { return m_communicator; }
+        public function set communicator(value:ICommunicator):void
+        {
+            if (m_communicator) {
+                m_communicator.unregisterCallback(SetClientInfoCommand, clientInfoCallback);
+                m_communicator = null;
+            }
+            
+            m_communicator = value;
+            
+            if (m_communicator) {
+                m_communicator.registerCallback(SetClientInfoCommand, clientInfoCallback);
+            }
+        }
+        
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
@@ -109,7 +132,7 @@ package ob.components
         // Private
         //--------------------------------------
         
-        private function onClientInfo(info:ClientInfo):void
+        private function clientInfoCallback(info:ClientInfo):void
         {
             openFindWindowButton.enabled = info.loaded;
             compileButton.enabled = (m_application.clientChanged && !m_application.clientIsTemporary);
@@ -123,7 +146,6 @@ package ob.components
         protected function creationCompleteHandler(event:FlexEvent):void
         {
             m_application = IObjectBuilder(FlexGlobals.topLevelApplication);
-            m_application.registerCallback(SetClientInfoCommand, onClientInfo);
         }
         
         protected function buttonClickHandler(event:MouseEvent):void
