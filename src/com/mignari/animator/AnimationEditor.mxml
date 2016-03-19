@@ -21,8 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009" 
-          xmlns:s="library://ns.adobe.com/flex/spark" 
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:nail="library://ns.nail.com/naillib"
           xmlns:components="nail.otlib.components.*"
@@ -35,7 +35,7 @@ THE SOFTWARE.
           showStatusBar="false"
           title="@Resource(key='animationEditor', bundle='strings')"
           creationComplete="creationCompleteHandler(event)"
-          closing="closingHandler(event)">
+          closing="closingHandler(event)" xmlns:animator="com.mignari.animator.*">
     
     <fx:Metadata>
         [ResourceBundle("strings")]
@@ -67,8 +67,8 @@ THE SOFTWARE.
             import nail.utils.StringUtil;
             import nail.utils.WindowUtil;
             
-            import ob.animationeditor.events.FrameListEvent;
-            import ob.animationeditor.settings.AnimationEditorSettings;
+            import com.mignari.animator.events.FrameListEvent;
+            import com.mignari.animator.settings.AnimationEditorSettings;
             import ob.utils.ObUtils;
             
             import otlib.assets.Assets;
@@ -1137,7 +1137,7 @@ THE SOFTWARE.
                 <s:layout>
                     <s:VerticalLayout gap="0"/>
                 </s:layout>
-                <animationeditor:FrameList id="framesList"
+                <animator:FrameList id="framesList"
                                            width="100%"
                                            height="100%"
                                            contentBackgroundColor="0x494949"
@@ -1149,16 +1149,16 @@ THE SOFTWARE.
                                            dropEnabled="true"
                                            horizontalScrollPolicy="on"
                                            verticalScrollPolicy="off"
-                                           itemRenderer="ob.animationeditor.renders.FrameListRenderer"
+                                           itemRenderer="com.mignari.animator.renders.FrameListRenderer"
                                            duplicate="animationsListDuplicateHandler(event)"
                                            remove="removeSelectedFrames()"
                                            dragComplete="animationsListDragCompleteHandler(event)"
                                            change="framesListChangeHandler(event)">
-                    <animationeditor:layout>
+                    <animator:layout>
                         <s:HorizontalLayout verticalAlign="middle"
                                             gap="0"/>
-                    </animationeditor:layout>
-                </animationeditor:FrameList>
+                    </animator:layout>
+                </animator:FrameList>
                 
                 <s:HGroup width="100%"
                           height="25"

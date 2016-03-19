@@ -20,19 +20,38 @@
 *  THE SOFTWARE.
 */
 
-package ob.animationeditor.events
+package com.mignari.animator
 {
-    import flash.events.Event;
+    import flash.display.BitmapData;
     
-    public class FrameListEvent extends Event
+    import otlib.components.IListObject;
+    import otlib.animation.FrameDuration;
+    
+    public class Frame implements IListObject
     {
+        //--------------------------------------------------------------------------
+        // PROPERTIES
+        //--------------------------------------------------------------------------
+        
+        public var opacity:Number;
+        public var bitmap:BitmapData;
+        public var duration:FrameDuration;
+        
+        //--------------------------------------
+        // Getters / Setters
+        //--------------------------------------
+        
+        public function get id():uint { return uint.MAX_VALUE; }
+        
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
         
-        public function FrameListEvent(type:String)
+        public function Frame(bitmap:BitmapData = null, duration:FrameDuration = null)
         {
-            super(type);
+            this.opacity = 1.0;
+            this.bitmap = bitmap;
+            this.duration = duration;
         }
         
         //--------------------------------------------------------------------------
@@ -40,20 +59,21 @@ package ob.animationeditor.events
         //--------------------------------------------------------------------------
         
         //--------------------------------------
-        // Override Public
+        // Public
         //--------------------------------------
         
-        override public function clone():Event
+        public function getBitmap(backgroundColor:uint = 0):BitmapData
         {
-            return new FrameListEvent(this.type);
+            return bitmap;
         }
         
-        //--------------------------------------------------------------------------
-        // STATIC
-        //--------------------------------------------------------------------------
-        
-        public static const DUPLICATE:String = "duplicate";
-        public static const REMOVE:String = "remove";
-        public static const DISPLAYING_CONTEXT_MENU:String = "displayingContextMenu";
+        public function clone():Frame
+        {
+            var clone:Frame = new Frame();
+            clone.opacity = this.opacity;
+            clone.bitmap = this.bitmap ? this.bitmap.clone() : null;
+            clone.duration = this.duration ? this.duration.clone() : null;
+            return clone;
+        }
     }
 }

@@ -20,19 +20,19 @@
 *  THE SOFTWARE.
 */
 
-package ob.animationeditor
+package com.mignari.animator
 {
     import flash.ui.ContextMenu;
     
-    import ob.animationeditor.events.FrameListEvent;
+    import com.mignari.animator.events.FrameListEvent;
     
     import otlib.components.ListBase;
     import otlib.core.otlib_internal;
     
     use namespace otlib_internal;
     
-    [Event(name="duplicate", type="ob.animationeditor.events.FrameListEvent")]
-    [Event(name="remove", type="ob.animationeditor.events.FrameListEvent")]
+    [Event(name="duplicate", type="com.mignari.animator.events.FrameListEvent")]
+    [Event(name="remove", type="com.mignari.animator.events.FrameListEvent")]
     
     public class FrameList extends ListBase
     {

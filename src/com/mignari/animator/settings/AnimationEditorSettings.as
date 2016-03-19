@@ -20,7 +20,7 @@
 *  THE SOFTWARE.
 */
 
-package ob.animationeditor.settings
+package com.mignari.animator.settings
 {
     import flash.filesystem.File;
     

@@ -38,9 +38,9 @@ THE SOFTWARE.
             import mx.resources.IResourceManager;
             import mx.resources.ResourceManager;
             
-            import ob.animationeditor.Frame;
-            import ob.animationeditor.FrameList;
-            import ob.animationeditor.events.FrameListEvent;
+            import com.mignari.animator.Frame;
+            import com.mignari.animator.FrameList;
+            import com.mignari.animator.events.FrameListEvent;
             
             import otlib.components.ListBase;
             import otlib.core.otlib_internal;

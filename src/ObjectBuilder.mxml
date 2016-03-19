@@ -85,7 +85,7 @@ THE SOFTWARE.
             import nail.utils.WindowUtil;
             import nail.utils.isNullOrEmpty;
             
-            import ob.animationeditor.AnimationEditor;
+            import com.mignari.animator.AnimationEditor;
             import ob.commands.HideProgressBarCommand;
             import ob.commands.LoadVersionsCommand;
             import ob.commands.NeedToReloadCommand;
@@ -819,8 +819,7 @@ THE SOFTWARE.
                     _autosaveChanged = false;
                 }
                 
-                if (_showPanelChanged)
-                {
+                if (_showPanelChanged) {
                     previewPanel.visible = _showPreviewPanel;
                     previewPanel.includeInLayout = _showPreviewPanel;
                     thingsPanel.visible = _showThingsPanel;
