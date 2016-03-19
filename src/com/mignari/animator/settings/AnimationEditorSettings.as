@@ -22,6 +22,8 @@
 
 package com.mignari.animator.settings
 {
+    import com.mignari.settings.Settings;
+    
     import flash.filesystem.File;
     
     import nail.image.ImageFormat;
@@ -30,7 +32,6 @@ package com.mignari.animator.settings
     
     import otlib.core.Version;
     import otlib.core.VersionStorage;
-    import otlib.settings.Settings;
     import otlib.utils.OTFormat;
     
     public class AnimationEditorSettings extends Settings

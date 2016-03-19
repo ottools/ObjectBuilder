@@ -43,6 +43,10 @@ THE SOFTWARE.
     
     <fx:Script>
         <![CDATA[
+            import com.mignari.animator.events.FrameListEvent;
+            import com.mignari.animator.settings.AnimationEditorSettings;
+            import com.mignari.settings.ISettingsManager;
+            import com.mignari.settings.SettingsManager;
             import com.worlize.gif.GIFDecoder;
             import com.worlize.gif.GIFFrame;
             import com.worlize.gif.events.GIFDecoderEvent;
@@ -56,7 +60,6 @@ THE SOFTWARE.
             
             import nail.assets.NailAssets;
             import nail.components.controls.Alert;
-            import nail.components.skins.IconButtonSkin;
             import nail.image.ClipboardBitmapLoader;
             import nail.image.ImageCodec;
             import nail.image.ImageFormat;
@@ -67,20 +70,16 @@ THE SOFTWARE.
             import nail.utils.StringUtil;
             import nail.utils.WindowUtil;
             
-            import com.mignari.animator.events.FrameListEvent;
-            import com.mignari.animator.settings.AnimationEditorSettings;
             import ob.utils.ObUtils;
             
+            import otlib.animation.FrameDuration;
             import otlib.assets.Assets;
             import otlib.components.ExportWindow;
             import otlib.components.SurfaceCells;
             import otlib.geom.Size;
             import otlib.obd.OBDEncoder;
             import otlib.obd.OBDVersions;
-            import otlib.settings.ISettingsManager;
-            import otlib.settings.SettingsManager;
             import otlib.sprites.SpriteData;
-            import otlib.animation.FrameDuration;
             import otlib.things.ThingCategory;
             import otlib.things.ThingData;
             import otlib.things.ThingType;
