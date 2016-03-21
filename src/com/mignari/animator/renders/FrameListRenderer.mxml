@@ -39,7 +39,7 @@ THE SOFTWARE.
             import mx.resources.ResourceManager;
             
             import com.mignari.animator.Frame;
-            import com.mignari.animator.FrameList;
+            import com.mignari.animator.components.FrameList;
             import com.mignari.animator.events.FrameListEvent;
             
             import otlib.components.ListBase;

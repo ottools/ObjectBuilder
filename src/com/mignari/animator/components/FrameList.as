@@ -20,7 +20,7 @@
 *  THE SOFTWARE.
 */
 
-package com.mignari.animator
+package com.mignari.animator.components
 {
     import flash.ui.ContextMenu;
     
@@ -28,6 +28,7 @@ package com.mignari.animator
     
     import otlib.components.ListBase;
     import otlib.core.otlib_internal;
+    import com.mignari.animator.Frame;
     
     use namespace otlib_internal;
     

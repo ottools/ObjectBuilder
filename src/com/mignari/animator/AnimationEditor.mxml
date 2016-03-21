@@ -26,8 +26,9 @@ THE SOFTWARE.
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:nail="library://ns.nail.com/naillib"
           xmlns:components="nail.otlib.components.*"
-          xmlns:animationeditor="ob.animationeditor.*"
+          xmlns:animator="com.mignari.animator.components.*"
           xmlns:otlib="otlib.components.*"
+          implements="com.mignari.animator.IAnimationEditor"
           minWidth="800"
           minHeight="600"
           fontSize="11"
@@ -35,12 +36,8 @@ THE SOFTWARE.
           showStatusBar="false"
           title="@Resource(key='animationEditor', bundle='strings')"
           creationComplete="creationCompleteHandler(event)"
-          closing="closingHandler(event)" xmlns:animator="com.mignari.animator.*">
-    
-    <fx:Metadata>
-        [ResourceBundle("strings")]
-    </fx:Metadata>
-    
+          closing="closingHandler(event)">
+
     <fx:Script>
         <![CDATA[
             import com.mignari.animator.events.FrameListEvent;
@@ -107,7 +104,7 @@ THE SOFTWARE.
             private var _transparency:Boolean = true;
             
             //--------------------------------------
-            // Getters / Setters 
+            // Getters / Setters
             //--------------------------------------
             
             public function get file():File { return _file; }
@@ -148,6 +145,113 @@ THE SOFTWARE.
             // METHODS
             //--------------------------------------------------------------------------
             
+            //--------------------------------------
+            // Public
+            //--------------------------------------
+            
+            public function openFile():void
+            {
+                var filters:Array = ObUtils.createImagesFileFilter();
+                filters[0].extension += "*.obd";
+                filters.splice(1, 0, new FileFilter("Object Builder Data (*.OBD)", "*.obd"));
+                var file:File = _settings.getLastDirectory();
+                file.addEventListener(Event.SELECT, fileSelectHandler);
+                file.browseForOpen(resourceManager.getString("strings", "selectFile"), filters);
+
+                function fileSelectHandler(event:Event):void
+                {
+                    setFile(file);
+                }
+            }
+
+            public function saveAnimation():void
+            {
+                if (!thingView.thingData)
+                    return;
+                
+                var window:ExportWindow = new ExportWindow();
+                window.enableObdFormat = true;
+                window.fileName = getCurrentCategory() + "_" + StringUtil.randomKeyString();
+                window.directory = _settings.getLastDirectory();
+                window.format = _settings.getLastExportFormat();
+                window.version = _settings.getLastExportVersion();
+                window.title = resourceManager.getString("strings", "menu.save");
+                window.addEventListener(Event.CLOSE, windowCloseHandler);
+                window.open();
+                
+                PopUpWindowManager.addWindow(window);
+                
+                function windowCloseHandler(event:Event):void
+                {
+                    if (window.fileName == null || !window.directory || window.format == null) {
+                        return;
+                    }
+                    
+                    var file:File = window.directory.resolvePath(window.fileName + "." + window.format);
+                    var backgoundColor:uint = true ? 0x00FF00FF : 0xFFFF00FF;
+                    var bytes:ByteArray;
+                    var bitmap:BitmapData;
+                    var format:String = file.extension;
+                    
+                    var helper:SaveHelper = new SaveHelper();
+                    if (ImageFormat.hasImageFormat(format))
+                    {
+                        bitmap = thingView.thingData.getSpriteSheet(null, backgoundColor);
+                        bytes = ImageCodec.encode(bitmap, format);
+                    }
+                    else if (format == OTFormat.OBD)
+                    {
+                        bytes = new OBDEncoder().encode(thingView.thingData);
+                    }
+                    
+                    helper.addFile(bytes, window.fileName, format, file);
+                    helper.save();
+                    
+                    _settings.setLastDirectory(window.directory);
+                    _settings.setLastExportFormat(format);
+                    _settings.setLastExportVersion(window.version);
+                }
+            }
+
+            public function pasteImageFromClipboard():void
+            {
+                if (!ClipboardBitmapLoader.hasBitmapFormat)
+                    return;
+                
+                var loader:ClipboardBitmapLoader = new ClipboardBitmapLoader();
+                loader.addEventListener(Event.COMPLETE, completeHandler);
+                loader.load();
+                
+                function completeHandler(event:Event):void
+                {
+                    setBitmap(loader.bitmap);
+                }
+            }
+
+            public function rotateImageRight90():void
+            {
+                if (this.hasImage)
+                    this.bitmap = BitmapUtil.rotate(_bitmap, 90);
+            }
+
+            public function rotateImageLeft90():void
+            {
+                if (this.hasImage)
+                    this.bitmap = BitmapUtil.rotate(_bitmap, 270);
+            }
+
+            public function flipImageVertical():void
+            {
+                if (this.hasImage)
+                    this.bitmap = BitmapUtil.flip(_bitmap, false, true);
+            }
+
+            public function flipImageHorizontal():void
+            {
+                if (this.hasImage)
+                    this.bitmap = BitmapUtil.flip(this.bitmap, true, false);
+            }
+
             //--------------------------------------
             // Protected
             //--------------------------------------
@@ -242,7 +346,7 @@ THE SOFTWARE.
             {
                 if (framesList.isEmpty) {
                     thingView.thingData = null;
-                    saveButton.enabled = false;
+                    toolbar.saveButton.enabled = false;
                     return;
                 }
                 
@@ -305,7 +409,7 @@ THE SOFTWARE.
                 
                 // TODO temporary version
                 this.thingView.thingData = ThingData.create(OBDVersions.OBD_VERSION_2, 1041, thing, sprites);
-                this.saveButton.enabled = true;
+                toolbar.saveButton.enabled = true;
             }
             
             protected function getCurrentCategory():String
@@ -339,70 +443,6 @@ THE SOFTWARE.
                 _size.height = 32;
                 thingView.thingData = null;
                 framesList.removeAll();
-            }
-            
-            protected function onSaveThingData():void
-            {
-                if (!thingView.thingData)
-                    return;
-                
-                var window:ExportWindow = new ExportWindow();
-                window.enableObdFormat = true;
-                window.fileName = getCurrentCategory() + "_" + StringUtil.randomKeyString();
-                window.directory = _settings.getLastDirectory();
-                window.format = _settings.getLastExportFormat();
-                window.version = _settings.getLastExportVersion();
-                window.title = resourceManager.getString("strings", "menu.save");
-                window.addEventListener(Event.CLOSE, windowCloseHandler);
-                window.open();
-                
-                PopUpWindowManager.addWindow(window);
-                
-                function windowCloseHandler(event:Event):void
-                {
-                    if (window.fileName == null || !window.directory || window.format == null) {
-                        return;
-                    }
-                    
-                    var file:File = window.directory.resolvePath(window.fileName + "." + window.format);
-                    var backgoundColor:uint = true ? 0x00FF00FF : 0xFFFF00FF;
-                    var bytes:ByteArray;
-                    var bitmap:BitmapData;
-                    var format:String = file.extension;
-                    
-                    var helper:SaveHelper = new SaveHelper();
-                    if (ImageFormat.hasImageFormat(format))
-                    {
-                        bitmap = thingView.thingData.getSpriteSheet(null, backgoundColor);
-                        bytes = ImageCodec.encode(bitmap, format);
-                    }
-                    else if (format == OTFormat.OBD)
-                    {
-                        bytes = new OBDEncoder().encode(thingView.thingData);
-                    }
-                    
-                    helper.addFile(bytes, window.fileName, format, file);
-                    helper.save();
-                    
-                    _settings.setLastDirectory(window.directory);
-                    _settings.setLastExportFormat(format);
-                    _settings.setLastExportVersion(window.version);
-                }
-            }
-            
-            protected function onPaste():void
-            {
-                if (!ClipboardBitmapLoader.hasBitmapFormat)
-                    return;
-                
-                var loader:ClipboardBitmapLoader = new ClipboardBitmapLoader();
-                loader.addEventListener(Event.COMPLETE, completeHandler);
-                loader.load();
-                
-                function completeHandler(event:Event):void
-                {
-                    setBitmap(loader.bitmap);
-                }
             }
             
             //--------------------------------------
@@ -519,30 +559,15 @@ THE SOFTWARE.
             {
                 _bitmap = bitmap;
                 imageControl.source = bitmap;
-                rotateLeft90Button.enabled = (bitmap != null);
-                rotateRight90Button.enabled = (bitmap != null);
-                flipHorizontalButton.enabled = (bitmap != null);
-                flipVerticalButton.enabled = (bitmap != null);
+                toolbar.rotateLeft90Button.enabled = (bitmap != null);
+                toolbar.rotateRight90Button.enabled = (bitmap != null);
+                toolbar.flipHorizontalButton.enabled = (bitmap != null);
+                toolbar.flipVerticalButton.enabled = (bitmap != null);
                 
                 _dragBounds.setEmpty();
                 
                 resetControls();
                 update();
-            }
-            
-            private function onOpenFile():void
-            {
-                var filters:Array = ObUtils.createImagesFileFilter();
-                filters[0].extension += "*.obd";
-                filters.splice(1, 0, new FileFilter("Object Builder Data (*.OBD)", "*.obd"));
-                var file:File = _settings.getLastDirectory();
-                file.addEventListener(Event.SELECT, fileSelectHandler);
-                file.browseForOpen(resourceManager.getString("strings", "selectFile"), filters);
-                
-                function fileSelectHandler(event:Event):void
-                {
-                    setFile(file);
-                }
             }
             
             private function removeSelectedFrames():void
@@ -583,6 +608,7 @@ THE SOFTWARE.
             protected function creationCompleteHandler(event:FlexEvent):void
             {
                 _settingsManager = SettingsManager.getInstance();
+                this.toolbar.editor = this;
                 
                 loadSettings();
                 
@@ -782,20 +808,6 @@ THE SOFTWARE.
                 createThingData();
             }
             
-            protected function rotateOrFlipClickHandler(event:MouseEvent):void
-            {
-                if (!this.hasImage) return;
-                
-                if (event.target === rotateRight90Button)
-                    this.bitmap = BitmapUtil.rotate(_bitmap, 90);
-                else if (event.target === rotateLeft90Button)
-                    this.bitmap = BitmapUtil.rotate(_bitmap, 270);
-                else if (event.target === flipHorizontalButton)
-                    this.bitmap = BitmapUtil.flip(_bitmap, true, false);
-                else if (event.target === flipVerticalButton)
-                    this.bitmap = BitmapUtil.flip(_bitmap, false, true);
-            }
-            
             override protected function keyDownHandler(event:KeyboardEvent):void
             {
                 if (!event.ctrlKey &&
@@ -830,15 +842,15 @@ THE SOFTWARE.
                     switch (event.keyCode)
                     {
                         case Keyboard.O:
-                            this.onOpenFile();
+                            this.openFile();
                             break;
                         
-                        case Keyboard.E:
-                            this.onSaveThingData();
+                        case Keyboard.S:
+                            this.saveAnimation();
                             break;
                         
                         case Keyboard.V:
-                            this.onPaste();
+                            this.pasteImageFromClipboard();
                             break;
                         
                         case Keyboard.MINUS:
@@ -860,99 +872,9 @@ THE SOFTWARE.
     </s:layout>
     
     <!-- tool bar -->
-    <s:Group width="100%"
-             height="35"
-             top="0">
-        
-        <!-- highlight -->
-        <s:Rect left="-1" right="-1" top="1" bottom="0">
-            <s:stroke>
-                <s:SolidColorStroke color="0x636363"/>
-            </s:stroke>
-        </s:Rect>
-        
-        <!-- border -->
-        <s:Rect left="-1" right="-1" top="0" bottom="0">
-            <s:stroke>
-                <s:SolidColorStroke color="0x272727"/>
-            </s:stroke>
-        </s:Rect>
-        
-        <s:HGroup width="100%"
-                  height="100%"
-                  verticalAlign="middle"
-                  paddingLeft="10"
-                  paddingRight="10">
-            
-            <s:Button id="openButton"
-                      toolTip="@Resource(key='menu.open', bundle='strings')"
-                      width="25"
-                      height="25"
-                      icon="{Assets.OPEN}"
-                      skinClass="nail.components.skins.IconButtonSkin"
-                      click="onOpenFile()"/>
-            
-            <s:Button id="saveButton"
-                      toolTip="@Resource(key='menu.save', bundle='strings')"
-                      width="25"
-                      height="25"
-                      icon="{Assets.SAVE}"
-                      enabled="false"
-                      skinClass="nail.components.skins.IconButtonSkin"
-                      click="onSaveThingData()"/>
-            
-            <nail:ShadowLine height="20"/>
-            
-            <s:Button id="pasteButton"
-                      toolTip="@Resource(key='paste', bundle='strings')"
-                      width="25"
-                      height="25"
-                      icon="{Assets.PASTE}"
-                      skinClass="nail.components.skins.IconButtonSkin"
-                      click="onPaste()"/>
-            
-            <nail:ShadowLine height="20"/>
-            
-            <s:Button id="rotateRight90Button"
-                      toolTip="@Resource(key='rotateRight90', bundle='strings')"
-                      width="25"
-                      height="25"
-                      icon="{Assets.ROTATE_RIGHT_90}"
-                      enabled="false"
-                      skinClass="nail.components.skins.IconButtonSkin"
-                      click="rotateOrFlipClickHandler(event)"/>
-            
-            <s:Button id="rotateLeft90Button"
-                      label="@Resource(key='rotateLeft90', bundle='strings')"
-                      width="25"
-                      height="25"
-                      icon="{Assets.ROTATE_LEFT_90}"
-                      enabled="false"
-                      skinClass="nail.components.skins.IconButtonSkin"
-                      click="rotateOrFlipClickHandler(event)"/>
-            
-            <s:Button id="flipVerticalButton"
-                      toolTip="@Resource(key='flipVertical', bundle='strings')"
-                      width="25"
-                      height="25"
-                      icon="{Assets.FLIP_VERTICAL}"
-                      enabled="false"
-                      skinClass="nail.components.skins.IconButtonSkin"
-                      click="rotateOrFlipClickHandler(event)"/>
-            
-            <s:Button id="flipHorizontalButton"
-                      toolTip="@Resource(key='flipHorizontal', bundle='strings')"
-                      width="25"
-                      height="25"
-                      icon="{Assets.FLIP_HORIZONTAL}"
-                      enabled="false"
-                      skinClass="nail.components.skins.IconButtonSkin"
-                      click="rotateOrFlipClickHandler(event)"/>
-        </s:HGroup>
-    </s:Group>
+    <animator:Toolbar id="toolbar" width="100%" height="35" top="0" />
     
-    <mx:HDividedBox width="100%"
-                    height="100%">
+    <mx:HDividedBox width="100%" height="100%">
         <s:BorderContainer id="controlsContainer"
                            minWidth="245"
                            maxWidth="300"
