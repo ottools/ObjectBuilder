@@ -141,7 +141,7 @@ s|DropDownList
 
 s|HScrollBar
 {
-    skinClass: ClassReference("nail.components.skins.HScrollBarSkin");
+    skinClass: ClassReference("com.mignari.skins.HScrollBarSkin");
 }
 
 s|HSlider
@@ -186,7 +186,7 @@ s|ToggleButton
 
 s|VScrollBar
 {
-    skinClass: ClassReference("nail.components.skins.VScrollBarSkin");
+    skinClass: ClassReference("com.mignari.skins.VScrollBarSkin");
 }
 
 s|VSlider
