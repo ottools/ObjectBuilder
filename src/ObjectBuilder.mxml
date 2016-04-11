@@ -231,7 +231,7 @@ THE SOFTWARE.
             public function get clientIsTemporary():Boolean { return _clientIsTemporary; }
             public function get clientLoaded():Boolean { return _clientLoaded; }
             
-            public function get thingData():ThingData { return _thingData; }
+            public function get thingData():ThingData { return _nextThingData ? _nextThingData : _thingData; }
             public function set thingData(value:ThingData):void
             {
                 if (_thingData != value) {

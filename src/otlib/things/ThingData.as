@@ -318,12 +318,13 @@ package otlib.things
             }
         }
         
-        public function colorize(outfitData:OutfitData):void
+        public function colorize(outfitData:OutfitData):ThingData
         {
             if (!outfitData)
                 throw new NullArgumentError("outfitData");
             
-            if (m_thing.category != ThingCategory.OUTFIT) return;
+            if (m_thing.category != ThingCategory.OUTFIT)
+                return this;
             
             var bitmap:BitmapData = getColoredSpriteSheet(outfitData);
             
@@ -332,6 +333,7 @@ package otlib.things
             m_thing.spriteIndex = new Vector.<uint>(m_thing.getTotalSprites(), true);
             m_sprites = new Vector.<SpriteData>(m_thing.getTotalSprites(), true);
             setSpriteSheet(bitmap);
+            return this;
         }
         
         public function clone():ThingData

@@ -210,7 +210,7 @@ package otlib.components
                     if (!_outfitData)
                         _outfitData = new OutfitData();
                     
-                    thingData.colorize(_outfitData);
+                    thingData = thingData.clone().colorize(_outfitData);
                 }
                 
                 _textureIndex = new Vector.<Rect>();
