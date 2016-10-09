@@ -15,6 +15,7 @@
 		<autoOrients>false</autoOrients>
 		<fullScreen>false</fullScreen>
 		<visible>false</visible>
+		<requestedDisplayResolution>high</requestedDisplayResolution>
 	</initialWindow>
 	
 	<supportedLanguages>en es pl pt</supportedLanguages>
