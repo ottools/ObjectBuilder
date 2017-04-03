@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
+Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -35,36 +35,36 @@ THE SOFTWARE.
           title="@Resource(key='spritesOptimizer', bundle='strings')"
           creationComplete="creationCompleteHandler(event)"
           closing="closingHandler(event)">
-    
+
     <fx:Script>
         <![CDATA[
             import mx.core.FlexGlobals;
             import mx.events.FlexEvent;
-            
+
             import nail.commands.Command;
             import nail.commands.ICommunicator;
-            
+
             import ob.commands.ProgressBarID;
             import ob.commands.ProgressCommand;
             import ob.commands.sprites.OptimizeSpritesCommand;
             import ob.commands.sprites.OptimizeSpritesResultCommand;
             import ob.core.IObjectBuilder;
-            
+
             //--------------------------------------------------------------------------
             // PROPERTIES
             //--------------------------------------------------------------------------
-            
+
             private var m_application:IObjectBuilder;
-            
+
             [Bindable]
             private var m_inProgress:Boolean;
-            
+
             private var m_communicator:ICommunicator;
-            
+
             //--------------------------------------
             // Getters / Setters
             //--------------------------------------
-            
+
             public function get communicator():ICommunicator { return m_communicator; }
             public function set communicator(value:ICommunicator):void
             {
@@ -73,23 +73,23 @@ THE SOFTWARE.
                     m_communicator.unregisterCallback(OptimizeSpritesResultCommand, optimizationResultCallback);
                     m_communicator = null;
                 }
-                
+
                 m_communicator = value;
-                
+
                 if (m_communicator) {
                     m_communicator.registerCallback(ProgressCommand, progressCallback);
                     m_communicator.registerCallback(OptimizeSpritesResultCommand, optimizationResultCallback);
                 }
             }
-            
+
             //--------------------------------------------------------------------------
             // METHODS
             //--------------------------------------------------------------------------
-            
+
             //--------------------------------------
             // Private
             //--------------------------------------
-            
+
             private function progressCallback(id:uint, loaded:uint, total:uint, label:String):void
             {
                 if (id == ProgressBarID.OPTIMIZE)
@@ -98,7 +98,7 @@ THE SOFTWARE.
                     progressBar.label = label;
                 }
             }
-            
+
             private function optimizationResultCallback(removed:uint, oldCount:uint, newCount:uint):void
             {
                 removedValueLabel.text = removed.toString();
@@ -106,17 +106,17 @@ THE SOFTWARE.
                 newCountValueLabel.text = newCount.toString();
                 m_inProgress = false;
             }
-            
+
             //--------------------------------------
             // Event Handlers
             //--------------------------------------
-            
+
             protected function creationCompleteHandler(event:FlexEvent):void
             {
                 m_application = FlexGlobals.topLevelApplication as IObjectBuilder;
-                
+
             }
-            
+
             protected function closingHandler(event:Event):void
             {
                 if (m_inProgress)
@@ -124,27 +124,27 @@ THE SOFTWARE.
                     event.preventDefault();
                     return;
                 }
-                
+
                 this.communicator = null;
             }
-            
+
             protected function startButtonClickHandler(event:MouseEvent):void
             {
                 if (m_inProgress) return;
-                
+
                 var command:Command = new OptimizeSpritesCommand(unusedSpritesCheckBox.selected,
                                                                  emptySpritesCheckBox.selected);
-                
+
                 m_communicator.sendCommand(command);
                 m_inProgress = true;
                 removedValueLabel.text = "0";
                 oldCountValueLabel.text = "0";
                 newCountValueLabel.text = "0";
             }
-            
+
         ]]>
     </fx:Script>
-    
+
     <s:layout>
         <s:VerticalLayout paddingLeft="10"
                           paddingRight="10"
@@ -152,11 +152,11 @@ THE SOFTWARE.
                           paddingBottom="10"
                           gap="5"/>
     </s:layout>
-    
+
     <nail:GroupBox width="100%"
                    height="75"
                    label="@Resource(key='options', bundle='strings')">
-        
+
         <nail:layout>
             <s:VerticalLayout paddingLeft="10"
                               paddingRight="10"
@@ -164,17 +164,17 @@ THE SOFTWARE.
                               paddingBottom="10"
                               gap="5"/>
         </nail:layout>
-        
+
         <s:CheckBox id="unusedSpritesCheckBox"
                     label="@Resource(key='unused', bundle='strings')"/>
         <s:CheckBox id="emptySpritesCheckBox"
                     label="@Resource(key='empty', bundle='strings')"/>
     </nail:GroupBox>
-    
+
     <nail:GroupBox width="100%"
                    height="80"
                    label="@Resource(key='result', bundle='strings')">
-        
+
         <nail:layout>
             <s:TileLayout paddingLeft="10"
                           paddingRight="10"
@@ -184,7 +184,7 @@ THE SOFTWARE.
                           horizontalGap="5"
                           verticalGap="8"/>
         </nail:layout>
-        
+
         <s:Label minWidth="70"
                  text="{resourceManager.getString('strings', 'removedSprites') + ':'}"
                  textAlign="right"/>
@@ -192,7 +192,7 @@ THE SOFTWARE.
                  minWidth="70"
                  color="0x9AC9F8"
                  text="0"/>
-        
+
         <s:Label minWidth="70"
                  text="{resourceManager.getString('strings', 'oldSpriteCount') + ':'}"
                  textAlign="right"/>
@@ -200,7 +200,7 @@ THE SOFTWARE.
                  minWidth="70"
                  color="0x9AC9F8"
                  text="0"/>
-        
+
         <s:Label minWidth="70"
                  text="{resourceManager.getString('strings', 'newSpriteCount') + ':'}"
                  textAlign="right"/>
@@ -209,11 +209,11 @@ THE SOFTWARE.
                  color="0x9AC9F8"
                  text="0"/>
     </nail:GroupBox>
-    
+
     <nail:GroupBox width="100%"
                    height="55"
                    label="@Resource(key='progress', bundle='strings')">
-        
+
         <nail:layout>
             <s:HorizontalLayout paddingLeft="10"
                                 paddingRight="10"
@@ -221,14 +221,14 @@ THE SOFTWARE.
                                 paddingBottom="10"
                                 gap="10"/>
         </nail:layout>
-        
+
         <s:Button id="startButton"
                   minWidth="70"
                   height="20"
                   enabled="{unusedSpritesCheckBox.selected || emptySpritesCheckBox.selected}"
                   label="@Resource(key='start', bundle='strings')"
                   click="startButtonClickHandler(event)"/>
-        
+
         <mx:ProgressBar id="progressBar"
                         width="100%"
                         height="20"
@@ -238,12 +238,12 @@ THE SOFTWARE.
                         label=""
                         visible="{m_inProgress}"/>
     </nail:GroupBox>
-    
+
     <s:HGroup id="test" width="100%"
               paddingTop="5"
               horizontalAlign="right"
               verticalAlign="middle">
-        
+
         <s:Button id="closeButton"
                   minWidth="70"
                   label="@Resource(key='close', bundle='strings')"

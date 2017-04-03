@@ -1,16 +1,16 @@
 /*
-*  Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
-* 
+*  Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
+*
 *  Permission is hereby granted, free of charge, to any person obtaining a copy
 *  of this software and associated documentation files (the "Software"), to deal
 *  in the Software without restriction, including without limitation the rights
 *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 *  copies of the Software, and to permit persons to whom the Software is
 *  furnished to do so, subject to the following conditions:
-* 
+*
 *  The above copyright notice and this permission notice shall be included in
 *  all copies or substantial portions of the Software.
-* 
+*
 *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,18 +23,18 @@
 package otlib.things
 {
     import flash.utils.describeType;
-    
+
     import otlib.animation.FrameDuration;
     import otlib.geom.Size;
     import otlib.resources.Resources;
     import otlib.sprites.Sprite;
-    
+
     public class ThingType
     {
         //--------------------------------------------------------------------------
         // PROPERTIES
         //--------------------------------------------------------------------------
-        
+
         public var id:uint;
         public var category:String;
         public var width:uint;
@@ -102,34 +102,34 @@ package otlib.things
         public var hasDefaultAction:Boolean;
         public var defaultAction:uint;
         public var usable:Boolean;
-        
+
         public var isAnimation:Boolean;
         public var animationMode:uint;
         public var loopCount:int;
         public var startFrame:int;
         public var frameDurations:Vector.<FrameDuration>;
-        
+
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
-        
+
         public function ThingType()
         {
         }
-        
+
         //--------------------------------------------------------------------------
         // METHODS
         //--------------------------------------------------------------------------
-        
+
         //--------------------------------------
         // Public
         //--------------------------------------
-        
+
         public function toString():String
         {
             return "[ThingType category=" + this.category + ", id=" + this.id + "]";
         }
-        
+
         public function getTotalSprites():uint
         {
             return this.width *
@@ -140,7 +140,7 @@ package otlib.things
                    this.frames *
                    this.layers;
         }
-        
+
         public function getTotalTextures():uint
         {
             return this.patternX *
@@ -149,7 +149,7 @@ package otlib.things
                    this.frames *
                    this.layers;
         }
-        
+
         public function getSpriteIndex(width:uint,
                                        height:uint,
                                        layer:uint,
@@ -166,7 +166,7 @@ package otlib.things
                     this.height + height) *
                     this.width + width;
         }
-        
+
         public function getTextureIndex(layer:uint,
                                         patternX:uint,
                                         patternY:uint,
@@ -179,7 +179,7 @@ package otlib.things
                     this.patternX + patternX) *
                     this.layers + layer;
         }
-        
+
         public function getSpriteSheetSize():Size
         {
             var size:Size = new Size();
@@ -187,7 +187,7 @@ package otlib.things
             size.height = this.frames * this.patternY * this.height * Sprite.DEFAULT_SIZE;
             return size;
         }
-        
+
         public function clone():ThingType
         {
             var newThing:ThingType = new ThingType();
@@ -196,36 +196,36 @@ package otlib.things
                 var name:String = property.@name;
                 newThing[name] = this[name];
             }
-            
+
             if (this.spriteIndex)
                 newThing.spriteIndex = this.spriteIndex.concat();
-            
+
             if (this.isAnimation) {
-                
+
                 var durations:Vector.<FrameDuration> = new Vector.<FrameDuration>(this.frames, true);
                 for (var i:uint = 0; i < this.frames; i++)
                 {
                     durations[i] = this.frameDurations[i].clone();
                 }
-                
+
                 newThing.animationMode = this.animationMode;
                 newThing.loopCount = this.loopCount;
                 newThing.startFrame = this.startFrame;
                 newThing.frameDurations = durations;
             }
-            
+
             return newThing;
         }
-        
+
         //--------------------------------------------------------------------------
         // STATIC
         //--------------------------------------------------------------------------
-        
+
         public static function create(id:uint, category:String):ThingType
         {
             if (!ThingCategory.getCategory(category))
                 throw new Error(Resources.getString("invalidCategory"));
-            
+
             var thing:ThingType = new ThingType();
             thing.category = category;
             thing.id = id;
@@ -237,14 +237,14 @@ package otlib.things
             thing.patternY = 1;
             thing.patternZ = 1;
             thing.exactSize = 32;
-            
+
             if (category == ThingCategory.OUTFIT)
             {
                 thing.patternX = 4; // Directions
                 thing.frames = 3;   // Animations
                 thing.isAnimation = true;
                 thing.frameDurations = new Vector.<FrameDuration>(thing.frames, true);
-                
+
                 var duration:uint = FrameDuration.getDefaultDuration(category);
                 for (var i:uint = 0; i < thing.frames; i++)
                     thing.frameDurations[i] = new FrameDuration(duration, duration);
@@ -254,7 +254,7 @@ package otlib.things
                 thing.patternX = 3;
                 thing.patternY = 3;
             }
-            
+
             thing.spriteIndex = new Vector.<uint>(thing.getTotalSprites(), true);
             return thing;
         }

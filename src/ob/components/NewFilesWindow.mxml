@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
+Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -35,27 +35,27 @@ THE SOFTWARE.
           title="@Resource(key='newClientFiles', bundle='strings')"
           creationComplete="creationCompleteHandler(event)"
           closing="closingHandler(event)">
-    
+
     <fx:Metadata>
         [ResourceBundle("strings")]
     </fx:Metadata>
-    
+
     <fx:Script>
         <![CDATA[
             import mx.collections.ArrayCollection;
             import mx.events.FlexEvent;
-            
+
             import spark.events.IndexChangeEvent;
-            
+
             import nail.utils.DialogDetail;
-            
+
             import otlib.core.Version;
             import otlib.core.VersionStorage;
-            
+
             //--------------------------------------------------------------------------
             // PROPERTIES
             //--------------------------------------------------------------------------
-            
+
             private var m_version:Version;
             private var m_versionChanged:Boolean;
             private var m_extended:Boolean;
@@ -65,11 +65,11 @@ THE SOFTWARE.
             private var m_improvedAnimations:Boolean;
             private var m_improvedAnimationsChanged:Boolean;
             private var m_detail:uint;
-            
+
             //--------------------------------------
-            // Getters / Setters 
+            // Getters / Setters
             //--------------------------------------
-            
+
             public function get version():Version { return m_version; }
             public function set version(value:Version):void
             {
@@ -79,7 +79,7 @@ THE SOFTWARE.
                     invalidateProperties();
                 }
             }
-            
+
             public function get extended():Boolean { return m_extended; }
             public function set extended(value:Boolean):void
             {
@@ -89,7 +89,7 @@ THE SOFTWARE.
                     invalidateProperties();
                 }
             }
-            
+
             public function get transparency():Boolean { return m_transparency; }
             public function set transparency(value:Boolean):void
             {
@@ -100,68 +100,68 @@ THE SOFTWARE.
                     invalidateProperties();
                 }
             }
-            
+
             public function get improvedAnimations():Boolean { return m_improvedAnimations; }
             public function set improvedAnimations(value:Boolean):void
             {
                 if (value != m_improvedAnimations)
-                { 
+                {
                     m_improvedAnimations = value;
                     m_improvedAnimationsChanged = true;
                     invalidateProperties();
                 }
             }
-            
+
             public function get detail():uint { return m_detail; }
-            
+
             //--------------------------------------------------------------------------
             // METHODS
             //--------------------------------------------------------------------------
-            
+
             //--------------------------------------
             // Override Protected
             //--------------------------------------
-            
+
             override protected function commitProperties():void
             {
                 super.commitProperties();
-                
+
                 if (m_versionChanged) {
                     updateProperties();
                     m_versionChanged = false;
                 }
-                
+
                 if (m_extendedChanged) {
                     updateProperties();
                     m_extendedChanged = false;
                 }
-                
+
                 if (m_transparencyChanged) {
                     updateProperties();
                     m_transparencyChanged = false;
                 }
-                
+
                 if (m_improvedAnimationsChanged) {
                     updateProperties();
                     m_improvedAnimationsChanged = false;
                 }
             }
-            
+
             //--------------------------------------
             // Private
             //--------------------------------------
-            
+
             private function updateProperties():void
             {
                 var done:Boolean = (m_version != null);
-                
+
                 versionsDropDownList.selectedItem = m_version;
-                
+
                 if (done)
                 {
                     m_extended = (m_extended || m_version.value >= 960);
                     m_improvedAnimations = (m_improvedAnimations || m_version.value >= 1050);
-                    
+
                     extendedCheckBox.enabled = (m_version.value < 960);
                     transparencyCheckBox.enabled = true;
                     improvedAnimationsCheckBox.enabled = (m_version.value < 1050);
@@ -172,17 +172,17 @@ THE SOFTWARE.
                     transparencyCheckBox.enabled = false;
                     improvedAnimationsCheckBox.enabled = false;
                 }
-                
+
                 extendedCheckBox.selected = m_extended;
                 transparencyCheckBox.selected = m_transparency;
                 improvedAnimationsCheckBox.selected = m_improvedAnimations;
                 confirmButton.enabled = done;
             }
-            
+
             //--------------------------------------
             // Event Handlers
             //--------------------------------------
-            
+
             protected function creationCompleteHandler(event:FlexEvent):void
             {
                 versionsDropDownList.dataProvider = new ArrayCollection(VersionStorage.getInstance().getList());
@@ -190,48 +190,48 @@ THE SOFTWARE.
                 focusManager.setFocus(confirmButton);
                 focusManager.showFocus();
             }
-            
+
             protected function versionsDropDownListChangeHandler(event:IndexChangeEvent):void
             {
                 this.version = versionsDropDownList.selectedItem as Version;
             }
-            
+
             protected function extendedCheckBoxChangeHandler(event:Event):void
             {
                 this.extended = extendedCheckBox.selected;
             }
-            
+
             protected function transparencyCheckBoxChangeHandler(event:Event):void
             {
                 this.transparency = transparencyCheckBox.selected;
             }
-            
+
             protected function improvedAnimationsCheckBoxChangeHandler(event:Event):void
             {
                 this.improvedAnimations = improvedAnimationsCheckBox.selected;
             }
-            
+
             protected function confirmButtonClickHandler(event:MouseEvent):void
             {
                 m_detail = DialogDetail.CONFIRM;
                 this.close();
             }
-            
+
             protected function cancelButtonClickHandler(event:MouseEvent):void
             {
                 m_detail = DialogDetail.CANCEL;
                 this.close();
             }
-            
+
             protected function closingHandler(event:Event):void
             {
                 if (m_detail == DialogDetail.CANCEL)
                     m_version = null;
             }
-            
+
         ]]>
     </fx:Script>
-    
+
     <s:layout>
         <s:VerticalLayout gap="10"
                           paddingLeft="10"
@@ -240,10 +240,10 @@ THE SOFTWARE.
                           paddingBottom="10"
                           horizontalAlign="right"/>
     </s:layout>
-    
+
     <nail:GroupBox width="100%"
                    label="@Resource(key='version', bundle='strings')">
-        
+
         <nail:layout>
             <s:HorizontalLayout gap="10"
                                 paddingLeft="10"
@@ -252,13 +252,13 @@ THE SOFTWARE.
                                 paddingBottom="10"
                                 verticalAlign="middle"/>
         </nail:layout>
-        
+
         <s:DropDownList id="versionsDropDownList"
                         width="100%"
                         height="21"
                         change="versionsDropDownListChangeHandler(event)"/>
     </nail:GroupBox>
-    
+
     <nail:GroupBox width="100%"
                    label="@Resource(key='options', bundle='strings')">
         <nail:layout>
@@ -268,32 +268,32 @@ THE SOFTWARE.
                               paddingTop="10"
                               paddingBottom="10"/>
         </nail:layout>
-        
+
         <s:CheckBox id="extendedCheckBox"
                     label="@Resource(key='extended', bundle='strings')"
                     change="extendedCheckBoxChangeHandler(event)"/>
-        
+
         <s:CheckBox id="transparencyCheckBox"
                     label="@Resource(key='transparency', bundle='strings')"
                     change="transparencyCheckBoxChangeHandler(event)"/>
-        
+
         <s:CheckBox id="improvedAnimationsCheckBox"
                     label="@Resource(key='improvedAnimations', bundle='strings')"
                     change="improvedAnimationsCheckBoxChangeHandler(event)"/>
     </nail:GroupBox>
-    
+
     <nail:ShadowLine width="100%"/>
-    
+
     <s:HGroup width="100%"
               verticalAlign="middle"
               horizontalAlign="right">
-        
+
         <s:Button id="confirmButton"
                   label="@Resource(key='confirm', bundle='strings')"
                   minWidth="70"
                   enabled="false"
                   click="confirmButtonClickHandler(event)"/>
-        
+
         <s:Button id="cancelButton"
                   label="@Resource(key='cancel', bundle='strings')"
                   minWidth="70"

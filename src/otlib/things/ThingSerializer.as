@@ -1,16 +1,16 @@
 /*
-*  Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
-* 
+*  Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
+*
 *  Permission is hereby granted, free of charge, to any person obtaining a copy
 *  of this software and associated documentation files (the "Software"), to deal
 *  in the Software without restriction, including without limitation the rights
 *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 *  copies of the Software, and to permit persons to whom the Software is
 *  furnished to do so, subject to the following conditions:
-* 
+*
 *  The above copyright notice and this permission notice shall be included in
 *  all copies or substantial portions of the Software.
-* 
+*
 *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,31 +24,31 @@ package otlib.things
 {
     import flash.utils.IDataInput;
     import flash.utils.IDataOutput;
-    
+
     import nail.errors.AbstractClassError;
-    
+
     import otlib.animation.FrameDuration;
     import otlib.resources.Resources;
     import otlib.sprites.Sprite;
-    
+
     public final class ThingSerializer
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
-        
+
         public function ThingSerializer()
         {
             throw new AbstractClassError(ThingSerializer);
         }
-        
+
         //--------------------------------------------------------------------------
         // STATIC
         //--------------------------------------------------------------------------
-        
+
         private static const STRING_CHARSET:String = "iso-8859-1";
         public static const LAST_FLAG:uint = 0xFF;
-        
+
         /**
          * Read versions 7.10 - 7.30
          */
@@ -56,11 +56,11 @@ package otlib.things
         {
             var flag:uint = 0;
             while (flag < LAST_FLAG) {
-                
+
                 var previusFlag:uint = flag;
                 flag = input.readUnsignedByte();
                 if (flag == LAST_FLAG) return true;
-                
+
                 switch (flag)
                 {
                     case ThingTypeFlags1.GROUND:
@@ -162,7 +162,7 @@ package otlib.things
             }
             return true;
         }
-        
+
         /**
          * Read versions 7.40 - 7.50
          */
@@ -170,11 +170,11 @@ package otlib.things
         {
             var flag:uint = 0;
             while (flag < LAST_FLAG) {
-                
+
                 var previusFlag:uint = flag;
                 flag = input.readUnsignedByte();
                 if (flag == LAST_FLAG) return true;
-                
+
                 switch (flag)
                 {
                     case ThingTypeFlags2.GROUND:
@@ -249,7 +249,7 @@ package otlib.things
                         break;
                     case ThingTypeFlags2.MINI_MAP:
                         thing.miniMap = true;
-                        thing.miniMapColor = input.readUnsignedShort(); 
+                        thing.miniMapColor = input.readUnsignedShort();
                         break;
                     case ThingTypeFlags2.ROTATABLE:
                         thing.rotatable = true;
@@ -271,7 +271,7 @@ package otlib.things
                         break;
                     case ThingTypeFlags2.LENS_HELP:
                         thing.isLensHelp = true;
-                        thing.lensHelp = input.readUnsignedShort(); 
+                        thing.lensHelp = input.readUnsignedShort();
                         break;
                     default:
                         throw new Error(Resources.getString(
@@ -284,7 +284,7 @@ package otlib.things
             }
             return true;
         }
-        
+
         /**
          * Read versions 7.55 - 7.72
          */
@@ -292,11 +292,11 @@ package otlib.things
         {
             var flag:uint = 0;
             while (flag < LAST_FLAG) {
-                
+
                 var previusFlag:uint = flag;
                 flag = input.readUnsignedByte();
                 if (flag == LAST_FLAG) return true;
-                
+
                 switch (flag)
                 {
                     case ThingTypeFlags3.GROUND:
@@ -326,7 +326,7 @@ package otlib.things
                         break;
                     case ThingTypeFlags3.WRITABLE:
                         thing.writable = true;
-                        thing.maxTextLength = input.readUnsignedShort(); 
+                        thing.maxTextLength = input.readUnsignedShort();
                         break;
                     case ThingTypeFlags3.WRITABLE_ONCE:
                         thing.writableOnce = true;
@@ -410,7 +410,7 @@ package otlib.things
             }
             return true;
         }
-        
+
         /**
          * Read versions 7.80 - 8.54
          */
@@ -418,11 +418,11 @@ package otlib.things
         {
             var flag:uint = 0;
             while (flag < LAST_FLAG) {
-                
+
                 var previusFlag:uint = flag;
                 flag = input.readUnsignedByte();
                 if (flag == LAST_FLAG) return true;
-                
+
                 switch (flag)
                 {
                     case ThingTypeFlags4.GROUND:
@@ -545,7 +545,7 @@ package otlib.things
             }
             return true;
         }
-        
+
         /**
          * Read versions 8.60 - 9.86
          */
@@ -553,11 +553,11 @@ package otlib.things
         {
             var flag:uint = 0;
             while (flag < LAST_FLAG) {
-                
+
                 var previusFlag:uint = flag;
                 flag = input.readUnsignedByte();
                 if (flag == LAST_FLAG) return true;
-                
+
                 switch (flag)
                 {
                     case ThingTypeFlags5.GROUND:
@@ -691,7 +691,7 @@ package otlib.things
             }
             return true;
         }
-        
+
         /**
          * Read versions 10.10+
          */
@@ -699,11 +699,11 @@ package otlib.things
         {
             var flag:uint = 0;
             while (flag < LAST_FLAG) {
-                
+
                 var previusFlag:uint = flag;
                 flag = input.readUnsignedByte();
                 if (flag == LAST_FLAG) return true;
-                
+
                 switch (flag)
                 {
                     case ThingTypeFlags6.GROUND:
@@ -847,7 +847,7 @@ package otlib.things
             }
             return true;
         }
-        
+
         /**
          * Read sprites.
          */
@@ -858,15 +858,15 @@ package otlib.things
                                            readFrameDuration:Boolean):Boolean
         {
             var i:uint;
-            
+
             thing.width = input.readUnsignedByte();
             thing.height = input.readUnsignedByte();
-            
+
             if (thing.width > 1 || thing.height > 1)
                 thing.exactSize = input.readUnsignedByte();
-            else 
+            else
                 thing.exactSize = Sprite.DEFAULT_SIZE;
-            
+
             thing.layers = input.readUnsignedByte();
             thing.patternX = input.readUnsignedByte();
             thing.patternY = input.readUnsignedByte();
@@ -875,12 +875,12 @@ package otlib.things
             if (thing.frames > 1) {
                 thing.isAnimation = true;
                 thing.frameDurations = new Vector.<FrameDuration>(thing.frames, true);
-                
+
                 if (readFrameDuration) {
                     thing.animationMode = input.readUnsignedByte();
                     thing.loopCount = input.readInt();
                     thing.startFrame = input.readByte();
-                    
+
                     for (i = 0; i < thing.frames; i++)
                     {
                         var minimum:uint = input.readUnsignedInt();
@@ -888,27 +888,27 @@ package otlib.things
                         thing.frameDurations[i] = new FrameDuration(minimum, maximum);
                     }
                 } else {
-                    
+
                     var duration:uint = FrameDuration.getDefaultDuration(thing.category);
                     for (i = 0; i < thing.frames; i++)
                         thing.frameDurations[i] = new FrameDuration(duration, duration);
                 }
             }
-            
+
             var totalSprites:uint = thing.getTotalSprites();
             if (totalSprites > 4096)
                 throw new Error("A thing type has more than 4096 sprites.");
-            
+
             thing.spriteIndex = new Vector.<uint>(totalSprites);
             for (i = 0; i < totalSprites; i++) {
                 if (extended)
                     thing.spriteIndex[i] = input.readUnsignedInt();
-                else 
+                else
                     thing.spriteIndex[i] = input.readUnsignedShort();
             }
             return true;
         }
-        
+
         /**
          * Write versions 7.10 - 7.30
          */
@@ -922,7 +922,7 @@ package otlib.things
             } else if (thing.isOnTop) {
                 output.writeByte(ThingTypeFlags1.ON_TOP);
             }
-            
+
             if (thing.isContainer) output.writeByte(ThingTypeFlags1.CONTAINER);
             if (thing.stackable) output.writeByte(ThingTypeFlags1.STACKABLE);
             if (thing.multiUse) output.writeByte(ThingTypeFlags1.MULTI_USE);
@@ -970,7 +970,7 @@ package otlib.things
             output.writeByte(LAST_FLAG); // Close flags
             return true;
         }
-        
+
         /**
          * Write versions 7.40 - 7.50
          */
@@ -984,7 +984,7 @@ package otlib.things
             } else if (thing.isOnTop) {
                 output.writeByte(ThingTypeFlags2.ON_TOP);
             }
-            
+
             if (thing.isContainer) output.writeByte(ThingTypeFlags2.CONTAINER);
             if (thing.stackable) output.writeByte(ThingTypeFlags2.STACKABLE);
             if (thing.multiUse) output.writeByte(ThingTypeFlags2.MULTI_USE);
@@ -1035,7 +1035,7 @@ package otlib.things
             output.writeByte(LAST_FLAG); // Close flags
             return true;
         }
-        
+
         /**
          * Write versions 7.55 - 7.72
          */
@@ -1044,14 +1044,14 @@ package otlib.things
             if (thing.isGround) {
                 output.writeByte(ThingTypeFlags3.GROUND);
                 output.writeShort(thing.groundSpeed);
-            } else if (thing.isGroundBorder) { 
+            } else if (thing.isGroundBorder) {
                 output.writeByte(ThingTypeFlags3.GROUND_BORDER);
             } else if (thing.isOnBottom) {
                 output.writeByte(ThingTypeFlags3.ON_BOTTOM);
             } else if (thing.isOnTop) {
                 output.writeByte(ThingTypeFlags3.ON_TOP);
             }
-            
+
             if (thing.isContainer) output.writeByte(ThingTypeFlags3.CONTAINER);
             if (thing.stackable) output.writeByte(ThingTypeFlags3.STACKABLE);
             if (thing.multiUse) output.writeByte(ThingTypeFlags3.MULTI_USE);
@@ -1104,7 +1104,7 @@ package otlib.things
             output.writeByte(LAST_FLAG); // Close flags
             return true;
         }
-        
+
         /**
          * Write versions 7.80 - 8.54
          */
@@ -1113,14 +1113,14 @@ package otlib.things
             if (thing.isGround) {
                 output.writeByte(ThingTypeFlags4.GROUND);
                 output.writeShort(thing.groundSpeed);
-            } else if (thing.isGroundBorder) { 
+            } else if (thing.isGroundBorder) {
                 output.writeByte(ThingTypeFlags4.GROUND_BORDER);
             } else if (thing.isOnBottom) {
                 output.writeByte(ThingTypeFlags4.ON_BOTTOM);
             } else if (thing.isOnTop) {
                 output.writeByte(ThingTypeFlags4.ON_TOP);
             }
-            
+
             if (thing.isContainer) output.writeByte(ThingTypeFlags4.CONTAINER);
             if (thing.stackable) output.writeByte(ThingTypeFlags4.STACKABLE);
             if (thing.forceUse) output.writeByte(ThingTypeFlags4.FORCE_USE);
@@ -1176,7 +1176,7 @@ package otlib.things
             output.writeByte(LAST_FLAG); // Close flags
             return true;
         }
-        
+
         /**
          * Write versions 8.60 - 9.86
          */
@@ -1185,14 +1185,14 @@ package otlib.things
             if (thing.isGround) {
                 output.writeByte(ThingTypeFlags5.GROUND);
                 output.writeShort(thing.groundSpeed);
-            } else if (thing.isGroundBorder) { 
+            } else if (thing.isGroundBorder) {
                 output.writeByte(ThingTypeFlags5.GROUND_BORDER);
             } else if (thing.isOnBottom) {
                 output.writeByte(ThingTypeFlags5.ON_BOTTOM);
             } else if (thing.isOnTop) {
                 output.writeByte(ThingTypeFlags5.ON_TOP);
             }
-            
+
             if (thing.isContainer) output.writeByte(ThingTypeFlags5.CONTAINER);
             if (thing.stackable) output.writeByte(ThingTypeFlags5.STACKABLE);
             if (thing.forceUse) output.writeByte(ThingTypeFlags5.FORCE_USE);
@@ -1261,7 +1261,7 @@ package otlib.things
             output.writeByte(LAST_FLAG); // Close flags
             return true;
         }
-        
+
         /**
          * Write versions 10.10+
          */
@@ -1270,14 +1270,14 @@ package otlib.things
             if (thing.isGround) {
                 output.writeByte(ThingTypeFlags6.GROUND);
                 output.writeShort(thing.groundSpeed);
-            } else if (thing.isGroundBorder) { 
+            } else if (thing.isGroundBorder) {
                 output.writeByte(ThingTypeFlags6.GROUND_BORDER);
             } else if (thing.isOnBottom) {
                 output.writeByte(ThingTypeFlags6.ON_BOTTOM);
             } else if (thing.isOnTop) {
                 output.writeByte(ThingTypeFlags6.ON_TOP);
             }
-            
+
             if (thing.isContainer) output.writeByte(ThingTypeFlags6.CONTAINER);
             if (thing.stackable) output.writeByte(ThingTypeFlags6.STACKABLE);
             if (thing.forceUse) output.writeByte(ThingTypeFlags6.FORCE_USE);
@@ -1346,7 +1346,7 @@ package otlib.things
             }
             if (thing.hasDefaultAction) {
                 output.writeByte(ThingTypeFlags6.DEFAULT_ACTION);
-                output.writeShort(thing.defaultAction); 
+                output.writeShort(thing.defaultAction);
             }
             if (thing.usable) {
                 output.writeByte(ThingTypeFlags6.USABLE);
@@ -1354,7 +1354,7 @@ package otlib.things
             output.writeByte(LAST_FLAG); // Close flags
             return true;
         }
-        
+
         /**
          * Write sprites.
          */
@@ -1365,37 +1365,37 @@ package otlib.things
                                             writeFrameDuration:Boolean):Boolean
         {
             var i:uint;
-            
-            output.writeByte(thing.width);  // Write width	
-            output.writeByte(thing.height); // Write height	
-            
+
+            output.writeByte(thing.width);  // Write width
+            output.writeByte(thing.height); // Write height
+
             if (thing.width > 1 || thing.height > 1) {
                 output.writeByte(thing.exactSize); // Write exact size
             }
-            
+
             output.writeByte(thing.layers);   // Write layers
             output.writeByte(thing.patternX); // Write pattern X
             output.writeByte(thing.patternY); // Write pattern Y
             if (writePatternZ) output.writeByte(thing.patternZ); // Write pattern Z
             output.writeByte(thing.frames);   // Write frames
-            
+
             if (writeFrameDuration && thing.isAnimation) {
                 output.writeByte(thing.animationMode);   // Write animation type
                 output.writeInt(thing.loopCount);        // Write loop count
                 output.writeByte(thing.startFrame);      // Write start frame
-                
+
                 for (i = 0; i < thing.frames; i++) {
                     output.writeUnsignedInt(thing.frameDurations[i].minimum); // Write minimum duration
                     output.writeUnsignedInt(thing.frameDurations[i].maximum); // Write maximum duration
                 }
             }
-            
+
             var spriteIndex:Vector.<uint> = thing.spriteIndex;
             var length:uint = spriteIndex.length;
             for (i = 0; i < length; i++) {
                 // Write sprite index
                 if (extended)
-                    output.writeUnsignedInt(spriteIndex[i]); 
+                    output.writeUnsignedInt(spriteIndex[i]);
                 else
                     output.writeShort(spriteIndex[i]);
             }

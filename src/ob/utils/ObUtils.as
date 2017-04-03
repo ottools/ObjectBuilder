@@ -1,16 +1,16 @@
 /*
-*  Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
-* 
+*  Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
+*
 *  Permission is hereby granted, free of charge, to any person obtaining a copy
 *  of this software and associated documentation files (the "Software"), to deal
 *  in the Software without restriction, including without limitation the rights
 *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 *  copies of the Software, and to permit persons to whom the Software is
 *  furnished to do so, subject to the following conditions:
-* 
+*
 *  The above copyright notice and this permission notice shall be included in
 *  all copies or substantial portions of the Software.
-* 
+*
 *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,40 +25,40 @@ package ob.utils
     import flash.filesystem.File;
     import flash.net.FileFilter;
     import flash.utils.describeType;
-    
+
     import mx.resources.IResourceManager;
     import mx.resources.ResourceManager;
-    
+
     import nail.errors.AbstractClassError;
     import nail.utils.FileUtil;
     import nail.utils.StringUtil;
-    
+
     import otlib.resources.Resources;
     import otlib.things.BindableThingType;
     import otlib.things.ThingCategory;
     import otlib.things.ThingType;
-    
+
     [ResourceBundle("strings")]
-    
+
     public final class ObUtils
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
-        
+
         public function ObUtils()
         {
             throw new AbstractClassError(ObUtils);
         }
-        
+
         //--------------------------------------------------------------------------
         // STATIC
         //--------------------------------------------------------------------------
-        
+
         public static function toLocale(category:String):String
         {
             var result:String = "";
-            
+
             if (ThingCategory.getCategory(category)) {
                 switch(category) {
                     case ThingCategory.ITEM:
@@ -77,16 +77,16 @@ package ob.utils
             }
             return result;
         }
-        
+
         public static function hundredFloor(value:uint):uint
         {
             return (Math.floor(value / 100) * 100);
         }
-        
+
         public static function getPatternsString(thing:ThingType, saveValue:Number):String
         {
             var text:String = "";
-                
+
             if (saveValue == 2) {
                 var list:Array = [];
                 var description:XMLList = describeType(thing)..variable;
@@ -97,7 +97,7 @@ package ob.utils
                         list.push(BindableThingType.toLabel(name) + " = " + thing[name] + File.lineEnding);
                     }
                 }
-                
+
                 list.sort(Array.CASEINSENSITIVE);
                 var length:uint = list.length;
                 for (var i:uint = 0; i < length; i++) {
@@ -105,7 +105,7 @@ package ob.utils
                 }
                 return text;
             }
-            
+
             var resource:IResourceManager = ResourceManager.getInstance();
             text = resource.getString("strings", "width") + " = {0}" + File.lineEnding +
                 resource.getString("strings", "height") + " = {1}" + File.lineEnding +
@@ -115,7 +115,7 @@ package ob.utils
                 resource.getString("strings", "patternY") + " = {5}" + File.lineEnding +
                 resource.getString("strings", "patternZ") + " = {6}" + File.lineEnding +
                 resource.getString("strings", "animations") + " = {7}" + File.lineEnding;
-            
+
             return StringUtil.format(text,
                                      thing.width,
                                      thing.height,
@@ -126,11 +126,11 @@ package ob.utils
                                      thing.patternZ,
                                      thing.frames);
         }
-        
+
         public static function sortFiles(list:*, flags:uint):*
         {
             if (!list || flags == 0) return list;
-                
+
             var array:Array = [];
             var length:uint = list.length;
             for (var i:uint = 0; i < length; i++)
@@ -142,7 +142,7 @@ package ob.utils
                 if (index != -1) id = parseInt(name.split("_")[1]);
                 array[i] = {id:id, file:file};
             }
-            
+
             array.sortOn("id", flags);
             for (i = 0; i < length; i++)
             {
@@ -150,7 +150,7 @@ package ob.utils
             }
             return list;
         }
-        
+
         public static function createImagesFileFilter():Array
         {
             return [ new FileFilter(Resources.getString("allFormats"), "*.png;*.bmp;*.jpg;*.gif;"),

@@ -1,16 +1,16 @@
 /*
-*  Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
-* 
+*  Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
+*
 *  Permission is hereby granted, free of charge, to any person obtaining a copy
 *  of this software and associated documentation files (the "Software"), to deal
 *  in the Software without restriction, including without limitation the rights
 *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 *  copies of the Software, and to permit persons to whom the Software is
 *  furnished to do so, subject to the following conditions:
-* 
+*
 *  The above copyright notice and this permission notice shall be included in
 *  all copies or substantial portions of the Software.
-* 
+*
 *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,27 +24,27 @@ package otlib.components
 {
     import mx.collections.ArrayCollection;
     import mx.events.FlexEvent;
-    
+
     import spark.components.List;
-    
+
     [Exclude(kind="property", name="dataProvider")]
-    
+
     public class ListBase extends List
     {
         //--------------------------------------------------------------------------
         // PROPERTIES
         //--------------------------------------------------------------------------
-        
+
         private var _ensureIdIsVisible:uint = uint.MAX_VALUE;
         private var _scrollSave:ScrollPosition;
         private var _contextMenuEnabled:Boolean = true;
         private var _minId:uint;
         private var _maxId:uint;
-        
+
         //--------------------------------------
         // Getters / Setters
         //--------------------------------------
-        
+
         [Bindable("change")]
         [Bindable("valueCommit")]
         [Inspectable(category="General", defaultValue="0")]
@@ -55,14 +55,14 @@ package otlib.components
             }
             return 0;
         }
-        
+
         public function set selectedId(value:uint):void
         {
             if (selectedId != value) {
                 this.selectedIndex = getIndexById(value);
             }
         }
-        
+
         public function get firstSelectedId():uint
         {
             if (selectedIndices && selectedIndices.length > 0) {
@@ -70,7 +70,7 @@ package otlib.components
             }
             return 0;
         }
-        
+
         public function get lastSelectedId():uint
         {
             if (selectedIndices && selectedIndices.length > 0) {
@@ -78,11 +78,11 @@ package otlib.components
             }
             return 0;
         }
-        
+
         public function get selectedIds():Vector.<uint>
         {
             var result:Vector.<uint> = new Vector.<uint>();
-            
+
             if (selectedIndices) {
                 var length:uint = selectedIndices.length;
                 for (var i:uint = 0; i < length; i++) {
@@ -91,7 +91,7 @@ package otlib.components
             }
             return result;
         }
-        
+
         public function set selectedIds(value:Vector.<uint>):void
         {
             if (value) {
@@ -108,12 +108,12 @@ package otlib.components
                 }
             }
         }
-        
+
         public function get maxId():uint { return _maxId; }
         public function get minId():uint { return _minId; }
         public function get multipleSelected():Boolean { return (this.selectedIndices.length > 1); }
         public function get isEmpty():Boolean { return (dataProvider.length == 0); }
-        
+
         [Inspectable(category="General", defaultValue="true")]
         public function get contextMenuEnabled():Boolean { return _contextMenuEnabled; }
         public function set contextMenuEnabled(value:Boolean):void
@@ -122,31 +122,31 @@ package otlib.components
                 _contextMenuEnabled = value;
             }
         }
-        
+
         public function get length():uint { return dataProvider.length; }
-        
+
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
-        
+
         public function ListBase()
         {
             this.dataProvider = new ArrayCollection();
             this.addEventListener(FlexEvent.UPDATE_COMPLETE, updateCompleteHandler);
         }
-        
+
         //--------------------------------------------------------------------------
         // METHODS
         //--------------------------------------------------------------------------
-        
+
         //--------------------------------------
         // Public
         //--------------------------------------
-        
+
         public function setListObjects(list:*):void
         {
             this.removeAll();
-            
+
             if (list) {
                 _minId = uint.MAX_VALUE;
                 _maxId = 0;
@@ -160,7 +160,7 @@ package otlib.components
                 }
             }
         }
-        
+
         public function removeSelectedIndices():void
         {
             var selectedIndices:Vector.<int> = this.selectedIndices;
@@ -172,14 +172,14 @@ package otlib.components
                 }
             }
         }
-        
+
         public function removeAll():void
         {
             _minId = 0;
             _maxId = 0;
             dataProvider.removeAll();
         }
-        
+
         public function getIndexById(id:uint):int
         {
             var length:uint = dataProvider.length;
@@ -190,7 +190,7 @@ package otlib.components
             }
             return -1;
         }
-        
+
         public function getIndexOf(object:IListObject):int
         {
             if (object) {
@@ -198,12 +198,12 @@ package otlib.components
             }
             return -1;
         }
-        
+
         public function getObjectAt(index:int):IListObject
         {
             return this.dataProvider.getItemAt(index) as IListObject;
         }
-        
+
         public function rememberScroll():void
         {
             if (dataGroup && dataProvider.length != 0) {
@@ -218,31 +218,31 @@ package otlib.components
                         _scrollSave.firstVisible = dataProvider.getItemAt(firstVisible) as IListObject;
                         _scrollSave.lastVisible = dataProvider.getItemAt(lastVisible) as IListObject;
                     }
-                } 
+                }
             }
         }
-        
+
         public function ensureIdIsVisible(id:uint):void
         {
             _ensureIdIsVisible = id;
         }
-        
+
         public function refresh():void
         {
             ArrayCollection(dataProvider).refresh();
         }
-        
+
         //--------------------------------------
         // Private
         //--------------------------------------
-        
+
         private function onEnsureIdIsVisible(id:uint):void
         {
             if (this.isEmpty) return;
-            
+
             var firstVisible:IListObject;
             var lastVisible:IListObject;
-            
+
             if (_scrollSave) {
                 firstVisible = _scrollSave.firstVisible;
                 lastVisible = _scrollSave.lastVisible;
@@ -251,7 +251,7 @@ package otlib.components
                 firstVisible = dataProvider.getItemAt(indicesInView[0]) as IListObject;
                 lastVisible = dataProvider.getItemAt(indicesInView[indicesInView.length - 1]) as IListObject;
             }
-            
+
             if ((firstVisible && (id - 1) < firstVisible.id) || (lastVisible && (id + 1) > lastVisible.id)) {
                 var index:int = getIndexById(id);
                 if (index != -1) ensureIndexIsVisible(index);
@@ -259,14 +259,14 @@ package otlib.components
                 dataGroup.horizontalScrollPosition = _scrollSave.horizontalPosition;
                 dataGroup.verticalScrollPosition = _scrollSave.verticalPosition;
             }
-            
+
             _scrollSave = null;
         }
-        
+
         //--------------------------------------
         // Event Handlers
         //--------------------------------------
-        
+
         protected function updateCompleteHandler(event:FlexEvent):void
         {
             if (_ensureIdIsVisible != uint.MAX_VALUE) {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
+Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,22 +26,22 @@ THE SOFTWARE.
              xmlns:fb="http://ns.adobe.com/flashbuilder/2009"
              minHeight="11"
              alpha.disabled="0.5">
-    
+
     <fx:Metadata>
         <![CDATA[[HostComponent("otlib.components.PatternSlider")]]]>
-    </fx:Metadata> 
-    
+    </fx:Metadata>
+
     <fx:Script>
         <![CDATA[
-            
+
             //--------------------------------------------------------------------------
             // METHODS
             //--------------------------------------------------------------------------
-            
+
             //--------------------------------------
             // Override Protected
             //--------------------------------------
-            
+
             override protected function measure():void
             {
                 var thumbPos:Number = thumb.getLayoutBoundsX();
@@ -49,20 +49,20 @@ THE SOFTWARE.
                 super.measure();
                 thumb.setLayoutBoundsPosition(thumbPos, thumb.getLayoutBoundsY());
             }
-            
+
         ]]>
     </fx:Script>
-    
+
     <s:states>
         <s:State name="normal" />
         <s:State name="disabled" />
     </s:states>
-    
+
     <fx:Declarations>
         <fx:Component id="dataTip">
             <s:DataRenderer minHeight="24"
                             minWidth="40"
-                            y="-34">  
+                            y="-34">
                 <s:Rect top="0" left="0" right="0" bottom="0">
                     <s:fill>
                         <s:SolidColor color="0x294867" alpha="0.9"/>
@@ -73,13 +73,13 @@ THE SOFTWARE.
                 </s:Rect>
                 <s:Label id="labelDisplay"
                          text="{uint(data) + 1}"
-                         horizontalCenter="0" 
+                         horizontalCenter="0"
                          verticalCenter="1"
                          left="5"
                          right="5"
                          top="5"
                          bottom="5"
-                         textAlign="center" 
+                         textAlign="center"
                          verticalAlign="middle"
                          fontWeight="normal"
                          color="0xDFDFDF"
@@ -94,13 +94,13 @@ THE SOFTWARE.
               right="0"
               top="0"
               bottom="0"
-              minWidth="33" 
-              width="100" 
+              minWidth="33"
+              width="100"
               tabEnabled="false"
               skinClass="otlib.components.skins.PatternSliderTrackSkin" />
     <s:Button id="thumb"
               width="15"
-              height="15" 
+              height="15"
               tabEnabled="false"
               skinClass="otlib.components.skins.PatternSliderThumbSkin" />
 </s:SparkSkin>

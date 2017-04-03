@@ -1,16 +1,16 @@
 /*
-*  Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
-* 
+*  Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
+*
 *  Permission is hereby granted, free of charge, to any person obtaining a copy
 *  of this software and associated documentation files (the "Software"), to deal
 *  in the Software without restriction, including without limitation the rights
 *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 *  copies of the Software, and to permit persons to whom the Software is
 *  furnished to do so, subject to the following conditions:
-* 
+*
 *  The above copyright notice and this permission notice shall be included in
 *  all copies or substantial portions of the Software.
-* 
+*
 *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,61 +23,61 @@
 package ob.components
 {
     import flash.events.MouseEvent;
-    
+
     import mx.core.FlexGlobals;
     import mx.events.FlexEvent;
-    
+
     import spark.components.Button;
     import spark.components.SkinnableContainer;
-    
+
     import nail.commands.ICommunicator;
-    
+
     import ob.commands.SetClientInfoCommand;
     import ob.core.IObjectBuilder;
-    
+
     import otlib.utils.ClientInfo;
-    
+
     public class Toolbar extends SkinnableContainer
     {
         //--------------------------------------------------------------------------
         // PROPERTIES
         //--------------------------------------------------------------------------
-        
+
         [SkinPart(required="true", type="spark.components.Button")]
         public var newButton:Button;
-        
+
         [SkinPart(required="true", type="spark.components.Button")]
         public var openButton:Button;
-        
+
         [SkinPart(required="true", type="spark.components.Button")]
         public var compileButton:Button;
-        
+
         [SkinPart(required="true", type="spark.components.Button")]
         public var compileAsButton:Button;
-        
+
         [SkinPart(required="true", type="spark.components.Button")]
         public var openFindWindowButton:Button;
-        
+
         [SkinPart(required="true", type="spark.components.Button")]
         public var openObjectViewerButton:Button;
-        
+
         [SkinPart(required="true", type="spark.components.Button")]
         public var openSlicerButton:Button;
-        
+
         [SkinPart(required="true", type="spark.components.Button")]
         public var openAnimationEditorButton:Button;
-        
+
         [SkinPart(required="true", type="spark.components.Button")]
         public var openLogWindowButton:Button;
-        
+
         private var m_application:IObjectBuilder;
-        
+
         private var m_communicator:ICommunicator;
-        
+
         //--------------------------------------
         // Getters / Setters
         //--------------------------------------
-        
+
         public function get communicator():ICommunicator { return m_communicator; }
         public function set communicator(value:ICommunicator):void
         {
@@ -85,35 +85,35 @@ package ob.components
                 m_communicator.unregisterCallback(SetClientInfoCommand, clientInfoCallback);
                 m_communicator = null;
             }
-            
+
             m_communicator = value;
-            
+
             if (m_communicator) {
                 m_communicator.registerCallback(SetClientInfoCommand, clientInfoCallback);
             }
         }
-        
+
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
-        
+
         public function Toolbar()
         {
             addEventListener(FlexEvent.CREATION_COMPLETE, creationCompleteHandler);
         }
-        
+
         //--------------------------------------------------------------------------
         // METHODS
         //--------------------------------------------------------------------------
-        
+
         //--------------------------------------
         // Override Protected
         //--------------------------------------
-        
+
         override protected function partAdded(partName:String, instance:Object):void
         {
             super.partAdded(partName, instance);
-            
+
             if (instance == newButton ||
                 instance == openButton ||
                 instance == compileButton ||
@@ -127,27 +127,27 @@ package ob.components
                 Button(instance).addEventListener(MouseEvent.CLICK, buttonClickHandler);
             }
         }
-        
+
         //--------------------------------------
         // Private
         //--------------------------------------
-        
+
         private function clientInfoCallback(info:ClientInfo):void
         {
             openFindWindowButton.enabled = info.loaded;
             compileButton.enabled = (m_application.clientChanged && !m_application.clientIsTemporary);
             compileAsButton.enabled = m_application.clientLoaded;
         }
-        
+
         //--------------------------------------
         // Event Handlers
         //--------------------------------------
-        
+
         protected function creationCompleteHandler(event:FlexEvent):void
         {
             m_application = IObjectBuilder(FlexGlobals.topLevelApplication);
         }
-        
+
         protected function buttonClickHandler(event:MouseEvent):void
         {
             switch (event.target)
@@ -155,35 +155,35 @@ package ob.components
                 case newButton:
                     m_application.createNewProject();
                     break;
-                
+
                 case openButton:
                     m_application.openProject();
                     break;
-                
+
                 case compileButton:
                     m_application.compileProject();
                     break;
-                
+
                 case compileAsButton:
                     m_application.compileProjectAs();
                     break;
-                
+
                 case openFindWindowButton:
                     m_application.openFinder();
                     break;
-                
+
                 case openObjectViewerButton:
                     m_application.openObjectViewer();
                     break;
-                
+
                 case openSlicerButton:
                     m_application.openSlicer();
                     break;
-                
+
                 case openAnimationEditorButton:
                     m_application.openAnimationEditor();
                     break;
-                
+
                 case openLogWindowButton:
                     m_application.openLogWindow();
                     break;

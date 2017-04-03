@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
+Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,48 +21,48 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-<nail:GroupBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
-               xmlns:s="library://ns.adobe.com/flex/spark" 
+<nail:GroupBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+               xmlns:s="library://ns.adobe.com/flex/spark"
                xmlns:mx="library://ns.adobe.com/flex/mx"
                xmlns:nail="library://ns.nail.com/naillib"
                label="@Resource(key='info', bundle='strings')"
                fontSize="11"
                creationComplete="creationCompleteHandler(event)">
-    
+
     <fx:Script>
         <![CDATA[
             import mx.core.FlexGlobals;
             import mx.events.FlexEvent;
-            
+
             import nail.errors.NullArgumentError;
-            
+
             import ob.core.IObjectBuilder;
-            
+
             import otlib.core.IVersionStorage;
             import otlib.core.Version;
             import otlib.utils.ClientInfo;
-            
+
             //--------------------------------------------------------------------------
             // PROPERTIES
             //--------------------------------------------------------------------------
-            
+
             private var m_versions:IVersionStorage;
-            
+
             //--------------------------------------------------------------------------
             // METHODS
             //--------------------------------------------------------------------------
-            
+
             //--------------------------------------
             // Public
             //--------------------------------------
-            
+
             public function setFilesInfo(info:ClientInfo):void
             {
                 if (!info)
                     throw new NullArgumentError("info");
-                
+
                 var version:Version = m_versions.getBySignatures(info.datSignature, info.sprSignature);
-                
+
                 if (version)
                 {
                     filesVersionLabel.text = version.toString();
@@ -80,7 +80,7 @@ THE SOFTWARE.
                 else
                     this.clear();
             }
-            
+
             public function clear():void
             {
                 filesVersionLabel.text = null;
@@ -95,22 +95,22 @@ THE SOFTWARE.
                 transparencyValueLabel.text = null;
                 improvedAnimationsValueLabel.text = null;
             }
-            
+
             //--------------------------------------
             // Event Handlers
             //--------------------------------------
-            
+
             protected function creationCompleteHandler(event:FlexEvent):void
             {
                 m_versions = IObjectBuilder(FlexGlobals.topLevelApplication).versionStorage;
             }
-            
+
         ]]>
     </fx:Script>
-    
+
     <s:Group width="100%"
              height="100%">
-        
+
         <s:layout>
             <s:TileLayout verticalGap="3"
                           horizontalGap="10"
@@ -120,12 +120,12 @@ THE SOFTWARE.
                           paddingTop="10"
                           paddingBottom="10"/>
         </s:layout>
-        
+
         <s:Label text="{resourceManager.getString('strings', 'version') + ':'}"
                  textAlign="right"/>
         <s:Label id="filesVersionLabel"
                  color="0x9AC9F8"/>
-        
+
         <s:Label text="Dat:"
                  textAlign="right"/>
         <s:RichEditableText id="datSignatureLabel"
@@ -133,7 +133,7 @@ THE SOFTWARE.
                             focusEnabled="false"
                             height="13"
                             color="0x9AC9F8"/>
-        
+
         <s:Label text="{resourceManager.getString('strings', 'items') + ':'}"
                  textAlign="right"/>
         <s:RichEditableText id="itemsCountLabel"
@@ -141,7 +141,7 @@ THE SOFTWARE.
                             focusEnabled="false"
                             height="13"
                             color="0x9AC9F8"/>
-        
+
         <s:Label text="{resourceManager.getString('strings', 'outfits') + ':'}"
                  textAlign="right"/>
         <s:RichEditableText id="outfitsCountLabel"
@@ -149,7 +149,7 @@ THE SOFTWARE.
                             focusEnabled="false"
                             height="13"
                             color="0x9AC9F8"/>
-        
+
         <s:Label text="{resourceManager.getString('strings', 'effects') + ':'}"
                  textAlign="right"/>
         <s:RichEditableText id="effectsCountLabel"
@@ -157,7 +157,7 @@ THE SOFTWARE.
                             focusEnabled="false"
                             height="13"
                             color="0x9AC9F8"/>
-        
+
         <s:Label text="{resourceManager.getString('strings', 'missiles') + ':'}"
                  textAlign="right"/>
         <s:RichEditableText id="missilesCountLabel"
@@ -165,7 +165,7 @@ THE SOFTWARE.
                             focusEnabled="false"
                             height="13"
                             color="0x9AC9F8"/>
-        
+
         <s:Label text="Spr:"
                  textAlign="right"/>
         <s:RichEditableText id="sprSignatureLabel"
@@ -173,7 +173,7 @@ THE SOFTWARE.
                             focusEnabled="false"
                             height="13"
                             color="0x9AC9F8"/>
-        
+
         <s:Label text="{resourceManager.getString('strings', 'sprites') + ':'}"
                  textAlign="right"/>
         <s:RichEditableText id="spritesCountLabel"
@@ -181,7 +181,7 @@ THE SOFTWARE.
                             focusEnabled="false"
                             height="13"
                             color="0x9AC9F8"/>
-        
+
         <s:Label text="{resourceManager.getString('strings', 'extended') + ':'}"
                  textAlign="right"/>
         <s:RichEditableText id="extendedValueLabel"
@@ -189,7 +189,7 @@ THE SOFTWARE.
                             focusEnabled="false"
                             height="13"
                             color="0x9AC9F8"/>
-        
+
         <s:Label text="{resourceManager.getString('strings', 'transparency') + ':'}"
                  textAlign="right"/>
         <s:RichEditableText id="transparencyValueLabel"
@@ -197,7 +197,7 @@ THE SOFTWARE.
                             focusEnabled="false"
                             height="13"
                             color="0x9AC9F8"/>
-        
+
         <s:Label text="{resourceManager.getString('strings', 'improvAnim') + ':'}"
                  textAlign="right"/>
         <s:RichEditableText id="improvedAnimationsValueLabel"

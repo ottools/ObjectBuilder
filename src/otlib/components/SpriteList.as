@@ -1,16 +1,16 @@
 /*
-*  Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
-* 
+*  Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
+*
 *  Permission is hereby granted, free of charge, to any person obtaining a copy
 *  of this software and associated documentation files (the "Software"), to deal
 *  in the Software without restriction, including without limitation the rights
 *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 *  copies of the Software, and to permit persons to whom the Software is
 *  furnished to do so, subject to the following conditions:
-* 
+*
 *  The above copyright notice and this permission notice shall be included in
 *  all copies or substantial portions of the Software.
-* 
+*
 *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,9 +26,9 @@ package otlib.components
     import flash.events.KeyboardEvent;
     import flash.ui.ContextMenu;
     import flash.ui.Keyboard;
-    
+
     import mx.core.ClassFactory;
-    
+
     import otlib.components.renders.SpriteListRenderer;
     import otlib.core.otlib_internal;
     import otlib.events.SpriteListEvent;
@@ -39,17 +39,17 @@ package otlib.components
     [Event(name="replace", type="otlib.events.SpriteListEvent")]
     [Event(name="export", type="otlib.events.SpriteListEvent")]
     [Event(name="remove", type="otlib.events.SpriteListEvent")]
-    
+
     public class SpriteList extends ListBase
     {
         //--------------------------------------------------------------------------
         // PROPERTIES
         //--------------------------------------------------------------------------
-        
+
         //--------------------------------------
         // Getters / Setters
         //--------------------------------------
-        
+
         public function get selectedSprite():SpriteData
         {
             if (this.selectedItem) {
@@ -57,16 +57,16 @@ package otlib.components
             }
             return null;
         }
-        
+
         public function set selectedSprite(value:SpriteData):void
         {
             this.selectedIndex = getIndexOf(value);
         }
-        
+
         public function get selectedSprites():Vector.<SpriteData>
         {
             var result:Vector.<SpriteData> = new Vector.<SpriteData>();
-            
+
             if (selectedIndices) {
                 var length:uint = selectedIndices.length;
                 for (var i:uint = 0; i < length; i++) {
@@ -75,7 +75,7 @@ package otlib.components
             }
             return result;
         }
-        
+
         public function set selectedSprites(value:Vector.<SpriteData>):void
         {
             if (value) {
@@ -87,24 +87,24 @@ package otlib.components
                 this.selectedItems = list;
             }
         }
-        
+
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
-        
+
         public function SpriteList()
         {
             this.itemRenderer = new ClassFactory(SpriteListRenderer);
         }
-        
+
         //--------------------------------------------------------------------------
         // METHODS
         //--------------------------------------------------------------------------
-        
+
         //--------------------------------------
         // Internal
         //--------------------------------------
-        
+
         otlib_internal function onContextMenuSelect(index:int, type:String):void
         {
             if (index != -1 && this.dataProvider) {
@@ -128,14 +128,14 @@ package otlib.components
                             event = new SpriteListEvent(SpriteListEvent.REMOVE);
                             break;
                     }
-                    
+
                     if (event) {
                         dispatchEvent(event);
                     }
                 }
             }
         }
-        
+
         otlib_internal function onContextMenuDisplaying(index:int, menu:ContextMenu):void
         {
             if (this.multipleSelected) {
@@ -144,20 +144,20 @@ package otlib.components
             } else {
                 this.setSelectedIndex(index, true);
             }
-            
+
             if (hasEventListener(SpriteListEvent.DISPLAYING_CONTEXT_MENU)) {
                 dispatchEvent(new SpriteListEvent(SpriteListEvent.DISPLAYING_CONTEXT_MENU));
             }
         }
-        
+
         //--------------------------------------
         // Event Handlers
         //--------------------------------------
-        
+
         override protected function keyDownHandler(event:KeyboardEvent):void
         {
             super.keyDownHandler(event);
-            
+
             switch(event.keyCode) {
                 case Keyboard.C:
                     if (event.ctrlKey) dispatchEvent(new Event(Event.COPY));

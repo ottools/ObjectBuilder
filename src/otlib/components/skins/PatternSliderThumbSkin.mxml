@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
+Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,12 +24,12 @@ THE SOFTWARE.
 <s:SparkSkin xmlns:fx="http://ns.adobe.com/mxml/2009"
              xmlns:s="library://ns.adobe.com/flex/spark"
              xmlns:fb="http://ns.adobe.com/flashbuilder/2009">
-    
+
     <!-- host component -->
     <fx:Metadata>
         <![CDATA[[HostComponent("spark.components.Button")]]]>
-    </fx:Metadata> 
-    
+    </fx:Metadata>
+
     <!-- states -->
     <s:states>
         <s:State name="up" />
@@ -37,7 +37,7 @@ THE SOFTWARE.
         <s:State name="down" />
         <s:State name="disabled" />
     </s:states>
-    
+
     <!-- fill -->
     <s:Rect left="1" right="1" top="1" bottom="1">
         <s:fill>
@@ -47,7 +47,7 @@ THE SOFTWARE.
             </s:LinearGradient>
         </s:fill>
     </s:Rect>
-    
+
     <!-- border -->
     <s:Rect left="0" right="0" top="0" bottom="0">
         <s:stroke>

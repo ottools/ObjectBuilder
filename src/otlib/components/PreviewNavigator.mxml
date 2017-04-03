@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
+Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,8 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-<s:NavigatorContent xmlns:fx="http://ns.adobe.com/mxml/2009" 
-                    xmlns:s="library://ns.adobe.com/flex/spark" 
+<s:NavigatorContent xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
                     xmlns:mx="library://ns.adobe.com/flex/mx"
                     xmlns:nail="library://ns.nail.com/naillib"
                     xmlns:otlib="otlib.components.*">
@@ -37,27 +37,27 @@ THE SOFTWARE.
     <fx:Script>
         <![CDATA[
             import nail.assets.Icons;
-            
+
             import otlib.things.ThingData;
-            
+
             //--------------------------------------------------------------------------
             // METHODS
             //--------------------------------------------------------------------------
-            
+
             //--------------------------------------
             // Public
             //--------------------------------------
-            
+
             public function setThingData(thingData:ThingData):void
             {
                 thingView.thingData = thingData;
-                
+
                 if (thingData && thingData.thing.isAnimation)
                     play();
                 else
                     pause();
             }
-            
+
             public function play():void
             {
                 playButton.selected = true;
@@ -65,7 +65,7 @@ THE SOFTWARE.
                 playButton.toolTip = resourceManager.getString("strings", "pause");
                 thingView.play();
             }
-            
+
             public function pause():void
             {
                 playButton.selected = false;
@@ -73,11 +73,11 @@ THE SOFTWARE.
                 playButton.toolTip = resourceManager.getString("strings", "play");
                 thingView.pause();
             }
-            
+
             //--------------------------------------
             // Event Handlers
             //--------------------------------------
-            
+
             protected function playButtonChangeHandler(event:Event):void
             {
                 if (playButton.selected)
@@ -85,13 +85,13 @@ THE SOFTWARE.
                 else
                     pause();
             }
-            
+
         ]]>
     </fx:Script>
-    
+
     <otlib:FilesInfoPanel id="infoPanel"
                                width="100%"/>
-    
+
     <nail:GroupBox id="thingViewGroup"
                    label="@Resource(key='preview', bundle='strings')"
                    width="100%"
@@ -100,7 +100,7 @@ THE SOFTWARE.
                                   horizontalCenter="0"
                                   verticalCenter="0"/>
     </nail:GroupBox>
-    
+
     <s:HGroup width="100%"
               verticalAlign="middle"
               horizontalAlign="center">

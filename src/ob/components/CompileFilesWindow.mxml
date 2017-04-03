@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
+Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -38,26 +38,26 @@ THE SOFTWARE.
           title="@Resource(key='compileClientFiles', bundle='strings')"
           creationComplete="creationCompleteHandler(event)"
           closing="windowClosingHandler(event)">
-    
+
     <fx:Script>
         <![CDATA[
             import mx.collections.ArrayCollection;
             import mx.events.FlexEvent;
-            
+
             import spark.events.IndexChangeEvent;
             import spark.events.TextOperationEvent;
-            
+
             import nail.utils.DialogDetail;
             import nail.utils.isNullOrEmpty;
-            
+
             import otlib.core.Version;
             import otlib.core.VersionStorage;
             import otlib.events.FileTextInputEvent;
-            
+
             //--------------------------------------------------------------------------
             // PROPERTIES
             //--------------------------------------------------------------------------
-            
+
             private var m_filesName:String;
             private var m_filesNameChanged:Boolean;
             private var m_clientDirectory:File;
@@ -73,14 +73,14 @@ THE SOFTWARE.
             private var m_improvedAnimations:Boolean;
             private var m_improvedAnimationsChanged:Boolean;
             private var m_detail:uint;
-            
+
             //--------------------------------------
-            // Getters / Setters 
+            // Getters / Setters
             //--------------------------------------
-            
+
             public function get sprFile():File { return m_sprFile; }
             public function get datFile():File { return m_datFile; }
-            
+
             public function get version():Version { return m_version; }
             public function set version(value:Version):void
             {
@@ -90,7 +90,7 @@ THE SOFTWARE.
                     invalidateProperties();
                 }
             }
-            
+
             public function get filesName():String { return m_filesName; }
             public function set filesName(value:String):void
             {
@@ -100,7 +100,7 @@ THE SOFTWARE.
                     invalidateProperties();
                 }
             }
-            
+
             public function get directory():File { return m_clientDirectory; }
             public function set directory(value:File):void
             {
@@ -110,7 +110,7 @@ THE SOFTWARE.
                     invalidateProperties();
                 }
             }
-            
+
             public function get extended():Boolean { return m_extended; }
             public function set extended(value:Boolean):void
             {
@@ -120,7 +120,7 @@ THE SOFTWARE.
                     invalidateProperties();
                 }
             }
-            
+
             public function get transparency():Boolean { return m_transparency; }
             public function set transparency(value:Boolean):void
             {
@@ -130,89 +130,89 @@ THE SOFTWARE.
                     invalidateProperties();
                 }
             }
-            
+
             public function get improvedAnimations():Boolean { return m_improvedAnimations; }
             public function set improvedAnimations(value:Boolean):void
             {
                 if (value != m_improvedAnimations)
-                { 
+                {
                     m_improvedAnimations = value;
                     m_improvedAnimationsChanged = true;
                     invalidateProperties();
                 }
             }
-            
+
             public function get detail():uint { return m_detail; }
-            
+
             //--------------------------------------------------------------------------
             // METHODS
             //--------------------------------------------------------------------------
-            
+
             //--------------------------------------
             // Override Protected
             //--------------------------------------
-            
+
             override protected function commitProperties():void
             {
                 super.commitProperties();
-                
+
                 if (m_filesNameChanged) {
                     setClientDirectory(m_clientDirectory);
                     m_filesNameChanged = false;
                 }
-                
+
                 if (m_clientDirectoryChanged || m_versionChanged) {
                     setClientDirectory(m_clientDirectory);
                     m_clientDirectoryChanged = false;
                     m_versionChanged = false;
                 }
-                
+
                 if (m_extendedChanged) {
                     setClientDirectory(m_clientDirectory);
                     m_extendedChanged = false;
                 }
-                
+
                 if (m_transparencyChanged) {
                     updateProperties();
                     m_transparencyChanged = false;
                 }
-                
+
                 if (m_improvedAnimationsChanged) {
                     updateProperties();
                     m_improvedAnimationsChanged = false;
                 }
             }
-            
+
             //--------------------------------------
             // Private
             //--------------------------------------
-            
+
             private function setClientDirectory(directory:File):void
             {
                 m_datFile = null;
                 m_sprFile = null;
-                
+
                 nameTextInput.text = m_filesName;
                 directoryTextInput.file = directory;
                 versionsDropDownList.selectedItem = m_version;
-                
+
                 if (directory && !isNullOrEmpty(m_filesName)) {
                     m_datFile = directory.resolvePath(m_filesName + ".dat");
                     m_sprFile = directory.resolvePath(m_filesName + ".spr");
                 }
-                
+
                 updateProperties();
             }
-            
+
             private function updateProperties():void
             {
                 var done:Boolean = (m_datFile && m_sprFile && m_version);
-                
+
                 if (done)
                 {
                     m_extended = (m_extended || m_version.value >= 960);
                     m_improvedAnimations = (m_improvedAnimations || m_version.value >= 1050);
-                    
+
                     extendedCheckBox.enabled = (m_version.value < 960);
                     transparencyCheckBox.enabled = true;
                     improvedAnimationsCheckBox.enabled = (m_version.value < 1050);
@@ -223,17 +223,17 @@ THE SOFTWARE.
                     transparencyCheckBox.enabled = false;
                     improvedAnimationsCheckBox.enabled = false;
                 }
-                
+
                 extendedCheckBox.selected = m_extended;
                 transparencyCheckBox.selected = m_transparency;
                 improvedAnimationsCheckBox.selected = m_improvedAnimations;
                 confirmButton.enabled = done;
             }
-            
+
             //--------------------------------------
             // Event Handlers
             //--------------------------------------
-            
+
             protected function creationCompleteHandler(event:FlexEvent):void
             {
                 versionsDropDownList.dataProvider = new ArrayCollection(VersionStorage.getInstance().getList());
@@ -241,42 +241,42 @@ THE SOFTWARE.
                 focusManager.setFocus(confirmButton);
                 focusManager.showFocus();
             }
-            
+
             protected function browseButtonClickHandler(event:MouseEvent):void
             {
                 var path:String = m_clientDirectory ? m_clientDirectory.nativePath : File.userDirectory.nativePath;
                 var dir:File = new File(path);
                 dir.addEventListener(Event.SELECT, fileSelectHandler);
                 dir.browseForDirectory(resourceManager.getString("strings", "selectFolder"));
-                
+
                 function fileSelectHandler(event:Event):void
                 {
                     directory = dir;
                 }
             }
-            
+
             protected function directorChangeHandler(event:FileTextInputEvent):void
             {
                 this.directory = event.file;
             }
-            
+
             protected function nameTextInputChangeHandler(event:TextOperationEvent):void
             {
                 this.filesName = nameTextInput.text;
             }
-            
+
             protected function confirmButtonClickHandler(event:MouseEvent):void
             {
                 m_detail = DialogDetail.CONFIRM;
                 this.close();
             }
-            
+
             protected function cancelButtonClickHandler(event:MouseEvent):void
             {
                 m_detail = DialogDetail.CANCEL;
                 this.close();
             }
-            
+
             protected function windowClosingHandler(event:Event):void
             {
                 if (m_detail == DialogDetail.CANCEL) {
@@ -285,31 +285,31 @@ THE SOFTWARE.
                     m_version = null;
                 }
             }
-            
+
             protected function versionsDropDownListChangeHandler(event:IndexChangeEvent):void
             {
                 this.version = versionsDropDownList.selectedItem as Version;
             }
-            
+
             protected function extendedCheckBoxChangeHandler(event:Event):void
             {
                 this.extended = extendedCheckBox.selected;
             }
-            
+
             protected function transparencyCheckBoxChangeHandler(event:Event):void
             {
                 this.transparency = transparencyCheckBox.selected;
             }
-            
+
             protected function improvedAnimationsCheckBoxChangeHandler(event:Event):void
             {
                 this.improvedAnimations = improvedAnimationsCheckBox.selected;
             }
-            
+
         ]]>
     </fx:Script>
-    
-    <s:Group width="100%" 
+
+    <s:Group width="100%"
              height="100%">
         <s:layout>
             <s:VerticalLayout gap="10"
@@ -319,45 +319,45 @@ THE SOFTWARE.
                               paddingBottom="10"
                               horizontalAlign="right"/>
         </s:layout>
-        
+
         <nail:GroupBox width="100%"
                        label="{resourceManager.getString('strings', 'name') + ':'}">
             <nail:layout>
                 <s:HorizontalLayout gap="10"
                                     verticalAlign="middle"
                                     horizontalAlign="right"
-                                    paddingLeft="10" 
+                                    paddingLeft="10"
                                     paddingRight="10"
-                                    paddingTop="10" 
+                                    paddingTop="10"
                                     paddingBottom="10"/>
             </nail:layout>
             <s:TextInput id="nameTextInput"
                          width="100%"
                          change="nameTextInputChangeHandler(event)"/>
         </nail:GroupBox>
-        
+
         <nail:GroupBox width="100%" label="{resourceManager.getString('strings', 'outputFolder') + ':'}">
             <nail:layout>
                 <s:HorizontalLayout gap="10"
                                     verticalAlign="middle"
                                     horizontalAlign="right"
-                                    paddingLeft="10" 
+                                    paddingLeft="10"
                                     paddingRight="10"
-                                    paddingTop="10" 
+                                    paddingTop="10"
                                     paddingBottom="10"/>
             </nail:layout>
-            
+
             <otlib:FileTextInput id="directoryTextInput"
                                  left="0"
                                  width="100%"
                                  fileChange="directorChangeHandler(event)"/>
-            
+
             <s:Button id="browseButton"
                       label="@Resource(key='browse', bundle='strings')"
                       height="21"
                       click="browseButtonClickHandler(event)"/>
         </nail:GroupBox>
-        
+
         <nail:GroupBox width="100%" label="@Resource(key='version', bundle='strings')">
             <nail:layout>
                 <s:HorizontalLayout gap="10"
@@ -372,37 +372,37 @@ THE SOFTWARE.
                             height="21"
                             change="versionsDropDownListChangeHandler(event)"/>
         </nail:GroupBox>
-        
+
         <!-- client options -->
         <nail:GroupBox width="100%"
                        label="@Resource(key='options', bundle='strings')">
-            
+
             <nail:layout>
                 <s:VerticalLayout gap="5"
                                   verticalAlign="middle"
                                   horizontalAlign="left"
-                                  paddingLeft="10" 
+                                  paddingLeft="10"
                                   paddingRight="10"
-                                  paddingTop="10" 
+                                  paddingTop="10"
                                   paddingBottom="10"/>
             </nail:layout>
-            
+
             <s:CheckBox id="extendedCheckBox"
                         label="@Resource(key='extended', bundle='strings')"
                         enabled="false"
                         change="extendedCheckBoxChangeHandler(event)"/>
-            
+
             <s:CheckBox id="transparencyCheckBox"
                         label="@Resource(key='transparency', bundle='strings')"
                         change="transparencyCheckBoxChangeHandler(event)"/>
-            
+
             <s:CheckBox id="improvedAnimationsCheckBox"
                         label="@Resource(key='improvedAnimations', bundle='strings')"
                         change="improvedAnimationsCheckBoxChangeHandler(event)"/>
         </nail:GroupBox>
-        
+
         <nail:ShadowLine width="100%"/>
-        
+
         <s:HGroup width="100%"
                   verticalAlign="middle"
                   horizontalAlign="right">

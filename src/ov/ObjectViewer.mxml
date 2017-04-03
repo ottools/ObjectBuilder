@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
+Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,8 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009" 
-          xmlns:s="library://ns.adobe.com/flex/spark" 
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:nail="library://ns.nail.com/naillib"
           xmlns:otlib="otlib.components.*"
@@ -34,14 +34,14 @@ THE SOFTWARE.
           title="@Resource(key='objectViewer', bundle='strings')"
           creationComplete="creationCompleteHandler(event)"
           closing="closingHandler(event)">
-    
+
     <fx:Script>
         <![CDATA[
             import mx.core.FlexGlobals;
             import mx.events.FlexEvent;
-            
+
             import flashx.textLayout.conversion.TextConverter;
-            
+
             import nail.commands.ICommunicator;
             import nail.components.controls.Alert;
             import nail.errors.NullArgumentError;
@@ -49,11 +49,11 @@ THE SOFTWARE.
             import nail.utils.StringUtil;
             import nail.utils.WindowUtil;
             import nail.utils.isNullOrEmpty;
-            
+
             import ob.commands.SetClientInfoCommand;
             import ob.commands.things.ImportThingsFromFilesCommand;
             import ob.core.IObjectBuilder;
-            
+
             import otlib.assets.Assets;
             import otlib.loaders.PathHelper;
             import otlib.settings.ISettingsManager;
@@ -62,13 +62,13 @@ THE SOFTWARE.
             import otlib.things.ThingData;
             import otlib.utils.ClientInfo;
             import otlib.utils.OTFormat;
-            
+
             import ov.settings.ObjectViewerSettings;
-            
+
             //--------------------------------------------------------------------------
             // PROPERTIES
             //--------------------------------------------------------------------------
-            
+
             private var m_application:IObjectBuilder;
             private var m_communicator:ICommunicator;
             private var m_settingsManager:ISettingsManager;
@@ -80,13 +80,13 @@ THE SOFTWARE.
             private var m_lastDirectory:File;
             private var m_zoom:Number;
             private var m_zoomChanged:Boolean;
-            
+
             private const STATUS:String = "<b>{0}</b>: {1} - <b>{2}</b>: {3} - <b>{4}</b>: {5} - <b>{6}</b>: {7}";
-            
+
             //--------------------------------------
             // Getters / Setters
             //--------------------------------------
-            
+
             public function get communicator():ICommunicator { return m_communicator; }
             public function set communicator(value:ICommunicator):void
             {
@@ -94,14 +94,14 @@ THE SOFTWARE.
                     m_communicator.unregisterCallback(SetClientInfoCommand, clientInfoCallback);
                     m_communicator = null;
                 }
-                
+
                 m_communicator = value;
-                
+
                 if (m_communicator) {
                     m_communicator.registerCallback(SetClientInfoCommand, clientInfoCallback);
                 }
             }
-            
+
             public function get file():File { return m_file; }
             public function set file(value:File):void
             {
@@ -109,7 +109,7 @@ THE SOFTWARE.
                 m_fileChanged = true;
                 invalidateProperties();
             }
-            
+
             [Bindable]
             public function get zoom():Number { return m_zoom; }
             public function set zoom(value:Number):void
@@ -120,62 +120,62 @@ THE SOFTWARE.
                     invalidateProperties();
                 }
             }
-            
+
             public function get hasFiles():Boolean { return !isNullOrEmpty(m_fileList); }
-            
+
             //--------------------------------------------------------------------------
             // METHODS
             //--------------------------------------------------------------------------
-            
+
             //--------------------------------------
             // Override Protected
             //--------------------------------------
-            
+
             override protected function commitProperties():void
             {
                 super.commitProperties();
-                
+
                 if (m_fileChanged) {
                     setFile(m_file);
                     m_fileChanged = false;
                 }
-                
+
                 if (m_zoomChanged) {
                     thingView.scaleX = m_zoom;
                     thingView.scaleY = m_zoom;
                     m_zoomChanged = false;
                 }
             }
-            
+
             //--------------------------------------
             // Private
             //--------------------------------------
-            
+
             private function loadSettings():void
             {
                 m_settings = new ObjectViewerSettings();
                 m_settingsManager.loadSettings(m_settings);
-                
+
                 if (m_settings.maximized)
                     this.maximize();
                 else
                     WindowUtil.centralizeWindowOnScreen(this);
             }
-            
+
             private function saveSettings():void
             {
                 m_settings.maximized = (nativeWindow.displayState == NativeWindowDisplayState.MAXIMIZED);
                 m_settingsManager.saveSettings(m_settings);
             }
-            
+
             private function clientInfoCallback(info:ClientInfo):void
             {
                 if (!info)
                     throw new NullArgumentError("info");
-                
+
                 importButton.enabled = (info.loaded && hasFiles);
             }
-            
+
             private function setFile(fileTarget:File):void
             {
                 if (!fileTarget || fileTarget.extension != OTFormat.OBD) {
@@ -187,55 +187,55 @@ THE SOFTWARE.
                     deleteButton.enabled = false;
                     return;
                 }
-                
+
                 var directory:File = FileUtil.getDirectory(fileTarget);
-                
+
                 // Checks if the new directory and the current directory are equal.
                 if (m_fileList && m_lastDirectory && FileUtil.equals(m_lastDirectory, directory)) {
                     setFileList(fileTarget, m_fileList);
                     return;
                 }
-                
+
                 var files:Array = directory.getDirectoryListing();
                 var length:uint = files.length;
                 var fileFoundList:Vector.<File> = new Vector.<File>();
-                
+
                 for (var i:uint = 0; i < length; i++) {
                     var file:File = files[i];
                     if (file.extension == OTFormat.OBD)
                         fileFoundList[fileFoundList.length] = file;
                 }
-                
+
                 m_lastDirectory = directory;
                 FileUtil.sortFiles(fileFoundList, Array.NUMERIC);
                 setFileList(fileTarget, fileFoundList);
             }
-            
+
             private function onOpenFile():void
             {
                 var filter:FileFilter = new FileFilter("Object Builder Data", "*.obd;");
                 var file:File = m_lastDirectory ? new File(m_lastDirectory.nativePath) : m_settings.getLastDirectory();
                 file.addEventListener(Event.SELECT, fileSelectHandler);
                 file.browseForOpen(resourceManager.getString("strings", "selectFile"), [filter]);
-                
+
                 function fileSelectHandler(event:Event):void
                 {
                     m_settings.setLastDirectory(file);
                     setFile(file);
                 }
             }
-            
+
             private function setFileList(target:File, list:Vector.<File>):void
             {
                 m_fileList = list;
-                
+
                 previousButton.enabled = this.hasFiles;
                 nextButton.enabled = this.hasFiles;
                 importButton.enabled = (m_application && m_application.clientLoaded && this.hasFiles);
                 deleteButton.enabled = this.hasFiles;
-                
+
                 loadThingData(target);
-                
+
                 var length:uint = list.length;
                 for (var i:uint = 0; i < length; i++) {
                     if (target.nativePath == list[i].nativePath) {
@@ -244,13 +244,13 @@ THE SOFTWARE.
                     }
                 }
             }
-            
+
             private function loadThingData(file:File):void
             {
                 try
                 {
                     var thingData:ThingData = ThingData.createFromFile(file);
-                    
+
                     var statusText:String = StringUtil.format(
                         STATUS,
                         resourceManager.getString("strings", "name"),
@@ -261,13 +261,13 @@ THE SOFTWARE.
                         (thingData.clientVersion / 100).toString(),
                         "OBD",
                         (thingData.obdVersion / 100).toString());
-                    
+
                     this.descriptionText.textFlow = TextConverter.importToFlow(
                         statusText,
                         TextConverter.TEXT_FIELD_HTML_FORMAT);
-                    
+
                     this.thingView.thingData = thingData;
-                    
+
                     if (thingData.category == ThingCategory.OUTFIT) {
                         thingView.patternX = 2;
                         thingView.drawBlendLayer = false;
@@ -275,20 +275,20 @@ THE SOFTWARE.
                         thingView.patternX = 0;
                         thingView.drawBlendLayer = true;
                     }
-                    
+
                     thingView.play();
-                    
+
                 } catch(error:Error) {
                     Alert.show(error.getStackTrace(), resourceManager.getString("strings", "error"), Alert.OK, this);
                 }
             }
-            
+
             private function previousObject():void
             {
                 m_index = (m_index - 1 < 0) ? (m_fileList.length - 1) : (m_index - 1);
                 loadThingData(m_fileList[m_index]);
             }
-            
+
             private function nextObject():void
             {
                 if (m_fileList.length != 0) {
@@ -297,11 +297,11 @@ THE SOFTWARE.
                 } else
                     this.file = null;
             }
-            
+
             //--------------------------------------
             // Event Handlers
             //--------------------------------------
-            
+
             protected function creationCompleteHandler(event:FlexEvent):void
             {
                 m_application = IObjectBuilder(FlexGlobals.topLevelApplication);
@@ -310,39 +310,39 @@ THE SOFTWARE.
                 importButton.enabled = (m_application.clientLoaded && this.hasFiles);
                 loadSettings();
             }
-            
+
             protected function closingHandler(event:Event):void
             {
                 this.communicator = null;
                 systemManager.stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
                 saveSettings();
             }
-            
+
             protected function previousButtonDownHandler(event:FlexEvent):void
             {
                 this.previousObject();
             }
-            
+
             protected function nextButtonDownHandler(event:FlexEvent):void
             {
                 this.nextObject();
             }
-            
+
             protected function importButtonClickHandler(event:MouseEvent):void
             {
                 if (!m_application.clientLoaded) return;
-                
+
                 var list:Vector.<PathHelper> = new Vector.<PathHelper>(1, true);
                 list[0] = new PathHelper(m_fileList[m_index].nativePath);
                 m_communicator.sendCommand(new ImportThingsFromFilesCommand(list));
             }
-            
+
             protected function deleteButtonClickHandler(event:MouseEvent):void
             {
                 if (!thingView.thingData) return;
-                
+
                 var file:File = m_fileList[m_index];
-                
+
                 try
                 {
                     file.moveToTrash();
@@ -350,11 +350,11 @@ THE SOFTWARE.
                     nextObject();
                 } catch(error:Error) { }
             }
-            
+
             override protected function keyDownHandler(event:KeyboardEvent):void
             {
                 var keyCode:uint = event.keyCode;
-                
+
                 if (event.ctrlKey) {
                     switch(keyCode) {
                         case Keyboard.O:
@@ -372,44 +372,44 @@ THE SOFTWARE.
                     }
                 }
             }
-            
+
             protected function zoomChangeHandler(event:Event):void
             {
                 this.zoom = HSlider(event.target).value;
             }
-            
+
         ]]>
     </fx:Script>
-    
+
     <s:layout>
         <s:VerticalLayout/>
     </s:layout>
-    
+
     <!-- tool bar -->
     <s:Group width="100%"
              height="35"
              top="0">
-        
+
         <!-- highlight -->
         <s:Rect left="-1" right="-1" top="1" bottom="0">
             <s:stroke>
                 <s:SolidColorStroke color="0x636363"/>
             </s:stroke>
         </s:Rect>
-        
+
         <!-- border -->
         <s:Rect left="-1" right="-1" top="0" bottom="0">
             <s:stroke>
                 <s:SolidColorStroke color="0x272727"/>
             </s:stroke>
         </s:Rect>
-        
+
         <s:HGroup width="100%"
                   height="100%"
                   verticalAlign="middle"
                   paddingLeft="10"
                   paddingRight="10">
-            
+
             <s:Button id="openButton"
                       toolTip="@Resource(key='menu.open', bundle='strings')"
                       width="25"
@@ -417,22 +417,22 @@ THE SOFTWARE.
                       icon="{Assets.OPEN}"
                       skinClass="nail.components.skins.IconButtonSkin"
                       click="onOpenFile()"/>
-            
+
         </s:HGroup>
     </s:Group>
-    
+
     <s:HGroup width="100%"
               height="100%"
               horizontalAlign="center"
               verticalAlign="middle">
-        
+
         <otlib:ThingDataView id="thingView"/>
     </s:HGroup>
-    
+
     <s:HGroup width="100%"
               horizontalAlign="center"
               verticalAlign="middle">
-        
+
         <s:Button id="previousButton"
                   toolTip="@Resource(key='previous', bundle='strings')"
                   width="25"
@@ -442,7 +442,7 @@ THE SOFTWARE.
                   autoRepeat="true"
                   repeatInterval="200"
                   buttonDown="previousButtonDownHandler(event)"/>
-        
+
         <s:Button id="importButton"
                   toolTip="@Resource(key='import', bundle='strings')"
                   width="25"
@@ -450,7 +450,7 @@ THE SOFTWARE.
                   icon="{Assets.IMPORT}"
                   enabled="false"
                   click="importButtonClickHandler(event)"/>
-        
+
         <s:Button id="deleteButton"
                   toolTip="@Resource(key='delete', bundle='strings')"
                   width="25"
@@ -458,7 +458,7 @@ THE SOFTWARE.
                   icon="{Assets.DELETE}"
                   enabled="false"
                   click="deleteButtonClickHandler(event)"/>
-        
+
         <s:Button id="nextButton"
                   toolTip="@Resource(key='next', bundle='strings')"
                   width="25"
@@ -469,26 +469,26 @@ THE SOFTWARE.
                   repeatInterval="200"
                   buttonDown="nextButtonDownHandler(event)"/>
     </s:HGroup>
-    
+
     <nail:StatusBar width="100%"
                     height="24">
-        
+
         <nail:layout>
             <s:HorizontalLayout verticalAlign="middle"
                                 paddingLeft="10"
                                 paddingRight="10"/>
         </nail:layout>
-        
+
         <s:Spacer width="100%"/>
-        
+
         <s:RichEditableText id="descriptionText"
                             editable="false"
                             focusEnabled="false"/>
-        
+
         <s:Spacer width="100%"/>
-        
+
         <s:Label text="{resourceManager.getString('strings', 'zoom')+':'}"/>
-        
+
         <s:HSlider id="zoomSlider"
                    width="100"
                    minimum="1.0"

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
+Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,8 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009" 
-          xmlns:s="library://ns.adobe.com/flex/spark" 
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:nail="library://ns.nail.com/naillib"
           width="400"
@@ -37,7 +37,7 @@ THE SOFTWARE.
           title="@Resource(key='importObject', bundle='strings')"
           creationComplete="creationCompleteHandler(event)"
           closing="windowClosingHandler(event)">
-    
+
     <s:layout>
         <s:VerticalLayout gap="10"
                           paddingLeft="10"
@@ -46,50 +46,50 @@ THE SOFTWARE.
                           paddingBottom="10"
                           horizontalAlign="right"/>
     </s:layout>
-    
+
     <fx:Metadata>
         [ResourceBundle("strings")]
     </fx:Metadata>
-    
+
     <fx:Script>
         <![CDATA[
             import mx.events.FlexEvent;
-            
+
             import nail.logging.Log;
             import nail.utils.FileUtil;
             import nail.utils.StringUtil;
-            
+
             import otlib.core.Version;
             import otlib.things.ThingData;
-            
+
             //--------------------------------------------------------------------------
             // PROPERTIES
             //--------------------------------------------------------------------------
-            
+
             private var _directory:File;
             private var _thingData:ThingData;
             private var _cancel: Boolean = true;
-            
+
             //--------------------------------------
-            // Getters / Setters 
+            // Getters / Setters
             //--------------------------------------
-            
+
             public function get thingData():ThingData { return _thingData; }
             public function get directory():File { return _directory; }
             public function set directory(value:File):void { _directory = value; }
-            
+
             //--------------------------------------------------------------------------
             // METHODS
             //--------------------------------------------------------------------------
-            
+
             private function setFile(file:File):void
             {
                 _thingData = null;
-                
+
                 var bytes:ByteArray = new ByteArray();
                 var stream:FileStream = new FileStream();
                 var data:ThingData;
-                
+
                 try
                 {
                     stream.open(file, FileMode.READ);
@@ -100,67 +100,67 @@ THE SOFTWARE.
                     Log.error(error.message, error.getStackTrace(), error.errorID);
                     return;
                 }
-                
+
                 _thingData = data;
                 _directory = FileUtil.getDirectory(file);
                 fileTextInput.text = file.nativePath;
-                
+
                 bytes.position = 0;
                 var version:Version = Version.getVersionByValue( bytes.readUnsignedShort() );
                 if (data && version) {
                     typeLabel.text = StringUtil.capitaliseFirstLetter(data.category);
                     versionLabel.text = version.toString();
                 }
-                
+
                 thingView.thingData = data;
                 confirmButton.enabled = (data != null);
             }
-            
+
             //--------------------------------------
             // Event Handlers
             //--------------------------------------
-            
+
             protected function creationCompleteHandler(event:FlexEvent):void
             {
                 focusManager.setFocus(browseButton);
                 focusManager.showFocus();
             }
-            
+
             protected function browseButtonClickHandler(event:MouseEvent):void
             {
                 var filter:FileFilter = new FileFilter("Object Builder Data", "*.obd");
                 var file:File = _directory != null ? _directory : File.documentsDirectory;
                 file.addEventListener(Event.SELECT, fileSelectHandler);
                 file.browseForOpen(resourceManager.getString("strings", "selectFile"), [filter]);
-                
+
                 function fileSelectHandler(event:Event):void
                 {
                     setFile(file);
                 }
             }
-            
+
             protected function confirmButtonClickHandler(event:MouseEvent):void
             {
                 _cancel = false;
                 this.close();
             }
-            
+
             protected function windowClosingHandler(event:Event):void
             {
                 if (_cancel) {
                     _thingData = null;
                 }
             }
-            
+
         ]]>
     </fx:Script>
-    
+
     <s:Group width="100%">
         <s:layout>
             <s:VerticalLayout gap="2"/>
         </s:layout>
         <s:Label text="{resourceManager.getString('strings', 'file') + ':'}"
-                 fontSize="11" 
+                 fontSize="11"
                  color="0xDFDFDF"/>
         <s:HGroup width="100%"
                   height="100%">
@@ -173,7 +173,7 @@ THE SOFTWARE.
                       click="browseButtonClickHandler(event)"/>
         </s:HGroup>
     </s:Group>
-    
+
     <nail:GroupBox label="@Resource(key='preview', bundle='strings')"
                    width="100%"
                    height="100%">
@@ -185,12 +185,12 @@ THE SOFTWARE.
             <s:Label text="{resourceManager.getString('strings', 'version') + ':'}"/>
             <s:Label id="versionLabel"/>
         </s:TileGroup>
-        
+
         <components:ThingView id="thingView"
                             horizontalCenter="0"
                             verticalCenter="0"/>
     </nail:GroupBox>
-    
+
     <s:HGroup width="100%"
               verticalAlign="middle"
               horizontalAlign="right">

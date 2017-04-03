@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
+Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,28 +31,28 @@ THE SOFTWARE.
           backgroundColor="0x494949"
           fontSize="11"
           title="@Resource(key='error', bundle='strings')">
-    
+
     <fx:Script>
         <![CDATA[
             import nail.utils.Descriptor;
             import nail.utils.StringUtil;
             import nail.utils.isNullOrEmpty;
-            
+
             //--------------------------------------------------------------------------
             // PROPERTIES
             //--------------------------------------------------------------------------
-            
+
             [Bindable]
             public var message:String;
-            
+
             //--------------------------------------------------------------------------
             // METHODS
             //--------------------------------------------------------------------------
-            
+
             //--------------------------------------
             // Public
             //--------------------------------------
-            
+
             public function appendMessage(message:String):void
             {
                 if (!isNullOrEmpty(this.message))
@@ -60,11 +60,11 @@ THE SOFTWARE.
                 else
                     this.message = message;
             }
-            
+
             //--------------------------------------
             // Event Handlers
             //--------------------------------------
-            
+
             protected function openLogButtonClickHandler(event:MouseEvent):void
             {
                 var name:String = StringUtil.toKeyString(Descriptor.getName());
@@ -72,10 +72,10 @@ THE SOFTWARE.
                 if (file.exists)
                     file.openWithDefaultApplication();
             }
-            
+
         ]]>
     </fx:Script>
-    
+
     <s:layout>
         <s:VerticalLayout paddingLeft="10"
                           paddingRight="10"
@@ -83,7 +83,7 @@ THE SOFTWARE.
                           paddingBottom="10"
                           gap="10"/>
     </s:layout>
-    
+
     <s:TextArea width="100%"
                 height="100%"
                 text="{message}"
@@ -93,17 +93,17 @@ THE SOFTWARE.
                 focusedTextSelectionColor="0xFFFFFF"
                 contentBackgroundColor="0xCCCCCC"
                 lineBreak="explicit"/>
-    
+
     <nail:ShadowLine width="100%"/>
-    
+
     <s:HGroup width="100%"
               verticalAlign="middle"
               horizontalAlign="right">
-        
+
         <s:Button label="@Resource(key='openLogFile', bundle='strings')"
                   minWidth="60"
                   click="openLogButtonClickHandler(event)"/>
-        
+
         <s:Button label="@Resource(key='ok', bundle='strings')"
                   minWidth="60"
                   click="close()"/>

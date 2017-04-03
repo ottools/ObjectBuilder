@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
+Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -36,23 +36,23 @@ THE SOFTWARE.
           title="@Resource(key='find', bundle='strings')"
           creationComplete="creationCompleteHandler(event)"
           closing="closingHandler(event)">
-    
+
     <s:layout>
         <s:VerticalLayout/>
     </s:layout>
-    
+
     <fx:Metadata>
         [ResourceBundle("strings")]
     </fx:Metadata>
-    
+
     <fx:Script>
         <![CDATA[
             import mx.core.FlexGlobals;
             import mx.events.FlexEvent;
             import mx.events.PropertyChangeEvent;
-            
+
             import nail.commands.ICommunicator;
-            
+
             import ob.commands.FindResultCommand;
             import ob.commands.ProgressBarID;
             import ob.commands.ProgressCommand;
@@ -63,7 +63,7 @@ THE SOFTWARE.
             import ob.commands.things.GetThingCommand;
             import ob.commands.things.RemoveThingCommand;
             import ob.core.IObjectBuilder;
-            
+
             import otlib.assets.Assets;
             import otlib.components.renders.SpriteListRenderer;
             import otlib.components.renders.ThingListRenderer;
@@ -72,20 +72,20 @@ THE SOFTWARE.
             import otlib.things.ThingCategory;
             import otlib.things.ThingProperty;
             import otlib.utils.ThingListItem;
-            
+
             //--------------------------------------------------------------------------
             // PROPERTIES
             //--------------------------------------------------------------------------
-            
+
             private var m_application:IObjectBuilder;
             private var m_communicator:ICommunicator;
             private var m_bindableThingType:BindableThingType;
             private var m_properties:Dictionary;
-            
+
             //--------------------------------------
             // Getters / Setters
             //--------------------------------------
-            
+
             public function get communicator():ICommunicator { return m_communicator; }
             public function set communicator(value:ICommunicator):void
             {
@@ -94,34 +94,34 @@ THE SOFTWARE.
                     m_communicator.unregisterCallback(FindResultCommand, findResultCallback);
                     m_communicator = null;
                 }
-                
+
                 m_communicator = value;
-                
+
                 if (m_communicator) {
                     m_communicator.registerCallback(ProgressCommand, progressCallback);
                     m_communicator.registerCallback(FindResultCommand, findResultCallback);
                 }
             }
-            
+
             //--------------------------------------------------------------------------
             // METHODS
             //--------------------------------------------------------------------------
-            
+
             //--------------------------------------
             // Private
             //--------------------------------------
-            
+
             private function progressCallback(id:uint,
                                               loaded:uint,
                                               total:uint,
                                               label:String):void
             {
                 if (id != ProgressBarID.FIND || !progressBar) return;
-                
+
                 progressBar.setProgress(loaded, total);
                 progressBar.label = loaded + " / " + total;
             }
-            
+
             private function findResultCallback(type:uint, list:Array):void
             {
                 if (type == FindResultCommand.THINGS)
@@ -134,15 +134,15 @@ THE SOFTWARE.
                     spritesList.setListObjects(list);
                     spritesList.selectedIndex = 0;
                 }
-                
+
                 progressBar.visible = false;
-                
+
                 var category:String;
                 if (tabNavigator.selectedIndex == 0)
                     category = getCurrentCategory();
                 else if (tabNavigator.selectedIndex == 1)
                     category = "sprite";
-                
+
                 var length:uint = list ? list.length : 0;
                 removeButton.enabled = (length != 0);
                 successFindLabel.text = resourceManager.getString(
@@ -150,33 +150,33 @@ THE SOFTWARE.
                     "successFind",
                     [length, resourceManager.getString("strings", category + (length == 1 ? "" : "s"))]);
             }
-            
+
             private function getCurrentCategory():String
             {
                 switch (categoryDropDownList.selectedIndex)
                 {
                     case 0:
                         return ThingCategory.ITEM;
-                        
+
                     case 1:
                         return ThingCategory.OUTFIT;
-                        
+
                     case 2:
                         return ThingCategory.EFFECT;
-                        
+
                     case 3:
                         return ThingCategory.MISSILE;
                 }
-                
+
                 return null;
             }
-            
+
             private function findThings():void
             {
                 if (!m_properties) return;
-                
+
                 var list:Vector.<ThingProperty> = new Vector.<ThingProperty>();
-                
+
                 for (var property:String in m_properties)
                 {
                     var thingProperty:ThingProperty = new ThingProperty();
@@ -184,7 +184,7 @@ THE SOFTWARE.
                     thingProperty.value = m_properties[property];
                     list.push(thingProperty);
                 }
-                
+
                 var category:String = getCurrentCategory();
                 if (list.length > 0 && category)
                 {
@@ -192,7 +192,7 @@ THE SOFTWARE.
                     progressBar.visible = true;
                 }
             }
-            
+
             private function selectThing():void
             {
                 var listItem:ThingListItem = thingsList.selectedItem as ThingListItem;
@@ -200,7 +200,7 @@ THE SOFTWARE.
                     m_communicator.sendCommand(new GetThingCommand(listItem.thing.id,
                                                                    listItem.thing.category));
             }
-            
+
             private function removeThings():void
             {
                 m_communicator.sendCommand(new RemoveThingCommand(thingsList.selectedIds,
@@ -208,7 +208,7 @@ THE SOFTWARE.
                                                                   false));
                 thingsList.removeSelectedIndices();
             }
-            
+
             private function findSprites():void
             {
                 if (unusedSpritesCheckBox.selected || emptySpritesCheckBox.selected)
@@ -218,24 +218,24 @@ THE SOFTWARE.
                     progressBar.visible = true;
                 }
             }
-            
+
             private function selectSprite():void
             {
                 var spriteData:SpriteData = spritesList.selectedItem as SpriteData;
-                if (spriteData) 
+                if (spriteData)
                     m_communicator.sendCommand(new GetSpriteListCommand(spriteData.id));
             }
-            
+
             private function removeSprites():void
             {
                 m_communicator.sendCommand(new RemoveSpritesCommand(spritesList.selectedIds));
                 spritesList.removeSelectedIndices();
             }
-            
+
             //--------------------------------------
             // Event Handlers
             //--------------------------------------
-            
+
             protected function creationCompleteHandler(event:FlexEvent):void
             {
                 m_application = FlexGlobals.topLevelApplication as IObjectBuilder;
@@ -243,12 +243,12 @@ THE SOFTWARE.
                 m_bindableThingType.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, thingPropertyChangeHandler);
                 m_properties = new Dictionary();
             }
-            
+
             protected function closingHandler(event:Event):void
             {
                 this.communicator = null;
             }
-            
+
             protected function findButtonClickHandler(event:MouseEvent):void
             {
                 if (tabNavigator.selectedIndex == 0)
@@ -256,7 +256,7 @@ THE SOFTWARE.
                 else if (tabNavigator.selectedIndex == 1)
                     findSprites();
             }
-            
+
             protected function selectButtonClickHandler(event:MouseEvent):void
             {
                 if (tabNavigator.selectedIndex == 0)
@@ -264,15 +264,15 @@ THE SOFTWARE.
                 else if (tabNavigator.selectedIndex == 1)
                     selectSprite();
             }
-            
+
             protected function thingPropertyChangeHandler(event:PropertyChangeEvent):void
             {
                 if (event.newValue)
                     m_properties[event.property] = event.newValue;
-                else 
+                else
                     delete m_properties[event.property];
             }
-            
+
             protected function doubleClickHandler(event:MouseEvent):void
             {
                 if (event.target is ThingListRenderer)
@@ -280,7 +280,7 @@ THE SOFTWARE.
                 else if (event.target is SpriteListRenderer)
                     selectSprite();
             }
-            
+
             protected function removeHandler(event:MouseEvent):void
             {
                 if (tabNavigator.selectedIndex == 0)
@@ -288,10 +288,10 @@ THE SOFTWARE.
                 else if (tabNavigator.selectedIndex == 1)
                     removeSprites();
             }
-            
+
         ]]>
     </fx:Script>
-    
+
     <nail:TabNavigator id="tabNavigator"
                        width="100%"
                        height="100%">
@@ -329,7 +329,7 @@ THE SOFTWARE.
                                     <fx:String>{resourceManager.getString('strings', 'missile')}</fx:String>
                                 </s:ArrayList>
                             </s:dataProvider>
-                        </s:DropDownList>	
+                        </s:DropDownList>
                         <s:Spacer height="10"/>
                         <s:CheckBox id="isGroundCheckBox"
                                     label="@Resource(key='isGround', bundle='strings')"
@@ -391,10 +391,10 @@ THE SOFTWARE.
                         <s:CheckBox id="liquidPoolCheckBox"
                                     label="@Resource(key='fluid', bundle='strings')"
                                     change="{m_bindableThingType.isFluid = liquidPoolCheckBox.selected;}"/>
-                        <s:CheckBox id="unpassableCheckBox" 
+                        <s:CheckBox id="unpassableCheckBox"
                                     label="@Resource(key='unpassable', bundle='strings')"
                                     change="{m_bindableThingType.isUnpassable = unpassableCheckBox.selected;}"/>
-                        <s:CheckBox id="unmovableCheckBox" 
+                        <s:CheckBox id="unmovableCheckBox"
                                     label="@Resource(key='unmovable', bundle='strings')"
                                     change="{m_bindableThingType.isUnmoveable = unmovableCheckBox.selected;}"/>
                         <s:CheckBox id="blockMissileCheckBox"
@@ -465,7 +465,7 @@ THE SOFTWARE.
                     </s:VGroup>
                 </s:Scroller>
             </nail:GroupBox>
-            
+
             <nail:GroupBox label="@Resource(key='found', bundle='strings')"
                            width="100%"
                            height="100%">
@@ -495,7 +495,7 @@ THE SOFTWARE.
                                     paddingTop="10"
                                     paddingBottom="10"/>
             </s:layout>
-            
+
             <nail:GroupBox label="@Resource(key='properties', bundle='strings')"
                            width="100%"
                            height="100%">
@@ -516,7 +516,7 @@ THE SOFTWARE.
                     </s:VGroup>
                 </s:Scroller>
             </nail:GroupBox>
-            
+
             <nail:GroupBox label="@Resource(key='found', bundle='strings')"
                            width="100%"
                            height="100%">
@@ -538,7 +538,7 @@ THE SOFTWARE.
             </nail:GroupBox>
         </s:NavigatorContent>
     </nail:TabNavigator>
-    
+
     <s:HGroup width="100%"
               paddingLeft="10"
               paddingRight="10"

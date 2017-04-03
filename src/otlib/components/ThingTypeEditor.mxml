@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (c) 2014-2016 Object Builder <https://github.com/ottools/ObjectBuilder>
+Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -30,20 +30,20 @@ THE SOFTWARE.
          minHeight="0"
          fontSize="11"
          creationComplete="creationCompleteHandler(event)">
-    
+
     <fx:Declarations>
         <s:RadioButtonGroup id="renderOrder"
                             enabled="{!groundGroupCheckBox.selected}"
                             change="renderOrderChangeHandler(event)"/>
     </fx:Declarations>
-    
+
     <fx:Metadata>
         [Event(name="thingChange", type="otlib.events.ThingEditorEvent")]
         [Event(name="thingPropertyChange", type="otlib.events.ThingEditorEvent")]
         [Event(name="spriteDoubleClick", type="otlib.events.ThingEditorEvent")]
         [ResourceBundle("strings")]
     </fx:Metadata>
-    
+
     <fx:Script>
         <![CDATA[
             import mx.core.DragSource;
@@ -52,10 +52,10 @@ THE SOFTWARE.
             import mx.events.FlexEvent;
             import mx.events.PropertyChangeEvent;
             import mx.managers.DragManager;
-            
+
             import spark.components.Button;
             import spark.events.IndexChangeEvent;
-            
+
             import otlib.animation.FrameDuration;
             import otlib.components.skins.SpriteButtonSkin;
             import otlib.events.ThingEditorEvent;
@@ -67,14 +67,14 @@ THE SOFTWARE.
             import otlib.things.ThingType;
             import otlib.utils.ClientInfo;
             import otlib.utils.OutfitData;
-            
+
             //--------------------------------------------------------------------------
             // PROPERTIES
             //--------------------------------------------------------------------------
-            
+
             [Bindable]
             private var _thingBinding:BindableThingType;
-            
+
             [Bindable]
             private var _thingData:ThingData;
             private var _thingDataChanged:Boolean;
@@ -89,13 +89,13 @@ THE SOFTWARE.
             private var _filesInfoChanged:Boolean;
             private var _previewMode:Boolean;
             private var _lastAnimationFrame:uint;
-            
+
             //--------------------------------------
-            // Getters / Setters 
+            // Getters / Setters
             //--------------------------------------
-            
+
             public function get bindableThingType():BindableThingType { return _thingBinding; }
-            
+
             public function get thingData():ThingData { return _thingData; }
             public function set thingData(value:ThingData):void
             {
@@ -107,9 +107,9 @@ THE SOFTWARE.
                     dispatchEvent(new ThingEditorEvent(ThingEditorEvent.THING_CHANGE, this.thingData));
                 }
             }
-            
+
             public function get changed():Boolean { return _thingData ? _changed : false; }
-            
+
             public function get filesInfo():ClientInfo { return _filesInfo; }
             public function set filesInfo(value:ClientInfo):void
             {
@@ -119,15 +119,15 @@ THE SOFTWARE.
                     invalidateProperties();
                 }
             }
-            
+
             //--------------------------------------------------------------------------
             // METHODS
             //--------------------------------------------------------------------------
-            
+
             //--------------------------------------
             // Public
             //--------------------------------------
-            
+
             public function saveChanges():Boolean
             {
                 if (_thingData && _changed) {
@@ -138,8 +138,8 @@ THE SOFTWARE.
                     }
                 }
                 return false;
-            }	
-            
+            }
+
             public function getThingTypeResult():ThingType
             {
                 if (_thingData) {
@@ -150,7 +150,7 @@ THE SOFTWARE.
                 }
                 return null;
             }
-            
+
             public function updatePreview():void
             {
                 if (_thingData) {
@@ -161,13 +161,13 @@ THE SOFTWARE.
                     thingView.patternX = _patternX;
                     thingView.patternY = _patternY;
                     thingView.patternZ = mountSlider.value;
-                    
+
                     var frameDuration:FrameDuration = _thingBinding.getFrameDuration(animationSlider.value);
                     if (frameDuration) {
                         minimumNumericStepper.value = frameDuration.minimum;
                         maximumNumericStepper.value = frameDuration.maximum;
                     }
-                    
+
                     if (_thingData.category == ThingCategory.OUTFIT || _thingData.category == ThingCategory.MISSILE) {
                         addonGroup.visible = (_thingData.category == ThingCategory.OUTFIT && patternYNumericStepper.value > 1);
                         updateViewWithDirection();
@@ -176,48 +176,48 @@ THE SOFTWARE.
                     }
                 }
             }
-            
+
             public function invalidateThingData():void
             {
                 _invalidateThingData = true;
                 invalidateProperties();
             }
-            
+
             //--------------------------------------
             // Override Protected
             //--------------------------------------
-            
+
             override protected function commitProperties():void
             {
                 super.commitProperties();
-                
+
                 if (_thingDataChanged) {
                     setThingData(_thingData);
                     setFilesInfo(_filesInfo)
                     _thingDataChanged = false;
                 }
-                
+
                 if (_invalidateThingData) {
                     _changed = true;
                     _invalidateThingData = false;
                 }
-                
+
                 if (_filesInfoChanged) {
                     setFilesInfo(_filesInfo);
                     _filesInfoChanged = false;
                 }
             }
-            
+
             //--------------------------------------
             // Private
             //--------------------------------------
-            
+
             private function setThingData(thingData:ThingData):void
             {
                 _loading = true;
                 _lastAnimationFrame = 0;
                 thingView.thingData = thingData;
-                
+
                 _thingBinding.reset();
                 animationSlider.value = 0;
                 mountSlider.value = 0;
@@ -226,9 +226,9 @@ THE SOFTWARE.
                 layerSlider.value = 0;
                 layerGroup.visible = false;
                 setPreviewMode(false);
-                
+
                 if (thingData) {
-                    
+
                     var isOutfit:Boolean = (thingData.category == ThingCategory.OUTFIT);
                     var isMissile:Boolean = (thingData.category == ThingCategory.MISSILE);
                     directionGroup.visible = (isOutfit || isMissile);
@@ -238,39 +238,39 @@ THE SOFTWARE.
                     bottomLeftButton.visible = isMissile;
                     addonGroup.visible = (isOutfit && thingData.thing.patternY > 1);
                     cropSizeNumericStepper.maximum = Math.max(thingData.thing.width * 32, thingData.thing.height * 32);
-                    
+
                     _thingBinding.copyFrom(thingData);
-                    
+
                     animationModeDropDownList.selectedIndex = _thingBinding.animationMode;
                     loopCountNumericStepper.value = _thingBinding.loopCount;
                     startFrameNumericStepper.value = _thingBinding.startFrame;
                     frameStrategyDropDownList.selectedIndex = _thingBinding.loopCount != -1 ? 0 : 1;
-                    
+
                     if (isOutfit || isMissile)
                         selectDirectionButton(bottomCenterButton);
                     else
                         updatePreview();
                 }
-                
+
                 _changed = false;
                 _loading = false;
-                
+
                 checkThingOrder();
             }
-            
+
             private function setFilesInfo(info:ClientInfo):void
             {
                 if (!this.thingData || !info) return;
-                
+
                 var category:String = thingData.category;
                 var visible:Boolean = (category == ThingCategory.ITEM || category == ThingCategory.OUTFIT);
                 flagsGroupBox.visible = visible;
                 flagsGroupBox.includeInLayout = visible;
-                
+
                 visible = (category == ThingCategory.OUTFIT);
                 animateAlwaysCheckBox.visible = visible;
                 animateAlwaysCheckBox.includeInLayout = visible;
-                
+
                 var isItem:Boolean = (category == ThingCategory.ITEM);
                 groundGroupCheckBox.visible = isItem;
                 groundGroupCheckBox.includeInLayout = isItem;
@@ -292,7 +292,7 @@ THE SOFTWARE.
                 fullGroundCheckBox.includeInLayout = isItem;
                 isLensHelpGroupCheckBox.visible = isItem;
                 isLensHelpGroupCheckBox.includeInLayout = isItem;
-                
+
                 if (info.clientVersion >= 755) {
                     offsetXNumericStepper.minimum = 1;
                     offsetXNumericStepper.maximum = 32;
@@ -304,7 +304,7 @@ THE SOFTWARE.
                     offsetYNumericStepper.minimum = 8;
                     offsetYNumericStepper.maximum = 8;
                 }
-                
+
                 visible = (isItem && info.clientVersion >= 755);
                 groundBorderRadioButton.enabled = visible;
                 groundBorderRadioButton.includeInLayout = visible;
@@ -314,49 +314,49 @@ THE SOFTWARE.
                 horizontalCheckBox.includeInLayout = visible;
                 verticalCheckBox.visible = visible;
                 verticalCheckBox.includeInLayout = visible;
-                
+
                 visible = (info.clientVersion >= 755);
                 patternZLabel.visible = visible;
                 patternZLabel.includeInLayout = visible;
                 patternZNumericStepper.visible = visible;
                 patternZNumericStepper.includeInLayout = visible;
-                
+
                 visible = (isItem && info.clientVersion >= 780);
                 dontHideCheckBox.visible = visible;
                 dontHideCheckBox.includeInLayout = visible;
                 ignoreLookCheckBox.visible = visible;
                 ignoreLookCheckBox.includeInLayout = visible;
-                
+
                 visible = (isItem && info.clientVersion >= 780 && info.clientVersion <= 854);
                 chargesCheckBox.visible = visible;
                 chargesCheckBox.includeInLayout = visible;
-                
+
                 visible = (isItem && info.clientVersion >= 710 && info.clientVersion <= 854);
                 floorChangeCheckBox.visible = visible;
                 floorChangeCheckBox.includeInLayout = visible;
-                
+
                 visible = (isItem && info.clientVersion >= 860);
                 translucentCheckBox.visible = visible;
                 translucentCheckBox.includeInLayout = visible;
-                
+
                 visible = (isItem && info.clientVersion >= 900);
                 equipGroupCheckBox.visible = visible;
                 equipGroupCheckBox.includeInLayout = visible;
-                
+
                 visible = (isItem && info.clientVersion >= 940);
                 marketGroupCheckBox.visible = visible;
                 marketGroupCheckBox.includeInLayout = visible;
-                
+
                 visible = (isItem && info.clientVersion >= 1010);
                 noMoveAnimationCheckBox.visible = visible;
                 noMoveAnimationCheckBox.includeInLayout = visible;
-                
+
                 visible = (isItem && info.clientVersion >= 1021);
                 actionGroupCheckBox.visible = visible;
                 actionGroupCheckBox.includeInLayout = visible;
                 usableCheckBox.visible = visible;
                 usableCheckBox.includeInLayout = visible;
-                
+
                 visible = (_filesInfo.improvedAnimations && _thingBinding.frames > 1 && (category == ThingCategory.ITEM || category == ThingCategory.EFFECT));
                 animationGroupBox.visible = visible;
                 animationGroupBox.includeInLayout = visible;
@@ -365,13 +365,13 @@ THE SOFTWARE.
                 maximumGroup.visible = visible;
                 maximumGroup.includeInLayout = visible;
             }
-            
+
             private function updateViewWithDirection():void
             {
                 removeButtons();
-                
+
                 if (!_thingData) return;
-                
+
                 var width:uint = _thingBinding.width;
                 var height:uint = _thingBinding.height;
                 var size:uint = otlib.sprites.Sprite.DEFAULT_SIZE;
@@ -383,7 +383,7 @@ THE SOFTWARE.
                 var x:uint = _patternX % _thingBinding.patternX;
                 var y:uint = (_patternY + addonsSlider.value) % _thingBinding.patternY;
                 var z:uint = mountSlider.value;
-                
+
                 for (var w:uint = 0; w < width; w++) {
                     for (var h:uint = 0; h < height; h++) {
                         var index:int = getSpriteIndex(_thingBinding, w, h, l, x, y, z, f);
@@ -394,21 +394,21 @@ THE SOFTWARE.
                         addButton(index, id, px, py);
                     }
                 }
-                
+
                 if (bitmapView.source) {
                     bitmapView.source.dispose();
                     bitmapView.source = null;
                 }
-                
+
                 bitmapView.source = bitmap;
             }
-            
+
             private function updateView():void
             {
                 removeButtons();
-                
+
                 if (!_thingData) return;
-                
+
                 var width:uint = _thingBinding.width;
                 var height:uint = _thingBinding.height;
                 var layers:uint = _thingBinding.layers;
@@ -423,7 +423,7 @@ THE SOFTWARE.
                 var f:uint = animationSlider.value;
                 var l:uint = layerSlider.value;
                 var z:uint = mountSlider.value;
-                
+
                 for (var y:uint = 0; y < patternY; y++) {
                     for (var x:uint = 0; x < patternX; x++) {
                         var fx:int = x * pixelsWidth;
@@ -440,15 +440,15 @@ THE SOFTWARE.
                         }
                     }
                 }
-                
+
                 if (bitmapView.source) {
                     bitmapView.source.dispose();
                     bitmapView.source = null;
                 }
-                
+
                 bitmapView.source = bitmap;
             }
-            
+
             private function addButton(index:uint, id:uint, x:uint, y:uint):void
             {
                 var button:Button = new Button();
@@ -456,7 +456,7 @@ THE SOFTWARE.
                 button.height = 32;
                 button.alpha = showGridCheckBox.selected ? 1 : 0;
                 button.label = index.toString();
-                button.toolTip = id.toString(); 
+                button.toolTip = id.toString();
                 button.setStyle("fontSize", 10);
                 button.setStyle("skinClass", SpriteButtonSkin);
                 buttonsContainer.addElement(button);
@@ -467,14 +467,14 @@ THE SOFTWARE.
                 button.addEventListener(DragEvent.DRAG_DROP, buttonDragDropHandler);
                 button.addEventListener(MouseEvent.DOUBLE_CLICK, buttonDoubleClickHandler);
             }
-            
+
             private function drawCropSize():void
             {
                 if (!_thingData) return;
-                
+
                 var size:uint = cropSizeNumericStepper.value;
                 buttonsContainer.graphics.clear();
-                if (showCropSizeCheckBox.selected && 
+                if (showCropSizeCheckBox.selected &&
                     size > 0 &&
                     buttonsContainer.width > 0 &&
                     buttonsContainer.height > 0) {
@@ -487,7 +487,7 @@ THE SOFTWARE.
                 }
                 buttonsContainer.graphics.endFill();
             }
-            
+
             private function removeButtons():void
             {
                 var length:uint = buttonsContainer.numElements;
@@ -495,12 +495,12 @@ THE SOFTWARE.
                 {
                     var button:Button = buttonsContainer.getElementAt(i) as Button;
                     button.removeEventListener(DragEvent.DRAG_ENTER, buttonDragEnterHandler);
-                    button.removeEventListener(DragEvent.DRAG_DROP, buttonDragDropHandler);	
+                    button.removeEventListener(DragEvent.DRAG_DROP, buttonDragDropHandler);
                     button.removeEventListener(MouseEvent.DOUBLE_CLICK, buttonDoubleClickHandler);
                 }
                 buttonsContainer.removeAllElements();
             }
-            
+
             private function changeButtonsVisible(visible:Boolean):void
             {
                 var length:uint = buttonsContainer.numElements;
@@ -509,7 +509,7 @@ THE SOFTWARE.
                     button.alpha = visible ? 1 : 0;
                 }
             }
-            
+
             private function getSpriteIndex(thing:BindableThingType, w:int, h:int, l:int, x:int, y:int, z:int, f:int):uint
             {
                 return ((((((f % thing.frames)
@@ -520,7 +520,7 @@ THE SOFTWARE.
                     * thing.height + h)
                     * thing.width + w;
             }
-            
+
             private function copyPixels(index:uint, bitmap:BitmapData, x:uint, y:uint):void
             {
                 var bmp:BitmapData = _thingBinding.getSpriteBitmap(index);
@@ -530,11 +530,11 @@ THE SOFTWARE.
                     bitmap.copyPixels(bmp, _rect, _point);
                 }
             }
-            
+
             private function selectDirectionButton(button:ToggleButton):void
             {
                 if (!_thingData || !button) return;
-                
+
                 var length:uint = directionGroup.numElements;
                 for (var i:uint = 0; i < length; i++) {
                     var element:IVisualElement = directionGroup.getElementAt(i);
@@ -542,10 +542,10 @@ THE SOFTWARE.
                         ToggleButton(element).selected = false;
                     }
                 }
-                
+
                 var isOutfit:Boolean = (_thingData.category == ThingCategory.OUTFIT);
                 button.selected = true;
-                
+
                 switch(button) {
                     case topCenterButton:
                         _patternX = isOutfit ? 0 : 1;
@@ -584,10 +584,10 @@ THE SOFTWARE.
                         _patternY = 0;
                         break;
                 }
-                
+
                 updatePreview();
             }
-            
+
             private function checkThingOrder():void
             {
                 if (filesInfo.clientVersion > 750 && _thingBinding.isGroundBorder)
@@ -596,14 +596,14 @@ THE SOFTWARE.
                     renderOrder.selectedIndex = 2;
                 else if (_thingBinding.isOnTop)
                     renderOrder.selectedIndex = 3;
-                else 
+                else
                     renderOrder.selectedIndex = 0;
             }
-            
+
             private function setPreviewMode(enabled:Boolean):void
             {
                 var thingData:ThingData;
-                
+
                 _previewMode = enabled;
                 if (_previewMode) {
                     thingData = _thingBinding.toThingData(_thingData.clientVersion);
@@ -612,14 +612,14 @@ THE SOFTWARE.
                 } else {
                     setAnimationSlide(_lastAnimationFrame);
                 }
-                
+
                 if (_previewMode != playAnimationButton.selected)
                     playAnimationButton.selected = _previewMode;
-                
+
                 thingView.thingData = thingData;
                 thingView.visible = _previewMode;
                 if (_previewMode) thingView.play();
-                
+
                 var controlsEnabled:Boolean = !_previewMode;
                 bitmapView.visible = controlsEnabled;
                 animationSlider.mouseChildren = controlsEnabled;
@@ -631,30 +631,30 @@ THE SOFTWARE.
                 layerGroup.enabled = controlsEnabled;
                 animationTileGroup.enabled = controlsEnabled;
             }
-            
+
             private function setAnimationSlide(value:uint):void
             {
                 animationSlider.value = value;
                 animationCountLabel.text = (value + 1) + '/' + (animationSlider.maximum + 1);
             }
-            
+
             private function propertyChanged(property:String, oldValue:Object, newValue:Object):void
             {
                 _changed = true;
-                
+
                 //trace(property, oldValue, newValue);
-                
+
                 var evt:ThingEditorEvent = new ThingEditorEvent(ThingEditorEvent.THING_PROPERTY_CHANGE, this.thingData);
                 evt.property = BindableThingType.toLabel(property);
                 evt.oldValue = oldValue;
                 evt.newValue = newValue;
                 dispatchEvent(evt);
             }
-            
+
             //--------------------------------------
             // Event Handlers
             //--------------------------------------
-            
+
             protected function creationCompleteHandler(event:FlexEvent):void
             {
                 _thingBinding = new BindableThingType();
@@ -662,7 +662,7 @@ THE SOFTWARE.
                 _rect = new Rectangle(0, 0, 32, 32);
                 _point = new Point();
             }
-            
+
             protected function buttonDragEnterHandler(event:DragEvent):void
             {
                 var button:Button = event.target as Button;
@@ -671,18 +671,18 @@ THE SOFTWARE.
                     button.alpha = 1;
                 }
             }
-            
+
             protected function buttonDragExitHandler(event:DragEvent):void
             {
                 var button:Button = event.target as Button;
                 if (button && !showGridCheckBox.selected) button.alpha = 0;
             }
-            
+
             protected function buttonDragDropHandler(event:DragEvent):void
             {
                 var button:Button = event.target as Button;
                 if (!button || !_thingBinding) return;
-                
+
                 if(!showGridCheckBox.selected) button.alpha = 0;
                 var index:int = int(button.label);
                 var source:DragSource = event.dragSource;
@@ -692,13 +692,13 @@ THE SOFTWARE.
                     updatePreview();
                 }
             }
-            
+
             protected function buttonDoubleClickHandler(event:MouseEvent):void
             {
                 var index:uint = uint(event.target.toolTip);
                 dispatchEvent(new ThingEditorEvent(ThingEditorEvent.SPRITE_DOUBLE_CLICK, this.thingData, index));
             }
-            
+
             protected function thingPropertyChangeHandler(event:PropertyChangeEvent):void
             {
                 if (!_loading) {
@@ -712,18 +712,18 @@ THE SOFTWARE.
                     }
                 }
             }
-            
+
             protected function textureUpdate(event:Event):void
             {
                 _thingBinding.updateSpriteCount();
                 updatePreview();
             }
-            
+
             protected function directionButtonClickHandler(event:MouseEvent):void
             {
                 this.selectDirectionButton(event.target as ToggleButton);
             }
-            
+
             protected function renderOrderChangeHandler(event:Event):void
             {
                 _thingBinding.isGroundBorder = (renderOrder.selectedIndex == 1);
@@ -731,99 +731,99 @@ THE SOFTWARE.
                 _thingBinding.isOnTop = (renderOrder.selectedIndex == 3);
                 checkThingOrder();
             }
-            
+
             protected function playAnimationButtonClickHandler(event:MouseEvent):void
             {
                 setPreviewMode(playAnimationButton.selected);
             }
-            
+
             protected function thingViewFrameChangeHandler(event:Event):void
             {
                 if (_previewMode)
                     setAnimationSlide(thingView.frame);
             }
-            
+
             protected function thingViewAnimationCompleteHandler(event:Event):void
             {
                 setPreviewMode(false);
             }
-            
+
             protected function minimumNumericStepperChangeHandler(event:Event):void
             {
                 if (minimumNumericStepper.value > maximumNumericStepper.value)
                     maximumNumericStepper.value = minimumNumericStepper.value;
-                
+
                 var oldDuration:FrameDuration = _thingBinding.frameDurations[animationSlider.value];
                 var newDuration:FrameDuration = oldDuration.clone();
                 newDuration.minimum = minimumNumericStepper.value;
                 newDuration.maximum = maximumNumericStepper.value;
-                
+
                 if (!oldDuration.equals(newDuration)) {
                     _thingBinding.frameDurations[animationSlider.value] = newDuration;
-                    
+
                     if (oldDuration.minimum != newDuration.minimum)
                         propertyChanged("minimumDuration", oldDuration.minimum, newDuration.minimum);
-                    
+
                     if (oldDuration.maximum != newDuration.maximum)
                         propertyChanged("maximumDuration", oldDuration.maximum, newDuration.maximum);
                 }
             }
-            
+
             protected function maximumNumericStepperChangeHandler(event:Event):void
             {
                 if (maximumNumericStepper.value < minimumNumericStepper.value)
                     minimumNumericStepper.value = maximumNumericStepper.value;
-                
+
                 var oldDuration:FrameDuration = _thingBinding.frameDurations[animationSlider.value];
                 var newDuration:FrameDuration = oldDuration.clone();
                 newDuration.minimum = minimumNumericStepper.value;
                 newDuration.maximum = maximumNumericStepper.value;
-                
+
                 if (!oldDuration.equals(newDuration)) {
                     _thingBinding.frameDurations[animationSlider.value] = newDuration;
-                    
+
                     if (oldDuration.minimum != newDuration.minimum)
                         propertyChanged("minimumDuration", oldDuration.minimum, newDuration.minimum);
-                    
+
                     if (oldDuration.maximum != newDuration.maximum)
                         propertyChanged("maximumDuration", oldDuration.maximum, newDuration.maximum);
                 }
             }
-            
+
             protected function animationModeDropDownListChangeHandler(event:IndexChangeEvent):void
             {
                 var oldValue:uint = _thingBinding.animationMode;
                 _thingBinding.animationMode = animationModeDropDownList.selectedIndex;
                 propertyChanged("animationMode", oldValue, _thingBinding.animationMode);
             }
-            
+
             protected function frameStrategyDropDownListChangeHandler(event:IndexChangeEvent):void
             {
                 var loop:Boolean = frameStrategyDropDownList.selectedIndex == 0;
-                
+
                 var oldValue:int = _thingBinding.loopCount;
                 _thingBinding.loopCount = loop ? loopCountNumericStepper.value : -1;
                 loopCountNumericStepper.enabled = loop;
                 propertyChanged("loopCount", oldValue, _thingBinding.loopCount);
             }
-            
+
             protected function loopCountNumericStepperChangeHandler(event:Event):void
             {
                 var oldValue:int = _thingBinding.loopCount;
                 _thingBinding.loopCount = loopCountNumericStepper.value;
                 propertyChanged("loopCount", oldValue, _thingBinding.loopCount);
             }
-            
+
             protected function startFrameNumericStepperChangeHandler(event:Event):void
             {
                 var oldValue:int = _thingBinding.startFrame;
                 _thingBinding.startFrame = startFrameNumericStepper.value;
                 propertyChanged("startFrame", oldValue, _thingBinding.startFrame);
             }
-            
+
         ]]>
     </fx:Script>
-    
+
     <nail:TabNavigator width="100%"
                        height="100%"
                        change="{setPreviewMode(false);}">
@@ -840,7 +840,7 @@ THE SOFTWARE.
                                           paddingBottom="10"
                                           gap="10"/>
                     </s:layout>
-                    
+
                     <!-- appearance group -->
                     <nail:GroupBox id="appearanceGroupBox"
                                    label="@Resource(key='appearance', bundle='strings')"
@@ -853,10 +853,10 @@ THE SOFTWARE.
                                               paddingBottom="10"
                                               gap="10"/>
                         </nail:layout>
-                        
+
                         <s:Group width="100%"
                                  height="100%">
-                            
+
                             <s:Group id="directionGroup"
                                      width="100%"
                                      height="100%">
@@ -933,8 +933,8 @@ THE SOFTWARE.
                                                 skinClass="otlib.components.skins.DirectionButtonSkin"
                                                 click="directionButtonClickHandler(event)"/>
                             </s:Group>
-                            
-                            <s:Group verticalCenter="0" 
+
+                            <s:Group verticalCenter="0"
                                      horizontalCenter="0">
                                 <s:Rect width="{bitmapView.width}"
                                         height="{bitmapView.height}"
@@ -943,25 +943,25 @@ THE SOFTWARE.
                                         <s:SolidColor color="0x636363"/>
                                     </s:fill>
                                 </s:Rect>
-                                
+
                                 <s:Image id="bitmapView"/>
-                                
+
                                 <otlib:ThingDataView id="thingView"
                                                      visible="false"
                                                      change="thingViewFrameChangeHandler(event)"
                                                      complete="thingViewAnimationCompleteHandler(event)"/>
-                                
+
                                 <s:Group id="buttonsContainer"
                                          updateComplete="drawCropSize()"
                                          width="{bitmapView.width}"
                                          height="{bitmapView.height}"/>
                             </s:Group>
                         </s:Group>
-                        
+
                         <nail:ShadowLine width="100%"/>
-                        
+
                         <s:Spacer height="5"/>
-                        
+
                         <s:HGroup id="animationGroup" width="100%"
                                   verticalAlign="middle"
                                   horizontalAlign="right"
@@ -972,13 +972,13 @@ THE SOFTWARE.
                                                  change="updatePreview()"/>
                             <s:Label id="animationCountLabel"
                                      minWidth="40"/>
-                            
+
                             <otlib:PlayButton id="playAnimationButton"
                                               width="20"
                                               height="20"
                                               click="playAnimationButtonClickHandler(event)"/>
                         </s:HGroup>
-                        
+
                         <s:HGroup id="minimumGroup" width="100%"
                                   verticalAlign="middle"
                                   horizontalAlign="right"
@@ -992,7 +992,7 @@ THE SOFTWARE.
                                               maximum="500"
                                               change="minimumNumericStepperChangeHandler(event)"/>
                         </s:HGroup>
-                        
+
                         <s:HGroup id="maximumGroup" width="100%"
                                   verticalAlign="middle"
                                   horizontalAlign="right"
@@ -1006,7 +1006,7 @@ THE SOFTWARE.
                                               maximum="500"
                                               change="maximumNumericStepperChangeHandler(event)"/>
                         </s:HGroup>
-                        
+
                         <s:HGroup id="addonGroup"
                                   width="100%"
                                   verticalAlign="middle"
@@ -1020,7 +1020,7 @@ THE SOFTWARE.
                             <s:Label id="addonCountLabel"
                                      minWidth="40"/>
                         </s:HGroup>
-                        
+
                         <s:HGroup id="mountGroup"
                                   width="100%"
                                   verticalAlign="middle"
@@ -1033,8 +1033,8 @@ THE SOFTWARE.
                                                  change="updatePreview()"/>
                             <s:Label id="mountCountLabel"
                                      minWidth="40"/>
-                        </s:HGroup>	
-                        
+                        </s:HGroup>
+
                         <s:HGroup id="layerGroup"
                                   width="100%"
                                   verticalAlign="middle"
@@ -1048,28 +1048,28 @@ THE SOFTWARE.
                             <s:Label id="layerCountLabel"
                                      minWidth="40"/>
                         </s:HGroup>
-                        
+
                         <s:CheckBox id="showCropSizeCheckBox"
                                     label="@Resource(key='showCropSize', bundle='strings')"
                                     change="drawCropSize()"/>
-                        
+
                         <s:CheckBox id="showGridCheckBox"
                                     label="@Resource(key='showGrid', bundle='strings')"
                                     change="{changeButtonsVisible(showGridCheckBox.selected);}"/>
                     </nail:GroupBox>
-                    
+
                     <!-- patterns group -->
                     <nail:GroupBox id="patternsGroupBox"
                                    label="@Resource(key='patterns', bundle='strings')"
                                    width="100%">
-                        
+
                         <s:TileGroup id="patternsTileGroup" right="35"
                                      requestedColumnCount="2"
                                      paddingLeft="10"
                                      paddingRight="10"
                                      paddingTop="10"
                                      paddingBottom="10">
-                            
+
                             <s:Label text="{resourceManager.getString('strings', 'width') + ':'}"
                                      verticalAlign="middle"
                                      textAlign="right"/>
@@ -1138,21 +1138,21 @@ THE SOFTWARE.
                                               change="{_thingBinding.frames = framesNumericStepper.value; textureUpdate(event);}"/>
                         </s:TileGroup>
                     </nail:GroupBox>
-                    
+
                     <!-- animation -->
                     <nail:GroupBox id="animationGroupBox"
                                    label="@Resource(key='animation', bundle='strings')"
                                    width="100%"
                                    visible="{_thingBinding.frames > 1}"
                                    includeInLayout="{_thingBinding.frames > 1}">
-                        <s:TileGroup id="animationTileGroup" 
+                        <s:TileGroup id="animationTileGroup"
                                      right="35"
                                      requestedColumnCount="2"
                                      paddingLeft="10"
                                      paddingRight="10"
                                      paddingTop="10"
                                      paddingBottom="10">
-                            
+
                             <s:Label text="{resourceManager.getString('strings', 'animationMode') + ':'}"
                                      verticalAlign="middle"
                                      textAlign="right"/>
@@ -1167,7 +1167,7 @@ THE SOFTWARE.
                                     </s:ArrayList>
                                 </s:dataProvider>
                             </s:DropDownList>
-                            
+
                             <s:Label text="{resourceManager.getString('strings', 'frameStrategy') + ':'}"
                                      verticalAlign="middle"
                                      textAlign="right"/>
@@ -1182,7 +1182,7 @@ THE SOFTWARE.
                                     </s:ArrayList>
                                 </s:dataProvider>
                             </s:DropDownList>
-                            
+
                             <!-- loop count -->
                             <s:Label text="{resourceManager.getString('strings', 'loopCount') + ':'}"
                                      verticalAlign="middle"
@@ -1190,7 +1190,7 @@ THE SOFTWARE.
                             <s:NumericStepper id="loopCountNumericStepper"
                                               width="170"
                                               change="loopCountNumericStepperChangeHandler(event)"/>
-                            
+
                             <s:Label text="{resourceManager.getString('strings', 'startFrame') + ':'}"
                                      verticalAlign="middle"
                                      textAlign="right"/>
@@ -1217,9 +1217,9 @@ THE SOFTWARE.
                                           paddingBottom="10"
                                           gap="10"/>
                     </s:layout>
-                    
+
                     <!-- ground group -->
-                    <nail:GroupCheckBox id="groundGroupCheckBox" 
+                    <nail:GroupCheckBox id="groundGroupCheckBox"
                                         label="@Resource(key='isGround', bundle='strings')"
                                         width="100%"
                                         selected="{_thingBinding.isGround}"
@@ -1246,7 +1246,7 @@ THE SOFTWARE.
                             <s:Spacer width="30"/>
                         </s:Group>
                     </nail:GroupCheckBox>
-                    
+
                     <!-- has ligth group -->
                     <nail:GroupCheckBox id="hasLigthGroupCheckBox"
                                         label="@Resource(key='hasLight', bundle='strings')"
@@ -1269,16 +1269,16 @@ THE SOFTWARE.
                                          minWidth="60"
                                          textAlign="right"/>
                                 <s:NumericStepper id="lightColorNumericStepper"
-                                                  width="80" 
+                                                  width="80"
                                                   maximum="215"
                                                   value="{_thingBinding.lightColor}"
                                                   change="{_thingBinding.lightColor = lightColorNumericStepper.value;}"/>
-                                
+
                                 <otlib:EightBitColorPicker id="lightColorSwitchColor"
                                                            color="{_thingBinding.lightColor}"
                                                            change="{_thingBinding.lightColor = lightColorSwitchColor.color;}"/>
                             </s:HGroup>
-                            <s:HGroup width="100%" 
+                            <s:HGroup width="100%"
                                       verticalAlign="middle"
                                       horizontalAlign="right">
                                 <s:Label text="{resourceManager.getString('strings', 'lightIntensity') + ':'}"
@@ -1292,9 +1292,9 @@ THE SOFTWARE.
                             </s:HGroup>
                         </s:Group>
                     </nail:GroupCheckBox>
-                    
+
                     <!-- automap group -->
-                    <nail:GroupCheckBox id="automapGroupCheckBox" 
+                    <nail:GroupCheckBox id="automapGroupCheckBox"
                                         label="@Resource(key='automap', bundle='strings')"
                                         width="100%"
                                         selected="{_thingBinding.miniMap}"
@@ -1310,7 +1310,7 @@ THE SOFTWARE.
                                                     verticalAlign="middle"
                                                     horizontalAlign="right"/>
                             </s:layout>
-                            <s:Label text="{resourceManager.getString('strings', 'automapColor') + ':'}" 
+                            <s:Label text="{resourceManager.getString('strings', 'automapColor') + ':'}"
                                      minWidth="60"
                                      textAlign="right"/>
                             <s:NumericStepper id="automapColorNumericStepper"
@@ -1323,7 +1323,7 @@ THE SOFTWARE.
                                                        change="{_thingBinding.miniMapColor = automapColorSwitchColor.color;}"/>
                         </s:Group>
                     </nail:GroupCheckBox>
-                    
+
                     <!-- has offset group -->
                     <nail:GroupCheckBox id="hasOffsetGroupCheckBox"
                                         label="@Resource(key='hasOffset', bundle='strings')"
@@ -1342,7 +1342,7 @@ THE SOFTWARE.
                             <s:HGroup width="100%"
                                       verticalAlign="middle"
                                       horizontalAlign="right">
-                                <s:Label text="{resourceManager.getString('strings', 'offsetX') + ':'}" 
+                                <s:Label text="{resourceManager.getString('strings', 'offsetX') + ':'}"
                                          minWidth="60"
                                          textAlign="right"/>
                                 <s:NumericStepper id="offsetXNumericStepper"
@@ -1356,7 +1356,7 @@ THE SOFTWARE.
                                       verticalAlign="middle"
                                       horizontalAlign="right">
                                 <s:Label text="{resourceManager.getString('strings', 'offsetY') + ':'}"
-                                         minWidth="60" 
+                                         minWidth="60"
                                          textAlign="right"/>
                                 <s:NumericStepper id="offsetYNumericStepper"
                                                   width="80"
@@ -1367,9 +1367,9 @@ THE SOFTWARE.
                             </s:HGroup>
                         </s:Group>
                     </nail:GroupCheckBox>
-                    
+
                     <!-- has elevation group -->
-                    <nail:GroupCheckBox id="hasElevationGroupCheckBox" 
+                    <nail:GroupCheckBox id="hasElevationGroupCheckBox"
                                         label="@Resource(key='hasElevation', bundle='strings')"
                                         width="100%"
                                         selected="{_thingBinding.hasElevation}"
@@ -1396,9 +1396,9 @@ THE SOFTWARE.
                             <s:Spacer width="30"/>
                         </s:Group>
                     </nail:GroupCheckBox>
-                    
+
                     <!-- equip group -->
-                    <nail:GroupCheckBox id="equipGroupCheckBox" 
+                    <nail:GroupCheckBox id="equipGroupCheckBox"
                                         label="@Resource(key='cloth', bundle='strings')"
                                         width="100%"
                                         selected="{_thingBinding.cloth}"
@@ -1419,7 +1419,7 @@ THE SOFTWARE.
                                      minWidth="60"
                                      textAlign="right"/>
                             <s:DropDownList id="equipSlotDropDownList"
-                                            width="100%" 
+                                            width="100%"
                                             height="20"
                                             fontSize="11"
                                             prompt="@Resource(key='slot.prompt', bundle='strings')"
@@ -1443,7 +1443,7 @@ THE SOFTWARE.
                             </s:DropDownList>
                         </s:Group>
                     </nail:GroupCheckBox>
-                    
+
                     <!-- market group -->
                     <nail:GroupCheckBox id="marketGroupCheckBox"
                                         label="@Resource(key='market', bundle='strings')"
@@ -1467,15 +1467,15 @@ THE SOFTWARE.
                                              text="{_thingBinding.marketName}"
                                              change="{_thingBinding.marketName = marketNameTextInput.text;}"/>
                             </s:HGroup>
-                            
+
                             <s:HGroup width="100%"
                                       verticalAlign="middle"
                                       horizontalAlign="right">
                                 <s:Label text="{resourceManager.getString('strings', 'category') + ':'}"
-                                         minWidth="60" 
+                                         minWidth="60"
                                          textAlign="right"/>
                                 <s:DropDownList id="marketCategoryDropDownList"
-                                                width="170" 
+                                                width="170"
                                                 height="20"
                                                 fontSize="11"
                                                 selectedIndex="{_thingBinding.marketCategory == 0 ? 8 : _thingBinding.marketCategory - 1}"
@@ -1524,7 +1524,7 @@ THE SOFTWARE.
                                       verticalAlign="middle"
                                       horizontalAlign="right">
                                 <s:Label text="{resourceManager.getString('strings', 'showAs') + ':'}"
-                                         minWidth="60" 
+                                         minWidth="60"
                                          textAlign="right"/>
                                 <s:NumericStepper id="showAsNumericStepper"
                                                   width="80"
@@ -1532,7 +1532,7 @@ THE SOFTWARE.
                                                   maximum="0xFFFFFF"
                                                   value="{_thingBinding.marketShowAs}"
                                                   change="{_thingBinding.marketShowAs = showAsNumericStepper.value;}"/>
-                            </s:HGroup>					
+                            </s:HGroup>
                             <s:HGroup width="100%"
                                       verticalAlign="middle"
                                       horizontalAlign="right">
@@ -1549,7 +1549,7 @@ THE SOFTWARE.
                             <s:HGroup width="100%"
                                       verticalAlign="middle"
                                       horizontalAlign="right">
-                                <s:Label text="{resourceManager.getString('strings', 'level') + ':'}" 
+                                <s:Label text="{resourceManager.getString('strings', 'level') + ':'}"
                                          minWidth="60"
                                          textAlign="right"/>
                                 <s:NumericStepper id="marketRestrictLevelNumericStepper"
@@ -1561,7 +1561,7 @@ THE SOFTWARE.
                             </s:HGroup>
                         </s:Group>
                     </nail:GroupCheckBox>
-                    
+
                     <!-- write / read group -->
                     <nail:GroupBox id="writeReadGroupCheckBox"
                                    label="@Resource(key='writeRead', bundle='strings')"
@@ -1585,7 +1585,7 @@ THE SOFTWARE.
                                         minWidth="100"
                                         selected="{_thingBinding.writableOnce}"
                                         change="{_thingBinding.writableOnce = writableOnceCheckBox.selected;}"/>
-                            <s:HGroup width="100%" 
+                            <s:HGroup width="100%"
                                       verticalAlign="middle"
                                       horizontalAlign="right"
                                       enabled="{writableCheckBox.selected || writableOnceCheckBox.selected}">
@@ -1598,8 +1598,8 @@ THE SOFTWARE.
                             </s:HGroup>
                         </s:Group>
                     </nail:GroupBox>
-                    
-                    <nail:GroupCheckBox id="actionGroupCheckBox" 
+
+                    <nail:GroupCheckBox id="actionGroupCheckBox"
                                         label="@Resource(key='hasAction', bundle='strings')"
                                         width="100%"
                                         selected="{_thingBinding.hasDefaultAction}"
@@ -1636,7 +1636,7 @@ THE SOFTWARE.
                             </s:DropDownList>
                         </s:Group>
                     </nail:GroupCheckBox>
-                    
+
                     <!-- Lens Help-->
                     <nail:GroupCheckBox id="isLensHelpGroupCheckBox"
                                         label="@Resource(key='lensHelp', bundle='strings')"
@@ -1651,7 +1651,7 @@ THE SOFTWARE.
                                   verticalAlign="middle"
                                   horizontalAlign="right"
                                   enabled="{isLensHelpGroupCheckBox.selected}">
-                            <s:Label text="{resourceManager.getString('strings', 'type') + ':'}" 
+                            <s:Label text="{resourceManager.getString('strings', 'type') + ':'}"
                                      minWidth="60"
                                      textAlign="right"/>
                             <s:DropDownList id="lensHelpDropDownList"
@@ -1680,7 +1680,7 @@ THE SOFTWARE.
                             </s:DropDownList>
                         </s:HGroup>
                     </nail:GroupCheckBox>
-                    
+
                     <!-- flags -->
                     <nail:GroupBox id="flagsGroupBox"
                                    label="@Resource(key='flags', bundle='strings')"
@@ -1691,11 +1691,11 @@ THE SOFTWARE.
                                                 paddingBottom="10"
                                                 paddingTop="10"/>
                         </nail:layout>
-                        
-                        <s:VGroup id="flagsLeftColumn" 
+
+                        <s:VGroup id="flagsLeftColumn"
                                   width="100%"
                                   height="100%">
-                            
+
                             <s:RadioButton id="commonRadioButton"
                                            label="@Resource(key='isCommon', bundle='strings')"
                                            group="{renderOrder}"/>
@@ -1732,11 +1732,11 @@ THE SOFTWARE.
                                         label="@Resource(key='fluid', bundle='strings')"
                                         selected="{_thingBinding.isFluid}"
                                         change="{_thingBinding.isFluid = liquidPoolCheckBox.selected;}"/>
-                            <s:CheckBox id="unpassableCheckBox" 
+                            <s:CheckBox id="unpassableCheckBox"
                                         label="@Resource(key='unpassable', bundle='strings')"
                                         selected="{_thingBinding.isUnpassable}"
                                         change="{_thingBinding.isUnpassable = unpassableCheckBox.selected;}"/>
-                            <s:CheckBox id="unmovableCheckBox" 
+                            <s:CheckBox id="unmovableCheckBox"
                                         label="@Resource(key='unmovable', bundle='strings')"
                                         selected="{_thingBinding.isUnmoveable}"
                                         change="{_thingBinding.isUnmoveable = unmovableCheckBox.selected;}"/>
@@ -1749,11 +1749,11 @@ THE SOFTWARE.
                                         selected="{_thingBinding.blockPathfind}"
                                         change="{_thingBinding.blockPathfind = blockPathfindCheckBox.selected;}"/>
                         </s:VGroup>
-                        
+
                         <s:VGroup id="flagsRightColumn"
                                   width="100%"
                                   height="100%">
-                            
+
                             <s:CheckBox id="noMoveAnimationCheckBox"
                                         label="@Resource(key='noMoveAnimation', bundle='strings')"
                                         selected="{_thingBinding.noMoveAnimation}"
@@ -1763,7 +1763,7 @@ THE SOFTWARE.
                                         selected="{_thingBinding.pickupable}"
                                         change="{_thingBinding.pickupable = pickupableCheckBox.selected;}"/>
                             <s:CheckBox id="hangableCheckBox"
-                                        label="@Resource(key='hangable', bundle='strings')"	
+                                        label="@Resource(key='hangable', bundle='strings')"
                                         selected="{_thingBinding.hangable}"
                                         change="{_thingBinding.hangable = hangableCheckBox.selected;}"/>
                             <s:CheckBox id="horizontalCheckBox"
