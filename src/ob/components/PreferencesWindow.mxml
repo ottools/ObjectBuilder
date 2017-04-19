@@ -138,10 +138,6 @@ THE SOFTWARE.
                         languageDropDownList.selectedIndex = 2;
                         break;
 
-                    case _languages.getItemAt(3).locale:
-                        languageDropDownList.selectedIndex = 3;
-                        break;
-
                     default:
                         languageDropDownList.selectedIndex = 0;
                         break;
@@ -182,7 +178,6 @@ THE SOFTWARE.
             {
                 _languages = new ArrayCollection([{locale:"en_US", label:"English"},
                                                   {locale:"es_ES", label:"Español"},
-                                                  {locale:"pl_PL", label:"Polski"},
                                                   {locale:"pt_BR", label:"Português"}]);
 
                 languageDropDownList.dataProvider = _languages;
