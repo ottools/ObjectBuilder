@@ -161,17 +161,17 @@ package ob.utils
 
                 for (i = 1; i < length; i++, index++)
                 {
-                    while ((index + 1) < length && freeIDs[index])
+                    while (index < length && freeIDs[index])
                     {
                         index++;
                         count++;
                     }
 
+                    if (index > m_spr.spritesCount) break;
+
                     var sprite:Sprite = m_oldIDs[index];
                     sprite.id = i;
                     m_newIDs[i] = sprite;
-
-                    if (index == m_spr.spritesCount) break;
                 }
 
                 // =====================================================================
@@ -221,9 +221,7 @@ package ob.utils
             for each (var thing:ThingType in list)
             {
                 var spriteIDs:Vector.<uint> = thing.spriteIndex;
-                var length:uint = spriteIDs.length;
-
-                for (var i:int = 0; i < length; i++)
+                for (var i:int = spriteIDs.length - 1; i >= 0; i--)
                     usedList[ spriteIDs[i] ] = true;
             }
         }
@@ -233,9 +231,7 @@ package ob.utils
             for each (var thing:ThingType in list)
             {
                 var spriteIDs:Vector.<uint> = thing.spriteIndex;
-                var length:uint = spriteIDs.length;
-
-                for (var i:int = 0; i < length; i++)
+                for (var i:int = spriteIDs.length - 1; i >= 0; i--)
                 {
                     if (spriteIDs[i] != 0)
                         spriteIDs[i] = m_oldIDs[ spriteIDs[i] ].id;
