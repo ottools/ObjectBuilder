@@ -539,7 +539,7 @@ package
                         thing.spriteIndex[i] = 0;
                     } else {
 
-                        if (replaceSprites) {
+                        if (replaceSprites && i < currentThing.spriteIndex.length && currentThing.spriteIndex[i] != 0) {
                             result = _sprites.replaceSprite(currentThing.spriteIndex[i], spriteData.pixels);
                         } else {
                             result = _sprites.addSprite(spriteData.pixels);
