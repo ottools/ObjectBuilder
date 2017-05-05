@@ -963,7 +963,7 @@ THE SOFTWARE.
 
                 // Copy the firstRun folder to application storage.
                 var directory:File = File.applicationDirectory.resolvePath("firstRun");
-                if (!directory) return;
+                if (!directory.exists) return;
 
                 try
                 {
