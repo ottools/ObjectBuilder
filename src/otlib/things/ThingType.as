@@ -101,6 +101,9 @@ package otlib.things
         public var marketRestrictLevel:uint;
         public var hasDefaultAction:Boolean;
         public var defaultAction:uint;
+        public var wrappable:Boolean;
+        public var unwrappable:Boolean;
+        public var topEffect:Boolean;
         public var usable:Boolean;
 
         public var isAnimation:Boolean;

@@ -608,6 +608,18 @@ package otlib.obd
                         thing.floorChange = true;
                         break;
 
+                    case WRAPPABLE:
+                        thing.wrappable = true;
+                        break;
+
+                    case UNWRAPPABLE:
+                        thing.topEffect = true;
+                        break;
+
+                    case TOP_EFFECT:
+                        thing.topEffect = true;
+                        break;
+
                     case USABLE:
                         thing.usable = true;
                         break;
@@ -750,6 +762,12 @@ package otlib.obd
                 output.writeShort(thing.defaultAction);
             }
 
+            if (thing.wrappable) output.writeByte(WRAPPABLE);
+
+            if (thing.unwrappable) output.writeByte(UNWRAPPABLE);
+
+            if (thing.topEffect) output.writeByte(TOP_EFFECT);
+
             if (thing.hasCharges) output.writeByte(HAS_CHARGES);
 
             if (thing.floorChange) output.writeByte(FLOOR_CHANGE);
@@ -801,6 +819,10 @@ package otlib.obd
         private static const CLOTH:uint             = 0x21;
         private static const MARKET_ITEM:uint       = 0x22;
         private static const DEFAULT_ACTION:uint    = 0x23;
+        private static const WRAPPABLE:uint         = 0x24;
+        private static const UNWRAPPABLE:uint       = 0x25;
+        private static const TOP_EFFECT:uint        = 0x26;
+
         private static const HAS_CHARGES:uint       = 0xFC;
         private static const FLOOR_CHANGE:uint      = 0xFD;
         private static const USABLE:uint            = 0xFE;
