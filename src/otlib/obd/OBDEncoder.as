@@ -613,7 +613,7 @@ package otlib.obd
                         break;
 
                     case UNWRAPPABLE:
-                        thing.topEffect = true;
+                        thing.unwrappable = true;
                         break;
 
                     case TOP_EFFECT:
