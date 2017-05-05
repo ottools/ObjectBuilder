@@ -4,8 +4,8 @@
 	<id>com.mignari.ObjectBuilder</id>
 	<filename>ObjectBuilder</filename>
 	<name>Object Builder</name>
-	<versionNumber>0.4.1</versionNumber>
-	<versionLabel>0.4.1</versionLabel>
+	<versionNumber>0.4.2</versionNumber>
+	<versionLabel>0.4.2</versionLabel>
 	<copyright>
 		<![CDATA[Copyright (c) 2014-2017 <a href="https://github.com/Mignari/ObjectBuilder/graphs/contributors">Contributors</a>]]>
 	</copyright>
@@ -18,7 +18,7 @@
 		<requestedDisplayResolution>high</requestedDisplayResolution>
 	</initialWindow>
 	
-	<supportedLanguages>en es pl pt</supportedLanguages>
+	<supportedLanguages>en es pt</supportedLanguages>
 	
 	<icon>
 		<image16x16>icon/app/icon16.png</image16x16>
