@@ -11,45 +11,29 @@ Some features:
 * You're able to cut the imported images.
 
 
-Client versions:
+Supported client versions:
 ----
 
-* 7.10 - 10.41
+* 7.10 - 10.56
 
 
-Download
-----
-
-#### Latest release
-
-[ObjectBuilder 0.3.4 - Installer Win/Mac](https://www.dropbox.com/s/ye43g8q9rzst4ru/ObjectBuilder0.3.4.air)
-
-[ObjectBuilder 0.3.4 - Portable Win](https://www.dropbox.com/s/qf1r7tnsxk8ydv9/ObjectBuilder0_3_4_CR.rar)
-
-#### Latest commits compiled
-
-[Latest commits](https://www.dropbox.com/sh/l6u5ponwfr77bhm/AAAY3xbcGudRzvcjUbizt0tha)
-
-
-Install
+Downloads
 ----
 
 #### Windows
 
-If you don't want to install the Abobe AIR:
-
-1. Download the [Portable version](https://www.dropbox.com/s/qf1r7tnsxk8ydv9/ObjectBuilder0_3_4_CR.rar) with the captive runtime.
+If you don't want to install the Abobe AIR, just download the .zip file in [releases](https://github.com/ottools/ObjectBuilder/releases).
 
 Or
 
-1. Install the [Adobe AIR] (http://get.adobe.com/air/)
-2. Install the [latest release](https://github.com/Mignari/ObjectBuilder/releases)
+1. Install the [Adobe AIR](http://get.adobe.com/air/)
+2. Install the .air file in [releases](https://github.com/ottools/ObjectBuilder/releases).
 
 
 #### Mac OS X
 
-1. Install the [Adobe AIR] (http://get.adobe.com/air/)
-2. Install the [latest release](https://github.com/Mignari/ObjectBuilder/releases)
+1. Install the [Adobe AIR](http://get.adobe.com/air/)
+2. Install the .air file in [releases](https://github.com/ottools/ObjectBuilder/releases).
 
 
 #### Ubuntu
@@ -64,7 +48,7 @@ sudo apt-get update
 sudo apt-get install wine1.7 winetricks
 winetricks wininet
 ```
-2. Download the [latest commit](https://github.com/Mignari/ObjectBuilder#latest-commits-compiled) with the captive runtime.
+2. Download the .zip file in [releases](https://github.com/ottools/ObjectBuilder/releases).
 3. Uncompress the file, right-click in ObjectBuilder.exe and set to open with Wine Windows Program Loader.
 
 
@@ -72,7 +56,7 @@ Compiling
 ----
 
 Follow this tutorial:
-[Compiling](https://github.com/Mignari/ObjectBuilder/wiki/Compiling)
+[Compiling](https://github.com/ottools/ObjectBuilder/wiki/Compiling)
 
 Supported By:
 ----
