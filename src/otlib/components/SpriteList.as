@@ -52,15 +52,14 @@ package otlib.components
 
         public function get selectedSprite():SpriteData
         {
-            if (this.selectedItem) {
-                return this.selectedItem as SpriteData;
-            }
+            if (selectedItem)
+                return selectedItem as SpriteData;
             return null;
         }
 
         public function set selectedSprite(value:SpriteData):void
         {
-            this.selectedIndex = getIndexOf(value);
+            selectedIndex = getIndexOf(value);
         }
 
         public function get selectedSprites():Vector.<SpriteData>
@@ -84,7 +83,7 @@ package otlib.components
                 for (var i:uint = 0; i < length; i++) {
                     list[i] = value[i];
                 }
-                this.selectedItems = list;
+                selectedItems = list;
             }
         }
 
@@ -94,7 +93,7 @@ package otlib.components
 
         public function SpriteList()
         {
-            this.itemRenderer = new ClassFactory(SpriteListRenderer);
+            itemRenderer = new ClassFactory(SpriteListRenderer);
         }
 
         //--------------------------------------------------------------------------
@@ -107,8 +106,8 @@ package otlib.components
 
         otlib_internal function onContextMenuSelect(index:int, type:String):void
         {
-            if (index != -1 && this.dataProvider) {
-                var spriteData:SpriteData = this.dataProvider.getItemAt(index) as SpriteData;
+            if (index != -1 && dataProvider) {
+                var spriteData:SpriteData = dataProvider.getItemAt(index) as SpriteData;
                 var event:Event;
                 if (spriteData) {
                     switch(type) {
@@ -129,20 +128,19 @@ package otlib.components
                             break;
                     }
 
-                    if (event) {
+                    if (event)
                         dispatchEvent(event);
-                    }
                 }
             }
         }
 
         otlib_internal function onContextMenuDisplaying(index:int, menu:ContextMenu):void
         {
-            if (this.multipleSelected) {
+            if (multipleSelected) {
                 menu.items[0].enabled = false; // Copy
                 menu.items[1].enabled = false; // Paste
             } else {
-                this.setSelectedIndex(index, true);
+                setSelectedIndex(index, true);
             }
 
             if (hasEventListener(SpriteListEvent.DISPLAYING_CONTEXT_MENU)) {

@@ -36,7 +36,9 @@ package otlib.otml
             {
                 text += " in '" + node.source + "'";
                 if (line >= 0)
+                {
                     text += " at line " + line;
+                }
             }
 
             text += ": " + message;

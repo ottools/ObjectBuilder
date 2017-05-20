@@ -29,39 +29,38 @@ package otlib.things
     import flash.filesystem.FileStream;
     import flash.utils.Dictionary;
     import flash.utils.Endian;
-
+    
     import nail.errors.NullArgumentError;
     import nail.logging.Log;
     import nail.utils.FileUtil;
     import nail.utils.StringUtil;
-
+    
     import ob.commands.ProgressBarID;
-
+    
     import otlib.core.Version;
     import otlib.core.otlib_internal;
     import otlib.events.ProgressEvent;
-    import otlib.events.StorageEvent;
+    import otlib.storages.events.StorageEvent;
     import otlib.resources.Resources;
+    import otlib.storages.IStorage;
     import otlib.utils.ChangeResult;
     import otlib.utils.ThingUtils;
 
     use namespace otlib_internal;
 
     [Event(name="progress", type="flash.events.ProgressEvent")]
-    [Event(name="load", type="otlib.events.StorageEvent")]
-    [Event(name="compile", type="otlib.events.StorageEvent")]
-    [Event(name="change", type="otlib.events.StorageEvent")]
-    [Event(name="unloading", type="otlib.events.StorageEvent")]
-    [Event(name="unload", type="otlib.events.StorageEvent")]
+    [Event(name="load", type="otlib.storages.events.StorageEvent")]
+    [Event(name="compile", type="otlib.storages.events.StorageEvent")]
+    [Event(name="change", type="otlib.storages.events.StorageEvent")]
+    [Event(name="unloading", type="otlib.storages.events.StorageEvent")]
+    [Event(name="unload", type="otlib.storages.events.StorageEvent")]
     [Event(name="error", type="flash.events.ErrorEvent")]
 
-    public class ThingTypeStorage extends EventDispatcher
+    public class ThingTypeStorage extends EventDispatcher implements IStorage
     {
         //--------------------------------------------------------------------------
         // PROPERTIES
         //--------------------------------------------------------------------------
-
-        otlib_internal var _changed:Boolean;
 
         private var _file:File;
         private var _version:Version;
@@ -78,6 +77,7 @@ package otlib.things
         private var _extended:Boolean;
         private var _improvedAnimations:Boolean;
         private var _progressCount:uint;
+        private var _changed:Boolean;
         private var _loaded:Boolean;
 
         //--------------------------------------
@@ -612,6 +612,16 @@ package otlib.things
 
             dispatchEvent(new StorageEvent(StorageEvent.UNLOAD));
             dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
+        }
+
+        public function invalidate():void
+        {
+            if (!_changed) {
+                _changed = true;
+
+                if (hasEventListener(StorageEvent.CHANGE))
+                    dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
+            }
         }
 
         //--------------------------------------

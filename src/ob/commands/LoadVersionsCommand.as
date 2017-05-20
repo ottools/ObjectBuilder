@@ -22,11 +22,11 @@
 
 package ob.commands
 {
+    import com.mignari.workers.WorkerCommand;
+    
     import flash.filesystem.File;
 
-    import nail.commands.Command;
-
-    public class LoadVersionsCommand extends Command
+    public class LoadVersionsCommand extends WorkerCommand
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR

@@ -20,20 +20,40 @@
 *  THE SOFTWARE.
 */
 
-package nail.commands
+package objectview.settings
 {
-    import flash.system.Worker;
+    import flash.filesystem.File;
+    import flash.geom.Rectangle;
+    
+    import otlib.settings.Settings;
 
-    public interface ICommunicator
+    public class ObjectViewerSettings extends Settings
     {
-        function get worker():Worker;
-        function get running():Boolean;
-        function get background():Boolean;
-        function get applicationDescriptor():XML;
+        //--------------------------------------------------------------------------
+        // PROPERTIES
+        //--------------------------------------------------------------------------
 
-        function registerCallback(commandClass:Class, callback:Function):void;
-        function unregisterCallback(commandClass:Class, callback:Function):void;
-        function sendCommand(command:Command):void;
-        function start():void;
+        public var maximized:Boolean;
+        public var width:uint;
+        public var height:uint;
+        public var zoom:Number;
+        public var lastDirectory:File;
+        public var showBackgroundColor:Boolean;
+        public var backgroundColor:uint;
+
+        //--------------------------------------------------------------------------
+        // CONSTRUCTOR
+        //--------------------------------------------------------------------------
+
+        public function ObjectViewerSettings()
+        {
+            maximized = true;
+            width = 500;
+            height = 400;
+            zoom = 1.0;
+            lastDirectory = File.documentsDirectory;
+            showBackgroundColor = true;
+            backgroundColor = 0xff00ff;
+        }
     }
 }

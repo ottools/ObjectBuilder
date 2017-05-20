@@ -43,26 +43,27 @@ THE SOFTWARE.
 
     <fx:Script>
         <![CDATA[
+            import com.mignari.workers.IWorkerCommunicator;
+            
             import mx.collections.ArrayCollection;
             import mx.core.FlexGlobals;
             import mx.events.CollectionEvent;
             import mx.events.FlexEvent;
             import mx.events.MoveEvent;
             import mx.managers.DragManager;
-
+            
             import nail.assets.NailAssets;
-            import nail.commands.ICommunicator;
             import nail.components.controls.Alert;
             import nail.image.ImageCodec;
             import nail.utils.BitmapUtil;
             import nail.utils.FileUtil;
             import nail.utils.WindowUtil;
-
+            
             import ob.commands.SetClientInfoCommand;
             import ob.commands.sprites.ImportSpritesCommand;
             import ob.core.IObjectBuilder;
             import ob.utils.ObUtils;
-
+            
             import otlib.assets.Assets;
             import otlib.components.SurfaceCells;
             import otlib.settings.ISettingsManager;
@@ -70,7 +71,7 @@ THE SOFTWARE.
             import otlib.sprites.Sprite;
             import otlib.utils.ClientInfo;
             import otlib.utils.SpriteUtils;
-
+            
             import slicer.settings.SlicerSettings;
 
             //--------------------------------------------------------------------------
@@ -78,7 +79,7 @@ THE SOFTWARE.
             //--------------------------------------------------------------------------
 
             private var _application:IObjectBuilder;
-            private var _communicator:ICommunicator;
+            private var _communicator:IWorkerCommunicator;
             private var _settingsManager:ISettingsManager;
             private var _settings:SlicerSettings;
             private var _sprites:ArrayCollection = new ArrayCollection();
@@ -98,8 +99,8 @@ THE SOFTWARE.
             // Getters / Setters
             //--------------------------------------
 
-            public function get communicator():ICommunicator { return _communicator; }
-            public function set communicator(value:ICommunicator):void
+            public function get communicator():IWorkerCommunicator { return _communicator; }
+            public function set communicator(value:IWorkerCommunicator):void
             {
                 if (_communicator) {
                     _communicator.unregisterCallback(SetClientInfoCommand, clientInfoCallback);

@@ -22,9 +22,9 @@
 
 package ob.commands
 {
-    import nail.commands.Command;
+    import com.mignari.workers.WorkerCommand;
 
-    public class NeedToReloadCommand extends Command
+    public class NeedToReloadCommand extends WorkerCommand
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR

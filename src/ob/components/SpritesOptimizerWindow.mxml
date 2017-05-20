@@ -26,7 +26,7 @@ THE SOFTWARE.
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:nail="library://ns.nail.com/naillib"
           width="400"
-          height="280"
+          height="195"
           type="utility"
           backgroundColor="0x494949"
           showStatusBar="false"
@@ -38,12 +38,11 @@ THE SOFTWARE.
 
     <fx:Script>
         <![CDATA[
+            import com.mignari.workers.IWorkerCommunicator;
+            
             import mx.core.FlexGlobals;
             import mx.events.FlexEvent;
-
-            import nail.commands.Command;
-            import nail.commands.ICommunicator;
-
+            
             import ob.commands.ProgressBarID;
             import ob.commands.ProgressCommand;
             import ob.commands.sprites.OptimizeSpritesCommand;
@@ -59,14 +58,14 @@ THE SOFTWARE.
             [Bindable]
             private var m_inProgress:Boolean;
 
-            private var m_communicator:ICommunicator;
+            private var m_communicator:IWorkerCommunicator;
 
             //--------------------------------------
             // Getters / Setters
             //--------------------------------------
 
-            public function get communicator():ICommunicator { return m_communicator; }
-            public function set communicator(value:ICommunicator):void
+            public function get communicator():IWorkerCommunicator { return m_communicator; }
+            public function set communicator(value:IWorkerCommunicator):void
             {
                 if (m_communicator) {
                     m_communicator.unregisterCallback(ProgressCommand, progressCallback);
@@ -132,10 +131,7 @@ THE SOFTWARE.
             {
                 if (m_inProgress) return;
 
-                var command:Command = new OptimizeSpritesCommand(unusedSpritesCheckBox.selected,
-                                                                 emptySpritesCheckBox.selected);
-
-                m_communicator.sendCommand(command);
+                m_communicator.sendCommand(new OptimizeSpritesCommand());
                 m_inProgress = true;
                 removedValueLabel.text = "0";
                 oldCountValueLabel.text = "0";
@@ -146,43 +142,17 @@ THE SOFTWARE.
     </fx:Script>
 
     <s:layout>
-        <s:VerticalLayout paddingLeft="10"
-                          paddingRight="10"
-                          paddingTop="10"
-                          paddingBottom="10"
-                          gap="5"/>
+        <s:VerticalLayout padding="10" gap="5" />
     </s:layout>
 
-    <nail:GroupBox width="100%"
-                   height="75"
-                   label="@Resource(key='options', bundle='strings')">
-
-        <nail:layout>
-            <s:VerticalLayout paddingLeft="10"
-                              paddingRight="10"
-                              paddingTop="10"
-                              paddingBottom="10"
-                              gap="5"/>
-        </nail:layout>
-
-        <s:CheckBox id="unusedSpritesCheckBox"
-                    label="@Resource(key='unused', bundle='strings')"/>
-        <s:CheckBox id="emptySpritesCheckBox"
-                    label="@Resource(key='empty', bundle='strings')"/>
-    </nail:GroupBox>
-
-    <nail:GroupBox width="100%"
-                   height="80"
+    <nail:GroupBox width="100%" height="80"
                    label="@Resource(key='result', bundle='strings')">
 
         <nail:layout>
-            <s:TileLayout paddingLeft="10"
-                          paddingRight="10"
-                          paddingTop="10"
-                          paddingBottom="10"
+            <s:TileLayout padding="10"
                           requestedColumnCount="2"
                           horizontalGap="5"
-                          verticalGap="8"/>
+                          verticalGap="8" />
         </nail:layout>
 
         <s:Label minWidth="70"
@@ -215,17 +185,12 @@ THE SOFTWARE.
                    label="@Resource(key='progress', bundle='strings')">
 
         <nail:layout>
-            <s:HorizontalLayout paddingLeft="10"
-                                paddingRight="10"
-                                paddingTop="10"
-                                paddingBottom="10"
-                                gap="10"/>
+            <s:HorizontalLayout padding="10" gap="10" />
         </nail:layout>
 
         <s:Button id="startButton"
                   minWidth="70"
                   height="20"
-                  enabled="{unusedSpritesCheckBox.selected || emptySpritesCheckBox.selected}"
                   label="@Resource(key='start', bundle='strings')"
                   click="startButtonClickHandler(event)"/>
 

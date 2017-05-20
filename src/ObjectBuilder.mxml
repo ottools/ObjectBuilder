@@ -49,8 +49,13 @@ THE SOFTWARE.
 
     <fx:Script>
         <![CDATA[
+            import com.mignari.animator.AnimationEditor;
+            import com.mignari.workers.IWorkerCommunicator;
+            import com.mignari.workers.WorkerCommand;
+            import com.mignari.workers.WorkerCommunicator;
+            
             import flash.net.registerClassAlias;
-
+            
             import mx.core.UIComponent;
             import mx.events.CloseEvent;
             import mx.events.FlexEvent;
@@ -58,15 +63,12 @@ THE SOFTWARE.
             import mx.logging.LogEventLevel;
             import mx.managers.DragManager;
             import mx.resources.ResourceManager;
-
+            
             import spark.events.IndexChangeEvent;
-
+            
             import air.update.ApplicationUpdaterUI;
             import air.update.events.UpdateEvent;
-
-            import nail.commands.Command;
-            import nail.commands.Communicator;
-            import nail.commands.ICommunicator;
+            
             import nail.commands.LogCommand;
             import nail.components.controls.Alert;
             import nail.core.nail_internal;
@@ -84,8 +86,7 @@ THE SOFTWARE.
             import nail.utils.StringUtil;
             import nail.utils.WindowUtil;
             import nail.utils.isNullOrEmpty;
-
-            import com.mignari.animator.AnimationEditor;
+            
             import ob.commands.HideProgressBarCommand;
             import ob.commands.LoadVersionsCommand;
             import ob.commands.NeedToReloadCommand;
@@ -98,6 +99,7 @@ THE SOFTWARE.
             import ob.commands.files.CompileCommand;
             import ob.commands.files.CreateNewFilesCommand;
             import ob.commands.files.LoadFilesCommand;
+            import ob.commands.files.MergeFilesCommand;
             import ob.commands.files.UnloadFilesCommand;
             import ob.commands.sprites.ExportSpritesCommand;
             import ob.commands.sprites.GetSpriteListCommand;
@@ -123,6 +125,7 @@ THE SOFTWARE.
             import ob.components.AboutWindow;
             import ob.components.CompileFilesWindow;
             import ob.components.ErrorWindow;
+            import ob.components.MergeFilesWindow;
             import ob.components.NewFilesWindow;
             import ob.components.OpenFilesWindow;
             import ob.components.PreferencesWindow;
@@ -130,7 +133,7 @@ THE SOFTWARE.
             import ob.components.SpritesOptimizerWindow;
             import ob.settings.ObjectBuilderSettings;
             import ob.utils.ObUtils;
-
+            
             import otlib.animation.FrameDuration;
             import otlib.assets.Assets;
             import otlib.components.ClientVersionsWindow;
@@ -160,9 +163,9 @@ THE SOFTWARE.
             import otlib.utils.OTFormat;
             import otlib.utils.SpriteUtils;
             import otlib.utils.ThingListItem;
-
-            import ov.ObjectViewer;
-
+            
+            import objectview.ObjectViewer;
+            
             import slicer.Slicer;
 
             use namespace nail_internal;
@@ -173,7 +176,7 @@ THE SOFTWARE.
 
             private var _creationComplete:Boolean;
             private var _invokeArgs:Array;
-            private var _communicator:ICommunicator;
+            private var _communicator:IWorkerCommunicator;
             private var _logger:ILogger;
             private var _logTarget:LogFileTarget;
             private var _splashScreen:SplashScreen;
@@ -289,7 +292,7 @@ THE SOFTWARE.
             // Public
             //--------------------------------------
 
-            public function sendCommand(command:Command):void
+            public function sendCommand(command:WorkerCommand):void
             {
                 _communicator.sendCommand(command);
             }
@@ -423,6 +426,40 @@ THE SOFTWARE.
                 sendCommand(new UnloadFilesCommand());
             }
 
+            public function mergeProject():void
+            {
+                var window:MergeFilesWindow;
+
+                if (PopUpWindowManager.currentWindow is MergeFilesWindow) {
+                    window = MergeFilesWindow(PopUpWindowManager.currentWindow);
+                    window.clientDirectory = _settings.getLastMergeDirectory();
+                }
+                else
+                {
+                    window = new MergeFilesWindow();
+                    window.clientDirectory = _settings.getLastMergeDirectory();
+                    window.addEventListener(Event.CLOSE, windowCloseHandler);
+                    window.open();
+
+                    PopUpWindowManager.addWindow(window);
+                }
+
+                function windowCloseHandler(event:Event):void
+                {
+                    if (window.detail == DialogDetail.CONFIRM)
+                    {
+                        _settings.setLastMergeDirectory(window.datFile);
+
+                        sendCommand(new MergeFilesCommand(window.datFile,
+                                                          window.sprFile,
+                                                          window.version,
+                                                          window.extended,
+                                                          window.transparency,
+                                                          window.improvedAnimations));
+                    }
+                }
+            }
+
             public function openPreferencesWindow():void
             {
                 var window:PreferencesWindow = new PreferencesWindow();
@@ -477,11 +514,7 @@ THE SOFTWARE.
 
             public function openObjectViewer(file:File = null):void
             {
-                if (_objectViewer)
-                {
-                    _objectViewer.activate();
-                }
-                else
+                if (!_objectViewer)
                 {
                     _objectViewer = new ObjectViewer();
                     _objectViewer.communicator = _communicator;
@@ -494,6 +527,9 @@ THE SOFTWARE.
                 }
 
                 _objectViewer.file = file;
+                _objectViewer.alwaysInFront = true;
+                _objectViewer.activate();
+                _objectViewer.alwaysInFront = false;
             }
 
             public function closeObjectViewer():void
@@ -776,28 +812,29 @@ THE SOFTWARE.
 
             public function register():void
             {
-                registerClassAlias("ObjectBuilderSettings", ObjectBuilderSettings);
-                registerClassAlias("Version", Version);
-                registerClassAlias("ThingType", ThingType);
-                registerClassAlias("ClientInfo", ClientInfo);
-                registerClassAlias("ThingData", ThingData);
-                registerClassAlias("SpriteData", SpriteData);
-                registerClassAlias("ByteArray", ByteArray);
-                registerClassAlias("ThingProperty", ThingProperty);
-                registerClassAlias("ThingListItem", ThingListItem);
-                registerClassAlias("PathHelper", PathHelper);
-                registerClassAlias("FrameDuration", FrameDuration);
+                // Register classes.
+                _communicator.registerClass(ByteArray);
+                _communicator.registerClass(ClientInfo);
+                _communicator.registerClass(FrameDuration);
+                _communicator.registerClass(ObjectBuilderSettings);
+                _communicator.registerClass(PathHelper);
+                _communicator.registerClass(SpriteData);
+                _communicator.registerClass(ThingData);
+                _communicator.registerClass(ThingListItem);
+                _communicator.registerClass(ThingProperty);
+                _communicator.registerClass(ThingType);
+                _communicator.registerClass(Version);
 
-                _communicator.registerCallback(LogCommand, onLog);
-                _communicator.registerCallback(ProgressCommand, onProgress);
-                _communicator.registerCallback(ShowProgressBarCommand, onShowProgressBar);
-                _communicator.registerCallback(HideProgressBarCommand, onHideProgressBar);
-                _communicator.registerCallback(SetClientInfoCommand, onSetClientInfo);
+                _communicator.registerCallback(LogCommand, logCallback);
+                _communicator.registerCallback(ProgressCommand, progressCallback);
+                _communicator.registerCallback(ShowProgressBarCommand, showProgressBarCallback);
+                _communicator.registerCallback(HideProgressBarCommand, hideProgressBarCallback);
+                _communicator.registerCallback(SetClientInfoCommand, setClientInfoCallback);
 
-                _communicator.registerCallback(SetThingDataCommand, onSetThingData);
-                _communicator.registerCallback(SetThingListCommand, onSetThingList);
-                _communicator.registerCallback(SetSpriteListCommand, onSetSpriteList);
-                _communicator.registerCallback(NeedToReloadCommand, onNeedToReload);
+                _communicator.registerCallback(SetThingDataCommand, setThingDataCallback);
+                _communicator.registerCallback(SetThingListCommand, setThingListCallback);
+                _communicator.registerCallback(SetSpriteListCommand, setSpriteListCallback);
+                _communicator.registerCallback(NeedToReloadCommand, needToReloadCallback);
             }
 
             //--------------------------------------
@@ -846,7 +883,7 @@ THE SOFTWARE.
                 activate();
 
                 if (_settings.maximized)
-                    this.maximize();
+                    maximize();
 
                 previewPanel.width = Math.max(previewPanel.minWidth, _settings.previewContainerWidth);
                 thingsPanel.width = Math.max(thingsPanel.minWidth, _settings.thingListContainerWidth);
@@ -896,7 +933,7 @@ THE SOFTWARE.
 
             private function createWorker():void
             {
-                _communicator = new Communicator(Workers.ObjectBuilderWorker);
+                _communicator = new WorkerCommunicator(Workers.ObjectBuilderWorker);
                 _communicator.start();
             }
 
@@ -925,7 +962,7 @@ THE SOFTWARE.
                 }
 
                 Resources.locale = _settings.getLanguage()[0];
-                this.resourceManager.localeChain = _settings.getLanguage();
+                resourceManager.localeChain = _settings.getLanguage();
 
                 sendCommand(new SettingsCommand(_settings));
 
@@ -976,7 +1013,7 @@ THE SOFTWARE.
                 _logTarget.clear();
             }
 
-            private function onSetClientInfo(info:ClientInfo):void
+            private function setClientInfoCallback(info:ClientInfo):void
             {
                 if (!info)
                     throw new NullArgumentError("info");
@@ -998,7 +1035,7 @@ THE SOFTWARE.
                 spriteStepper.maximum = info.maxSpriteId;
             }
 
-            private function onSetThingData(thingData:ThingData):void
+            private function setThingDataCallback(thingData:ThingData):void
             {
                 if (!thingData) {
                     throw new NullArgumentError("thingData");
@@ -1007,7 +1044,7 @@ THE SOFTWARE.
                 this.thingData = thingData;
             }
 
-            private function onSetThingList(selectedIds:Vector.<uint>, things:Vector.<ThingListItem>):void
+            private function setThingListCallback(selectedIds:Vector.<uint>, things:Vector.<ThingListItem>):void
             {
                 if (!selectedIds) {
                     throw new NullArgumentError("selectedIds");
@@ -1023,7 +1060,7 @@ THE SOFTWARE.
                 thingList.selectedIds = selectedIds;
             }
 
-            private function onSetSpriteList(selectedIds:Vector.<uint>, sprites:Vector.<SpriteData>):void
+            private function setSpriteListCallback(selectedIds:Vector.<uint>, sprites:Vector.<SpriteData>):void
             {
                 if (!selectedIds) {
                     throw new NullArgumentError("selectedIds");
@@ -1039,7 +1076,7 @@ THE SOFTWARE.
                 spritesList.selectedIds = selectedIds;
             }
 
-            private function onNeedToReload(extended:Boolean, transparency:Boolean, improvedAnimations:Boolean):void
+            private function needToReloadCallback(extended:Boolean, transparency:Boolean, improvedAnimations:Boolean):void
             {
                 Alert.show(
                     resourceManager.getString("strings", "needToReload"),
@@ -1358,7 +1395,7 @@ THE SOFTWARE.
                 }
             }
 
-            private function onShowProgressBar(id:uint, title:String):void
+            private function showProgressBarCallback(id:uint, title:String):void
             {
                 switch(id) {
                     case ProgressBarID.DAT_SPR:
@@ -1370,7 +1407,7 @@ THE SOFTWARE.
                 }
             }
 
-            private function onHideProgressBar(id:uint):void
+            private function hideProgressBarCallback(id:uint):void
             {
                 switch(id) {
                     case ProgressBarID.DAT_SPR:
@@ -1382,7 +1419,7 @@ THE SOFTWARE.
                 }
             }
 
-            private function onLog(level:uint, message:String, stack:String, id:uint):void
+            private function logCallback(level:uint, message:String, stack:String, id:uint):void
             {
                 this.hideDatSprProgressBar();
                 this.hideDefaultProgressBar();
@@ -1397,7 +1434,7 @@ THE SOFTWARE.
                     this.appendLog(message);
             }
 
-            private function onProgress(id:uint, loaded:uint, total:uint, label:String):void
+            private function progressCallback(id:uint, loaded:uint, total:uint, label:String):void
             {
                 switch(id)
                 {
@@ -1495,7 +1532,7 @@ THE SOFTWARE.
                 if (event.arguments && event.arguments.length > 0)
                 {
                     if (_creationComplete)
-                        this.setInvokeArgs(event.arguments);
+                        setInvokeArgs(event.arguments);
                     else
                         _invokeArgs = event.arguments;
                 }
@@ -2178,6 +2215,10 @@ THE SOFTWARE.
 
                     case Menu.FILE_CLOSE:
                         this.unloadProject();
+                        break;
+
+                    case Menu.FILE_MERGE:
+                        mergeProject();
                         break;
 
                     case Menu.FILE_PREFERENCES:

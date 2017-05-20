@@ -22,9 +22,9 @@
 
 package ob.commands.sprites
 {
-    import nail.commands.Command;
+    import com.mignari.workers.WorkerCommand;
 
-    public class RemoveSpritesCommand extends Command
+    public class RemoveSpritesCommand extends WorkerCommand
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR

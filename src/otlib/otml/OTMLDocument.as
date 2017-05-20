@@ -22,11 +22,11 @@
 
 package otlib.otml
 {
+    import com.mignari.errors.NullArgumentError;
+
     import flash.filesystem.File;
     import flash.filesystem.FileMode;
     import flash.filesystem.FileStream;
-
-    import nail.errors.NullArgumentError;
 
     public class OTMLDocument extends OTMLNode
     {
@@ -61,9 +61,14 @@ package otlib.otml
         public function load(file:File):Boolean
         {
             if (!file)
+            {
                 throw new NullArgumentError("file");
+            }
 
-            if (!file.exists) return false;
+            if (!file.exists)
+            {
+                return false;
+            }
 
             var stream:FileStream = new FileStream();
             stream.open(file, FileMode.READ);
@@ -80,21 +85,25 @@ package otlib.otml
         public function save(file:File):Boolean
         {
             if (!file)
+            {
                 throw new NullArgumentError("file");
+            }
 
-            if (file.isDirectory) return false;
-
-            var text:String;
-            if (this.hasChildren)
-                text = OTMLEmitter.emitNode(this.getChildAt(0), 0);
-            else
-                text = OTMLEmitter.emitNode(this, 0);
+            if (file.isDirectory)
+            {
+                return false;
+            }
 
             var stream:FileStream = new FileStream();
             stream.open(file, FileMode.WRITE);
-            stream.writeUTFBytes(text);
+            stream.writeUTFBytes(OTMLEmitter.emitNode(this));
             stream.close();
             return true;
+        }
+
+        override public function toString():String
+        {
+            return "[OTMLDocument tag='"+tag+"', value='"+value+"']";
         }
 
         //--------------------------------------------------------------------------
@@ -104,7 +113,7 @@ package otlib.otml
         /**
          * Creates a new OTML document for filling it with nodes.
          */
-        public static function create():OTMLDocument
+        static public function create():OTMLDocument
         {
             var doc:OTMLDocument = new OTMLDocument();
             doc.tag = "doc";
@@ -114,10 +123,12 @@ package otlib.otml
         /**
          * Parse OTML from a file
          */
-        public static function parse(file:File):OTMLDocument
+        static public function parse(file:File):OTMLDocument
         {
             if (!file || !file.exists)
+            {
                 return null;
+            }
 
             var stream:FileStream = new FileStream();
             stream.open(file, FileMode.READ);

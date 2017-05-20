@@ -22,9 +22,9 @@
 
 package ob.commands.files
 {
-    import nail.commands.Command;
+    import com.mignari.workers.WorkerCommand;
 
-    public class CreateNewFilesCommand extends Command
+    public class CreateNewFilesCommand extends WorkerCommand
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR

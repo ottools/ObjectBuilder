@@ -20,18 +20,33 @@
 *  THE SOFTWARE.
 */
 
-package nail.commands
+package ob.commands.files
 {
-    [ExcludeClass]
-    public class ApplicationDescriptorCommand extends Command
+    import com.mignari.workers.WorkerCommand;
+    
+    import flash.filesystem.File;
+    
+    import otlib.core.Version;
+
+    public class MergeFilesCommand extends WorkerCommand
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
 
-        public function ApplicationDescriptorCommand(xml:XML)
+        public function MergeFilesCommand(datFile:File,
+                                          sprFile:File,
+                                          version:Version,
+                                          extended:Boolean,
+                                          transparency:Boolean,
+                                          improvedAnimations:Boolean)
         {
-            super(xml);
+            super(datFile.nativePath,
+                  sprFile.nativePath,
+                  version,
+                  extended,
+                  transparency,
+                  improvedAnimations);
         }
     }
 }

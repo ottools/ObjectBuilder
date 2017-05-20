@@ -20,34 +20,16 @@
 *  THE SOFTWARE.
 */
 
-package nail.commands
+package otlib.storages
 {
-    import flash.utils.getQualifiedClassName;
+    import flash.events.IEventDispatcher;
 
-    public class Command
+    public interface IStorage extends IEventDispatcher
     {
-        //--------------------------------------------------------------------------
-        // PROPERTIES
-        //--------------------------------------------------------------------------
+        function get isTemporary():Boolean;
+        function get changed():Boolean;
+        function get loaded():Boolean;
 
-        private var m_type:String;
-        private var m_args:Array;
-
-        //--------------------------------------
-        // Getters / Setters
-        //--------------------------------------
-
-        public function get type():String { return m_type; }
-        public function get args():Array { return m_args; }
-
-        //--------------------------------------------------------------------------
-        // CONSTRUCTOR
-        //--------------------------------------------------------------------------
-
-        public function Command(...args)
-        {
-            m_type = getQualifiedClassName(this);
-            m_args = args;
-        }
+        function invalidate():void;
     }
 }

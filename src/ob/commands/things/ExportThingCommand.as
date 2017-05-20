@@ -22,12 +22,12 @@
 
 package ob.commands.things
 {
-    import nail.commands.Command;
-
+    import com.mignari.workers.WorkerCommand;
+    
     import otlib.core.Version;
     import otlib.loaders.PathHelper;
 
-    public class ExportThingCommand extends Command
+    public class ExportThingCommand extends WorkerCommand
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR

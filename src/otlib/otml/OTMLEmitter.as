@@ -22,7 +22,7 @@
 
 package otlib.otml
 {
-    import nail.errors.AbstractClassError;
+    import com.mignari.errors.AbstractClassError;
 
     public class OTMLEmitter
     {
@@ -39,7 +39,7 @@ package otlib.otml
         // STATIC
         //--------------------------------------------------------------------------
 
-        public static function emitNode(node:OTMLNode, currentDepth:int = -1):String
+        static public function emitNode(node:OTMLNode, currentDepth:int = -1):String
         {
             var text:String = "";
 
@@ -48,7 +48,9 @@ package otlib.otml
             {
                 // fill spaces for current depth
                 for(var i:int = 0; i < currentDepth; i++)
+                {
                     text += "  ";
+                }
 
                 // emit node tag
                 if(node.hasTag)
@@ -57,14 +59,20 @@ package otlib.otml
 
                     // add ':' to if the node is unique or has value
                     if(node.hasValue || node.isUnique || node.isNull)
+                    {
                         text += ":";
+                    }
                 }
                 else
+                {
                     text += "-";
+                }
 
                 // emit node value
                 if(node.isNull)
+                {
                     text += " ~";
+                }
                 else if(node.hasValue)
                 {
                     text += " ";
@@ -75,11 +83,17 @@ package otlib.otml
                     if(value.indexOf("\n") != -1)
                     {
                         if(value[value.length -1] == '\n' && value[value.length - 2] == '\n')
+                        {
                             text += "|+";
+                        }
                         else if(value[value.length - 1] == '\n')
+                        {
                             text += "|";
+                        }
                         else
+                        {
                             text += "|-";
+                        }
 
                         //  multilines
                         for(var pos:int = 0; pos < value.length; pos++)
@@ -88,30 +102,40 @@ package otlib.otml
 
                             // fill spaces for multiline depth
                             for(i = 0; i < currentDepth + 1; i++)
+                            {
                                 text += "  ";
+                            }
 
                             // fill until a new line
                             while(pos < value.length)
                             {
                                 if(value[pos] == '\n')
+                                {
                                     break;
+                                }
 
                                 text += value[pos++];
                             }
                         }
                     } // emit inline values
                     else
+                    {
                         text += value;
+                    }
                 }
                 else
-                    text = "\n" + text;
+                {
+                    text = currentDepth == 0 ? text : "\n" + text;
+                }
             }
 
             // emit children
             for(i = 0; i < node.length ; i++)
             {
                 if(currentDepth >= 0 || i != 0)
+                {
                     text += "\n";
+                }
 
                 text += emitNode(node.getChildAt(i), currentDepth + 1);
             }

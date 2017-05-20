@@ -22,11 +22,11 @@
 
 package ob.commands.things
 {
-    import nail.commands.Command;
-
+    import com.mignari.workers.WorkerCommand;
+    
     import otlib.utils.ThingListItem;
 
-    public class SetThingListCommand extends Command
+    public class SetThingListCommand extends WorkerCommand
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR

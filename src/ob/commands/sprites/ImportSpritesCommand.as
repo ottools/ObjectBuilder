@@ -22,11 +22,11 @@
 
 package ob.commands.sprites
 {
+    import com.mignari.workers.WorkerCommand;
+    
     import flash.utils.ByteArray;
 
-    import nail.commands.Command;
-
-    public class ImportSpritesCommand extends Command
+    public class ImportSpritesCommand extends WorkerCommand
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR

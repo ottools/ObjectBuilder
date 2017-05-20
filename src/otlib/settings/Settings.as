@@ -22,13 +22,20 @@
 
 package otlib.settings
 {
+    import com.mignari.utils.FileUtil;
+    import com.mignari.utils.StringUtil;
+    
+    import flash.filesystem.File;
+    import flash.geom.Point;
+    import flash.geom.Rectangle;
+    import flash.system.System;
     import flash.utils.describeType;
     import flash.utils.getDefinitionByName;
     import flash.utils.getQualifiedClassName;
-
+    
     import nail.errors.NullArgumentError;
     import nail.utils.Descriptor;
-
+    
     import otlib.otml.OTMLDocument;
     import otlib.otml.OTMLNode;
 
@@ -76,10 +83,14 @@ package otlib.settings
             var describe:XML = describeType(this);
             var doc:OTMLDocument = OTMLDocument.create();
             var node:OTMLNode = new OTMLNode();
-            node.tag = this.m_type + " < Settings";
+            node.tag = m_type + " < Settings";
             node.writeAt("__application", getName());
             node.writeAt("__version", getVersionNumber());
             node.writeAt("__type", String(describe.@name));
+
+            var file:String = getQualifiedClassName(File);
+            var point:String = getQualifiedClassName(Point);
+            var rectangle:String = getQualifiedClassName(Rectangle);
 
             var properties:XMLList = describe.variable;
             for each (var property:XML in properties)
@@ -94,12 +105,16 @@ package otlib.settings
                     case "Number":
                     case "Boolean":
                     case "String":
+                    case file:
+                    case point:
+                    case rectangle:
                         node.writeAt(name, this[name]);
                         break;
                 }
             }
 
             doc.addChild(node);
+            System.disposeXML(describe);
             return doc;
         }
 
@@ -126,9 +141,10 @@ package otlib.settings
                 var type:String = property.@type;
 
                 if (node.hasChild(name))
-                    this[name] = getValue(node.valueAt(name, ""), getDefinitionByName(type) as Class);
+                    this[name] = getValue(node.valueAt(name, ''), getDefinitionByName(type) as Class);
             }
 
+            System.disposeXML(describe);
             return true;
         }
 
@@ -152,6 +168,8 @@ package otlib.settings
 
         private function getValue(value:String, type:Class):*
         {
+            var values:Array;
+
             switch (type)
             {
                 case int:
@@ -168,6 +186,27 @@ package otlib.settings
 
                 case Boolean:
                     return value == "true" ? true : false;
+
+                case File:
+                    return FileUtil.pathToFile(value);
+
+                case Point:
+                    values = StringUtil.trim(value).split(' ');
+                    if (values.length == 2) {
+                        return new Point(parseFloat(values[0]),
+                                         parseFloat(values[1]));
+                    }
+                    break;
+
+                case Rectangle:
+                    values = StringUtil.trim(value).split(' ');
+                    if (values.length == 4) {
+                        return new Rectangle(parseFloat(values[0]),
+                                             parseFloat(values[1]),
+                                             parseFloat(values[2]),
+                                             parseFloat(values[3]));
+                    }
+                    break;
 
                 default:
                     throw new ArgumentError("Settings.getValue: Unsupported type: " + type);

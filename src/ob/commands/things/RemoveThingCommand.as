@@ -22,9 +22,9 @@
 
 package ob.commands.things
 {
-    import nail.commands.Command;
+    import com.mignari.workers.WorkerCommand;
 
-    public class RemoveThingCommand extends Command
+    public class RemoveThingCommand extends WorkerCommand
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR

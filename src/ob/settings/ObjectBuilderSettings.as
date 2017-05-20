@@ -44,6 +44,7 @@ package ob.settings
         //--------------------------------------------------------------------------
 
         public var lastDirectory:String;
+        public var lastMergeDirectory:String;
         public var lastIODirectory:String;
         public var exportThingFormat:String;
         public var exportSpriteFormat:String;
@@ -106,6 +107,27 @@ package ob.settings
         {
             if (file) {
                 this.lastDirectory = FileUtil.getDirectory(file).nativePath;
+            }
+        }
+
+        public function getLastMergeDirectory():File
+        {
+            if (isNullOrEmpty(lastMergeDirectory)) return null;
+
+            var directory:File;
+            try
+            {
+                directory = new File(lastMergeDirectory);
+            } catch(error:Error) {
+                return null;
+            }
+            return directory;
+        }
+
+        public function setLastMergeDirectory(file:File):void
+        {
+            if (file) {
+                this.lastMergeDirectory = FileUtil.getDirectory(file).nativePath;
             }
         }
 

@@ -22,11 +22,11 @@
 
 package ob.commands.things
 {
-    import nail.commands.Command;
-
+    import com.mignari.workers.WorkerCommand;
+    
     import otlib.loaders.PathHelper;
 
-    public class ReplaceThingsFromFilesCommand extends Command
+    public class ReplaceThingsFromFilesCommand extends WorkerCommand
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR

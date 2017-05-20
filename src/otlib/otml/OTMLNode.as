@@ -22,17 +22,20 @@
 
 package otlib.otml
 {
+    import com.mignari.errors.NullArgumentError;
+    import com.mignari.utils.Color;
+    import com.mignari.utils.FileUtil;
+    import com.mignari.utils.isNullOrEmpty;
+    
+    import flash.filesystem.File;
     import flash.geom.Point;
     import flash.geom.Rectangle;
-
+    
     import mx.utils.StringUtil;
-
-    import nail.errors.NullArgumentError;
-    import nail.utils.isNullOrEmpty;
-
+    
     import otlib.core.otlib_internal;
+    import otlib.geom.Rect;
     import otlib.geom.Size;
-    import otlib.utils.Color;
 
     use namespace otlib_internal;
 
@@ -66,7 +69,7 @@ package otlib.otml
 
         public function OTMLNode()
         {
-
+           ////
         }
 
         //--------------------------------------------------------------------------
@@ -79,11 +82,6 @@ package otlib.otml
         // Public
         //--------------------------------------
 
-        public function toString():String
-        {
-            return "[OTMLNode tag='"+tag+"', value='"+value+"']";
-        }
-
         public function addChild(newChild:OTMLNode):void
         {
             addChildAt(newChild, this.length);
@@ -92,7 +90,9 @@ package otlib.otml
         public function addChildAt(newChild:OTMLNode, index:int):void
         {
             if (!newChild)
+            {
                 throw new NullArgumentError("newChild");
+            }
 
             index = Math.max(0, Math.min(this.length, index));
 
@@ -118,14 +118,18 @@ package otlib.otml
 
                         var idx:int = m_children.indexOf(child);
                         if (idx != -1)
+                        {
                             m_children[idx] = newChild;
+                        }
 
                         // find child with the same tag
                         for (var k:int = 0; k < length; k++)
                         {
                             var node:OTMLNode = m_children[k];
                             if(node != newChild && node.tag == newChild.tag)
+                            {
                                 toRemove[toRemove.length] = k;
+                            }
                         }
 
                         hasUnique = true;
@@ -136,13 +140,20 @@ package otlib.otml
                 // remove any other child with the same tag
                 length = toRemove.length;
                 for (i = 0; i < length; i++)
-                    m_children.splice(toRemove[i], 1);
+                {
+                    m_children.removeAt(toRemove[i]);
+                }
 
-                if (hasUnique) return;
+                if (hasUnique)
+                {
+                    return;
+                }
             }
 
             if (!m_children)
+            {
                 m_children = new Vector.<OTMLNode>();
+            }
 
             m_children.splice(index, 0, newChild);
         }
@@ -154,7 +165,7 @@ package otlib.otml
                 var index:int = m_children.indexOf(child);
                 if (index != -1)
                 {
-                    m_children.splice(index, 1);
+                    m_children.removeAt(index);
                     return true;
                 }
             }
@@ -170,16 +181,35 @@ package otlib.otml
         public function writeAt(tag:String, value:*, index:int = -1):void
         {
             var stringValue:String;
-
             if (value is int || value is uint || value is Number || value is Boolean)
+            {
                 stringValue = value.toString();
+            }
             else if (value is String)
-                stringValue = isNullOrEmpty(value) ? "~" : String(value);
+            {
+                stringValue = isNullOrEmpty(value) ? '~' : String(value);
+            }
+            else if (value is File)
+            {
+                stringValue = value == null ? '~' : File(value).nativePath.replace(/\\/g, '/');
+            }
+            else if (value is Point)
+            {
+                stringValue = value == null ? '~' : (value.x + ' ' + value.y);
+            }
+            else if (value is Rectangle)
+            {
+                stringValue = value == null ? '~' : (value.x + ' ' + value.y + ' ' + value.width + ' ' + value.height);
+            }
             else
-                stringValue = "~";
+            {
+                stringValue = '~';
+            }
 
             if (index == -1)
+            {
                 index = this.length;
+            }
 
             var child:OTMLNode = create(tag);
             child.isUnique = true;
@@ -201,20 +231,31 @@ package otlib.otml
             switch (type)
             {
                 case int:
+                    return node.toInt();
+
                 case uint:
-                    return parseInt(value);
+                    return node.toUInt();
 
                 case Number:
-                    return parseFloat(value);
+                    return node.toNumber();
 
                 case String:
-                    return value;
+                    return node.value;
 
                 case Boolean:
-                    return value == "true" ? true : false;
+                    return node.toBoolean();
+
+                case File:
+                    return node.toFile();
+
+                case Rectangle:
+                    return node.toRectange();
+
+                case Point:
+                    return node.toPoint();
             }
 
-            return null;
+            throw new Error("Invalid class type.");
         }
 
         public function getValueAt(childTag:String):String
@@ -223,11 +264,13 @@ package otlib.otml
             return node.value;
         }
 
-        public function valueAt(childTag:String, def:String):String
+        public function valueAt(childTag:String, def:String = null):String
         {
             var node:OTMLNode = getChild(childTag);
             if (node && !node.isNull)
+            {
                 return node.value;
+            }
 
             return def;
         }
@@ -236,14 +279,18 @@ package otlib.otml
         {
             var node:OTMLNode = getChild(tag);
             if (node)
+            {
                 node.value = value.toString();
+            }
         }
 
         public function getChildByTag(tag:String):OTMLNode
         {
             var node:OTMLNode = getChild(tag);
             if (!node || node.isNull)
+            {
                 throw new OTMLError(this, StringUtil.substitute("child node with tag '{0}' not found", tag));
+            }
 
             return node;
         }
@@ -255,7 +302,9 @@ package otlib.otml
             {
                 var node:OTMLNode = m_children[i];
                 if (node.tag == tag)
+                {
                     return node;
+                }
             }
 
             return null;
@@ -264,7 +313,9 @@ package otlib.otml
         public function getChildAt(index:int):OTMLNode
         {
             if (m_children && index >= 0 && index < m_children.length)
+            {
                 return m_children[index];
+            }
 
             return null;
         }
@@ -278,7 +329,9 @@ package otlib.otml
             {
                 var node:OTMLNode = m_children[i];
                 if (node.tag == tag)
+                {
                     result[result.length] = node;
+                }
             }
 
             return result;
@@ -290,16 +343,27 @@ package otlib.otml
             for (var i:uint = 0; i < length; i++)
             {
                 var node:OTMLNode = m_children[i];
-                if (node.tag == tag) return true;
+                if (node.tag == tag)
+                {
+                    return true;
+                }
             }
+
             return false;
+        }
+
+        public function toString():String
+        {
+            return value == "~" ? null : value;
         }
 
         public function toPoint():Point
         {
             var split:Array = this.value.split(" ");
             if (split.length != 2)
+            {
                 throw new OTMLError(this, StringUtil.substitute("failed to cast node value '{0}' to type 'Point'", this.value));
+            }
 
             var point:Point = new Point();
             point.x = parseInt(split[0]);
@@ -309,15 +373,57 @@ package otlib.otml
 
         public function toRectange():Rectangle
         {
-            var split:Array = this.value.split(" ");
-            if (split.length != 4)
-                throw new OTMLError(this, StringUtil.substitute("failed to cast node value '{0}' to type 'Rectangle'", this.value));
-
             var rect:Rectangle = new Rectangle();
-            rect.x = parseInt(split[0]);
-            rect.y = parseInt(split[1]);
-            rect.width = parseInt(split[2]);
-            rect.height = parseInt(split[3]);
+
+            if (this.tag == "Rectangle")
+            {
+                rect.x = readAt("x", int);
+                rect.y = readAt("y", int);
+                rect.width = readAt("width", int);
+                rect.height = readAt("height", int);
+            }
+            else
+            {
+                var split:Array = this.value.split(" ");
+                if (split.length != 4)
+                {
+                    throw new OTMLError(this, StringUtil.substitute("failed to cast node value '{0}' to type 'Rectangle'", this.value));
+                }
+
+                rect.x = parseInt(split[0]);
+                rect.y = parseInt(split[1]);
+                rect.width = parseInt(split[2]);
+                rect.height = parseInt(split[3]);
+            }
+
+            return rect;
+        }
+
+        public function toRect():Rect
+        {
+            var rect:Rect = new Rect();
+
+            if (this.tag == "Rect")
+            {
+                rect.x = readAt("x", int);
+                rect.y = readAt("y", int);
+                rect.width = readAt("width", int);
+                rect.height = readAt("height", int);
+            }
+            else
+            {
+                var split:Array = this.value.split(" ");
+                if (split.length != 4)
+                {
+                    throw new OTMLError(this, StringUtil.substitute("failed to cast node value '{0}' to type 'Rect'", this.value));
+                }
+
+                rect.x = parseInt(split[0]);
+                rect.y = parseInt(split[1]);
+                rect.width = parseInt(split[2]);
+                rect.height = parseInt(split[3]);
+            }
+
             return rect;
         }
 
@@ -325,7 +431,9 @@ package otlib.otml
         {
             var split:Array = this.value.split(" ");
             if (split.length != 2)
+            {
                 throw new OTMLError(this, StringUtil.substitute("failed to cast node value '{0}' to type 'Size'", this.value));
+            }
 
             var size:Size = new Size();
             size.width = parseInt(split[0]);
@@ -338,15 +446,27 @@ package otlib.otml
             return Color.toColor(this.value);
         }
 
+        public function toUInt():uint
+        {
+            return uint(this.value);
+        }
+
         public function toInt():int
         {
             return parseInt(this.value);
         }
 
+        public function toNumber():Number
+        {
+            return parseFloat(this.value);
+        }
+
         public function toArray():Array
         {
             if (this.value != null && this.value != "~")
+            {
                 return this.value.split(" ");
+            }
 
             return null;
         }
@@ -356,11 +476,23 @@ package otlib.otml
             return this.value == "true" ? true : false;
         }
 
+        public function toFile():File
+        {
+            if (this.value != null && this.value != "~")
+            {
+                return FileUtil.pathToFile(this.value);
+            }
+
+            return null;
+        }
+
         public function sizeAt(childTag:String, def:Size = null):Size
         {
             var child:OTMLNode = getChild(childTag);
             if (child && !child.isNull)
+            {
                 return child.toSize();
+            }
 
             return def;
         }
@@ -369,7 +501,9 @@ package otlib.otml
         {
             var child:OTMLNode = getChild(childTag);
             if (child && !child.isNull)
+            {
                 return child.toRectange();
+            }
 
             return def;
         }
@@ -378,7 +512,20 @@ package otlib.otml
         {
             var child:OTMLNode = getChild(childTag);
             if (child && !child.isNull)
+            {
                 return child.toInt();
+            }
+
+            return def;
+        }
+
+        public function uintAt(childTag:String, def:uint = 0):uint
+        {
+            var child:OTMLNode = getChild(childTag);
+            if (child && !child.isNull)
+            {
+                return child.toUInt();
+            }
 
             return def;
         }
@@ -387,7 +534,9 @@ package otlib.otml
         {
             var child:OTMLNode = getChild(childTag);
             if (child && !child.isNull)
+            {
                 return child.toArray();
+            }
 
             return def;
         }
@@ -396,7 +545,9 @@ package otlib.otml
         {
             var child:OTMLNode = getChild(childTag);
             if (child && !child.isNull)
+            {
                 return child.toBoolean();
+            }
 
             return def;
         }
@@ -408,7 +559,9 @@ package otlib.otml
 
             var length:uint = node.length;
             for (var i:uint = 0; i < length; i++)
+            {
                 this.addChild(node.children[i]);
+            }
         }
 
         public function clone():OTMLNode
@@ -422,7 +575,9 @@ package otlib.otml
 
             var length:uint = m_children.length;
             for (var i:uint = 0; i < length; i++)
+            {
                 newNode.addChild(m_children[i]);
+            }
 
             return newNode;
         }
@@ -439,7 +594,37 @@ package otlib.otml
 
             var length:uint = node.length;
             for (var i:uint = 0; i < length; i++)
+            {
                 this.addChild(node.children[i]);
+            }
+        }
+
+        /**
+         * Sorteia as nós pela ordem alfabetica.
+         */
+        public function sortChidren():Vector.<OTMLNode>
+        {
+            if (m_children && m_children.length > 1)
+            {
+                this.children.sort(function(a:OTMLNode, b:OTMLNode):Number
+                {
+                    if (a.tag != null && b.tag != null)
+                    {
+                        if (a.tag < b.tag)
+                        {
+                            return -1;
+                        }
+                        else if (a.tag > b.tag)
+                        {
+                            return 1;
+                        }
+                    }
+
+                    return 0;
+                });
+            }
+
+            return m_children;
         }
 
         public function clear():void
@@ -448,12 +633,10 @@ package otlib.otml
         }
 
         //--------------------------------------------------------------------------
-        //
         // STATIC
-        //
         //--------------------------------------------------------------------------
 
-        public static function create(tag:String, value:String = null, unique:Boolean = false):OTMLNode
+        static public function create(tag:String, value:String = null, unique:Boolean = false):OTMLNode
         {
             var node:OTMLNode = new OTMLNode();
             node.tag = tag;

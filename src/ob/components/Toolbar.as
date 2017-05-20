@@ -22,19 +22,19 @@
 
 package ob.components
 {
+    import com.mignari.workers.IWorkerCommunicator;
+    
     import flash.events.MouseEvent;
-
+    
     import mx.core.FlexGlobals;
     import mx.events.FlexEvent;
-
+    
     import spark.components.Button;
     import spark.components.SkinnableContainer;
-
-    import nail.commands.ICommunicator;
-
+    
     import ob.commands.SetClientInfoCommand;
     import ob.core.IObjectBuilder;
-
+    
     import otlib.utils.ClientInfo;
 
     public class Toolbar extends SkinnableContainer
@@ -72,14 +72,14 @@ package ob.components
 
         private var m_application:IObjectBuilder;
 
-        private var m_communicator:ICommunicator;
+        private var m_communicator:IWorkerCommunicator;
 
         //--------------------------------------
         // Getters / Setters
         //--------------------------------------
 
-        public function get communicator():ICommunicator { return m_communicator; }
-        public function set communicator(value:ICommunicator):void
+        public function get communicator():IWorkerCommunicator { return m_communicator; }
+        public function set communicator(value:IWorkerCommunicator):void
         {
             if (m_communicator) {
                 m_communicator.unregisterCallback(SetClientInfoCommand, clientInfoCallback);

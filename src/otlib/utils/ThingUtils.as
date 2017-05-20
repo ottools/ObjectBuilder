@@ -23,7 +23,8 @@
 package otlib.utils
 {
     import nail.errors.AbstractClassError;
-
+    
+    import otlib.things.ThingCategory;
     import otlib.things.ThingType;
 
     public final class ThingUtils
@@ -56,7 +57,29 @@ package otlib.utils
 
         public static function isValid(thing:ThingType):Boolean
         {
-            if (thing && thing.width != 0 && thing.height != 0) return true;
+            return thing && thing.width != 0 && thing.height != 0;
+        }
+
+        public static function isEmpty(type:ThingType):Boolean
+        {
+            var length:uint = type.spriteIndex ? type.spriteIndex.length : 0;
+            if (length == 0)
+                return true;
+
+            if (length == 1 && type.spriteIndex[0] == 0)
+                return true;
+
+            if ((length == 12 && type.category == ThingCategory.OUTFIT) ||
+                (length == 9 && type.category == ThingCategory.MISSILE)) {
+                for (var i:int = length - 1; i >= 0; i--) {
+                    if (type.spriteIndex[i] != 0)
+                        return false;
+                }
+                return true;
+            }
+
+            // TODO check all properties.
+
             return false;
         }
     }

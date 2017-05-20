@@ -22,9 +22,9 @@
 
 package ob.commands
 {
-    import nail.commands.Command;
+    import com.mignari.workers.WorkerCommand;
 
-    public class ProgressCommand extends Command
+    public class ProgressCommand extends WorkerCommand
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR

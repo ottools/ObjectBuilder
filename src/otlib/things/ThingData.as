@@ -32,12 +32,12 @@ package otlib.things
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.utils.ByteArray;
-
+    
     import nail.errors.NullArgumentError;
     import nail.errors.NullOrEmptyArgumentError;
     import nail.utils.StringUtil;
     import nail.utils.isNullOrEmpty;
-
+    
     import otlib.geom.Rect;
     import otlib.geom.Size;
     import otlib.obd.OBDEncoder;
@@ -334,6 +334,31 @@ package otlib.things
             m_sprites = new Vector.<SpriteData>(m_thing.getTotalSprites(), true);
             setSpriteSheet(bitmap);
             return this;
+        }
+
+        public function getBitmap(layer:uint = 0, patternX:uint = 0, patternY:uint = 0, patternZ:uint = 0, frame:uint = 0):BitmapData
+        {
+            layer %= m_thing.layers;
+            patternX %= m_thing.patternX;
+            patternY %= m_thing.patternY;
+            patternZ %= m_thing.patternZ;
+            frame %= m_thing.frames;
+
+            var rects:Vector.<Rect> = new Vector.<Rect>();
+            var spriteSheet:BitmapData = getSpriteSheet(rects, 0);
+            var index:int = m_thing.getTextureIndex(layer, patternX, patternY, patternZ, frame);
+            var bitmap:BitmapData = null;
+
+            if (index < rects.length) {
+                var rect:Rect = rects[index];
+                bitmap = new BitmapData(rect.width, rect.height, true, 0);
+                RECTANGLE.setTo(rect.x, rect.y, rect.width, rect.height);
+                POINT.setTo(0, 0);
+                bitmap.copyPixels(spriteSheet, RECTANGLE, POINT);
+            }
+
+            spriteSheet.dispose();
+            return bitmap;
         }
 
         public function clone():ThingData

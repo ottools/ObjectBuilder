@@ -22,11 +22,11 @@
 
 package ob.commands.sprites
 {
-    import nail.commands.Command;
-
+    import com.mignari.workers.WorkerCommand;
+    
     import otlib.loaders.PathHelper;
 
-    public class ImportSpritesFromFileCommand extends Command
+    public class ImportSpritesFromFileCommand extends WorkerCommand
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR

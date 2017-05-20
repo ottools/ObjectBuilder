@@ -22,9 +22,9 @@
 
 package nail.commands
 {
-    import nail.commands.Command;
+    import com.mignari.workers.WorkerCommand;
 
-    public class LogCommand extends Command
+    public class LogCommand extends WorkerCommand
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR

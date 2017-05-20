@@ -33,33 +33,34 @@ package otlib.sprites
     import flash.utils.ByteArray;
     import flash.utils.Dictionary;
     import flash.utils.Endian;
-
+    
     import nail.errors.NullArgumentError;
     import nail.logging.Log;
     import nail.utils.FileUtil;
-
+    
     import ob.commands.ProgressBarID;
-
+    
     import otlib.assets.Assets;
     import otlib.core.Version;
     import otlib.core.otlib_internal;
     import otlib.events.ProgressEvent;
-    import otlib.events.StorageEvent;
+    import otlib.storages.events.StorageEvent;
     import otlib.resources.Resources;
+    import otlib.storages.IStorage;
     import otlib.utils.ChangeResult;
     import otlib.utils.SpriteUtils;
 
     use namespace otlib_internal;
 
     [Event(name="progress", type="flash.events.ProgressEvent")]
-    [Event(name="load", type="otlib.events.StorageEvent")]
-    [Event(name="compile", type="otlib.events.StorageEvent")]
-    [Event(name="change", type="otlib.events.StorageEvent")]
-    [Event(name="unloading", type="otlib.events.StorageEvent")]
-    [Event(name="unload", type="otlib.events.StorageEvent")]
+    [Event(name="load", type="otlib.storages.events.StorageEvent")]
+    [Event(name="compile", type="otlib.storages.events.StorageEvent")]
+    [Event(name="change", type="otlib.storages.events.StorageEvent")]
+    [Event(name="unloading", type="otlib.storages.events.StorageEvent")]
+    [Event(name="unload", type="otlib.storages.events.StorageEvent")]
     [Event(name="error", type="flash.events.ErrorEvent")]
 
-    public class SpriteStorage extends EventDispatcher
+    public class SpriteStorage extends EventDispatcher implements IStorage
     {
         //--------------------------------------------------------------------------
         // PROPERTIES
@@ -67,7 +68,6 @@ package otlib.sprites
 
         otlib_internal var _sprites:Dictionary;
         otlib_internal var _spritesCount:uint;
-        otlib_internal var _changed:Boolean;
 
         private var _file:File;
         private var _stream:FileStream;
@@ -75,12 +75,13 @@ package otlib.sprites
         private var _signature:uint;
         private var _extended:Boolean;
         private var _transparency:Boolean;
-        private var _loaded:Boolean;
         private var _rect:Rectangle;
         private var _point:Point;
         private var _blankSprite:Sprite;
         private var _alertSprite:Sprite;
         private var _headSize:uint;
+        private var _changed:Boolean;
+        private var _loaded:Boolean;
 
         //--------------------------------------
         // Getters / Setters
@@ -590,6 +591,16 @@ package otlib.sprites
 
             dispatchEvent(new StorageEvent(StorageEvent.UNLOAD));
             dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
+        }
+
+        public function invalidate():void
+        {
+            if (!_changed) {
+                _changed = true;
+
+                if (hasEventListener(StorageEvent.CHANGE))
+                    dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
+            }
         }
 
         //--------------------------------------

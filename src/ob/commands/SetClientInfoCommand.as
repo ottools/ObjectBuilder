@@ -22,11 +22,11 @@
 
 package ob.commands
 {
-    import nail.commands.Command;
-
+    import com.mignari.workers.WorkerCommand;
+    
     import otlib.utils.ClientInfo;
 
-    public class SetClientInfoCommand extends Command
+    public class SetClientInfoCommand extends WorkerCommand
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR

@@ -22,11 +22,11 @@
 
 package ob.commands
 {
-    import nail.commands.Command;
-
+    import com.mignari.workers.WorkerCommand;
+    
     import ob.settings.ObjectBuilderSettings;
 
-    public class SettingsCommand extends Command
+    public class SettingsCommand extends WorkerCommand
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR

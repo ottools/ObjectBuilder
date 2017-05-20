@@ -22,9 +22,9 @@
 
 package ob.commands
 {
-    import nail.commands.Command;
+    import com.mignari.workers.WorkerCommand;
 
-    public class FindResultCommand extends Command
+    public class FindResultCommand extends WorkerCommand
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR

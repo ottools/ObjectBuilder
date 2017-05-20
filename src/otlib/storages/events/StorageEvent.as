@@ -20,31 +20,33 @@
 *  THE SOFTWARE.
 */
 
-package ov.settings
+package otlib.storages.events
 {
-    import flash.filesystem.File;
+    import flash.events.Event;
 
-    import nail.utils.FileUtil;
-    import nail.utils.isNullOrEmpty;
-
-    import otlib.settings.Settings;
-
-    public class ObjectViewerSettings extends Settings
+    public class StorageEvent extends Event
     {
         //--------------------------------------------------------------------------
         // PROPERTIES
         //--------------------------------------------------------------------------
 
-        public var maximized:Boolean;
-        public var lastDirectoryPath:String;
+        public var changedIds:Vector.<uint>;
+        public var category:String;
 
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
 
-        public function ObjectViewerSettings()
+        public function StorageEvent(type:String,
+                                     bubbles:Boolean = false,
+                                     cancelable:Boolean = false,
+                                     changedIds:Vector.<uint> = null,
+                                     category:String = null)
         {
-            super();
+            super(type, bubbles, cancelable);
+
+            this.changedIds = changedIds;
+            this.category = category;
         }
 
         //--------------------------------------------------------------------------
@@ -52,37 +54,22 @@ package ov.settings
         //--------------------------------------------------------------------------
 
         //--------------------------------------
-        // Public
+        // Override Public
         //--------------------------------------
 
-        public function getLastDirectory():File
+        override public function clone():Event
         {
-            var directory:File;
-
-            try
-            {
-                if (!isNullOrEmpty(lastDirectoryPath))
-                    directory = new File(lastDirectoryPath);
-            } catch(error:Error) {
-            }
-
-            if (directory)
-                return FileUtil.getDirectory(directory);
-
-            return File.userDirectory;
+            return new StorageEvent(this.type, this.bubbles, this.cancelable, this.changedIds, this.category);
         }
 
-        public function setLastDirectory(directory:File):void
-        {
-            if (directory)
-            {
-                if (!directory.isDirectory)
-                    directory = FileUtil.getDirectory(directory);
+        //--------------------------------------------------------------------------
+        // STATIC
+        //--------------------------------------------------------------------------
 
-                lastDirectoryPath = directory.nativePath;
-            }
-            else
-                lastDirectoryPath = "";
-        }
+        public static const LOAD:String = "load";
+        public static const CHANGE:String = "change";
+        public static const COMPILE:String = "compile";
+        public static const UNLOADING:String = "unloading";
+        public static const UNLOAD:String = "unload";
     }
 }

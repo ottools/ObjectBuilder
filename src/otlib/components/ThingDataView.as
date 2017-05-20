@@ -27,9 +27,9 @@ package otlib.components
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.utils.getTimer;
-
+    
     import mx.core.UIComponent;
-
+    
     import otlib.animation.Animator;
     import otlib.animation.FrameDuration;
     import otlib.geom.Rect;
@@ -68,6 +68,7 @@ package otlib.components
         private var _layer:uint;
         private var _outfitData:OutfitData;
         private var _drawBlendLayer:Boolean;
+        private var _backgroundColor:Number;
 
         //--------------------------------------
         // Getters / Setters
@@ -112,6 +113,18 @@ package otlib.components
         public function get drawBlendLayer():Boolean { return _drawBlendLayer; }
         public function set drawBlendLayer(value:Boolean):void { _drawBlendLayer = value; }
 
+        public function get backgroundColor():Number { return _backgroundColor; }
+        public function set backgroundColor(value:Number):void
+        {
+            if (isNaN(_backgroundColor) && isNaN(value))
+                return;
+
+            if (_backgroundColor != value) {
+                _backgroundColor = value;
+                draw();
+            }
+        }
+
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
@@ -124,7 +137,7 @@ package otlib.components
             _lastTime = 0;
             _time = 0;
 
-            this.addEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
+            addEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
         }
 
         //--------------------------------------------------------------------------
@@ -137,22 +150,22 @@ package otlib.components
 
         public function fistFrame():void
         {
-            this.frame = 0;
+            frame = 0;
         }
 
         public function prevFrame():void
         {
-            this.frame = Math.max(0, _frame - 1);
+            frame = Math.max(0, _frame - 1);
         }
 
         public function nextFrame():void
         {
-            this.frame = _frame + 1;
+            frame = _frame + 1;
         }
 
         public function lastFrame():void
         {
-            this.frame = Math.max(0, _maxFrame - 1);
+            frame = Math.max(0, _maxFrame - 1);
         }
 
         public function play():void
@@ -169,7 +182,7 @@ package otlib.components
         public function stop():void
         {
             _playing = false;
-            this.frame = 0;
+            frame = 0;
         }
 
         public function getFrameDuration(index:int):FrameDuration
@@ -219,12 +232,13 @@ package otlib.components
                 _fillRect = _bitmap.rect;
                 _maxFrame = type.frames;
                 _frame = 0;
-                this.width = _bitmap.width;
-                this.height = _bitmap.height;
+
+                width = _bitmap.width;
+                height = _bitmap.height;
 
                 if (type.isAnimation) {
                     _animator = new Animator(type.animationMode, type.loopCount, type.startFrame, type.frameDurations, type.frames);
-                    _animator.skipFirstFrame = thingData.category == ThingCategory.OUTFIT;
+                    _animator.skipFirstFrame = (thingData.category == ThingCategory.OUTFIT && !thingData.thing.animateAlways);
                 }
             } else {
                 _textureIndex = null;
@@ -247,6 +261,12 @@ package otlib.components
 
             if (_spriteSheet)
             {
+                if (!isNaN(_backgroundColor)) {
+                    graphics.beginFill(_backgroundColor);
+                    graphics.drawRect(0, 0, _fillRect.width, _fillRect.height);
+                    graphics.endFill();
+                }
+
                 var thing:ThingType = thingData.thing;
                 var layers:uint = _drawBlendLayer ? thing.layers : 1;
                 var px:uint = _patternX % thing.patternX;
@@ -276,8 +296,8 @@ package otlib.components
 
         protected function addedToStageHandler(event:Event):void
         {
-            this.removeEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
-            this.addEventListener(Event.ENTER_FRAME, enterFramehandler);
+            removeEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
+            addEventListener(Event.ENTER_FRAME, enterFramehandler);
         }
 
         protected function enterFramehandler(event:Event):void
@@ -304,7 +324,7 @@ package otlib.components
                     }
                 }
 
-                this.frame = _animator.frame;
+                frame = _animator.frame;
             }
         }
     }

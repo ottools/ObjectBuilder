@@ -22,17 +22,17 @@
 
 package ob.commands.sprites
 {
-    import nail.commands.Command;
+    import com.mignari.workers.WorkerCommand;
 
-    public class OptimizeSpritesCommand extends Command
+    public class OptimizeSpritesCommand extends WorkerCommand
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
 
-        public function OptimizeSpritesCommand(unused:Boolean, empty:Boolean)
+        public function OptimizeSpritesCommand()
         {
-            super(unused, empty);
+            super();
         }
     }
 }

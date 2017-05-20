@@ -22,20 +22,20 @@
 
 package
 {
+    import com.mignari.workers.IWorkerCommunicator;
+    import com.mignari.workers.WorkerCommand;
+    import com.mignari.workers.WorkerCommunicator;
+
     import flash.display.BitmapData;
     import flash.display.Sprite;
     import flash.events.ErrorEvent;
     import flash.events.Event;
     import flash.filesystem.File;
     import flash.geom.Rectangle;
-    import flash.net.registerClassAlias;
     import flash.utils.ByteArray;
 
     import mx.resources.ResourceManager;
 
-    import nail.commands.Command;
-    import nail.commands.Communicator;
-    import nail.commands.ICommunicator;
     import nail.errors.NullArgumentError;
     import nail.errors.NullOrEmptyArgumentError;
     import nail.image.ImageCodec;
@@ -60,6 +60,7 @@ package
     import ob.commands.files.CompileCommand;
     import ob.commands.files.CreateNewFilesCommand;
     import ob.commands.files.LoadFilesCommand;
+    import ob.commands.files.MergeFilesCommand;
     import ob.commands.files.UnloadFilesCommand;
     import ob.commands.sprites.ExportSpritesCommand;
     import ob.commands.sprites.FindSpritesCommand;
@@ -90,13 +91,11 @@ package
     import ob.settings.ObjectBuilderSettings;
     import ob.utils.ObUtils;
     import ob.utils.SpritesFinder;
-    import ob.utils.SpritesOptimizer;
 
     import otlib.animation.FrameDuration;
     import otlib.core.Version;
     import otlib.core.VersionStorage;
     import otlib.events.ProgressEvent;
-    import otlib.events.StorageEvent;
     import otlib.loaders.PathHelper;
     import otlib.loaders.SpriteDataLoader;
     import otlib.loaders.ThingDataLoader;
@@ -106,6 +105,7 @@ package
     import otlib.sprites.Sprite;
     import otlib.sprites.SpriteData;
     import otlib.sprites.SpriteStorage;
+    import otlib.storages.events.StorageEvent;
     import otlib.things.ThingCategory;
     import otlib.things.ThingData;
     import otlib.things.ThingProperty;
@@ -113,8 +113,10 @@ package
     import otlib.things.ThingTypeStorage;
     import otlib.utils.ChangeResult;
     import otlib.utils.ClientInfo;
+    import otlib.utils.ClientMerger;
     import otlib.utils.OTFI;
     import otlib.utils.OTFormat;
+    import otlib.utils.SpritesOptimizer;
     import otlib.utils.ThingListItem;
 
     [ResourceBundle("strings")]
@@ -125,7 +127,7 @@ package
         // PROPERTIES
         //--------------------------------------------------------------------------
 
-        private var _communicator:ICommunicator;
+        private var _communicator:IWorkerCommunicator;
         private var _things:ThingTypeStorage;
         private var _sprites:SpriteStorage;
         private var _datFile:File;
@@ -169,7 +171,10 @@ package
 
             Resources.manager = ResourceManager.getInstance();
 
-            _communicator = new Communicator();
+            _communicator = new WorkerCommunicator();
+
+            Log.commnunicator = _communicator;
+
             _thingListAmount = 100;
             _spriteListAmount = 100;
 
@@ -184,31 +189,33 @@ package
         // Public
         //--------------------------------------
 
-        public function onGetThing(id:uint, category:String):void
+        public function getThingCallback(id:uint, category:String):void
         {
             sendThingData(id, category);
         }
 
-        public function onCompile():void
+        public function compileCallback():void
         {
-            this.onCompileAs(_datFile.nativePath,
-                            _sprFile.nativePath,
-                            _version,
-                            _extended,
-                            _transparency,
-                            _improvedAnimations);
+            compileAsCallback(_datFile.nativePath,
+                        _sprFile.nativePath,
+                        _version,
+                        _extended,
+                        _transparency,
+                        _improvedAnimations);
         }
 
         public function setSelectedThingIds(value:Vector.<uint>, category:String):void
         {
             if (value && value.length > 0) {
-                if (value.length > 1) value.sort(Array.NUMERIC | Array.DESCENDING);
+                if (value.length > 1)
+                    value.sort(Array.NUMERIC | Array.DESCENDING);
+
                 var max:uint = _things.getMaxId(category);
-                if (value[0] > max) {
+                if (value[0] > max)
                     value = Vector.<uint>([max]);
-                }
-                this.onGetThing(value[0], category);
-                this.sendThingList(value, category);
+
+                getThingCallback(value[0], category);
+                sendThingList(value, category);
             }
         }
 
@@ -219,11 +226,11 @@ package
                 if (value[0] > _sprites.spritesCount) {
                     value = Vector.<uint>([_sprites.spritesCount]);
                 }
-                this.sendSpriteList(value);
+                sendSpriteList(value);
             }
         }
 
-        public function sendCommand(command:Command):void
+        public function sendCommand(command:WorkerCommand):void
         {
             _communicator.sendCommand(command);
         }
@@ -235,64 +242,67 @@ package
         public function register():void
         {
             // Register classes.
-            registerClassAlias("ObjectBuilderSettings", ObjectBuilderSettings);
-            registerClassAlias("Version", Version);
-            registerClassAlias("ClientInfo", ClientInfo);
-            registerClassAlias("ThingType", ThingType);
-            registerClassAlias("ThingData", ThingData);
-            registerClassAlias("ThingProperty", ThingProperty);
-            registerClassAlias("ThingListItem", ThingListItem);
-            registerClassAlias("SpriteData", SpriteData);
-            registerClassAlias("ByteArray", ByteArray);
-            registerClassAlias("PathHelper", PathHelper);
-            registerClassAlias("FrameDuration", FrameDuration);
+            _communicator.registerClass(ByteArray);
+            _communicator.registerClass(ClientInfo);
+            _communicator.registerClass(FrameDuration);
+            _communicator.registerClass(ObjectBuilderSettings);
+            _communicator.registerClass(PathHelper);
+            _communicator.registerClass(SpriteData);
+            _communicator.registerClass(ThingData);
+            _communicator.registerClass(ThingListItem);
+            _communicator.registerClass(ThingProperty);
+            _communicator.registerClass(ThingType);
+            _communicator.registerClass(Version);
 
-            _communicator.registerCallback(SettingsCommand, onSettings);
+            _communicator.registerCallback(SettingsCommand, settingsCallback);
 
-            _communicator.registerCallback(LoadVersionsCommand, onLoadClientVersions);
+            _communicator.registerCallback(LoadVersionsCommand, loadClientVersionsCallback);
 
             // File commands
-            _communicator.registerCallback(CreateNewFilesCommand, onCreateNewFiles);
-            _communicator.registerCallback(LoadFilesCommand, onLoadFiles);
-            _communicator.registerCallback(CompileCommand, onCompile);
-            _communicator.registerCallback(CompileAsCommand, onCompileAs);
-            _communicator.registerCallback(UnloadFilesCommand, onUnloadFiles);
+            _communicator.registerCallback(CreateNewFilesCommand, createNewFilesCallback);
+            _communicator.registerCallback(LoadFilesCommand, loadFilesCallback);
+            _communicator.registerCallback(MergeFilesCommand, mergeFilesCallback);
+            _communicator.registerCallback(CompileCommand, compileCallback);
+            _communicator.registerCallback(CompileAsCommand, compileAsCallback);
+            _communicator.registerCallback(UnloadFilesCommand, unloadFilesCallback);
 
             // Thing commands
-            _communicator.registerCallback(NewThingCommand, onNewThing);
-            _communicator.registerCallback(UpdateThingCommand, onUpdateThing);
-            _communicator.registerCallback(ImportThingsCommand, onImportThings);
-            _communicator.registerCallback(ImportThingsFromFilesCommand, onImportThingsFromFiles);
-            _communicator.registerCallback(ExportThingCommand, onExportThing);
-            _communicator.registerCallback(ReplaceThingsCommand, onReplaceThings);
-            _communicator.registerCallback(ReplaceThingsFromFilesCommand, onReplaceThingsFromFiles);
-            _communicator.registerCallback(DuplicateThingCommand, onDuplicateThing);
-            _communicator.registerCallback(RemoveThingCommand, onRemoveThings);
-            _communicator.registerCallback(GetThingCommand, onGetThing);
-            _communicator.registerCallback(GetThingListCommand, onGetThingList);
-            _communicator.registerCallback(FindThingCommand, onFindThing);
+            _communicator.registerCallback(NewThingCommand, newThingCallback);
+            _communicator.registerCallback(UpdateThingCommand, updateThingCallback);
+            _communicator.registerCallback(ImportThingsCommand, importThingsCallback);
+            _communicator.registerCallback(ImportThingsFromFilesCommand, importThingsFromFilesCallback);
+            _communicator.registerCallback(ExportThingCommand, exportThingCallback);
+            _communicator.registerCallback(ReplaceThingsCommand, replaceThingsCallback);
+            _communicator.registerCallback(ReplaceThingsFromFilesCommand, replaceThingsFromFilesCallback);
+            _communicator.registerCallback(DuplicateThingCommand, duplicateThingCallback);
+            _communicator.registerCallback(RemoveThingCommand, removeThingsCallback);
+            _communicator.registerCallback(GetThingCommand, getThingCallback);
+            _communicator.registerCallback(GetThingListCommand, getThingListCallback);
+            _communicator.registerCallback(FindThingCommand, findThingCallback);
 
             // Sprite commands
-            _communicator.registerCallback(NewSpriteCommand, onNewSprite);
-            _communicator.registerCallback(ImportSpritesCommand, onAddSprites);
-            _communicator.registerCallback(ImportSpritesFromFileCommand, onImportSpritesFromFiles);
-            _communicator.registerCallback(ExportSpritesCommand, onExportSprites);
-            _communicator.registerCallback(ReplaceSpritesCommand, onReplaceSprites);
-            _communicator.registerCallback(ReplaceSpritesFromFilesCommand, onReplaceSpritesFromFiles);
-            _communicator.registerCallback(RemoveSpritesCommand, onRemoveSprites);
-            _communicator.registerCallback(GetSpriteListCommand, onGetSpriteList);
-            _communicator.registerCallback(FindSpritesCommand, onFindSprites);
-            _communicator.registerCallback(OptimizeSpritesCommand, onOptimizeSprites);
+            _communicator.registerCallback(NewSpriteCommand, newSpriteCallback);
+            _communicator.registerCallback(ImportSpritesCommand, addSpritesCallback);
+            _communicator.registerCallback(ImportSpritesFromFileCommand, importSpritesFromFilesCallback);
+            _communicator.registerCallback(ExportSpritesCommand, exportSpritesCallback);
+            _communicator.registerCallback(ReplaceSpritesCommand, replaceSpritesCallback);
+            _communicator.registerCallback(ReplaceSpritesFromFilesCommand, replaceSpritesFromFilesCallback);
+            _communicator.registerCallback(RemoveSpritesCommand, removeSpritesCallback);
+            _communicator.registerCallback(GetSpriteListCommand, getSpriteListCallback);
+            _communicator.registerCallback(FindSpritesCommand, findSpritesCallback);
+            _communicator.registerCallback(OptimizeSpritesCommand, optimizeSpritesCallback);
 
             // General commands
-            _communicator.registerCallback(NeedToReloadCommand, onNeedToReload);
+            _communicator.registerCallback(NeedToReloadCommand, needToReloadCallback);
+
+            _communicator.start();
         }
 
         //--------------------------------------
         // Private
         //--------------------------------------
 
-        private function onLoadClientVersions(path:String):void
+        private function loadClientVersionsCallback(path:String):void
         {
             if (isNullOrEmpty(path))
                 throw new NullOrEmptyArgumentError("path");
@@ -300,7 +310,7 @@ package
             VersionStorage.getInstance().load( new File(path) );
         }
 
-        private function onSettings(settings:ObjectBuilderSettings):void
+        private function settingsCallback(settings:ObjectBuilderSettings):void
         {
             if (isNullOrEmpty(settings))
                 throw new NullOrEmptyArgumentError("settings");
@@ -310,20 +320,20 @@ package
             _spriteListAmount = settings.spritesListAmount;
         }
 
-        private function onCreateNewFiles(datSignature:uint,
+        private function createNewFilesCallback(datSignature:uint,
                                           sprSignature:uint,
                                           extended:Boolean,
                                           transparency:Boolean,
                                           improvedAninations:Boolean):void
         {
-            this.onUnloadFiles();
+            unloadFilesCallback();
 
             _version = VersionStorage.getInstance().getBySignatures(datSignature, sprSignature);
             _extended = (extended || _version.value >= 960);
             _transparency = transparency;
             _improvedAnimations = (improvedAninations || _version.value >= 1050);
 
-            this.createStorage();
+            createStorage();
 
             // Create things.
             _things.createNew(_version, _extended, _improvedAnimations);
@@ -333,10 +343,10 @@ package
 
             // Update preview.
             var thing:ThingType = _things.getItemType(ThingTypeStorage.MIN_ITEM_ID);
-            this.onGetThing(thing.id, thing.category);
+            getThingCallback(thing.id, thing.category);
 
             // Send sprites.
-            this.sendSpriteList(Vector.<uint>([1]));
+            sendSpriteList(Vector.<uint>([1]));
         }
 
         private function createStorage():void
@@ -354,7 +364,7 @@ package
             _sprites.addEventListener(ErrorEvent.ERROR, spritesErrorHandler);
         }
 
-        private function onLoadFiles(datPath:String,
+        private function loadFilesCallback(datPath:String,
                                      sprPath:String,
                                      version:Version,
                                      extended:Boolean,
@@ -370,7 +380,7 @@ package
             if (!version)
                 throw new NullArgumentError("version");
 
-            this.onUnloadFiles();
+            unloadFilesCallback();
 
             _datFile = new File(datPath);
             _sprFile = new File(sprPath);
@@ -388,7 +398,72 @@ package
             _sprites.load(_sprFile, _version, _extended, _transparency);
         }
 
-        private function onCompileAs(datPath:String,
+        private function mergeFilesCallback(datPath:String,
+                                            sprPath:String,
+                                            version:Version,
+                                            extended:Boolean,
+                                            transparency:Boolean,
+                                            improvedAnimations:Boolean):void
+        {
+            if (isNullOrEmpty(datPath))
+                throw new NullOrEmptyArgumentError("datPath");
+
+            if (isNullOrEmpty(sprPath))
+                throw new NullOrEmptyArgumentError("sprPath");
+
+            if (!version)
+                throw new NullArgumentError("version");
+
+            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, "Merging..."));
+
+            var datFile:File = new File(datPath);
+            var sprFile:File = new File(sprPath);
+            var extended:Boolean = (extended || version.value >= 960);
+            var improvedAnimations:Boolean = (improvedAnimations || version.value >= 1050);
+
+            var merger:ClientMerger = new ClientMerger(_things, _sprites);
+            merger.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+            merger.addEventListener(Event.COMPLETE, completeHandler);
+            merger.start(datFile, sprFile, version, extended, improvedAnimations, transparency);
+
+            function progressHandler(event:ProgressEvent):void
+            {
+                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.loaded, event.total, event.label));
+            }
+
+            function completeHandler(event:Event):void
+            {
+                var category:String;
+                var id:uint;
+
+                if (merger.itemsCount != 0)
+                    category = ThingCategory.ITEM;
+                else if (merger.outfitsCount != 0)
+                    category = ThingCategory.OUTFIT;
+                else if (merger.effectsCount != 0)
+                    category = ThingCategory.EFFECT;
+                else if (merger.missilesCount != 0)
+                    category = ThingCategory.MISSILE;
+
+                if (category != null || merger.spritesCount != 0) {
+                    sendClientInfo();
+
+                    if (merger.spritesCount != 0) {
+                        id = _sprites.spritesCount;
+                        sendSpriteList(Vector.<uint>([id]));
+                    }
+
+                    if (category != null) {
+                        id = _things.getMaxId(category);
+                        setSelectedThingIds(Vector.<uint>([id]), category);
+                    }
+                }
+
+                sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
+            }
+        }
+
+        private function compileAsCallback(datPath:String,
                                      sprPath:String,
                                      version:Version,
                                      extended:Boolean,
@@ -446,7 +521,7 @@ package
             }
         }
 
-        private function onUnloadFiles():void
+        private function unloadFilesCallback():void
         {
             if (_things) {
                 _things.unload();
@@ -474,7 +549,7 @@ package
             _errorMessage = null;
         }
 
-        private function onNewThing(category:String):void
+        private function newThingCallback(category:String):void
         {
             if (!ThingCategory.getCategory(category)) {
                 throw new Error(Resources.getString("invalidCategory"));
@@ -494,7 +569,7 @@ package
             // Send changes
 
             // Send thing to preview.
-            onGetThing(thing.id, category);
+            getThingCallback(thing.id, category);
 
             // Send message to log.
             var message:String = Resources.getString(
@@ -505,7 +580,7 @@ package
             Log.info(message);
         }
 
-        private function onUpdateThing(thingData:ThingData, replaceSprites:Boolean):void
+        private function updateThingCallback(thingData:ThingData, replaceSprites:Boolean):void
         {
             if (!thingData) {
                 throw new NullArgumentError("thingData");
@@ -586,11 +661,11 @@ package
 
                 Log.info(message);
 
-                this.setSelectedSpriteIds(spritesIds);
+                setSelectedSpriteIds(spritesIds);
             }
 
             // Thing change message
-            onGetThing(thingData.id, thingData.category);
+            getThingCallback(thingData.id, thingData.category);
 
             sendThingList(Vector.<uint>([ thingData.id ]), thingData.category);
 
@@ -602,7 +677,7 @@ package
             Log.info(message);
         }
 
-        private function onExportThing(list:Vector.<PathHelper>,
+        private function exportThingCallback(list:Vector.<PathHelper>,
                                        category:String,
                                        obdVersion:uint,
                                        clientVersion:Version,
@@ -669,7 +744,7 @@ package
             }
         }
 
-        private function onReplaceThings(list:Vector.<ThingData>):void
+        private function replaceThingsCallback(list:Vector.<ThingData>):void
         {
             if (!list) {
                 throw new NullArgumentError("list");
@@ -729,7 +804,7 @@ package
             // Added sprites message
             if (spritesIds.length > 0)
             {
-                this.sendSpriteList(Vector.<uint>([_sprites.spritesCount]));
+                sendSpriteList(Vector.<uint>([_sprites.spritesCount]));
 
                 message = Resources.getString(
                     "logAdded",
@@ -740,7 +815,7 @@ package
             }
 
             var category:String = list[0].thing.category;
-            this.setSelectedThingIds(thingsIds, category);
+            setSelectedThingIds(thingsIds, category);
 
             message = Resources.getString(
                 "logReplaced",
@@ -750,7 +825,7 @@ package
             Log.info(message);
         }
 
-        private function onReplaceThingsFromFiles(list:Vector.<PathHelper>):void
+        private function replaceThingsFromFilesCallback(list:Vector.<PathHelper>):void
         {
             if (!list) {
                 throw new NullArgumentError("list");
@@ -778,7 +853,7 @@ package
             function completeHandler(event:Event):void
             {
                 sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
-                onReplaceThings(loader.thingDataList);
+                replaceThingsCallback(loader.thingDataList);
             }
 
             function errorHandler(event:ErrorEvent):void
@@ -788,7 +863,7 @@ package
             }
         }
 
-        private function onImportThings(list:Vector.<ThingData>):void
+        private function importThingsCallback(list:Vector.<ThingData>):void
         {
             if (!list) {
                 throw new NullArgumentError("list");
@@ -847,7 +922,7 @@ package
 
             if (spritesIds.length > 0)
             {
-                this.sendSpriteList(Vector.<uint>([_sprites.spritesCount]));
+                sendSpriteList(Vector.<uint>([_sprites.spritesCount]));
 
                 message = Resources.getString(
                     "logAdded",
@@ -863,7 +938,7 @@ package
             }
 
             var category:String = list[0].thing.category;
-            this.setSelectedThingIds(thingsIds, category);
+            setSelectedThingIds(thingsIds, category);
 
             message = Resources.getString(
                 "logAdded",
@@ -873,7 +948,7 @@ package
             Log.info(message);
         }
 
-        private function onImportThingsFromFiles(list:Vector.<PathHelper>):void
+        private function importThingsFromFilesCallback(list:Vector.<PathHelper>):void
         {
             if (!list) {
                 throw new NullArgumentError("list");
@@ -901,7 +976,7 @@ package
             function completeHandler(event:Event):void
             {
                 sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
-                onImportThings(loader.thingDataList);
+                importThingsCallback(loader.thingDataList);
             }
 
             function errorHandler(event:ErrorEvent):void
@@ -911,7 +986,7 @@ package
             }
         }
 
-        private function onDuplicateThing(list:Vector.<uint>, category:String):void
+        private function duplicateThingCallback(list:Vector.<uint>, category:String):void
         {
             if (!list) {
                 throw new NullArgumentError("list");
@@ -959,7 +1034,7 @@ package
                 thingIds[i] = addedThings[i].id;
             }
 
-            this.setSelectedThingIds(thingIds, category);
+            setSelectedThingIds(thingIds, category);
 
             thingIds.sort(Array.NUMERIC);
             var message:String = StringUtil.format(Resources.getString(
@@ -970,7 +1045,7 @@ package
             Log.info(message);
         }
 
-        private function onRemoveThings(list:Vector.<uint>, category:String, removeSprites:Boolean):void
+        private function removeThingsCallback(list:Vector.<uint>, category:String, removeSprites:Boolean):void
         {
             if (!list) {
                 throw new NullArgumentError("list");
@@ -1040,7 +1115,7 @@ package
                 thingIds[i] = removedThingList[i].id;
             }
 
-            this.setSelectedThingIds(thingIds, category);
+            setSelectedThingIds(thingIds, category);
 
             thingIds.sort(Array.NUMERIC);
             message = Resources.getString(
@@ -1065,7 +1140,7 @@ package
             }
         }
 
-        private function onGetThingList(targetId:uint, category:String):void
+        private function getThingListCallback(targetId:uint, category:String):void
         {
             if (isNullOrEmpty(category))
                 throw new NullOrEmptyArgumentError("category");
@@ -1073,7 +1148,7 @@ package
             sendThingList(Vector.<uint>([ targetId ]), category);
         }
 
-        private function onFindThing(category:String, properties:Vector.<ThingProperty>):void
+        private function findThingCallback(category:String, properties:Vector.<ThingProperty>):void
         {
             if (!ThingCategory.getCategory(category)) {
                 throw new ArgumentError(Resources.getString("invalidCategory"));
@@ -1096,7 +1171,7 @@ package
             sendCommand(new FindResultCommand(FindResultCommand.THINGS, list));
         }
 
-        private function onReplaceSprites(sprites:Vector.<SpriteData>):void
+        private function replaceSpritesCallback(sprites:Vector.<SpriteData>):void
         {
             if (!sprites) {
                 throw new NullArgumentError("sprites");
@@ -1122,7 +1197,7 @@ package
                 spriteIds[i] = sprites[i].id;
             }
 
-            this.setSelectedSpriteIds(spriteIds);
+            setSelectedSpriteIds(spriteIds);
 
             var message:String = Resources.getString(
                 "logReplaced",
@@ -1132,7 +1207,7 @@ package
             Log.info(message);
         }
 
-        private function onReplaceSpritesFromFiles(list:Vector.<PathHelper>):void
+        private function replaceSpritesFromFilesCallback(list:Vector.<PathHelper>):void
         {
             if (!list) {
                 throw new NullArgumentError("list");
@@ -1158,11 +1233,11 @@ package
             function completeHandler(event:Event):void
             {
                 sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
-                onReplaceSprites(loader.spriteDataList);
+                replaceSpritesCallback(loader.spriteDataList);
             }
         }
 
-        private function onAddSprites(sprites:Vector.<ByteArray>):void
+        private function addSpritesCallback(sprites:Vector.<ByteArray>):void
         {
             if (!sprites) {
                 throw new NullArgumentError("sprites");
@@ -1201,7 +1276,7 @@ package
             Log.info(message);
         }
 
-        private function onImportSpritesFromFiles(list:Vector.<PathHelper>):void
+        private function importSpritesFromFilesCallback(list:Vector.<PathHelper>):void
         {
             if (!list) {
                 throw new NullArgumentError("list");
@@ -1239,7 +1314,7 @@ package
                     sprites[i] = spriteDataList[i].pixels;
                 }
 
-                onAddSprites(sprites);
+                addSpritesCallback(sprites);
             }
 
             function errorHandler(event:ErrorEvent):void
@@ -1249,7 +1324,7 @@ package
             }
         }
 
-        private function onExportSprites(list:Vector.<PathHelper>,
+        private function exportSpritesCallback(list:Vector.<PathHelper>,
                                          transparentBackground:Boolean,
                                          jpegQuality:uint):void
         {
@@ -1296,7 +1371,7 @@ package
             }
         }
 
-        private function onNewSprite():void
+        private function newSpriteCallback():void
         {
             if (_sprites.isFull) {
                 Log.error(Resources.getString("spritesLimitReached"));
@@ -1326,7 +1401,7 @@ package
             Log.info(message);
         }
 
-        private function onRemoveSprites(list:Vector.<uint>):void
+        private function removeSpritesCallback(list:Vector.<uint>):void
         {
             if (!list) {
                 throw new NullArgumentError("list");
@@ -1345,7 +1420,7 @@ package
             // Send changes
 
             // Select sprites
-            this.setSelectedSpriteIds(list);
+            setSelectedSpriteIds(list);
 
             // Send message to log
             var message:String = Resources.getString(
@@ -1356,16 +1431,16 @@ package
             Log.info(message);
         }
 
-        private function onGetSpriteList(targetId:uint):void
+        private function getSpriteListCallback(targetId:uint):void
         {
             sendSpriteList(Vector.<uint>([ targetId ]));
         }
 
-        private function onNeedToReload(extended:Boolean,
+        private function needToReloadCallback(extended:Boolean,
                                         transparency:Boolean,
                                         improvedAnimations:Boolean):void
         {
-            onLoadFiles(_datFile.nativePath,
+            loadFilesCallback(_datFile.nativePath,
                         _sprFile.nativePath,
                         _version,
                         extended,
@@ -1373,7 +1448,7 @@ package
                         improvedAnimations);
         }
 
-        private function onFindSprites(unusedSprites:Boolean, emptySprites:Boolean):void
+        private function findSpritesCallback(unusedSprites:Boolean, emptySprites:Boolean):void
         {
             var finder:SpritesFinder = new SpritesFinder(_things, _sprites);
             finder.addEventListener(ProgressEvent.PROGRESS, progressHandler);
@@ -1382,32 +1457,25 @@ package
 
             function progressHandler(event:ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(ProgressBarID.FIND,
-                                                event.loaded,
-                                                event.total));
+                sendCommand(new ProgressCommand(ProgressBarID.FIND, event.loaded, event.total));
             }
 
             function completeHandler(event:Event):void
             {
-                var command:Command = new FindResultCommand(FindResultCommand.SPRITES,
-                                                            finder.foundList);
-                sendCommand(command);
+                sendCommand(new FindResultCommand(FindResultCommand.SPRITES, finder.foundList));
             }
         }
 
-        private function onOptimizeSprites(unusedSprites:Boolean, emptySprites:Boolean):void
+        private function optimizeSpritesCallback():void
         {
             var optimizer:SpritesOptimizer = new SpritesOptimizer(_things, _sprites);
             optimizer.addEventListener(ProgressEvent.PROGRESS, progressHandler);
             optimizer.addEventListener(Event.COMPLETE, completeHandler);
-            optimizer.start(unusedSprites, emptySprites);
+            optimizer.start();
 
             function progressHandler(event:ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(ProgressBarID.OPTIMIZE,
-                                                event.loaded,
-                                                event.total,
-                                                event.label));
+                sendCommand(new ProgressCommand(ProgressBarID.OPTIMIZE, event.loaded, event.total, event.label));
             }
 
             function completeHandler(event:Event):void
@@ -1419,11 +1487,7 @@ package
                     sendThingList(Vector.<uint>([100]), ThingCategory.ITEM);
                 }
 
-                var command:Command = new OptimizeSpritesResultCommand(optimizer.removedCount,
-                                                                       optimizer.oldCount,
-                                                                       optimizer.newCount);
-
-                sendCommand(command);
+                sendCommand(new OptimizeSpritesResultCommand(optimizer.removedCount, optimizer.oldCount, optimizer.newCount));
             }
         }
 
@@ -1638,7 +1702,7 @@ package
             if (event.target == _things || event.target == _sprites)
             {
                 if (_things.loaded && _sprites.loaded)
-                    this.clientLoadComplete();
+                    clientLoadComplete();
             }
         }
 
@@ -1658,7 +1722,7 @@ package
             if (!_things.loaded && !_extended)
             {
                 _errorMessage = event.text;
-                onLoadFiles(_datFile.nativePath,
+                loadFilesCallback(_datFile.nativePath,
                             _sprFile.nativePath,
                             _version,
                             true,

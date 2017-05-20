@@ -139,9 +139,20 @@ package ob.menu
             var fileCloseMenu:MenuItem = new MenuItem();
             fileCloseMenu.label = Resources.getString("menu.close");
             fileCloseMenu.data = FILE_CLOSE;
-            fileCloseMenu.keyEquivalent = "W"
+            fileCloseMenu.keyEquivalent = "W";
             fileCloseMenu.controlKey = true;
             fileMenu.addMenuItem(fileCloseMenu);
+
+            // Separator
+            fileMenu.addMenuItem(separator);
+
+            // File > Merge
+            var fileMergeMenu:MenuItem = new MenuItem();
+            fileMergeMenu.label = Resources.getString("menu.merge");
+            fileMergeMenu.data = FILE_MERGE;
+            fileMergeMenu.keyEquivalent = "M";
+            fileMergeMenu.controlKey = true;
+            fileMenu.addMenuItem(fileMergeMenu);
 
             // Separator
             if (!m_isMac)
@@ -332,6 +343,9 @@ package ob.menu
                 // menu File > Close
                 nativeMenu.items[1].submenu.items[5].enabled = m_application.clientLoaded;
 
+                // menu File > Merge
+                nativeMenu.items[1].submenu.items[7].enabled = m_application.clientLoaded;
+
                 // menu View > Show Preview Panel
                 nativeMenu.items[2].submenu.items[0].checked = m_application.showPreviewPanel;
 
@@ -354,6 +368,9 @@ package ob.menu
 
                 // menu File > Close
                 nativeMenu.items[0].submenu.items[5].enabled = m_application.clientLoaded;
+
+                // menu File > Merge
+                nativeMenu.items[0].submenu.items[7].enabled = m_application.clientLoaded;
 
                 // menu View > Show Preview Panel
                 nativeMenu.items[1].submenu.items[0].checked = m_application.showPreviewPanel;
@@ -390,6 +407,10 @@ package ob.menu
 
                         case Keyboard.S:
                             ev = new MenuEvent(MenuEvent.SELECTED, FILE_COMPILE);
+                            break;
+
+                        case Keyboard.M:
+                            ev = new MenuEvent(MenuEvent.SELECTED, FILE_MERGE);
                             break;
 
                         case Keyboard.P:
@@ -454,6 +475,7 @@ package ob.menu
         public static const FILE_COMPILE:String = "fileCompile";
         public static const FILE_COMPILE_AS:String = "fileCompileAs";
         public static const FILE_CLOSE:String = "fileClose";
+        public static const FILE_MERGE:String = "fileMerge";
         public static const FILE_PREFERENCES:String = "filePreferences";
         public static const FILE_EXIT:String = "fileExit";
         public static const VIEW_SHOW_PREVIEW:String = "viewShowPreview";

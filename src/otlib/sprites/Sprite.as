@@ -26,7 +26,9 @@ package otlib.sprites
     import flash.geom.Rectangle;
     import flash.utils.ByteArray;
     import flash.utils.Endian;
-
+    
+    import by.blooddy.crypto.MD5;
+    
     import nail.errors.NullArgumentError;
 
     /**
@@ -42,6 +44,7 @@ package otlib.sprites
         private var _transparent:Boolean;
         private var _compressedPixels:ByteArray;
         private var _bitmap:BitmapData;
+        private var _hash:String;
 
         //--------------------------------------
         // Getters / Setters
@@ -109,6 +112,7 @@ package otlib.sprites
             if (pixels.length != SPRITE_DATA_SIZE)
                 throw new Error("Invalid sprite pixels length");
 
+            _hash = null;
             return compressPixels(pixels);
         }
 
@@ -137,8 +141,20 @@ package otlib.sprites
             if (!compressPixels( bitmap.getPixels(RECTANGLE) ))
                 return false;
 
+            _hash = null;
             _bitmap = bitmap.clone();
             return true;
+        }
+
+        public function getHash():String
+        {
+            if (_hash != null)
+                return _hash;
+
+            if (_compressedPixels.length != 0)
+                _hash = MD5.hashBytes(_compressedPixels);
+
+            return _hash;
         }
 
         public function clone():Sprite
