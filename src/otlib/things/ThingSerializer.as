@@ -244,6 +244,7 @@ package otlib.things
                         thing.elevation = input.readUnsignedShort();
                         break;
                     case ThingTypeFlags2.HAS_OFFSET:
+                        thing.hasOffset = true;
                         thing.offsetX = 8;
                         thing.offsetY = 8;
                         break;
