@@ -232,6 +232,7 @@ package otlib.components
                 _fillRect = _bitmap.rect;
                 _maxFrame = type.frames;
                 _frame = 0;
+                _playing = type.isAnimation ? _playing : false;
 
                 width = _bitmap.width;
                 height = _bitmap.height;
@@ -277,6 +278,9 @@ package otlib.components
                 for (var l:uint = 0; l < layers; l++)
                 {
                     var index:int = thing.getTextureIndex(l, px, 0, pz, _frame);
+                    if (index >= _textureIndex.length)
+                        index = 0;
+
                     var rect:Rect = _textureIndex[index];
 
                     _rectangle.setTo(rect.x, rect.y, rect.width, rect.height);
