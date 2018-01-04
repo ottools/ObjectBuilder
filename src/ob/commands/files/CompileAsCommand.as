@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
+*  Copyright (c) 2014-2018 Object Builder <https://github.com/ottools/ObjectBuilder>
 *
 *  Permission is hereby granted, free of charge, to any person obtaining a copy
 *  of this software and associated documentation files (the "Software"), to deal
@@ -23,9 +23,9 @@
 package ob.commands.files
 {
     import com.mignari.workers.WorkerCommand;
-    
+
     import flash.filesystem.File;
-    
+
     import otlib.core.Version;
 
     public final class CompileAsCommand extends WorkerCommand

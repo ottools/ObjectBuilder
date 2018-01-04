@@ -7,9 +7,9 @@
 	<versionNumber>0.4.5</versionNumber>
 	<versionLabel>0.4.5</versionLabel>
 	<copyright>
-		<![CDATA[Copyright (c) 2014-2017 <a href="https://github.com/Mignari/ObjectBuilder/graphs/contributors">Contributors</a>]]>
+		<![CDATA[Copyright (c) 2014-2018 <a href="https://github.com/Mignari/ObjectBuilder/graphs/contributors">Contributors</a>]]>
 	</copyright>
-	
+
 	<initialWindow>
 		<content>[This value will be overwritten by Flash Builder in the output app.xml]</content>
 		<autoOrients>false</autoOrients>
@@ -17,9 +17,9 @@
 		<visible>false</visible>
 		<requestedDisplayResolution>high</requestedDisplayResolution>
 	</initialWindow>
-	
+
 	<supportedLanguages>en es pt</supportedLanguages>
-	
+
 	<icon>
 		<image16x16>icon/app/icon16.png</image16x16>
 		<image32x32>icon/app/icon32.png</image32x32>

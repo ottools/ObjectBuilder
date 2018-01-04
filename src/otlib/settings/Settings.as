@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
+*  Copyright (c) 2014-2018 Object Builder <https://github.com/ottools/ObjectBuilder>
 *
 *  Permission is hereby granted, free of charge, to any person obtaining a copy
 *  of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@ package otlib.settings
 {
     import com.mignari.utils.FileUtil;
     import com.mignari.utils.StringUtil;
-    
+
     import flash.filesystem.File;
     import flash.geom.Point;
     import flash.geom.Rectangle;
@@ -32,10 +32,10 @@ package otlib.settings
     import flash.utils.describeType;
     import flash.utils.getDefinitionByName;
     import flash.utils.getQualifiedClassName;
-    
+
     import nail.errors.NullArgumentError;
     import nail.utils.Descriptor;
-    
+
     import otlib.otml.OTMLDocument;
     import otlib.otml.OTMLNode;
 

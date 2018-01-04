@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
+Copyright (c) 2014-2018 Object Builder <https://github.com/ottools/ObjectBuilder>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -53,9 +53,9 @@ THE SOFTWARE.
             import com.mignari.workers.IWorkerCommunicator;
             import com.mignari.workers.WorkerCommand;
             import com.mignari.workers.WorkerCommunicator;
-            
+
             import flash.net.registerClassAlias;
-            
+
             import mx.core.UIComponent;
             import mx.events.CloseEvent;
             import mx.events.FlexEvent;
@@ -63,12 +63,12 @@ THE SOFTWARE.
             import mx.logging.LogEventLevel;
             import mx.managers.DragManager;
             import mx.resources.ResourceManager;
-            
+
             import spark.events.IndexChangeEvent;
-            
+
             import air.update.ApplicationUpdaterUI;
             import air.update.events.UpdateEvent;
-            
+
             import nail.commands.LogCommand;
             import nail.components.controls.Alert;
             import nail.core.nail_internal;
@@ -86,7 +86,7 @@ THE SOFTWARE.
             import nail.utils.StringUtil;
             import nail.utils.WindowUtil;
             import nail.utils.isNullOrEmpty;
-            
+
             import ob.commands.HideProgressBarCommand;
             import ob.commands.LoadVersionsCommand;
             import ob.commands.NeedToReloadCommand;
@@ -133,7 +133,7 @@ THE SOFTWARE.
             import ob.components.SpritesOptimizerWindow;
             import ob.settings.ObjectBuilderSettings;
             import ob.utils.ObUtils;
-            
+
             import otlib.animation.FrameDuration;
             import otlib.assets.Assets;
             import otlib.components.ClientVersionsWindow;
@@ -163,9 +163,9 @@ THE SOFTWARE.
             import otlib.utils.OTFormat;
             import otlib.utils.SpriteUtils;
             import otlib.utils.ThingListItem;
-            
+
             import objectview.ObjectViewer;
-            
+
             import slicer.Slicer;
 
             use namespace nail_internal;

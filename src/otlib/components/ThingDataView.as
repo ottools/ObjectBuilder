@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
+*  Copyright (c) 2014-2018 Object Builder <https://github.com/ottools/ObjectBuilder>
 *
 *  Permission is hereby granted, free of charge, to any person obtaining a copy
 *  of this software and associated documentation files (the "Software"), to deal
@@ -27,9 +27,9 @@ package otlib.components
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.utils.getTimer;
-    
+
     import mx.core.UIComponent;
-    
+
     import otlib.animation.Animator;
     import otlib.animation.FrameDuration;
     import otlib.geom.Rect;

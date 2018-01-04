@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
+*  Copyright (c) 2014-2018 Object Builder <https://github.com/ottools/ObjectBuilder>
 *
 *  Permission is hereby granted, free of charge, to any person obtaining a copy
 *  of this software and associated documentation files (the "Software"), to deal
@@ -24,16 +24,16 @@ package otlib.utils
 {
     import com.mignari.errors.FileNotFoundError;
     import com.mignari.errors.NullArgumentError;
-    
+
     import flash.events.ErrorEvent;
     import flash.events.Event;
     import flash.events.EventDispatcher;
     import flash.filesystem.File;
     import flash.utils.ByteArray;
     import flash.utils.Dictionary;
-    
+
     import ob.commands.ProgressBarID;
-    
+
     import otlib.core.Version;
     import otlib.core.otlib_internal;
     import otlib.events.ProgressEvent;
@@ -170,7 +170,7 @@ package otlib.utils
             var oldEffectsCount:uint = m_currentObjects.effectsCount;
             var oldMissilesCount:uint = m_currentObjects.missilesCount;
             var oldSpritesCount:uint = m_currentSprites.spritesCount;
-            
+
             mergeSpriteList(1, m_sprites.spritesCount);
             dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.DEFAULT, 1, 5));
 

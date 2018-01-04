@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
+*  Copyright (c) 2014-2018 Object Builder <https://github.com/ottools/ObjectBuilder>
 *
 *  Permission is hereby granted, free of charge, to any person obtaining a copy
 *  of this software and associated documentation files (the "Software"), to deal
@@ -26,13 +26,13 @@ package otlib.otml
     import com.mignari.utils.Color;
     import com.mignari.utils.FileUtil;
     import com.mignari.utils.isNullOrEmpty;
-    
+
     import flash.filesystem.File;
     import flash.geom.Point;
     import flash.geom.Rectangle;
-    
+
     import mx.utils.StringUtil;
-    
+
     import otlib.core.otlib_internal;
     import otlib.geom.Rect;
     import otlib.geom.Size;

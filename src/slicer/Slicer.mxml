@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
+Copyright (c) 2014-2018 Object Builder <https://github.com/ottools/ObjectBuilder>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -44,26 +44,26 @@ THE SOFTWARE.
     <fx:Script>
         <![CDATA[
             import com.mignari.workers.IWorkerCommunicator;
-            
+
             import mx.collections.ArrayCollection;
             import mx.core.FlexGlobals;
             import mx.events.CollectionEvent;
             import mx.events.FlexEvent;
             import mx.events.MoveEvent;
             import mx.managers.DragManager;
-            
+
             import nail.assets.NailAssets;
             import nail.components.controls.Alert;
             import nail.image.ImageCodec;
             import nail.utils.BitmapUtil;
             import nail.utils.FileUtil;
             import nail.utils.WindowUtil;
-            
+
             import ob.commands.SetClientInfoCommand;
             import ob.commands.sprites.ImportSpritesCommand;
             import ob.core.IObjectBuilder;
             import ob.utils.ObUtils;
-            
+
             import otlib.assets.Assets;
             import otlib.components.SurfaceCells;
             import otlib.settings.ISettingsManager;
@@ -71,7 +71,7 @@ THE SOFTWARE.
             import otlib.sprites.Sprite;
             import otlib.utils.ClientInfo;
             import otlib.utils.SpriteUtils;
-            
+
             import slicer.settings.SlicerSettings;
 
             //--------------------------------------------------------------------------

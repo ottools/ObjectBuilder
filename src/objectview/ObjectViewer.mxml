@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (c) 2014-2017 Object Builder <https://github.com/ottools/ObjectBuilder>
+Copyright (c) 2014-2018 Object Builder <https://github.com/ottools/ObjectBuilder>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -41,25 +41,25 @@ THE SOFTWARE.
             import com.mignari.utils.FileUtil;
             import com.mignari.utils.WindowUtil;
             import com.mignari.workers.IWorkerCommunicator;
-            
+
             import mx.collections.ArrayCollection;
             import mx.core.FlexGlobals;
             import mx.events.FlexEvent;
-            
+
             import spark.events.IndexChangeEvent;
-            
+
             import flashx.textLayout.conversion.TextConverter;
-            
+
             import nail.components.controls.Alert;
             import nail.errors.NullArgumentError;
             import nail.utils.StringUtil;
-            
+
             import ob.commands.SetClientInfoCommand;
             import ob.commands.things.ImportThingsFromFilesCommand;
             import ob.core.IObjectBuilder;
-            
+
             import objectview.settings.ObjectViewerSettings;
-            
+
             import otlib.assets.Assets;
             import otlib.loaders.PathHelper;
             import otlib.settings.ISettingsManager;
@@ -525,7 +525,7 @@ THE SOFTWARE.
                 <mx:ColorPicker id="colorPicker"
                                 enabled="false"
                                 focusEnabled="false"
-                                change="colorPickerChangeHandler(event)" /> 
+                                change="colorPickerChangeHandler(event)" />
             </s:HGroup>
         </s:HGroup>
     </s:Group>
