@@ -33,20 +33,20 @@ package otlib.sprites
     import flash.utils.ByteArray;
     import flash.utils.Dictionary;
     import flash.utils.Endian;
-
+    
     import nail.errors.NullArgumentError;
     import nail.logging.Log;
     import nail.utils.FileUtil;
-
+    
     import ob.commands.ProgressBarID;
-
+    
     import otlib.assets.Assets;
     import otlib.core.Version;
     import otlib.core.otlib_internal;
     import otlib.events.ProgressEvent;
-    import otlib.storages.events.StorageEvent;
     import otlib.resources.Resources;
     import otlib.storages.IStorage;
+    import otlib.storages.events.StorageEvent;
     import otlib.utils.ChangeResult;
     import otlib.utils.SpriteUtils;
 
@@ -70,7 +70,7 @@ package otlib.sprites
         otlib_internal var _spritesCount:uint;
 
         private var _file:File;
-        private var _stream:FileStream;
+        private var _reader:SpriteReader;
         private var _version:Version;
         private var _signature:uint;
         private var _extended:Boolean;
@@ -79,7 +79,7 @@ package otlib.sprites
         private var _point:Point;
         private var _blankSprite:Sprite;
         private var _alertSprite:Sprite;
-        private var _headSize:uint;
+        private var _headerSize:uint;
         private var _changed:Boolean;
         private var _loaded:Boolean;
 
@@ -141,7 +141,7 @@ package otlib.sprites
             _extended = (extended || version.value >= 960);
             _signature = version.sprSignature;
             _spritesCount = 1;
-            _headSize = _extended ? HEAD_SIZE_U32 : HEAD_SIZE_U16;
+            _headerSize = _extended ? SpriteFileSize.HEADER_U32 : SpriteFileSize.HEADER_U16;
             _transparency = transparency;
             _blankSprite = new Sprite(0, transparency);
             _alertSprite = createAlertSprite(transparency);
@@ -383,34 +383,18 @@ package otlib.sprites
         // Private
         //--------------------------------------
 
-        private function readSprite(index:uint):Sprite
+        private function readSprite(id:uint):Sprite
         {
             try
             {
-                _stream.position = ((index - 1) * 4) + _headSize;
-
-                var spriteAddress:uint  = _stream.readUnsignedInt();
-                if (spriteAddress == 0) return null;
-
-                _stream.position = spriteAddress;
-                _stream.readUnsignedByte(); // Skip red
-                _stream.readUnsignedByte(); // Skip green
-                _stream.readUnsignedByte(); // Skip blue
-
-                var sprite:Sprite = new Sprite(index, _transparency);
-                var pixelDataSize:uint = _stream.readUnsignedShort();
-
-                if (pixelDataSize != 0) {
-                    _stream.readBytes(sprite.compressedPixels, 0, pixelDataSize);
-                }
-
-                return sprite;
+                return _reader.readSprite(id);
             }
             catch(error:Error)
             {
-                Log.error(Resources.getString("failedToGetSprite", index), error.getStackTrace());
+                Log.error(Resources.getString("failedToGetSprite", id), error.getStackTrace());
                 return _alertSprite;
             }
+
             return null;
         }
 
@@ -459,11 +443,11 @@ package otlib.sprites
                 // Write sprites count.
                 if (extended || version.value >= 960) {
                     count = _spritesCount;
-                    headSize = HEAD_SIZE_U32;
+                    headSize = SpriteFileSize.HEADER_U32;
                     stream.writeUnsignedInt(count);
                 } else {
                     count = _spritesCount >= 0xFFFF ? 0xFFFE : _spritesCount;
-                    headSize = HEAD_SIZE_U16;
+                    headSize = SpriteFileSize.HEADER_U16;
                     stream.writeShort(count);
                 }
 
@@ -519,7 +503,7 @@ package otlib.sprites
             {
                 // Closes the current spr file
                 if (equal)
-                    _stream.close();
+                    _reader.close();
 
                 // Delete old file.
                 if (file.exists)
@@ -546,20 +530,10 @@ package otlib.sprites
         public function isEmptySprite(id:uint):Boolean
         {
             if (_loaded && id <= _spritesCount) {
-                if (_sprites[id] !== undefined) {
-                    var sprite:Sprite = Sprite(_sprites[id]);
-                    if (sprite) return sprite.isEmpty;
-                } else {
-                    _stream.position = ((id - 1) * 4) + _headSize;
-                    var spriteAddress:uint = _stream.readUnsignedInt();
-                    if (spriteAddress == 0) return true;
-
-                    _stream.position = spriteAddress;
-                    _stream.readUnsignedByte(); // Skip red
-                    _stream.readUnsignedByte(); // Skip green
-                    _stream.readUnsignedByte(); // Skip blue
-                    return (_stream.readUnsignedShort() == 0);
-                }
+                if (_sprites[id] !== undefined)
+                    return Sprite(_sprites[id]).isEmpty;
+                else
+                    return _reader.isEmptySprite(id);
             }
             return true;
         }
@@ -572,9 +546,9 @@ package otlib.sprites
             if (event.isDefaultPrevented())
                 return;
 
-            if (_stream) {
-                _stream.close();
-                _stream = null;
+            if (_reader) {
+                _reader.close();
+                _reader = null;
             }
 
             _file = null;
@@ -587,7 +561,7 @@ package otlib.sprites
             _spritesCount = 0;
             _blankSprite = null;
             _alertSprite = null;
-            _headSize = 0;
+            _headerSize = 0;
 
             dispatchEvent(new StorageEvent(StorageEvent.UNLOAD));
             dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
@@ -766,12 +740,11 @@ package otlib.sprites
             _version = version;
             _extended = (extended || version.value >= 960);
             _transparency = transparency;
-            _stream = new FileStream();
-            _stream.open(file, FileMode.READ);
-            _stream.endian = Endian.LITTLE_ENDIAN;
-            _signature = _stream.readUnsignedInt();
-            _spritesCount = _extended ? _stream.readUnsignedInt() : _stream.readUnsignedShort();
-            _headSize = _extended ? HEAD_SIZE_U32 : HEAD_SIZE_U16;
+            _reader = new SpriteReader(_extended, _transparency);
+            _reader.open(file, FileMode.READ);
+            _signature = _reader.readSignature();
+            _spritesCount = _reader.readSpriteCount();
+            _headerSize = _extended ? SpriteFileSize.HEADER_U32 : SpriteFileSize.HEADER_U16;
             _blankSprite = new Sprite(0, transparency);
             _alertSprite = createAlertSprite(transparency);
             _sprites = new Dictionary();
@@ -798,8 +771,6 @@ package otlib.sprites
         // STATIC
         //--------------------------------------------------------------------------
 
-        private static const HEAD_SIZE_U16:uint = 6;
-        private static const HEAD_SIZE_U32:uint = 8;
         private static const CHANGE_RESULT_HELPER:ChangeResult = new ChangeResult();
     }
 }

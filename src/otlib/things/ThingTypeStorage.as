@@ -26,9 +26,7 @@ package otlib.things
     import flash.events.EventDispatcher;
     import flash.filesystem.File;
     import flash.filesystem.FileMode;
-    import flash.filesystem.FileStream;
     import flash.utils.Dictionary;
-    import flash.utils.Endian;
 
     import nail.errors.NullArgumentError;
     import nail.logging.Log;
@@ -40,9 +38,9 @@ package otlib.things
     import otlib.core.Version;
     import otlib.core.otlib_internal;
     import otlib.events.ProgressEvent;
-    import otlib.storages.events.StorageEvent;
     import otlib.resources.Resources;
     import otlib.storages.IStorage;
+    import otlib.storages.events.StorageEvent;
     import otlib.utils.ChangeResult;
     import otlib.utils.ThingUtils;
 
@@ -134,11 +132,23 @@ package otlib.things
 
             try
             {
-                var stream:FileStream = new FileStream();
-                stream.open(file, FileMode.READ);
-                stream.endian = Endian.LITTLE_ENDIAN;
-                readBytes(stream);
-                stream.close();
+                var reader:MetadataReader;
+                if (version.value <= 730)
+                    reader = new MetadataReader1();
+                else if (version.value <= 750)
+                    reader = new MetadataReader2();
+                else if (version.value <= 772)
+                    reader = new MetadataReader3();
+                else if (version.value <= 854)
+                    reader = new MetadataReader4();
+                else if (version.value <= 986)
+                    reader = new MetadataReader5();
+                else
+                    reader = new MetadataReader6();
+
+                reader.open(file, FileMode.READ);
+                readBytes(reader);
+                reader.close();
             }
             catch(error:Error)
             {
@@ -303,23 +313,19 @@ package otlib.things
             return result;
         }
 
-        public function compile(file:File,
-                                version:Version,
-                                extended:Boolean,
-                                improvedAnimations:Boolean):Boolean
+        public function compile(file:File, version:Version, extended:Boolean, frameDurations:Boolean):Boolean
         {
-            if (!file) {
+            if (!file)
                 throw new NullArgumentError("file");
-            }
 
-            if (!version) {
+            if (!version)
                 throw new NullArgumentError("version");
-            }
 
-            if (!_loaded) return false;
+            if (!_loaded)
+                return false;
 
             extended = (extended || version.value >= 960);
-            improvedAnimations = (improvedAnimations || version.value >= 1050);
+            frameDurations = (frameDurations || version.value >= 1050);
 
             var tmpFile:File = FileUtil.getDirectory(file).resolvePath("tmp_" + file.name);
             var done:Boolean = true;
@@ -329,21 +335,44 @@ package otlib.things
                 _thingsCount = _itemsCount + _outfitsCount + _effectsCount + _missilesCount;
                 _progressCount = 0;
 
-                var stream:FileStream = new FileStream();
-                stream.open(tmpFile, FileMode.WRITE);
-                stream.endian = Endian.LITTLE_ENDIAN;
-                stream.writeUnsignedInt(version.datSignature); // Write sprite signature
-                stream.writeShort(_itemsCount); // Write items count
-                stream.writeShort(_outfitsCount); // Write outfits count
-                stream.writeShort(_effectsCount); // Write effects count
-                stream.writeShort(_missilesCount); // Write missiles count
-                if (!writeThingList(stream, _items, MIN_ITEM_ID, _itemsCount, version, extended, improvedAnimations) ||
-                    !writeThingList(stream, _outfits, MIN_OUTFIT_ID, _outfitsCount, version, extended, improvedAnimations) ||
-                    !writeThingList(stream, _effects, MIN_EFFECT_ID, _effectsCount, version, extended, improvedAnimations) ||
-                    !writeThingList(stream, _missiles, MIN_MISSILE_ID, _missilesCount, version, extended, improvedAnimations)) {
+                var writer:MetadataWriter;
+                if (version.value <= 730)
+                    writer = new MetadataWriter1();
+                else if (version.value <= 750)
+                    writer = new MetadataWriter2();
+                else if (version.value <= 772)
+                    writer = new MetadataWriter3();
+                else if (version.value <= 854)
+                    writer = new MetadataWriter4();
+                else if (version.value <= 986)
+                    writer = new MetadataWriter5();
+                else
+                    writer = new MetadataWriter6();
+
+                writer.open(tmpFile, FileMode.WRITE);
+                writer.writeUnsignedInt(version.datSignature); // Write sprite signature
+                writer.writeShort(_itemsCount); // Write items count
+                writer.writeShort(_outfitsCount); // Write outfits count
+                writer.writeShort(_effectsCount); // Write effects count
+                writer.writeShort(_missilesCount); // Write missiles count
+
+                if (!writeItemList(writer, _items, MIN_ITEM_ID, _itemsCount, version, extended, frameDurations)) {
                     done = false;
                 }
-                stream.close();
+
+                if (done && !writeThingList(writer, _outfits, MIN_OUTFIT_ID, _outfitsCount, version, extended, frameDurations)) {
+                    done = false;
+                }
+
+                if (done && !writeThingList(writer, _effects, MIN_EFFECT_ID, _effectsCount, version, extended, frameDurations)) {
+                    done = false;
+                }
+
+                if (done && !writeThingList(writer, _missiles, MIN_MISSILE_ID, _missilesCount, version, extended, frameDurations)) {
+                    done = false;
+                }
+
+                writer.close();
             } catch(error:Error) {
                 if (error.errorID == 3001)
                     Log.error(Resources.getString("accessDenied"));
@@ -382,14 +411,18 @@ package otlib.things
                 switch(category) {
                     case ThingCategory.ITEM:
                         return (_items[id] !== undefined);
+
                     case ThingCategory.OUTFIT:
                         return (_outfits[id] !== undefined);
+
                     case ThingCategory.EFFECT:
                         return (_effects[id] !== undefined);
+
                     case ThingCategory.MISSILE:
                         return (_missiles[id] !== undefined);
                 }
             }
+
             return false;
         }
 
@@ -399,14 +432,18 @@ package otlib.things
                 switch(category) {
                     case ThingCategory.ITEM:
                         return getItemType(id);
+
                     case ThingCategory.OUTFIT:
                         return getOutfitType(id);
+
                     case ThingCategory.EFFECT:
                         return getEffectType(id);
+
                     case ThingCategory.MISSILE:
                         return getMissileType(id);
                 }
             }
+
             return null;
         }
 
@@ -475,14 +512,18 @@ package otlib.things
                 switch(category) {
                     case ThingCategory.ITEM:
                         return MIN_ITEM_ID;
+
                     case ThingCategory.OUTFIT:
                         return MIN_OUTFIT_ID;
+
                     case ThingCategory.EFFECT:
                         return MIN_EFFECT_ID;
+
                     case ThingCategory.MISSILE:
                         return MIN_MISSILE_ID;
                 }
             }
+
             return 0;
         }
 
@@ -492,14 +533,18 @@ package otlib.things
                 switch(category) {
                     case ThingCategory.ITEM:
                         return _itemsCount;
+
                     case ThingCategory.OUTFIT:
                         return _outfitsCount;
+
                     case ThingCategory.EFFECT:
                         return _effectsCount;
+
                     case ThingCategory.MISSILE:
                         return _missilesCount;
                 }
             }
+
             return 0;
         }
 
@@ -526,16 +571,19 @@ package otlib.things
                     total = _itemsCount;
                     current = MIN_ITEM_ID;
                     break;
+
                 case ThingCategory.OUTFIT:
                     list = _outfits;
                     total = _outfitsCount;
                     current = MIN_OUTFIT_ID;
                     break;
+
                 case ThingCategory.EFFECT:
                     list = _effects;
                     total = _effectsCount;
                     current = MIN_EFFECT_ID;
                     break;
+
                 case ThingCategory.MISSILE:
                     list = _missiles;
                     total = _missilesCount;
@@ -641,18 +689,22 @@ package otlib.things
                     id = ++_itemsCount;
                     _items[id] = thing;
                     break;
+
                 case ThingCategory.OUTFIT:
                     id = ++_outfitsCount;
                     _outfits[id] = thing;
                     break;
+
                 case ThingCategory.EFFECT:
                     id = ++_effectsCount;
                     _effects[id] = thing;
                     break;
+
                 case ThingCategory.MISSILE:
                     id = ++_missilesCount;
                     _missiles[id] = thing;
                     break;
+
                 default:
                     return result.update(null, false, Resources.getString("invalidCategory"));
             }
@@ -701,18 +753,22 @@ package otlib.things
                     thingReplaced = _items[replaceId];
                     _items[replaceId] = thing;
                     break;
+
                 case ThingCategory.OUTFIT:
                     thingReplaced = _outfits[replaceId];
                     _outfits[replaceId] = thing;
                     break;
+
                 case ThingCategory.EFFECT:
                     thingReplaced = _effects[replaceId];
                     _effects[replaceId] = thing;
                     break;
+
                 case ThingCategory.MISSILE:
                     thingReplaced = _missiles[replaceId];
                     _missiles[replaceId] = thing;
                     break;
+
                 default:
                     return result.update(null, false, Resources.getString("invalidCategory"));
             }
@@ -850,63 +906,49 @@ package otlib.things
         // Protected
         //--------------------------------------
 
-        protected function readBytes(stream:FileStream):void
+        protected function readBytes(reader:MetadataReader):void
         {
-            if (stream.bytesAvailable < 12)
+            if (reader.bytesAvailable < 12)
                 throw new ArgumentError("Not enough data.");
 
             _items = new Dictionary();
             _outfits = new Dictionary();
             _effects = new Dictionary();
             _missiles = new Dictionary();
-            _signature = stream.readUnsignedInt();
-            _itemsCount = stream.readUnsignedShort();
-            _outfitsCount = stream.readUnsignedShort();
-            _effectsCount = stream.readUnsignedShort();
-            _missilesCount = stream.readUnsignedShort();
+            _signature = reader.readSignature();
+            _itemsCount = reader.readItemsCount();
+            _outfitsCount = reader.readOutfitsCount();
+            _effectsCount = reader.readEffectsCount();
+            _missilesCount = reader.readMissilesCount();
             _thingsCount = _itemsCount + _outfitsCount + _effectsCount + _missilesCount;
             _progressCount = 0;
 
             // Load item list.
-            if (!loadThingTypeList(stream, _items, MIN_ITEM_ID, _itemsCount, ThingCategory.ITEM))
+            if (!loadThingTypeList(reader, _items, MIN_ITEM_ID, _itemsCount, ThingCategory.ITEM))
                 throw new Error("Items list cannot be created.");
 
             // Load outfit list.
-            if (!loadThingTypeList(stream, _outfits, MIN_OUTFIT_ID, _outfitsCount, ThingCategory.OUTFIT))
+            if (!loadThingTypeList(reader, _outfits, MIN_OUTFIT_ID, _outfitsCount, ThingCategory.OUTFIT))
                 throw new Error("Outfits list cannot be created.");
 
             // Load effect list.
-            if (!loadThingTypeList(stream, _effects, MIN_EFFECT_ID, _effectsCount, ThingCategory.EFFECT))
+            if (!loadThingTypeList(reader, _effects, MIN_EFFECT_ID, _effectsCount, ThingCategory.EFFECT))
                 throw new Error("Effects list cannot be created.");
 
             // Load missile list.
-            if (!loadThingTypeList(stream, _missiles, MIN_MISSILE_ID, _missilesCount, ThingCategory.MISSILE))
+            if (!loadThingTypeList(reader, _missiles, MIN_MISSILE_ID, _missilesCount, ThingCategory.MISSILE))
                 throw new Error("Missiles list cannot be created.");
 
-            if (stream.bytesAvailable != 0)
+            if (reader.bytesAvailable != 0)
                 throw new Error("An unknown error occurred while reading the file '*.dat'");
         }
 
-        protected function loadThingTypeList(stream:FileStream,
+        protected function loadThingTypeList(reader:MetadataReader,
                                              list:Dictionary,
                                              minID:uint,
                                              maxID:uint,
                                              category:String):Boolean
         {
-            var type:uint;
-            if (version.value <= 730)
-                type = 1;
-            else if (version.value <= 750)
-                type = 2;
-            else if (version.value <= 772)
-                type = 3;
-            else if (version.value <= 854)
-                type = 4;
-            else if (version.value <= 986)
-                type = 5;
-            else
-                type = 6;
-
             var dispatchProgress:Boolean = this.hasEventListener(ProgressEvent.PROGRESS);
 
             for (var id:uint = minID; id <= maxID; id++) {
@@ -914,31 +956,10 @@ package otlib.things
                 thing.id = id;
                 thing.category = category;
 
-                switch(type) {
+                if (!reader.readProperties(thing))
+                    return false;
 
-                    case 1:
-                        if (!ThingSerializer.readProperties1(thing, stream)) return false;
-                        break;
-                    case 2:
-                        if (!ThingSerializer.readProperties2(thing, stream)) return false;
-                        break;
-                    case 3:
-                        if (!ThingSerializer.readProperties3(thing, stream)) return false;
-                        break;
-                    case 4:
-                        if (!ThingSerializer.readProperties4(thing, stream)) return false;
-                        break;
-                    case 5:
-                        if (!ThingSerializer.readProperties5(thing, stream)) return false;
-                        break;
-                    case 6:
-                        if (!ThingSerializer.readProperties6(thing, stream)) return false;
-                        break;
-                    default:
-                        return false;
-                }
-
-                if (!ThingSerializer.readSprites(thing, stream, _extended, _version.value >= 755, _improvedAnimations))
+                if (!reader.readTexturePatterns(thing, _extended, _improvedAnimations))
                     return false;
 
                 list[id] = thing;
@@ -955,61 +976,28 @@ package otlib.things
             return true;
         }
 
-        protected function writeThingList(stream:FileStream,
+        protected function writeThingList(writer:MetadataWriter,
                                           list:Dictionary,
                                           minId:uint,
                                           maxId:uint,
                                           version:Version,
                                           extended:Boolean,
-                                          improvedAnimations:Boolean):Boolean
+                                          frameDurations:Boolean):Boolean
         {
-            var type:uint;
-            if (version.value <= 730)
-                type = 1;
-            else if (version.value <= 750)
-                type = 2;
-            else if (version.value <= 772)
-                type = 3;
-            else if (version.value <= 854)
-                type = 4;
-            else if (version.value <= 986)
-                type = 5;
-            else
-                type = 6;
-
-            var dispatchProgress:Boolean = this.hasEventListener(ProgressEvent.PROGRESS);
+            var dispatchProgress:Boolean = hasEventListener(ProgressEvent.PROGRESS);
 
             for (var id:uint = minId; id <= maxId; id++) {
                 var thing:ThingType = list[id];
                 if (thing) {
-                    switch(type) {
-                        case 1:
-                            if (!ThingSerializer.writeProperties1(thing, stream)) return false;
-                            break;
-                        case 2:
-                            if (!ThingSerializer.writeProperties2(thing, stream)) return false;
-                            break;
-                        case 3:
-                            if (!ThingSerializer.writeProperties3(thing, stream)) return false;
-                            break;
-                        case 4:
-                            if (!ThingSerializer.writeProperties4(thing, stream)) return false;
-                            break;
-                        case 5:
-                            if (!ThingSerializer.writeProperties5(thing, stream)) return false;
-                            break;
-                        case 6:
-                            if (!ThingSerializer.writeProperties6(thing, stream)) return false;
-                            break;
-                        default:
-                            return false;
-                    }
 
-                    if (!ThingSerializer.writeSprites(thing, stream, extended, version.value >= 755, improvedAnimations))
+                    if (!writer.writeProperties(thing))
+                        return false;
+
+                    if (!writer.writeTexturePatterns(thing, extended, frameDurations))
                         return false;
 
                 } else {
-                    stream.writeByte(ThingSerializer.LAST_FLAG); // Close flags
+                    writer.writeByte(ThingSerializer.LAST_FLAG); // Close flags
                 }
 
                 if (dispatchProgress) {
@@ -1017,6 +1005,40 @@ package otlib.things
                     _progressCount++;
                 }
             }
+
+            return true;
+        }
+
+        protected function writeItemList(writer:MetadataWriter,
+                                         list:Dictionary,
+                                         minId:uint,
+                                         maxId:uint,
+                                         version:Version,
+                                         extended:Boolean,
+                                         frameDurations:Boolean):Boolean
+        {
+            var dispatchProgress:Boolean = hasEventListener(ProgressEvent.PROGRESS);
+
+            for (var id:uint = minId; id <= maxId; id++) {
+                var item:ThingType = list[id];
+                if (item) {
+
+                    if (!writer.writeItemProperties(item))
+                        return false;
+
+                    if (!writer.writeTexturePatterns(item, extended, frameDurations))
+                        return false;
+
+                } else {
+                    writer.writeByte(ThingSerializer.LAST_FLAG); // Close flags
+                }
+
+                if (dispatchProgress) {
+                    dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.DAT, _progressCount, _thingsCount));
+                    _progressCount++;
+                }
+            }
+
             return true;
         }
 

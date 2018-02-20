@@ -63,91 +63,91 @@ package otlib.things
 
                 switch (flag)
                 {
-                    case ThingTypeFlags1.GROUND:
+                    case MetadataFlags1.GROUND:
                         thing.isGround = true;
                         thing.groundSpeed = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags1.ON_BOTTOM:
+                    case MetadataFlags1.ON_BOTTOM:
                         thing.isOnBottom = true;
                         break;
-                    case ThingTypeFlags1.ON_TOP:
+                    case MetadataFlags1.ON_TOP:
                         thing.isOnTop = true;
                         break;
-                    case ThingTypeFlags1.CONTAINER:
+                    case MetadataFlags1.CONTAINER:
                         thing.isContainer = true;
                         break;
-                    case ThingTypeFlags1.STACKABLE:
+                    case MetadataFlags1.STACKABLE:
                         thing.stackable = true;
                         break;
-                    case ThingTypeFlags1.MULTI_USE:
+                    case MetadataFlags1.MULTI_USE:
                         thing.multiUse = true;
                         break;
-                    case ThingTypeFlags1.FORCE_USE:
+                    case MetadataFlags1.FORCE_USE:
                         thing.forceUse = true;
                         break;
-                    case ThingTypeFlags1.WRITABLE:
+                    case MetadataFlags1.WRITABLE:
                         thing.writable = true;
                         thing.maxTextLength = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags1.WRITABLE_ONCE:
+                    case MetadataFlags1.WRITABLE_ONCE:
                         thing.writableOnce = true;
                         thing.maxTextLength = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags1.FLUID_CONTAINER:
+                    case MetadataFlags1.FLUID_CONTAINER:
                         thing.isFluidContainer = true;
                         break;
-                    case ThingTypeFlags1.FLUID:
+                    case MetadataFlags1.FLUID:
                         thing.isFluid = true;
                         break;
-                    case ThingTypeFlags1.UNPASSABLE:
+                    case MetadataFlags1.UNPASSABLE:
                         thing.isUnpassable = true;
                         break;
-                    case ThingTypeFlags1.UNMOVEABLE:
+                    case MetadataFlags1.UNMOVEABLE:
                         thing.isUnmoveable = true;
                         break;
-                    case ThingTypeFlags1.BLOCK_MISSILE:
+                    case MetadataFlags1.BLOCK_MISSILE:
                         thing.blockMissile = true;
                         break;
-                    case ThingTypeFlags1.BLOCK_PATHFINDER:
+                    case MetadataFlags1.BLOCK_PATHFINDER:
                         thing.blockPathfind = true;
                         break;
-                    case ThingTypeFlags1.PICKUPABLE:
+                    case MetadataFlags1.PICKUPABLE:
                         thing.pickupable = true;
                         break;
-                    case ThingTypeFlags1.HAS_LIGHT:
+                    case MetadataFlags1.HAS_LIGHT:
                         thing.hasLight = true;
                         thing.lightLevel = input.readUnsignedShort();
                         thing.lightColor = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags1.FLOOR_CHANGE:
+                    case MetadataFlags1.FLOOR_CHANGE:
                         thing.floorChange = true;
                         break;
-                    case ThingTypeFlags1.FULL_GROUND:
+                    case MetadataFlags1.FULL_GROUND:
                         thing.isFullGround = true;
                         break;
-                    case ThingTypeFlags1.HAS_ELEVATION:
+                    case MetadataFlags1.HAS_ELEVATION:
                         thing.hasElevation = true;
                         thing.elevation = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags1.HAS_OFFSET:
+                    case MetadataFlags1.HAS_OFFSET:
                         thing.hasOffset = true;
                         thing.offsetX = 8;
                         thing.offsetY = 8;
                         break;
-                    case ThingTypeFlags1.MINI_MAP:
+                    case MetadataFlags1.MINI_MAP:
                         thing.miniMap = true;
                         thing.miniMapColor = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags1.ROTATABLE:
+                    case MetadataFlags1.ROTATABLE:
                         thing.rotatable = true;
                         break;
-                    case ThingTypeFlags1.LYING_OBJECT:
+                    case MetadataFlags1.LYING_OBJECT:
                         thing.isLyingObject = true;
                         break;
-                    case ThingTypeFlags1.ANIMATE_ALWAYS:
+                    case MetadataFlags1.ANIMATE_ALWAYS:
                         thing.animateAlways = true;
                         break;
-                    case ThingTypeFlags1.LENS_HELP:
+                    case MetadataFlags1.LENS_HELP:
                         thing.isLensHelp = true;
                         thing.lensHelp = input.readUnsignedShort();
                         break;
@@ -177,100 +177,100 @@ package otlib.things
 
                 switch (flag)
                 {
-                    case ThingTypeFlags2.GROUND:
+                    case MetadataFlags2.GROUND:
                         thing.isGround = true;
                         thing.groundSpeed = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags2.ON_BOTTOM:
+                    case MetadataFlags2.ON_BOTTOM:
                         thing.isOnBottom = true;
                         break;
-                    case ThingTypeFlags2.ON_TOP:
+                    case MetadataFlags2.ON_TOP:
                         thing.isOnTop = true;
                         break;
-                    case ThingTypeFlags2.CONTAINER:
+                    case MetadataFlags2.CONTAINER:
                         thing.isContainer = true;
                         break;
-                    case ThingTypeFlags2.STACKABLE:
+                    case MetadataFlags2.STACKABLE:
                         thing.stackable = true;
                         break;
-                    case ThingTypeFlags2.MULTI_USE:
+                    case MetadataFlags2.MULTI_USE:
                         thing.multiUse = true;
                         break;
-                    case ThingTypeFlags2.FORCE_USE:
+                    case MetadataFlags2.FORCE_USE:
                         thing.forceUse = true;
                         break;
-                    case ThingTypeFlags2.WRITABLE:
+                    case MetadataFlags2.WRITABLE:
                         thing.writable = true;
                         thing.maxTextLength = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags2.WRITABLE_ONCE:
+                    case MetadataFlags2.WRITABLE_ONCE:
                         thing.writableOnce = true;
                         thing.maxTextLength = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags2.FLUID_CONTAINER:
+                    case MetadataFlags2.FLUID_CONTAINER:
                         thing.isFluidContainer = true;
                         break;
-                    case ThingTypeFlags2.FLUID:
+                    case MetadataFlags2.FLUID:
                         thing.isFluid = true;
                         break;
-                    case ThingTypeFlags2.UNPASSABLE:
+                    case MetadataFlags2.UNPASSABLE:
                         thing.isUnpassable = true;
                         break;
-                    case ThingTypeFlags2.UNMOVEABLE:
+                    case MetadataFlags2.UNMOVEABLE:
                         thing.isUnmoveable = true;
                         break;
-                    case ThingTypeFlags2.BLOCK_MISSILE:
+                    case MetadataFlags2.BLOCK_MISSILE:
                         thing.blockMissile = true;
                         break;
-                    case ThingTypeFlags2.BLOCK_PATHFINDER:
+                    case MetadataFlags2.BLOCK_PATHFINDER:
                         thing.blockPathfind = true;
                         break;
-                    case ThingTypeFlags2.PICKUPABLE:
+                    case MetadataFlags2.PICKUPABLE:
                         thing.pickupable = true;
                         break;
-                    case ThingTypeFlags2.HAS_LIGHT:
+                    case MetadataFlags2.HAS_LIGHT:
                         thing.hasLight = true;
                         thing.lightLevel = input.readUnsignedShort();
                         thing.lightColor = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags2.FLOOR_CHANGE:
+                    case MetadataFlags2.FLOOR_CHANGE:
                         thing.floorChange = true;
                         break;
-                    case ThingTypeFlags2.FULL_GROUND:
+                    case MetadataFlags2.FULL_GROUND:
                         thing.isFullGround = true;
                         break;
-                    case ThingTypeFlags2.HAS_ELEVATION:
+                    case MetadataFlags2.HAS_ELEVATION:
                         thing.hasElevation = true;
                         thing.elevation = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags2.HAS_OFFSET:
+                    case MetadataFlags2.HAS_OFFSET:
                         thing.hasOffset = true;
                         thing.offsetX = 8;
                         thing.offsetY = 8;
                         break;
-                    case ThingTypeFlags2.MINI_MAP:
+                    case MetadataFlags2.MINI_MAP:
                         thing.miniMap = true;
                         thing.miniMapColor = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags2.ROTATABLE:
+                    case MetadataFlags2.ROTATABLE:
                         thing.rotatable = true;
                         break;
-                    case ThingTypeFlags2.LYING_OBJECT:
+                    case MetadataFlags2.LYING_OBJECT:
                         thing.isLyingObject = true;
                         break;
-                    case ThingTypeFlags2.HANGABLE:
+                    case MetadataFlags2.HANGABLE:
                         thing.hangable = true;
                         break;
-                    case ThingTypeFlags2.VERTICAL:
+                    case MetadataFlags2.VERTICAL:
                         thing.isVertical = true;
                         break;
-                    case ThingTypeFlags2.HORIZONTAL:
+                    case MetadataFlags2.HORIZONTAL:
                         thing.isHorizontal = true;
                         break;
-                    case ThingTypeFlags2.ANIMATE_ALWAYS:
+                    case MetadataFlags2.ANIMATE_ALWAYS:
                         thing.animateAlways = true;
                         break;
-                    case ThingTypeFlags2.LENS_HELP:
+                    case MetadataFlags2.LENS_HELP:
                         thing.isLensHelp = true;
                         thing.lensHelp = input.readUnsignedShort();
                         break;
@@ -300,104 +300,104 @@ package otlib.things
 
                 switch (flag)
                 {
-                    case ThingTypeFlags3.GROUND:
+                    case MetadataFlags3.GROUND:
                         thing.isGround = true;
                         thing.groundSpeed = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags3.GROUND_BORDER:
+                    case MetadataFlags3.GROUND_BORDER:
                         thing.isGroundBorder = true;
                         break;
-                    case ThingTypeFlags3.ON_BOTTOM:
+                    case MetadataFlags3.ON_BOTTOM:
                         thing.isOnBottom = true;
                         break;
-                    case ThingTypeFlags3.ON_TOP:
+                    case MetadataFlags3.ON_TOP:
                         thing.isOnTop = true;
                         break;
-                    case ThingTypeFlags3.CONTAINER:
+                    case MetadataFlags3.CONTAINER:
                         thing.isContainer = true;
                         break;
-                    case ThingTypeFlags3.STACKABLE:
+                    case MetadataFlags3.STACKABLE:
                         thing.stackable = true;
                         break;
-                    case ThingTypeFlags3.MULTI_USE:
+                    case MetadataFlags3.MULTI_USE:
                         thing.multiUse = true;
                         break;
-                    case ThingTypeFlags3.FORCE_USE:
+                    case MetadataFlags3.FORCE_USE:
                         thing.forceUse = true;
                         break;
-                    case ThingTypeFlags3.WRITABLE:
+                    case MetadataFlags3.WRITABLE:
                         thing.writable = true;
                         thing.maxTextLength = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags3.WRITABLE_ONCE:
+                    case MetadataFlags3.WRITABLE_ONCE:
                         thing.writableOnce = true;
                         thing.maxTextLength = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags3.FLUID_CONTAINER:
+                    case MetadataFlags3.FLUID_CONTAINER:
                         thing.isFluidContainer = true;
                         break;
-                    case ThingTypeFlags3.FLUID:
+                    case MetadataFlags3.FLUID:
                         thing.isFluid = true;
                         break;
-                    case ThingTypeFlags3.UNPASSABLE:
+                    case MetadataFlags3.UNPASSABLE:
                         thing.isUnpassable = true;
                         break;
-                    case ThingTypeFlags3.UNMOVEABLE:
+                    case MetadataFlags3.UNMOVEABLE:
                         thing.isUnmoveable = true;
                         break;
-                    case ThingTypeFlags3.BLOCK_MISSILE:
+                    case MetadataFlags3.BLOCK_MISSILE:
                         thing.blockMissile = true;
                         break;
-                    case ThingTypeFlags3.BLOCK_PATHFINDER:
+                    case MetadataFlags3.BLOCK_PATHFINDER:
                         thing.blockPathfind = true;
                         break;
-                    case ThingTypeFlags3.PICKUPABLE:
+                    case MetadataFlags3.PICKUPABLE:
                         thing.pickupable = true;
                         break;
-                    case ThingTypeFlags3.HANGABLE:
+                    case MetadataFlags3.HANGABLE:
                         thing.hangable = true;
                         break;
-                    case ThingTypeFlags3.VERTICAL:
+                    case MetadataFlags3.VERTICAL:
                         thing.isVertical = true;
                         break;
-                    case ThingTypeFlags3.HORIZONTAL:
+                    case MetadataFlags3.HORIZONTAL:
                         thing.isHorizontal = true;
                         break;
-                    case ThingTypeFlags3.ROTATABLE:
+                    case MetadataFlags3.ROTATABLE:
                         thing.rotatable = true;
                         break;
-                    case ThingTypeFlags3.HAS_LIGHT:
+                    case MetadataFlags3.HAS_LIGHT:
                         thing.hasLight = true;
                         thing.lightLevel = input.readUnsignedShort();
                         thing.lightColor = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags3.FLOOR_CHANGE:
+                    case MetadataFlags3.FLOOR_CHANGE:
                         thing.floorChange = true;
                         break;
-                    case ThingTypeFlags3.HAS_OFFSET:
+                    case MetadataFlags3.HAS_OFFSET:
                         thing.hasOffset = true;
                         thing.offsetX = input.readUnsignedShort();
                         thing.offsetY = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags3.HAS_ELEVATION:
+                    case MetadataFlags3.HAS_ELEVATION:
                         thing.hasElevation = true;
                         thing.elevation = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags3.LYING_OBJECT:
+                    case MetadataFlags3.LYING_OBJECT:
                         thing.isLyingObject = true;
                         break;
-                    case ThingTypeFlags3.ANIMATE_ALWAYS:
+                    case MetadataFlags3.ANIMATE_ALWAYS:
                         thing.animateAlways = true;
                         break;
-                    case ThingTypeFlags3.MINI_MAP:
+                    case MetadataFlags3.MINI_MAP:
                         thing.miniMap = true;
                         thing.miniMapColor = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags3.LENS_HELP:
+                    case MetadataFlags3.LENS_HELP:
                         thing.isLensHelp = true;
                         thing.lensHelp = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags3.FULL_GROUND:
+                    case MetadataFlags3.FULL_GROUND:
                         thing.isFullGround = true;
                         break;
                     default:
@@ -426,113 +426,113 @@ package otlib.things
 
                 switch (flag)
                 {
-                    case ThingTypeFlags4.GROUND:
+                    case MetadataFlags4.GROUND:
                         thing.isGround = true;
                         thing.groundSpeed = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags4.GROUND_BORDER:
+                    case MetadataFlags4.GROUND_BORDER:
                         thing.isGroundBorder = true;
                         break;
-                    case ThingTypeFlags4.ON_BOTTOM:
+                    case MetadataFlags4.ON_BOTTOM:
                         thing.isOnBottom = true;
                         break;
-                    case ThingTypeFlags4.ON_TOP:
+                    case MetadataFlags4.ON_TOP:
                         thing.isOnTop = true;
                         break;
-                    case ThingTypeFlags4.CONTAINER:
+                    case MetadataFlags4.CONTAINER:
                         thing.isContainer = true;
                         break;
-                    case ThingTypeFlags4.STACKABLE:
+                    case MetadataFlags4.STACKABLE:
                         thing.stackable = true;
                         break;
-                    case ThingTypeFlags4.FORCE_USE:
+                    case MetadataFlags4.FORCE_USE:
                         thing.forceUse = true;
                         break;
-                    case ThingTypeFlags4.MULTI_USE:
+                    case MetadataFlags4.MULTI_USE:
                         thing.multiUse = true;
                         break;
-                    case ThingTypeFlags4.HAS_CHARGES:
+                    case MetadataFlags4.HAS_CHARGES:
                         thing.hasCharges = true;
                         break;
-                    case ThingTypeFlags4.WRITABLE:
+                    case MetadataFlags4.WRITABLE:
                         thing.writable = true;
                         thing.maxTextLength = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags4.WRITABLE_ONCE:
+                    case MetadataFlags4.WRITABLE_ONCE:
                         thing.writableOnce = true;
                         thing.maxTextLength = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags4.FLUID_CONTAINER:
+                    case MetadataFlags4.FLUID_CONTAINER:
                         thing.isFluidContainer = true;
                         break;
-                    case ThingTypeFlags4.FLUID:
+                    case MetadataFlags4.FLUID:
                         thing.isFluid = true;
                         break;
-                    case ThingTypeFlags4.UNPASSABLE:
+                    case MetadataFlags4.UNPASSABLE:
                         thing.isUnpassable = true;
                         break;
-                    case ThingTypeFlags4.UNMOVEABLE:
+                    case MetadataFlags4.UNMOVEABLE:
                         thing.isUnmoveable = true;
                         break;
-                    case ThingTypeFlags4.BLOCK_MISSILE:
+                    case MetadataFlags4.BLOCK_MISSILE:
                         thing.blockMissile = true;
                         break;
-                    case ThingTypeFlags4.BLOCK_PATHFIND:
+                    case MetadataFlags4.BLOCK_PATHFIND:
                         thing.blockPathfind = true;
                         break;
-                    case ThingTypeFlags4.PICKUPABLE:
+                    case MetadataFlags4.PICKUPABLE:
                         thing.pickupable = true;
                         break;
-                    case ThingTypeFlags4.HANGABLE:
+                    case MetadataFlags4.HANGABLE:
                         thing.hangable = true;
                         break;
-                    case ThingTypeFlags4.VERTICAL:
+                    case MetadataFlags4.VERTICAL:
                         thing.isVertical = true;
                         break;
-                    case ThingTypeFlags4.HORIZONTAL:
+                    case MetadataFlags4.HORIZONTAL:
                         thing.isHorizontal = true;
                         break;
-                    case ThingTypeFlags4.ROTATABLE:
+                    case MetadataFlags4.ROTATABLE:
                         thing.rotatable = true;
                         break;
-                    case ThingTypeFlags4.HAS_LIGHT:
+                    case MetadataFlags4.HAS_LIGHT:
                         thing.hasLight = true;
                         thing.lightLevel = input.readUnsignedShort();
                         thing.lightColor = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags4.DONT_HIDE:
+                    case MetadataFlags4.DONT_HIDE:
                         thing.dontHide = true;
                         break;
-                    case ThingTypeFlags4.FLOOR_CHANGE:
+                    case MetadataFlags4.FLOOR_CHANGE:
                         thing.floorChange = true;
                         break;
-                    case ThingTypeFlags4.HAS_OFFSET:
+                    case MetadataFlags4.HAS_OFFSET:
                         thing.hasOffset = true;
                         thing.offsetX = input.readUnsignedShort();
                         thing.offsetY = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags4.HAS_ELEVATION:
+                    case MetadataFlags4.HAS_ELEVATION:
                         thing.hasElevation = true;
                         thing.elevation = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags4.LYING_OBJECT:
+                    case MetadataFlags4.LYING_OBJECT:
                         thing.isLyingObject = true;
                         break;
-                    case ThingTypeFlags4.ANIMATE_ALWAYS:
+                    case MetadataFlags4.ANIMATE_ALWAYS:
                         thing.animateAlways = true;
                         break;
-                    case ThingTypeFlags4.MINI_MAP:
+                    case MetadataFlags4.MINI_MAP:
                         thing.miniMap = true;
                         thing.miniMapColor = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags4.LENS_HELP:
+                    case MetadataFlags4.LENS_HELP:
                         thing.isLensHelp = true;
                         thing.lensHelp = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags4.FULL_GROUND:
+                    case MetadataFlags4.FULL_GROUND:
                         thing.isFullGround = true;
                         break;
-                    case ThingTypeFlags4.IGNORE_LOOK:
+                    case MetadataFlags4.IGNORE_LOOK:
                         thing.ignoreLook = true;
                         break;
                     default:
@@ -561,117 +561,117 @@ package otlib.things
 
                 switch (flag)
                 {
-                    case ThingTypeFlags5.GROUND:
+                    case MetadataFlags5.GROUND:
                         thing.isGround = true;
                         thing.groundSpeed = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags5.GROUND_BORDER:
+                    case MetadataFlags5.GROUND_BORDER:
                         thing.isGroundBorder = true;
                         break;
-                    case ThingTypeFlags5.ON_BOTTOM:
+                    case MetadataFlags5.ON_BOTTOM:
                         thing.isOnBottom = true;
                         break;
-                    case ThingTypeFlags5.ON_TOP:
+                    case MetadataFlags5.ON_TOP:
                         thing.isOnTop = true;
                         break;
-                    case ThingTypeFlags5.CONTAINER:
+                    case MetadataFlags5.CONTAINER:
                         thing.isContainer = true;
                         break;
-                    case ThingTypeFlags5.STACKABLE:
+                    case MetadataFlags5.STACKABLE:
                         thing.stackable = true;
                         break;
-                    case ThingTypeFlags5.FORCE_USE:
+                    case MetadataFlags5.FORCE_USE:
                         thing.forceUse = true;
                         break;
-                    case ThingTypeFlags5.MULTI_USE:
+                    case MetadataFlags5.MULTI_USE:
                         thing.multiUse = true;
                         break;
-                    case ThingTypeFlags5.WRITABLE:
+                    case MetadataFlags5.WRITABLE:
                         thing.writable = true;
                         thing.maxTextLength = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags5.WRITABLE_ONCE:
+                    case MetadataFlags5.WRITABLE_ONCE:
                         thing.writableOnce = true;
                         thing.maxTextLength = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags5.FLUID_CONTAINER:
+                    case MetadataFlags5.FLUID_CONTAINER:
                         thing.isFluidContainer = true;
                         break;
-                    case ThingTypeFlags5.FLUID:
+                    case MetadataFlags5.FLUID:
                         thing.isFluid = true;
                         break;
-                    case ThingTypeFlags5.UNPASSABLE:
+                    case MetadataFlags5.UNPASSABLE:
                         thing.isUnpassable = true;
                         break;
-                    case ThingTypeFlags5.UNMOVEABLE:
+                    case MetadataFlags5.UNMOVEABLE:
                         thing.isUnmoveable = true;
                         break;
-                    case ThingTypeFlags5.BLOCK_MISSILE:
+                    case MetadataFlags5.BLOCK_MISSILE:
                         thing.blockMissile = true;
                         break;
-                    case ThingTypeFlags5.BLOCK_PATHFIND:
+                    case MetadataFlags5.BLOCK_PATHFIND:
                         thing.blockPathfind = true;
                         break;
-                    case ThingTypeFlags5.PICKUPABLE:
+                    case MetadataFlags5.PICKUPABLE:
                         thing.pickupable = true;
                         break;
-                    case ThingTypeFlags5.HANGABLE:
+                    case MetadataFlags5.HANGABLE:
                         thing.hangable = true;
                         break;
-                    case ThingTypeFlags5.VERTICAL:
+                    case MetadataFlags5.VERTICAL:
                         thing.isVertical = true;
                         break;
-                    case ThingTypeFlags5.HORIZONTAL:
+                    case MetadataFlags5.HORIZONTAL:
                         thing.isHorizontal = true;
                         break;
-                    case ThingTypeFlags5.ROTATABLE:
+                    case MetadataFlags5.ROTATABLE:
                         thing.rotatable = true;
                         break;
-                    case ThingTypeFlags5.HAS_LIGHT:
+                    case MetadataFlags5.HAS_LIGHT:
                         thing.hasLight = true;
                         thing.lightLevel = input.readUnsignedShort();
                         thing.lightColor = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags5.DONT_HIDE:
+                    case MetadataFlags5.DONT_HIDE:
                         thing.dontHide = true;
                         break;
-                    case ThingTypeFlags5.TRANSLUCENT:
+                    case MetadataFlags5.TRANSLUCENT:
                         thing.isTranslucent = true;
                         break;
-                    case ThingTypeFlags5.HAS_OFFSET:
+                    case MetadataFlags5.HAS_OFFSET:
                         thing.hasOffset = true;
                         thing.offsetX = input.readUnsignedShort();
                         thing.offsetY = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags5.HAS_ELEVATION:
+                    case MetadataFlags5.HAS_ELEVATION:
                         thing.hasElevation = true;
                         thing.elevation = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags5.LYING_OBJECT:
+                    case MetadataFlags5.LYING_OBJECT:
                         thing.isLyingObject = true;
                         break;
-                    case ThingTypeFlags5.ANIMATE_ALWAYS:
+                    case MetadataFlags5.ANIMATE_ALWAYS:
                         thing.animateAlways = true;
                         break;
-                    case ThingTypeFlags5.MINI_MAP:
+                    case MetadataFlags5.MINI_MAP:
                         thing.miniMap = true;
                         thing.miniMapColor = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags5.LENS_HELP:
+                    case MetadataFlags5.LENS_HELP:
                         thing.isLensHelp = true;
                         thing.lensHelp = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags5.FULL_GROUND:
+                    case MetadataFlags5.FULL_GROUND:
                         thing.isFullGround = true;
                         break;
-                    case ThingTypeFlags5.IGNORE_LOOK:
+                    case MetadataFlags5.IGNORE_LOOK:
                         thing.ignoreLook = true;
                         break;
-                    case ThingTypeFlags5.CLOTH:
+                    case MetadataFlags5.CLOTH:
                         thing.cloth = true;
                         thing.clothSlot = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags5.MARKET_ITEM:
+                    case MetadataFlags5.MARKET_ITEM:
                         thing.isMarketItem = true;
                         thing.marketCategory = input.readUnsignedShort();
                         thing.marketTradeAs = input.readUnsignedShort();
@@ -707,120 +707,120 @@ package otlib.things
 
                 switch (flag)
                 {
-                    case ThingTypeFlags6.GROUND:
+                    case MetadataFlags6.GROUND:
                         thing.isGround = true;
                         thing.groundSpeed = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags6.GROUND_BORDER:
+                    case MetadataFlags6.GROUND_BORDER:
                         thing.isGroundBorder = true;
                         break;
-                    case ThingTypeFlags6.ON_BOTTOM:
+                    case MetadataFlags6.ON_BOTTOM:
                         thing.isOnBottom = true;
                         break;
-                    case ThingTypeFlags6.ON_TOP:
+                    case MetadataFlags6.ON_TOP:
                         thing.isOnTop = true;
                         break;
-                    case ThingTypeFlags6.CONTAINER:
+                    case MetadataFlags6.CONTAINER:
                         thing.isContainer = true;
                         break;
-                    case ThingTypeFlags6.STACKABLE:
+                    case MetadataFlags6.STACKABLE:
                         thing.stackable = true;
                         break;
-                    case ThingTypeFlags6.FORCE_USE:
+                    case MetadataFlags6.FORCE_USE:
                         thing.forceUse = true;
                         break;
-                    case ThingTypeFlags6.MULTI_USE:
+                    case MetadataFlags6.MULTI_USE:
                         thing.multiUse = true;
                         break;
-                    case ThingTypeFlags6.WRITABLE:
+                    case MetadataFlags6.WRITABLE:
                         thing.writable = true;
                         thing.maxTextLength = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags6.WRITABLE_ONCE:
+                    case MetadataFlags6.WRITABLE_ONCE:
                         thing.writableOnce = true;
                         thing.maxTextLength = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags6.FLUID_CONTAINER:
+                    case MetadataFlags6.FLUID_CONTAINER:
                         thing.isFluidContainer = true;
                         break;
-                    case ThingTypeFlags6.FLUID:
+                    case MetadataFlags6.FLUID:
                         thing.isFluid = true;
                         break;
-                    case ThingTypeFlags6.UNPASSABLE:
+                    case MetadataFlags6.UNPASSABLE:
                         thing.isUnpassable = true;
                         break;
-                    case ThingTypeFlags6.UNMOVEABLE:
+                    case MetadataFlags6.UNMOVEABLE:
                         thing.isUnmoveable = true;
                         break;
-                    case ThingTypeFlags6.BLOCK_MISSILE:
+                    case MetadataFlags6.BLOCK_MISSILE:
                         thing.blockMissile = true;
                         break;
-                    case ThingTypeFlags6.BLOCK_PATHFIND:
+                    case MetadataFlags6.BLOCK_PATHFIND:
                         thing.blockPathfind = true;
                         break;
-                    case ThingTypeFlags6.NO_MOVE_ANIMATION:
+                    case MetadataFlags6.NO_MOVE_ANIMATION:
                         thing.noMoveAnimation = true;
                         break;
-                    case ThingTypeFlags6.PICKUPABLE:
+                    case MetadataFlags6.PICKUPABLE:
                         thing.pickupable = true;
                         break;
-                    case ThingTypeFlags6.HANGABLE:
+                    case MetadataFlags6.HANGABLE:
                         thing.hangable = true;
                         break;
-                    case ThingTypeFlags6.VERTICAL:
+                    case MetadataFlags6.VERTICAL:
                         thing.isVertical = true;
                         break;
-                    case ThingTypeFlags6.HORIZONTAL:
+                    case MetadataFlags6.HORIZONTAL:
                         thing.isHorizontal = true;
                         break;
-                    case ThingTypeFlags6.ROTATABLE:
+                    case MetadataFlags6.ROTATABLE:
                         thing.rotatable = true;
                         break;
-                    case ThingTypeFlags6.HAS_LIGHT:
+                    case MetadataFlags6.HAS_LIGHT:
                         thing.hasLight = true;
                         thing.lightLevel = input.readUnsignedShort();
                         thing.lightColor = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags6.DONT_HIDE:
+                    case MetadataFlags6.DONT_HIDE:
                         thing.dontHide = true;
                         break;
-                    case ThingTypeFlags6.TRANSLUCENT:
+                    case MetadataFlags6.TRANSLUCENT:
                         thing.isTranslucent = true;
                         break;
-                    case ThingTypeFlags6.HAS_OFFSET:
+                    case MetadataFlags6.HAS_OFFSET:
                         thing.hasOffset = true;
                         thing.offsetX = input.readUnsignedShort();
                         thing.offsetY = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags6.HAS_ELEVATION:
+                    case MetadataFlags6.HAS_ELEVATION:
                         thing.hasElevation = true;
                         thing.elevation    = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags6.LYING_OBJECT:
+                    case MetadataFlags6.LYING_OBJECT:
                         thing.isLyingObject = true;
                         break;
-                    case ThingTypeFlags6.ANIMATE_ALWAYS:
+                    case MetadataFlags6.ANIMATE_ALWAYS:
                         thing.animateAlways = true;
                         break;
-                    case ThingTypeFlags6.MINI_MAP:
+                    case MetadataFlags6.MINI_MAP:
                         thing.miniMap = true;
                         thing.miniMapColor = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags6.LENS_HELP:
+                    case MetadataFlags6.LENS_HELP:
                         thing.isLensHelp = true;
                         thing.lensHelp = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags6.FULL_GROUND:
+                    case MetadataFlags6.FULL_GROUND:
                         thing.isFullGround = true;
                         break;
-                    case ThingTypeFlags6.IGNORE_LOOK:
+                    case MetadataFlags6.IGNORE_LOOK:
                         thing.ignoreLook = true;
                         break;
-                    case ThingTypeFlags6.CLOTH:
+                    case MetadataFlags6.CLOTH:
                         thing.cloth = true;
                         thing.clothSlot = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags6.MARKET_ITEM:
+                    case MetadataFlags6.MARKET_ITEM:
                         thing.isMarketItem = true;
                         thing.marketCategory = input.readUnsignedShort();
                         thing.marketTradeAs = input.readUnsignedShort();
@@ -830,11 +830,11 @@ package otlib.things
                         thing.marketRestrictProfession = input.readUnsignedShort();
                         thing.marketRestrictLevel = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags6.DEFAULT_ACTION:
+                    case MetadataFlags6.DEFAULT_ACTION:
                         thing.hasDefaultAction = true;
                         thing.defaultAction = input.readUnsignedShort();
                         break;
-                    case ThingTypeFlags6.USABLE:
+                    case MetadataFlags6.USABLE:
                         thing.usable = true;
                         break;
                     default:
@@ -916,56 +916,56 @@ package otlib.things
         public static function writeProperties1(thing:ThingType, output:IDataOutput):Boolean
         {
             if (thing.isGround) {
-                output.writeByte(ThingTypeFlags1.GROUND);
+                output.writeByte(MetadataFlags1.GROUND);
                 output.writeShort(thing.groundSpeed);
             } else if (thing.isOnBottom) {
-                output.writeByte(ThingTypeFlags1.ON_BOTTOM);
+                output.writeByte(MetadataFlags1.ON_BOTTOM);
             } else if (thing.isOnTop) {
-                output.writeByte(ThingTypeFlags1.ON_TOP);
+                output.writeByte(MetadataFlags1.ON_TOP);
             }
 
-            if (thing.isContainer) output.writeByte(ThingTypeFlags1.CONTAINER);
-            if (thing.stackable) output.writeByte(ThingTypeFlags1.STACKABLE);
-            if (thing.multiUse) output.writeByte(ThingTypeFlags1.MULTI_USE);
-            if (thing.forceUse) output.writeByte(ThingTypeFlags1.FORCE_USE);
+            if (thing.isContainer) output.writeByte(MetadataFlags1.CONTAINER);
+            if (thing.stackable) output.writeByte(MetadataFlags1.STACKABLE);
+            if (thing.multiUse) output.writeByte(MetadataFlags1.MULTI_USE);
+            if (thing.forceUse) output.writeByte(MetadataFlags1.FORCE_USE);
             if (thing.writable) {
-                output.writeByte(ThingTypeFlags1.WRITABLE);
+                output.writeByte(MetadataFlags1.WRITABLE);
                 output.writeShort(thing.maxTextLength);
             }
             if (thing.writableOnce) {
-                output.writeByte(ThingTypeFlags1.WRITABLE_ONCE);
+                output.writeByte(MetadataFlags1.WRITABLE_ONCE);
                 output.writeShort(thing.maxTextLength);
             }
-            if (thing.isFluidContainer) output.writeByte(ThingTypeFlags1.FLUID_CONTAINER);
-            if (thing.isFluid) output.writeByte(ThingTypeFlags1.FLUID);
-            if (thing.isUnpassable) output.writeByte(ThingTypeFlags1.UNPASSABLE);
-            if (thing.isUnmoveable) output.writeByte(ThingTypeFlags1.UNMOVEABLE);
-            if (thing.blockMissile) output.writeByte(ThingTypeFlags1.BLOCK_MISSILE);
-            if (thing.blockPathfind) output.writeByte(ThingTypeFlags1.BLOCK_PATHFINDER);
-            if (thing.pickupable) output.writeByte(ThingTypeFlags1.PICKUPABLE);
+            if (thing.isFluidContainer) output.writeByte(MetadataFlags1.FLUID_CONTAINER);
+            if (thing.isFluid) output.writeByte(MetadataFlags1.FLUID);
+            if (thing.isUnpassable) output.writeByte(MetadataFlags1.UNPASSABLE);
+            if (thing.isUnmoveable) output.writeByte(MetadataFlags1.UNMOVEABLE);
+            if (thing.blockMissile) output.writeByte(MetadataFlags1.BLOCK_MISSILE);
+            if (thing.blockPathfind) output.writeByte(MetadataFlags1.BLOCK_PATHFINDER);
+            if (thing.pickupable) output.writeByte(MetadataFlags1.PICKUPABLE);
             if (thing.hasLight) {
-                output.writeByte(ThingTypeFlags1.HAS_LIGHT);
+                output.writeByte(MetadataFlags1.HAS_LIGHT);
                 output.writeShort(thing.lightLevel);
                 output.writeShort(thing.lightColor);
             }
-            if (thing.floorChange) output.writeByte(ThingTypeFlags1.FLOOR_CHANGE);
-            if (thing.isFullGround) output.writeByte(ThingTypeFlags1.FULL_GROUND);
+            if (thing.floorChange) output.writeByte(MetadataFlags1.FLOOR_CHANGE);
+            if (thing.isFullGround) output.writeByte(MetadataFlags1.FULL_GROUND);
             if (thing.hasElevation) {
-                output.writeByte(ThingTypeFlags1.HAS_ELEVATION);
+                output.writeByte(MetadataFlags1.HAS_ELEVATION);
                 output.writeShort(thing.elevation);
             }
             if (thing.hasOffset) {
-                output.writeByte(ThingTypeFlags1.HAS_OFFSET);
+                output.writeByte(MetadataFlags1.HAS_OFFSET);
             }
             if (thing.miniMap) {
-                output.writeByte(ThingTypeFlags1.MINI_MAP);
+                output.writeByte(MetadataFlags1.MINI_MAP);
                 output.writeShort(thing.miniMapColor);
             }
-            if (thing.rotatable) output.writeByte(ThingTypeFlags1.ROTATABLE);
-            if (thing.isLyingObject) output.writeByte(ThingTypeFlags1.LYING_OBJECT);
-            if (thing.animateAlways) output.writeByte(ThingTypeFlags1.ANIMATE_ALWAYS);
+            if (thing.rotatable) output.writeByte(MetadataFlags1.ROTATABLE);
+            if (thing.isLyingObject) output.writeByte(MetadataFlags1.LYING_OBJECT);
+            if (thing.animateAlways) output.writeByte(MetadataFlags1.ANIMATE_ALWAYS);
             if (thing.isLensHelp) {
-                output.writeByte(ThingTypeFlags1.LENS_HELP);
+                output.writeByte(MetadataFlags1.LENS_HELP);
                 output.writeShort(thing.lensHelp);
             }
             output.writeByte(LAST_FLAG); // Close flags
@@ -978,59 +978,59 @@ package otlib.things
         public static function writeProperties2(thing:ThingType, output:IDataOutput):Boolean
         {
             if (thing.isGround) {
-                output.writeByte(ThingTypeFlags2.GROUND);
+                output.writeByte(MetadataFlags2.GROUND);
                 output.writeShort(thing.groundSpeed);
             } else if (thing.isOnBottom) {
-                output.writeByte(ThingTypeFlags2.ON_BOTTOM);
+                output.writeByte(MetadataFlags2.ON_BOTTOM);
             } else if (thing.isOnTop) {
-                output.writeByte(ThingTypeFlags2.ON_TOP);
+                output.writeByte(MetadataFlags2.ON_TOP);
             }
 
-            if (thing.isContainer) output.writeByte(ThingTypeFlags2.CONTAINER);
-            if (thing.stackable) output.writeByte(ThingTypeFlags2.STACKABLE);
-            if (thing.multiUse) output.writeByte(ThingTypeFlags2.MULTI_USE);
-            if (thing.forceUse) output.writeByte(ThingTypeFlags2.FORCE_USE);
+            if (thing.isContainer) output.writeByte(MetadataFlags2.CONTAINER);
+            if (thing.stackable) output.writeByte(MetadataFlags2.STACKABLE);
+            if (thing.multiUse) output.writeByte(MetadataFlags2.MULTI_USE);
+            if (thing.forceUse) output.writeByte(MetadataFlags2.FORCE_USE);
             if (thing.writable) {
-                output.writeByte(ThingTypeFlags2.WRITABLE);
+                output.writeByte(MetadataFlags2.WRITABLE);
                 output.writeShort(thing.maxTextLength);
             }
             if (thing.writableOnce) {
-                output.writeByte(ThingTypeFlags2.WRITABLE_ONCE);
+                output.writeByte(MetadataFlags2.WRITABLE_ONCE);
                 output.writeShort(thing.maxTextLength);
             }
-            if (thing.isFluidContainer) output.writeByte(ThingTypeFlags2.FLUID_CONTAINER);
-            if (thing.isFluid) output.writeByte(ThingTypeFlags2.FLUID);
-            if (thing.isUnpassable) output.writeByte(ThingTypeFlags2.UNPASSABLE);
-            if (thing.isUnmoveable) output.writeByte(ThingTypeFlags2.UNMOVEABLE);
-            if (thing.blockMissile) output.writeByte(ThingTypeFlags2.BLOCK_MISSILE);
-            if (thing.blockPathfind) output.writeByte(ThingTypeFlags2.BLOCK_PATHFINDER);
-            if (thing.pickupable) output.writeByte(ThingTypeFlags2.PICKUPABLE);
+            if (thing.isFluidContainer) output.writeByte(MetadataFlags2.FLUID_CONTAINER);
+            if (thing.isFluid) output.writeByte(MetadataFlags2.FLUID);
+            if (thing.isUnpassable) output.writeByte(MetadataFlags2.UNPASSABLE);
+            if (thing.isUnmoveable) output.writeByte(MetadataFlags2.UNMOVEABLE);
+            if (thing.blockMissile) output.writeByte(MetadataFlags2.BLOCK_MISSILE);
+            if (thing.blockPathfind) output.writeByte(MetadataFlags2.BLOCK_PATHFINDER);
+            if (thing.pickupable) output.writeByte(MetadataFlags2.PICKUPABLE);
             if (thing.hasLight) {
-                output.writeByte(ThingTypeFlags2.HAS_LIGHT);
+                output.writeByte(MetadataFlags2.HAS_LIGHT);
                 output.writeShort(thing.lightLevel);
                 output.writeShort(thing.lightColor);
             }
-            if (thing.floorChange) output.writeByte(ThingTypeFlags2.FLOOR_CHANGE);
-            if (thing.isFullGround) output.writeByte(ThingTypeFlags2.FULL_GROUND);
+            if (thing.floorChange) output.writeByte(MetadataFlags2.FLOOR_CHANGE);
+            if (thing.isFullGround) output.writeByte(MetadataFlags2.FULL_GROUND);
             if (thing.hasElevation) {
-                output.writeByte(ThingTypeFlags2.HAS_ELEVATION);
+                output.writeByte(MetadataFlags2.HAS_ELEVATION);
                 output.writeShort(thing.elevation);
             }
             if (thing.hasOffset) {
-                output.writeByte(ThingTypeFlags2.HAS_OFFSET);
+                output.writeByte(MetadataFlags2.HAS_OFFSET);
             }
             if (thing.miniMap) {
-                output.writeByte(ThingTypeFlags2.MINI_MAP);
+                output.writeByte(MetadataFlags2.MINI_MAP);
                 output.writeShort(thing.miniMapColor);
             }
-            if (thing.rotatable) output.writeByte(ThingTypeFlags2.ROTATABLE);
-            if (thing.isLyingObject) output.writeByte(ThingTypeFlags2.LYING_OBJECT);
-            if (thing.hangable) output.writeByte(ThingTypeFlags2.HANGABLE);
-            if (thing.isVertical) output.writeByte(ThingTypeFlags2.VERTICAL);
-            if (thing.isHorizontal) output.writeByte(ThingTypeFlags2.HORIZONTAL);
-            if (thing.animateAlways) output.writeByte(ThingTypeFlags2.ANIMATE_ALWAYS);
+            if (thing.rotatable) output.writeByte(MetadataFlags2.ROTATABLE);
+            if (thing.isLyingObject) output.writeByte(MetadataFlags2.LYING_OBJECT);
+            if (thing.hangable) output.writeByte(MetadataFlags2.HANGABLE);
+            if (thing.isVertical) output.writeByte(MetadataFlags2.VERTICAL);
+            if (thing.isHorizontal) output.writeByte(MetadataFlags2.HORIZONTAL);
+            if (thing.animateAlways) output.writeByte(MetadataFlags2.ANIMATE_ALWAYS);
             if (thing.isLensHelp) {
-                output.writeByte(ThingTypeFlags2.LENS_HELP);
+                output.writeByte(MetadataFlags2.LENS_HELP);
                 output.writeShort(thing.lensHelp);
             }
             output.writeByte(LAST_FLAG); // Close flags
@@ -1043,65 +1043,65 @@ package otlib.things
         public static function writeProperties3(thing:ThingType, output:IDataOutput):Boolean
         {
             if (thing.isGround) {
-                output.writeByte(ThingTypeFlags3.GROUND);
+                output.writeByte(MetadataFlags3.GROUND);
                 output.writeShort(thing.groundSpeed);
             } else if (thing.isGroundBorder) {
-                output.writeByte(ThingTypeFlags3.GROUND_BORDER);
+                output.writeByte(MetadataFlags3.GROUND_BORDER);
             } else if (thing.isOnBottom) {
-                output.writeByte(ThingTypeFlags3.ON_BOTTOM);
+                output.writeByte(MetadataFlags3.ON_BOTTOM);
             } else if (thing.isOnTop) {
-                output.writeByte(ThingTypeFlags3.ON_TOP);
+                output.writeByte(MetadataFlags3.ON_TOP);
             }
 
-            if (thing.isContainer) output.writeByte(ThingTypeFlags3.CONTAINER);
-            if (thing.stackable) output.writeByte(ThingTypeFlags3.STACKABLE);
-            if (thing.multiUse) output.writeByte(ThingTypeFlags3.MULTI_USE);
-            if (thing.forceUse) output.writeByte(ThingTypeFlags3.FORCE_USE);
+            if (thing.isContainer) output.writeByte(MetadataFlags3.CONTAINER);
+            if (thing.stackable) output.writeByte(MetadataFlags3.STACKABLE);
+            if (thing.multiUse) output.writeByte(MetadataFlags3.MULTI_USE);
+            if (thing.forceUse) output.writeByte(MetadataFlags3.FORCE_USE);
             if (thing.writable) {
-                output.writeByte(ThingTypeFlags3.WRITABLE);
+                output.writeByte(MetadataFlags3.WRITABLE);
                 output.writeShort(thing.maxTextLength);
             }
             if (thing.writableOnce) {
-                output.writeByte(ThingTypeFlags3.WRITABLE_ONCE);
+                output.writeByte(MetadataFlags3.WRITABLE_ONCE);
                 output.writeShort(thing.maxTextLength);
             }
-            if (thing.isFluidContainer) output.writeByte(ThingTypeFlags3.FLUID_CONTAINER);
-            if (thing.isFluid) output.writeByte(ThingTypeFlags3.FLUID);
-            if (thing.isUnpassable) output.writeByte(ThingTypeFlags3.UNPASSABLE);
-            if (thing.isUnmoveable) output.writeByte(ThingTypeFlags3.UNMOVEABLE);
-            if (thing.blockMissile) output.writeByte(ThingTypeFlags3.BLOCK_MISSILE);
-            if (thing.blockPathfind) output.writeByte(ThingTypeFlags3.BLOCK_PATHFINDER);
-            if (thing.pickupable) output.writeByte(ThingTypeFlags3.PICKUPABLE);
-            if (thing.hangable) output.writeByte(ThingTypeFlags3.HANGABLE);
-            if (thing.isVertical) output.writeByte(ThingTypeFlags3.VERTICAL);
-            if (thing.isHorizontal) output.writeByte(ThingTypeFlags3.HORIZONTAL);
-            if (thing.rotatable) output.writeByte(ThingTypeFlags3.ROTATABLE);
+            if (thing.isFluidContainer) output.writeByte(MetadataFlags3.FLUID_CONTAINER);
+            if (thing.isFluid) output.writeByte(MetadataFlags3.FLUID);
+            if (thing.isUnpassable) output.writeByte(MetadataFlags3.UNPASSABLE);
+            if (thing.isUnmoveable) output.writeByte(MetadataFlags3.UNMOVEABLE);
+            if (thing.blockMissile) output.writeByte(MetadataFlags3.BLOCK_MISSILE);
+            if (thing.blockPathfind) output.writeByte(MetadataFlags3.BLOCK_PATHFINDER);
+            if (thing.pickupable) output.writeByte(MetadataFlags3.PICKUPABLE);
+            if (thing.hangable) output.writeByte(MetadataFlags3.HANGABLE);
+            if (thing.isVertical) output.writeByte(MetadataFlags3.VERTICAL);
+            if (thing.isHorizontal) output.writeByte(MetadataFlags3.HORIZONTAL);
+            if (thing.rotatable) output.writeByte(MetadataFlags3.ROTATABLE);
             if (thing.hasLight) {
-                output.writeByte(ThingTypeFlags3.HAS_LIGHT);
+                output.writeByte(MetadataFlags3.HAS_LIGHT);
                 output.writeShort(thing.lightLevel);
                 output.writeShort(thing.lightColor);
             }
-            if (thing.floorChange) output.writeByte(ThingTypeFlags3.FLOOR_CHANGE);
+            if (thing.floorChange) output.writeByte(MetadataFlags3.FLOOR_CHANGE);
             if (thing.hasOffset) {
-                output.writeByte(ThingTypeFlags3.HAS_OFFSET);
+                output.writeByte(MetadataFlags3.HAS_OFFSET);
                 output.writeShort(thing.offsetX);
                 output.writeShort(thing.offsetY);
             }
             if (thing.hasElevation) {
-                output.writeByte(ThingTypeFlags3.HAS_ELEVATION);
+                output.writeByte(MetadataFlags3.HAS_ELEVATION);
                 output.writeShort(thing.elevation);
             }
-            if (thing.isLyingObject) output.writeByte(ThingTypeFlags3.LYING_OBJECT);
-            if (thing.animateAlways) output.writeByte(ThingTypeFlags3.ANIMATE_ALWAYS);
+            if (thing.isLyingObject) output.writeByte(MetadataFlags3.LYING_OBJECT);
+            if (thing.animateAlways) output.writeByte(MetadataFlags3.ANIMATE_ALWAYS);
             if (thing.miniMap) {
-                output.writeByte(ThingTypeFlags3.MINI_MAP);
+                output.writeByte(MetadataFlags3.MINI_MAP);
                 output.writeShort(thing.miniMapColor);
             }
             if (thing.isLensHelp) {
-                output.writeByte(ThingTypeFlags3.LENS_HELP);
+                output.writeByte(MetadataFlags3.LENS_HELP);
                 output.writeShort(thing.lensHelp);
             }
-            if (thing.isFullGround) output.writeByte(ThingTypeFlags3.FULL_GROUND);
+            if (thing.isFullGround) output.writeByte(MetadataFlags3.FULL_GROUND);
             output.writeByte(LAST_FLAG); // Close flags
             return true;
         }
@@ -1112,68 +1112,68 @@ package otlib.things
         public static function writeProperties4(thing:ThingType, output:IDataOutput):Boolean
         {
             if (thing.isGround) {
-                output.writeByte(ThingTypeFlags4.GROUND);
+                output.writeByte(MetadataFlags4.GROUND);
                 output.writeShort(thing.groundSpeed);
             } else if (thing.isGroundBorder) {
-                output.writeByte(ThingTypeFlags4.GROUND_BORDER);
+                output.writeByte(MetadataFlags4.GROUND_BORDER);
             } else if (thing.isOnBottom) {
-                output.writeByte(ThingTypeFlags4.ON_BOTTOM);
+                output.writeByte(MetadataFlags4.ON_BOTTOM);
             } else if (thing.isOnTop) {
-                output.writeByte(ThingTypeFlags4.ON_TOP);
+                output.writeByte(MetadataFlags4.ON_TOP);
             }
 
-            if (thing.isContainer) output.writeByte(ThingTypeFlags4.CONTAINER);
-            if (thing.stackable) output.writeByte(ThingTypeFlags4.STACKABLE);
-            if (thing.forceUse) output.writeByte(ThingTypeFlags4.FORCE_USE);
-            if (thing.multiUse) output.writeByte(ThingTypeFlags4.MULTI_USE);
-            if (thing.hasCharges) output.writeByte(ThingTypeFlags4.HAS_CHARGES);
+            if (thing.isContainer) output.writeByte(MetadataFlags4.CONTAINER);
+            if (thing.stackable) output.writeByte(MetadataFlags4.STACKABLE);
+            if (thing.forceUse) output.writeByte(MetadataFlags4.FORCE_USE);
+            if (thing.multiUse) output.writeByte(MetadataFlags4.MULTI_USE);
+            if (thing.hasCharges) output.writeByte(MetadataFlags4.HAS_CHARGES);
             if (thing.writable) {
-                output.writeByte(ThingTypeFlags4.WRITABLE);
+                output.writeByte(MetadataFlags4.WRITABLE);
                 output.writeShort(thing.maxTextLength);
             }
             if (thing.writableOnce) {
-                output.writeByte(ThingTypeFlags4.WRITABLE_ONCE);
+                output.writeByte(MetadataFlags4.WRITABLE_ONCE);
                 output.writeShort(thing.maxTextLength);
             }
-            if (thing.isFluidContainer) output.writeByte(ThingTypeFlags4.FLUID_CONTAINER);
-            if (thing.isFluid) output.writeByte(ThingTypeFlags4.FLUID);
-            if (thing.isUnpassable) output.writeByte(ThingTypeFlags4.UNPASSABLE);
-            if (thing.isUnmoveable) output.writeByte(ThingTypeFlags4.UNMOVEABLE);
-            if (thing.blockMissile) output.writeByte(ThingTypeFlags4.BLOCK_MISSILE);
-            if (thing.blockPathfind) output.writeByte(ThingTypeFlags4.BLOCK_PATHFIND);
-            if (thing.pickupable) output.writeByte(ThingTypeFlags4.PICKUPABLE);
-            if (thing.hangable) output.writeByte(ThingTypeFlags4.HANGABLE);
-            if (thing.isVertical) output.writeByte(ThingTypeFlags4.VERTICAL);
-            if (thing.isHorizontal) output.writeByte(ThingTypeFlags4.HORIZONTAL);
-            if (thing.rotatable) output.writeByte(ThingTypeFlags4.ROTATABLE);
+            if (thing.isFluidContainer) output.writeByte(MetadataFlags4.FLUID_CONTAINER);
+            if (thing.isFluid) output.writeByte(MetadataFlags4.FLUID);
+            if (thing.isUnpassable) output.writeByte(MetadataFlags4.UNPASSABLE);
+            if (thing.isUnmoveable) output.writeByte(MetadataFlags4.UNMOVEABLE);
+            if (thing.blockMissile) output.writeByte(MetadataFlags4.BLOCK_MISSILE);
+            if (thing.blockPathfind) output.writeByte(MetadataFlags4.BLOCK_PATHFIND);
+            if (thing.pickupable) output.writeByte(MetadataFlags4.PICKUPABLE);
+            if (thing.hangable) output.writeByte(MetadataFlags4.HANGABLE);
+            if (thing.isVertical) output.writeByte(MetadataFlags4.VERTICAL);
+            if (thing.isHorizontal) output.writeByte(MetadataFlags4.HORIZONTAL);
+            if (thing.rotatable) output.writeByte(MetadataFlags4.ROTATABLE);
             if (thing.hasLight) {
-                output.writeByte(ThingTypeFlags4.HAS_LIGHT);
+                output.writeByte(MetadataFlags4.HAS_LIGHT);
                 output.writeShort(thing.lightLevel);
                 output.writeShort(thing.lightColor);
             }
-            if (thing.dontHide) output.writeByte(ThingTypeFlags4.DONT_HIDE);
-            if (thing.floorChange) output.writeByte(ThingTypeFlags4.FLOOR_CHANGE);
+            if (thing.dontHide) output.writeByte(MetadataFlags4.DONT_HIDE);
+            if (thing.floorChange) output.writeByte(MetadataFlags4.FLOOR_CHANGE);
             if (thing.hasOffset) {
-                output.writeByte(ThingTypeFlags4.HAS_OFFSET);
+                output.writeByte(MetadataFlags4.HAS_OFFSET);
                 output.writeShort(thing.offsetX);
                 output.writeShort(thing.offsetY);
             }
             if (thing.hasElevation) {
-                output.writeByte(ThingTypeFlags4.HAS_ELEVATION);
+                output.writeByte(MetadataFlags4.HAS_ELEVATION);
                 output.writeShort(thing.elevation);
             }
-            if (thing.isLyingObject) output.writeByte(ThingTypeFlags4.LYING_OBJECT);
-            if (thing.animateAlways) output.writeByte(ThingTypeFlags4.ANIMATE_ALWAYS);
+            if (thing.isLyingObject) output.writeByte(MetadataFlags4.LYING_OBJECT);
+            if (thing.animateAlways) output.writeByte(MetadataFlags4.ANIMATE_ALWAYS);
             if (thing.miniMap) {
-                output.writeByte(ThingTypeFlags4.MINI_MAP);
+                output.writeByte(MetadataFlags4.MINI_MAP);
                 output.writeShort(thing.miniMapColor);
             }
             if (thing.isLensHelp) {
-                output.writeByte(ThingTypeFlags4.LENS_HELP);
+                output.writeByte(MetadataFlags4.LENS_HELP);
                 output.writeShort(thing.lensHelp);
             }
-            if (thing.isFullGround) output.writeByte(ThingTypeFlags4.FULL_GROUND);
-            if (thing.ignoreLook) output.writeByte(ThingTypeFlags4.IGNORE_LOOK);
+            if (thing.isFullGround) output.writeByte(MetadataFlags4.FULL_GROUND);
+            if (thing.ignoreLook) output.writeByte(MetadataFlags4.IGNORE_LOOK);
             output.writeByte(LAST_FLAG); // Close flags
             return true;
         }
@@ -1184,73 +1184,73 @@ package otlib.things
         public static function writeProperties5(thing:ThingType, output:IDataOutput):Boolean
         {
             if (thing.isGround) {
-                output.writeByte(ThingTypeFlags5.GROUND);
+                output.writeByte(MetadataFlags5.GROUND);
                 output.writeShort(thing.groundSpeed);
             } else if (thing.isGroundBorder) {
-                output.writeByte(ThingTypeFlags5.GROUND_BORDER);
+                output.writeByte(MetadataFlags5.GROUND_BORDER);
             } else if (thing.isOnBottom) {
-                output.writeByte(ThingTypeFlags5.ON_BOTTOM);
+                output.writeByte(MetadataFlags5.ON_BOTTOM);
             } else if (thing.isOnTop) {
-                output.writeByte(ThingTypeFlags5.ON_TOP);
+                output.writeByte(MetadataFlags5.ON_TOP);
             }
 
-            if (thing.isContainer) output.writeByte(ThingTypeFlags5.CONTAINER);
-            if (thing.stackable) output.writeByte(ThingTypeFlags5.STACKABLE);
-            if (thing.forceUse) output.writeByte(ThingTypeFlags5.FORCE_USE);
-            if (thing.multiUse) output.writeByte(ThingTypeFlags5.MULTI_USE);
+            if (thing.isContainer) output.writeByte(MetadataFlags5.CONTAINER);
+            if (thing.stackable) output.writeByte(MetadataFlags5.STACKABLE);
+            if (thing.forceUse) output.writeByte(MetadataFlags5.FORCE_USE);
+            if (thing.multiUse) output.writeByte(MetadataFlags5.MULTI_USE);
             if (thing.writable) {
-                output.writeByte(ThingTypeFlags5.WRITABLE);
+                output.writeByte(MetadataFlags5.WRITABLE);
                 output.writeShort(thing.maxTextLength);
             }
             if (thing.writableOnce) {
-                output.writeByte(ThingTypeFlags5.WRITABLE_ONCE);
+                output.writeByte(MetadataFlags5.WRITABLE_ONCE);
                 output.writeShort(thing.maxTextLength);
             }
-            if (thing.isFluidContainer) output.writeByte(ThingTypeFlags5.FLUID_CONTAINER);
-            if (thing.isFluid) output.writeByte(ThingTypeFlags5.FLUID);
-            if (thing.isUnpassable) output.writeByte(ThingTypeFlags5.UNPASSABLE);
-            if (thing.isUnmoveable) output.writeByte(ThingTypeFlags5.UNMOVEABLE);
-            if (thing.blockMissile) output.writeByte(ThingTypeFlags5.BLOCK_MISSILE);
-            if (thing.blockPathfind) output.writeByte(ThingTypeFlags5.BLOCK_PATHFIND);
-            if (thing.pickupable) output.writeByte(ThingTypeFlags5.PICKUPABLE);
-            if (thing.hangable) output.writeByte(ThingTypeFlags5.HANGABLE);
-            if (thing.isVertical) output.writeByte(ThingTypeFlags5.VERTICAL);
-            if (thing.isHorizontal) output.writeByte(ThingTypeFlags5.HORIZONTAL);
-            if (thing.rotatable) output.writeByte(ThingTypeFlags5.ROTATABLE);
+            if (thing.isFluidContainer) output.writeByte(MetadataFlags5.FLUID_CONTAINER);
+            if (thing.isFluid) output.writeByte(MetadataFlags5.FLUID);
+            if (thing.isUnpassable) output.writeByte(MetadataFlags5.UNPASSABLE);
+            if (thing.isUnmoveable) output.writeByte(MetadataFlags5.UNMOVEABLE);
+            if (thing.blockMissile) output.writeByte(MetadataFlags5.BLOCK_MISSILE);
+            if (thing.blockPathfind) output.writeByte(MetadataFlags5.BLOCK_PATHFIND);
+            if (thing.pickupable) output.writeByte(MetadataFlags5.PICKUPABLE);
+            if (thing.hangable) output.writeByte(MetadataFlags5.HANGABLE);
+            if (thing.isVertical) output.writeByte(MetadataFlags5.VERTICAL);
+            if (thing.isHorizontal) output.writeByte(MetadataFlags5.HORIZONTAL);
+            if (thing.rotatable) output.writeByte(MetadataFlags5.ROTATABLE);
             if (thing.hasLight) {
-                output.writeByte(ThingTypeFlags5.HAS_LIGHT);
+                output.writeByte(MetadataFlags5.HAS_LIGHT);
                 output.writeShort(thing.lightLevel);
                 output.writeShort(thing.lightColor);
             }
-            if (thing.dontHide) output.writeByte(ThingTypeFlags5.DONT_HIDE);
-            if (thing.isTranslucent) output.writeByte(ThingTypeFlags5.TRANSLUCENT);
+            if (thing.dontHide) output.writeByte(MetadataFlags5.DONT_HIDE);
+            if (thing.isTranslucent) output.writeByte(MetadataFlags5.TRANSLUCENT);
             if (thing.hasOffset) {
-                output.writeByte(ThingTypeFlags5.HAS_OFFSET);
+                output.writeByte(MetadataFlags5.HAS_OFFSET);
                 output.writeShort(thing.offsetX);
                 output.writeShort(thing.offsetY);
             }
             if (thing.hasElevation) {
-                output.writeByte(ThingTypeFlags5.HAS_ELEVATION);
+                output.writeByte(MetadataFlags5.HAS_ELEVATION);
                 output.writeShort(thing.elevation);
             }
-            if (thing.isLyingObject) output.writeByte(ThingTypeFlags5.LYING_OBJECT);
-            if (thing.animateAlways) output.writeByte(ThingTypeFlags5.ANIMATE_ALWAYS);
+            if (thing.isLyingObject) output.writeByte(MetadataFlags5.LYING_OBJECT);
+            if (thing.animateAlways) output.writeByte(MetadataFlags5.ANIMATE_ALWAYS);
             if (thing.miniMap) {
-                output.writeByte(ThingTypeFlags5.MINI_MAP);
+                output.writeByte(MetadataFlags5.MINI_MAP);
                 output.writeShort(thing.miniMapColor);
             }
             if (thing.isLensHelp) {
-                output.writeByte(ThingTypeFlags5.LENS_HELP);
+                output.writeByte(MetadataFlags5.LENS_HELP);
                 output.writeShort(thing.lensHelp);
             }
-            if (thing.isFullGround) output.writeByte(ThingTypeFlags5.FULL_GROUND);
-            if (thing.ignoreLook) output.writeByte(ThingTypeFlags5.IGNORE_LOOK);
+            if (thing.isFullGround) output.writeByte(MetadataFlags5.FULL_GROUND);
+            if (thing.ignoreLook) output.writeByte(MetadataFlags5.IGNORE_LOOK);
             if (thing.cloth) {
-                output.writeByte(ThingTypeFlags5.CLOTH);
+                output.writeByte(MetadataFlags5.CLOTH);
                 output.writeShort(thing.clothSlot);
             }
             if (thing.isMarketItem) {
-                output.writeByte(ThingTypeFlags5.MARKET_ITEM);
+                output.writeByte(MetadataFlags5.MARKET_ITEM);
                 output.writeShort(thing.marketCategory);
                 output.writeShort(thing.marketTradeAs);
                 output.writeShort(thing.marketShowAs);
@@ -1269,74 +1269,74 @@ package otlib.things
         public static function writeProperties6(thing:ThingType, output:IDataOutput):Boolean
         {
             if (thing.isGround) {
-                output.writeByte(ThingTypeFlags6.GROUND);
+                output.writeByte(MetadataFlags6.GROUND);
                 output.writeShort(thing.groundSpeed);
             } else if (thing.isGroundBorder) {
-                output.writeByte(ThingTypeFlags6.GROUND_BORDER);
+                output.writeByte(MetadataFlags6.GROUND_BORDER);
             } else if (thing.isOnBottom) {
-                output.writeByte(ThingTypeFlags6.ON_BOTTOM);
+                output.writeByte(MetadataFlags6.ON_BOTTOM);
             } else if (thing.isOnTop) {
-                output.writeByte(ThingTypeFlags6.ON_TOP);
+                output.writeByte(MetadataFlags6.ON_TOP);
             }
 
-            if (thing.isContainer) output.writeByte(ThingTypeFlags6.CONTAINER);
-            if (thing.stackable) output.writeByte(ThingTypeFlags6.STACKABLE);
-            if (thing.forceUse) output.writeByte(ThingTypeFlags6.FORCE_USE);
-            if (thing.multiUse) output.writeByte(ThingTypeFlags6.MULTI_USE);
+            if (thing.isContainer) output.writeByte(MetadataFlags6.CONTAINER);
+            if (thing.stackable) output.writeByte(MetadataFlags6.STACKABLE);
+            if (thing.forceUse) output.writeByte(MetadataFlags6.FORCE_USE);
+            if (thing.multiUse) output.writeByte(MetadataFlags6.MULTI_USE);
             if (thing.writable) {
-                output.writeByte(ThingTypeFlags6.WRITABLE);
+                output.writeByte(MetadataFlags6.WRITABLE);
                 output.writeShort(thing.maxTextLength);
             }
             if (thing.writableOnce) {
-                output.writeByte(ThingTypeFlags6.WRITABLE_ONCE);
+                output.writeByte(MetadataFlags6.WRITABLE_ONCE);
                 output.writeShort(thing.maxTextLength);
             }
-            if (thing.isFluidContainer) output.writeByte(ThingTypeFlags6.FLUID_CONTAINER);
-            if (thing.isFluid) output.writeByte(ThingTypeFlags6.FLUID);
-            if (thing.isUnpassable) output.writeByte(ThingTypeFlags6.UNPASSABLE);
-            if (thing.isUnmoveable) output.writeByte(ThingTypeFlags6.UNMOVEABLE);
-            if (thing.blockMissile) output.writeByte(ThingTypeFlags6.BLOCK_MISSILE);
-            if (thing.blockPathfind) output.writeByte(ThingTypeFlags6.BLOCK_PATHFIND);
-            if (thing.noMoveAnimation) output.writeByte(ThingTypeFlags6.NO_MOVE_ANIMATION);
-            if (thing.pickupable) output.writeByte(ThingTypeFlags6.PICKUPABLE);
-            if (thing.hangable) output.writeByte(ThingTypeFlags6.HANGABLE);
-            if (thing.isVertical) output.writeByte(ThingTypeFlags6.VERTICAL);
-            if (thing.isHorizontal) output.writeByte(ThingTypeFlags6.HORIZONTAL);
-            if (thing.rotatable) output.writeByte(ThingTypeFlags6.ROTATABLE);
+            if (thing.isFluidContainer) output.writeByte(MetadataFlags6.FLUID_CONTAINER);
+            if (thing.isFluid) output.writeByte(MetadataFlags6.FLUID);
+            if (thing.isUnpassable) output.writeByte(MetadataFlags6.UNPASSABLE);
+            if (thing.isUnmoveable) output.writeByte(MetadataFlags6.UNMOVEABLE);
+            if (thing.blockMissile) output.writeByte(MetadataFlags6.BLOCK_MISSILE);
+            if (thing.blockPathfind) output.writeByte(MetadataFlags6.BLOCK_PATHFIND);
+            if (thing.noMoveAnimation) output.writeByte(MetadataFlags6.NO_MOVE_ANIMATION);
+            if (thing.pickupable) output.writeByte(MetadataFlags6.PICKUPABLE);
+            if (thing.hangable) output.writeByte(MetadataFlags6.HANGABLE);
+            if (thing.isVertical) output.writeByte(MetadataFlags6.VERTICAL);
+            if (thing.isHorizontal) output.writeByte(MetadataFlags6.HORIZONTAL);
+            if (thing.rotatable) output.writeByte(MetadataFlags6.ROTATABLE);
             if (thing.hasLight) {
-                output.writeByte(ThingTypeFlags6.HAS_LIGHT);
+                output.writeByte(MetadataFlags6.HAS_LIGHT);
                 output.writeShort(thing.lightLevel);
                 output.writeShort(thing.lightColor);
             }
-            if (thing.dontHide) output.writeByte(ThingTypeFlags6.DONT_HIDE);
-            if (thing.isTranslucent) output.writeByte(ThingTypeFlags6.TRANSLUCENT);
+            if (thing.dontHide) output.writeByte(MetadataFlags6.DONT_HIDE);
+            if (thing.isTranslucent) output.writeByte(MetadataFlags6.TRANSLUCENT);
             if (thing.hasOffset) {
-                output.writeByte(ThingTypeFlags6.HAS_OFFSET);
+                output.writeByte(MetadataFlags6.HAS_OFFSET);
                 output.writeShort(thing.offsetX);
                 output.writeShort(thing.offsetY);
             }
             if (thing.hasElevation) {
-                output.writeByte(ThingTypeFlags6.HAS_ELEVATION);
+                output.writeByte(MetadataFlags6.HAS_ELEVATION);
                 output.writeShort(thing.elevation);
             }
-            if (thing.isLyingObject) output.writeByte(ThingTypeFlags6.LYING_OBJECT);
-            if (thing.animateAlways) output.writeByte(ThingTypeFlags6.ANIMATE_ALWAYS);
+            if (thing.isLyingObject) output.writeByte(MetadataFlags6.LYING_OBJECT);
+            if (thing.animateAlways) output.writeByte(MetadataFlags6.ANIMATE_ALWAYS);
             if (thing.miniMap) {
-                output.writeByte(ThingTypeFlags6.MINI_MAP);
+                output.writeByte(MetadataFlags6.MINI_MAP);
                 output.writeShort(thing.miniMapColor);
             }
             if (thing.isLensHelp) {
-                output.writeByte(ThingTypeFlags6.LENS_HELP);
+                output.writeByte(MetadataFlags6.LENS_HELP);
                 output.writeShort(thing.lensHelp);
             }
-            if (thing.isFullGround) output.writeByte(ThingTypeFlags6.FULL_GROUND);
-            if (thing.ignoreLook) output.writeByte(ThingTypeFlags6.IGNORE_LOOK);
+            if (thing.isFullGround) output.writeByte(MetadataFlags6.FULL_GROUND);
+            if (thing.ignoreLook) output.writeByte(MetadataFlags6.IGNORE_LOOK);
             if (thing.cloth) {
-                output.writeByte(ThingTypeFlags6.CLOTH);
+                output.writeByte(MetadataFlags6.CLOTH);
                 output.writeShort(thing.clothSlot);
             }
             if (thing.isMarketItem) {
-                output.writeByte(ThingTypeFlags6.MARKET_ITEM);
+                output.writeByte(MetadataFlags6.MARKET_ITEM);
                 output.writeShort(thing.marketCategory);
                 output.writeShort(thing.marketTradeAs);
                 output.writeShort(thing.marketShowAs);
@@ -1346,11 +1346,11 @@ package otlib.things
                 output.writeShort(thing.marketRestrictLevel);
             }
             if (thing.hasDefaultAction) {
-                output.writeByte(ThingTypeFlags6.DEFAULT_ACTION);
+                output.writeByte(MetadataFlags6.DEFAULT_ACTION);
                 output.writeShort(thing.defaultAction);
             }
             if (thing.usable) {
-                output.writeByte(ThingTypeFlags6.USABLE);
+                output.writeByte(MetadataFlags6.USABLE);
             }
             output.writeByte(LAST_FLAG); // Close flags
             return true;

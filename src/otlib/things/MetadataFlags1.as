@@ -27,15 +27,15 @@ package otlib.things
     /**
      * The ThingTypeFlags1 class defines the valid constant values for the client versions 7.10 - 7.30
      */
-    public final class ThingTypeFlags1
+    public final class MetadataFlags1
     {
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
 
-        public function ThingTypeFlags1()
+        public function MetadataFlags1()
         {
-            throw new AbstractClassError(ThingTypeFlags1);
+            throw new AbstractClassError(MetadataFlags1);
         }
 
         //--------------------------------------------------------------------------
@@ -69,5 +69,6 @@ package otlib.things
         public static const LYING_OBJECT:uint = 0x18;
         public static const ANIMATE_ALWAYS:uint = 0x19;
         public static const LENS_HELP:uint = 0x1A;
+        public static const LAST_FLAG:uint = 0xFF;
     }
 }
