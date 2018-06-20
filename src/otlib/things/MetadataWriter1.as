@@ -61,6 +61,9 @@ package otlib.things
             if (type.animateAlways)
                 writeByte(MetadataFlags1.ANIMATE_ALWAYS);
 
+            if (type.topEffect && type.category == ThingCategory.EFFECT)
+                writeByte(MetadataFlags1.TOP_EFFECT);
+
             writeByte(MetadataFlags1.LAST_FLAG);
             return true;
         }
@@ -159,6 +162,12 @@ package otlib.things
                 writeByte(MetadataFlags1.LENS_HELP);
                 writeShort(type.lensHelp);
             }
+
+            if (type.wrappable)
+                writeByte(MetadataFlags1.WRAPPABLE);
+
+            if (type.unwrappable)
+                writeByte(MetadataFlags1.UNWRAPPABLE);
 
             writeByte(MetadataFlags1.LAST_FLAG);
 

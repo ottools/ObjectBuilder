@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<application xmlns="http://ns.adobe.com/air/application/25.0">
+<application xmlns="http://ns.adobe.com/air/application/29.0">
 
 	<id>com.mignari.ObjectBuilder</id>
 	<filename>ObjectBuilder</filename>
@@ -11,7 +11,7 @@
 	</copyright>
 
 	<initialWindow>
-		<content>[This value will be overwritten by Flash Builder in the output app.xml]</content>
+		<content>ObjectBuilder.swf</content>
 		<autoOrients>false</autoOrients>
 		<fullScreen>false</fullScreen>
 		<visible>false</visible>

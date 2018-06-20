@@ -263,7 +263,7 @@ THE SOFTWARE.
                 if (!this.thingData || !info) return;
 
                 var category:String = thingData.category;
-                var visible:Boolean = (category == ThingCategory.ITEM || category == ThingCategory.OUTFIT);
+                var visible:Boolean = category != ThingCategory.MISSILE;
                 flagsGroupBox.visible = visible;
                 flagsGroupBox.includeInLayout = visible;
 
@@ -356,6 +356,14 @@ THE SOFTWARE.
                 actionGroupCheckBox.includeInLayout = visible;
                 usableCheckBox.visible = visible;
                 usableCheckBox.includeInLayout = visible;
+
+                visible = (info.clientVersion >= 710 && info.clientVersion <= 792) ||  (info.clientVersion >= 1092);
+                wrappableCheckBox.visible = isItem && visible;
+                wrappableCheckBox.includeInLayout = isItem && visible;
+                unwrappableCheckBox.visible = isItem && visible;
+                unwrappableCheckBox.includeInLayout = isItem && visible;
+                topEffectCheckBox.visible = visible && category == ThingCategory.EFFECT;
+                topEffectCheckBox.includeInLayout = visible && category == ThingCategory.EFFECT;
 
                 visible = (_filesInfo.improvedAnimations && _thingBinding.frames > 1 && (category == ThingCategory.ITEM || category == ThingCategory.EFFECT));
                 animationGroupBox.visible = visible;
@@ -1814,6 +1822,18 @@ THE SOFTWARE.
                                         label="@Resource(key='floorChange', bundle='strings')"
                                         selected="{_thingBinding.floorChange}"
                                         change="{_thingBinding.floorChange = floorChangeCheckBox.selected;}"/>
+                            <s:CheckBox id="wrappableCheckBox"
+                                        label="@Resource(key='wrappable', bundle='strings')"
+                                        selected="{_thingBinding.wrappable}"
+                                        change="{_thingBinding.wrappable = wrappableCheckBox.selected;}"/>
+                            <s:CheckBox id="unwrappableCheckBox"
+                                        label="@Resource(key='unwrappable', bundle='strings')"
+                                        selected="{_thingBinding.unwrappable}"
+                                        change="{_thingBinding.unwrappable = unwrappableCheckBox.selected;}"/>
+                            <s:CheckBox id="topEffectCheckBox"
+                                        label="@Resource(key='topEffect', bundle='strings')"
+                                        selected="{_thingBinding.topEffect}"
+                                        change="{_thingBinding.topEffect = topEffectCheckBox.selected;}"/>
                         </s:VGroup>
                     </nail:GroupBox>
                 </s:Group>

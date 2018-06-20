@@ -24,9 +24,9 @@ package otlib.things
 {
     import flash.utils.IDataInput;
     import flash.utils.IDataOutput;
-
+    
     import nail.errors.AbstractClassError;
-
+    
     import otlib.animation.FrameDuration;
     import otlib.resources.Resources;
     import otlib.sprites.Sprite;
@@ -151,6 +151,15 @@ package otlib.things
                         thing.isLensHelp = true;
                         thing.lensHelp = input.readUnsignedShort();
                         break;
+                    case MetadataFlags1.WRAPPABLE:
+                        thing.wrappable = true;
+                        break;
+                    case MetadataFlags1.UNWRAPPABLE:
+                        thing.unwrappable = true;
+                        break;
+                    case MetadataFlags1.TOP_EFFECT:
+                        thing.topEffect = true;
+                        break;
                     default:
                         throw new Error(Resources.getString(
                             "readUnknownFlag",
@@ -273,6 +282,15 @@ package otlib.things
                     case MetadataFlags2.LENS_HELP:
                         thing.isLensHelp = true;
                         thing.lensHelp = input.readUnsignedShort();
+                        break;
+                    case MetadataFlags2.WRAPPABLE:
+                        thing.wrappable = true;
+                        break;
+                    case MetadataFlags2.UNWRAPPABLE:
+                        thing.unwrappable = true;
+                        break;
+                    case MetadataFlags2.TOP_EFFECT:
+                        thing.topEffect = true;
                         break;
                     default:
                         throw new Error(Resources.getString(
@@ -834,6 +852,15 @@ package otlib.things
                         thing.hasDefaultAction = true;
                         thing.defaultAction = input.readUnsignedShort();
                         break;
+                    case MetadataFlags6.WRAPPABLE:
+                        thing.wrappable = true;
+                        break;
+                    case MetadataFlags6.UNWRAPPABLE:
+                        thing.unwrappable = true;
+                        break;
+                    case MetadataFlags6.TOP_EFFECT:
+                        thing.topEffect = true;
+                        break;
                     case MetadataFlags6.USABLE:
                         thing.usable = true;
                         break;
@@ -968,6 +995,9 @@ package otlib.things
                 output.writeByte(MetadataFlags1.LENS_HELP);
                 output.writeShort(thing.lensHelp);
             }
+            if (thing.wrappable) output.writeByte(MetadataFlags1.WRAPPABLE);
+            if (thing.unwrappable) output.writeByte(MetadataFlags1.UNWRAPPABLE);
+            if (thing.topEffect && thing.category == ThingCategory.EFFECT) output.writeByte(MetadataFlags1.TOP_EFFECT);
             output.writeByte(LAST_FLAG); // Close flags
             return true;
         }
@@ -1033,6 +1063,9 @@ package otlib.things
                 output.writeByte(MetadataFlags2.LENS_HELP);
                 output.writeShort(thing.lensHelp);
             }
+            if (thing.wrappable) output.writeByte(MetadataFlags2.WRAPPABLE);
+            if (thing.unwrappable) output.writeByte(MetadataFlags2.UNWRAPPABLE);
+            if (thing.topEffect && thing.category == ThingCategory.EFFECT) output.writeByte(MetadataFlags2.TOP_EFFECT);
             output.writeByte(LAST_FLAG); // Close flags
             return true;
         }
@@ -1349,6 +1382,9 @@ package otlib.things
                 output.writeByte(MetadataFlags6.DEFAULT_ACTION);
                 output.writeShort(thing.defaultAction);
             }
+            if (thing.wrappable) output.writeByte(MetadataFlags6.WRAPPABLE);
+            if (thing.unwrappable) output.writeByte(MetadataFlags6.UNWRAPPABLE);
+            if (thing.topEffect && thing.category == ThingCategory.EFFECT) output.writeByte(MetadataFlags6.TOP_EFFECT);
             if (thing.usable) {
                 output.writeByte(MetadataFlags6.USABLE);
             }

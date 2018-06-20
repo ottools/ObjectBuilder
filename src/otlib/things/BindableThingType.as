@@ -240,6 +240,15 @@ package otlib.things
         public var hasDefaultAction:Boolean;
 
         [Bindable]
+        public var wrappable:Boolean;
+
+        [Bindable]
+        public var unwrappable:Boolean;
+
+        [Bindable]
+        public var topEffect:Boolean;
+
+        [Bindable]
         public var defaultAction:uint;
 
         [Bindable]
@@ -503,6 +512,9 @@ package otlib.things
             PROPERTY_LABEL["marketRestrictLevel"] = resource.getString("strings", "level");
             PROPERTY_LABEL["hasDefaultAction"] = resource.getString("strings", "hasAction");
             PROPERTY_LABEL["defaultAction"] = resource.getString("strings", "actionType");
+            PROPERTY_LABEL["wrappable"] = resource.getString("strings", "wrappable");
+            PROPERTY_LABEL["unwrappable"] = resource.getString("strings", "unwrappable");
+            PROPERTY_LABEL["topEffect"] = resource.getString("strings", "topEffect");
             PROPERTY_LABEL["usable"] = resource.getString("strings", "usable");
             PROPERTY_LABEL["spriteIndex"] = resource.getString("strings", "spriteId");
             PROPERTY_LABEL["hasCharges"] = resource.getString("strings", "hasCharges");

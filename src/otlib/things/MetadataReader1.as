@@ -175,6 +175,18 @@ package otlib.things
                         type.lensHelp = readUnsignedShort();
                         break;
 
+                    case MetadataFlags1.WRAPPABLE:
+                        type.wrappable = true;
+                        break;
+
+                    case MetadataFlags1.UNWRAPPABLE:
+                        type.unwrappable = true;
+                        break;
+
+                    case MetadataFlags1.TOP_EFFECT:
+                        type.topEffect = true;
+                        break;
+
                     default:
                         throw new Error(Resources.getString("readUnknownFlag",
                                                             flag.toString(16),
