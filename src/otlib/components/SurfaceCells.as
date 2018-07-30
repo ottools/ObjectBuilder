@@ -23,6 +23,8 @@
 package otlib.components
 {
     import flash.display.BlendMode;
+    import flash.display.CapsStyle;
+    import flash.display.LineScaleMode;
 
     import mx.core.UIComponent;
 
@@ -37,6 +39,7 @@ package otlib.components
         private var _rows:uint;
         private var _cellWidth:uint;
         private var _cellHeight:uint;
+        private var _subdivisions:Boolean;
 
         //--------------------------------------
         // Getters / Setters
@@ -82,6 +85,15 @@ package otlib.components
             }
         }
 
+        public function get subdivisions():Boolean { return _subdivisions; }
+        public function set subdivisions(value:Boolean):void
+        {
+            if (_subdivisions != value) {
+                _subdivisions = value;
+                invalidateDisplayList();
+            }
+        }
+
         //--------------------------------------------------------------------------
         // METHODS
         //--------------------------------------------------------------------------
@@ -110,12 +122,30 @@ package otlib.components
         {
             super.updateDisplayList(unscaledWidth, unscaledHeight);
 
+            var halfWidth:Number = _cellWidth / 2;
+            var halfHeight:Number = _cellHeight / 2;
+            var x:Number;
+            var y:Number;
+
             graphics.clear();
             for (var c:uint = 0; c < _columns; c++) {
                 for (var r:uint = 0; r < _rows; r++) {
+                    x = c * _cellWidth;
+                    y = r * _cellHeight;
+
                     graphics.lineStyle(0.1, 0);
                     graphics.beginFill(0, 0);
-                    graphics.drawRect(c * _cellWidth, r * _cellHeight, _cellWidth, _cellHeight);
+                    graphics.drawRect(x, y, _cellWidth, _cellHeight);
+
+                    if (_subdivisions) {
+                        graphics.endFill();
+                        graphics.lineStyle(0.1, 0, 0.3);
+                        graphics.moveTo(x + halfWidth, y);
+                        graphics.lineTo(x + halfWidth, y + _cellHeight);
+                        graphics.moveTo(x, y + halfHeight);
+                        graphics.lineTo(x + _cellWidth, y + halfHeight);
+                        graphics.endFill();
+                    }
                 }
             }
             graphics.endFill();

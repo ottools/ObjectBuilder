@@ -175,6 +175,7 @@ THE SOFTWARE.
                 _surfaceCells.cellHeight = size;
                 _surfaceCells.columns = columnsStepper.value;
                 _surfaceCells.rows = rowsStepper.value;
+                _surfaceCells.subdivisions = subdivisionsCheckBox.selected;
 
                 var sw:uint = (size * _surfaceCells.columns);
                 var sh:uint = (size * _surfaceCells.rows);
@@ -339,11 +340,14 @@ THE SOFTWARE.
                     this.maximize();
                 else
                     WindowUtil.centralizeWindowOnScreen(this);
+
+                subdivisionsCheckBox.selected = _settings.subdivisions;
             }
 
             private function saveSettings():void
             {
                 _settings.maximized = (nativeWindow.displayState == NativeWindowDisplayState.MAXIMIZED);
+                _settings.subdivisions = subdivisionsCheckBox.selected;
                 _settingsManager.saveSettings(_settings);
             }
 
@@ -519,6 +523,11 @@ THE SOFTWARE.
             {
                 _surfaceCells.x = Math.round(_surfaceCells.x);
                 _surfaceCells.y = Math.round(_surfaceCells.y);
+            }
+
+            protected function subdivisionsCheckBoxChangeHandler(event:Event):void
+            {
+                _surfaceCells.subdivisions = subdivisionsCheckBox.selected;
             }
 
             protected function offsetStepperChangeHandler(event:Event):void
@@ -720,6 +729,11 @@ THE SOFTWARE.
                                       paddingTop="10"
                                       paddingBottom="10"/>
                 </nail:layout>
+
+                <s:CheckBox id="subdivisionsCheckBox" label="Subdivisions"
+                            change="subdivisionsCheckBoxChangeHandler(event)"/>
+
+                <s:Spacer height="10" />
 
                 <s:TileGroup width="100%"
                              requestedColumnCount="2"
