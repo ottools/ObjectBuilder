@@ -825,12 +825,10 @@ THE SOFTWARE.
         ]]>
     </fx:Script>
 
-    <nail:TabNavigator width="100%"
-                       height="100%"
+    <nail:TabNavigator width="100%" height="100%"
                        change="{setPreviewMode(false);}">
         <s:NavigatorContent label="@Resource(key='texture', bundle='strings')"
-                            width="100%"
-                            height="100%">
+                            width="100%" height="100%">
             <s:Scroller width="100%" height="100%">
                 <s:Group>
                     <s:layout>
@@ -875,8 +873,7 @@ THE SOFTWARE.
                                                 icon="@Embed('../../../assets/icons/arrow_right.png')"
                                                 click="directionButtonClickHandler(event)"/>
                                 <otlib:DirectionButton id="bottomRightButton"
-                                                bottom="0"
-                                                right="0"
+                                                bottom="0" right="0"
                                                 direction="{Direction.SOUTHEAST}"
                                                 toolTip="@Resource(key='southeast', bundle='strings')"
                                                 icon="@Embed('../../../assets/icons/arrow_bottom_right.png')"
@@ -901,8 +898,7 @@ THE SOFTWARE.
                                                 click="directionButtonClickHandler(event)"/>
                             </s:Group>
 
-                            <s:Group verticalCenter="0"
-                                     horizontalCenter="0">
+                            <s:Group verticalCenter="0" horizontalCenter="0">
                                 <s:Rect width="{bitmapView.width}"
                                         height="{bitmapView.height}"
                                         visible="{bitmapView.visible}">
@@ -941,8 +937,7 @@ THE SOFTWARE.
                                      minWidth="40"/>
 
                             <otlib:PlayButton id="playAnimationButton"
-                                              width="20"
-                                              height="20"
+                                              width="20" height="20"
                                               click="playAnimationButtonClickHandler(event)"/>
                         </s:HGroup>
 
@@ -1166,10 +1161,8 @@ THE SOFTWARE.
             </s:Scroller>
         </s:NavigatorContent>
         <s:NavigatorContent label="@Resource(key='properties', bundle='strings')"
-                            width="100%"
-                            height="100%">
-            <s:Scroller width="100%"
-                        height="100%">
+                            width="100%" height="100%">
+            <s:Scroller width="100%" height="100%">
                 <s:Group>
                     <s:layout>
                         <s:VerticalLayout padding="10" gap="10"/>
@@ -1181,8 +1174,7 @@ THE SOFTWARE.
                                         width="100%"
                                         selected="{_thingBinding.isGround}"
                                         change="{_thingBinding.isGround = groundGroupCheckBox.selected;}">
-                        <s:Group width="100%"
-                                 height="100%"
+                        <s:Group width="100%" height="100%"
                                  enabled="{groundGroupCheckBox.selected}">
                             <s:layout>
                                 <s:HorizontalLayout padding="10" verticalAlign="middle" horizontalAlign="right"/>
@@ -1205,8 +1197,7 @@ THE SOFTWARE.
                                         width="100%"
                                         selected="{_thingBinding.hasLight}"
                                         change="{_thingBinding.hasLight = hasLigthGroupCheckBox.selected;}">
-                        <s:Group width="100%"
-                                 height="100%"
+                        <s:Group width="100%" height="100%"
                                  enabled="{hasLigthGroupCheckBox.selected}">
                             <s:layout>
                                 <s:VerticalLayout padding="10"/>
@@ -1315,7 +1306,8 @@ THE SOFTWARE.
                                         width="100%"
                                         selected="{_thingBinding.hasElevation}"
                                         change="{_thingBinding.hasElevation = hasElevationGroupCheckBox.selected;}">
-                        <s:Group width="100%" height="100%"
+                        <s:Group width="100%"
+                                 height="100%"
                                  enabled="{hasElevationGroupCheckBox.selected}">
                             <s:layout>
                                 <s:HorizontalLayout padding="10" verticalAlign="middle" horizontalAlign="right"/>
@@ -1343,12 +1335,7 @@ THE SOFTWARE.
                                  height="100%"
                                  enabled="{equipGroupCheckBox.selected}">
                             <s:layout>
-                                <s:HorizontalLayout paddingLeft="10"
-                                                    paddingRight="45"
-                                                    paddingTop="10"
-                                                    paddingBottom="10"
-                                                    verticalAlign="middle"
-                                                    horizontalAlign="right"/>
+                                <s:HorizontalLayout padding="10" verticalAlign="middle" horizontalAlign="right"/>
                             </s:layout>
                             <s:Label text="{resourceManager.getString('strings', 'clothSlot') + ':'}"
                                      minWidth="60"
@@ -1683,8 +1670,7 @@ THE SOFTWARE.
                         </s:VGroup>
 
                         <s:VGroup id="flagsRightColumn"
-                                  width="100%"
-                                  height="100%">
+                                  width="100%" height="100%">
 
                             <s:CheckBox id="noMoveAnimationCheckBox"
                                         label="@Resource(key='noMoveAnimation', bundle='strings')"
