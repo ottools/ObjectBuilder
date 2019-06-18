@@ -830,15 +830,10 @@ THE SOFTWARE.
         <s:NavigatorContent label="@Resource(key='texture', bundle='strings')"
                             width="100%"
                             height="100%">
-            <s:Scroller width="100%"
-                        height="100%">
+            <s:Scroller width="100%" height="100%">
                 <s:Group>
                     <s:layout>
-                        <s:VerticalLayout paddingLeft="10"
-                                          paddingRight="10"
-                                          paddingTop="10"
-                                          paddingBottom="10"
-                                          gap="10"/>
+                        <s:VerticalLayout padding="10" gap="10"/>
                     </s:layout>
 
                     <!-- appearance group -->
@@ -847,11 +842,7 @@ THE SOFTWARE.
                                    width="100%"
                                    minHeight="470">
                         <nail:layout>
-                            <s:VerticalLayout paddingLeft="10"
-                                              paddingRight="10"
-                                              paddingTop="10"
-                                              paddingBottom="10"
-                                              gap="10"/>
+                            <s:VerticalLayout padding="10" gap="10"/>
                         </nail:layout>
 
                         <s:Group width="100%"
@@ -1065,10 +1056,7 @@ THE SOFTWARE.
 
                         <s:TileGroup id="patternsTileGroup" right="35"
                                      requestedColumnCount="2"
-                                     paddingLeft="10"
-                                     paddingRight="10"
-                                     paddingTop="10"
-                                     paddingBottom="10">
+                                     padding="10">
 
                             <s:Label text="{resourceManager.getString('strings', 'width') + ':'}"
                                      verticalAlign="middle"
@@ -1148,10 +1136,7 @@ THE SOFTWARE.
                         <s:TileGroup id="animationTileGroup"
                                      right="35"
                                      requestedColumnCount="2"
-                                     paddingLeft="10"
-                                     paddingRight="10"
-                                     paddingTop="10"
-                                     paddingBottom="10">
+                                     padding="10">
 
                             <s:Label text="{resourceManager.getString('strings', 'animationMode') + ':'}"
                                      verticalAlign="middle"
@@ -1211,11 +1196,7 @@ THE SOFTWARE.
                         height="100%">
                 <s:Group>
                     <s:layout>
-                        <s:VerticalLayout paddingLeft="10"
-                                          paddingRight="10"
-                                          paddingTop="10"
-                                          paddingBottom="10"
-                                          gap="10"/>
+                        <s:VerticalLayout padding="10" gap="10"/>
                     </s:layout>
 
                     <!-- ground group -->
@@ -1228,12 +1209,7 @@ THE SOFTWARE.
                                  height="100%"
                                  enabled="{groundGroupCheckBox.selected}">
                             <s:layout>
-                                <s:HorizontalLayout paddingLeft="10"
-                                                    paddingRight="10"
-                                                    paddingTop="10"
-                                                    paddingBottom="10"
-                                                    verticalAlign="middle"
-                                                    horizontalAlign="right"/>
+                                <s:HorizontalLayout padding="10" verticalAlign="middle" horizontalAlign="right"/>
                             </s:layout>
                             <s:Label text="{resourceManager.getString('strings', 'groundSpeed') + ':'}"
                                      minWidth="60"
@@ -1257,10 +1233,7 @@ THE SOFTWARE.
                                  height="100%"
                                  enabled="{hasLigthGroupCheckBox.selected}">
                             <s:layout>
-                                <s:VerticalLayout paddingLeft="10"
-                                                  paddingRight="10"
-                                                  paddingTop="10"
-                                                  paddingBottom="10"/>
+                                <s:VerticalLayout padding="10"/>
                             </s:layout>
                             <s:HGroup width="100%"
                                       verticalAlign="middle"
@@ -1303,12 +1276,7 @@ THE SOFTWARE.
                                  height="100%"
                                  enabled="{automapGroupCheckBox.selected}">
                             <s:layout>
-                                <s:HorizontalLayout paddingLeft="10"
-                                                    paddingRight="10"
-                                                    paddingTop="10"
-                                                    paddingBottom="10"
-                                                    verticalAlign="middle"
-                                                    horizontalAlign="right"/>
+                                <s:HorizontalLayout padding="10" verticalAlign="middle" horizontalAlign="right"/>
                             </s:layout>
                             <s:Label text="{resourceManager.getString('strings', 'automapColor') + ':'}"
                                      minWidth="60"
@@ -1334,10 +1302,7 @@ THE SOFTWARE.
                                  height="100%"
                                  enabled="{hasOffsetGroupCheckBox.selected}">
                             <s:layout>
-                                <s:VerticalLayout paddingLeft="10"
-                                                  paddingRight="10"
-                                                  paddingTop="10"
-                                                  paddingBottom="10"/>
+                                <s:VerticalLayout padding="10"/>
                             </s:layout>
                             <s:HGroup width="100%"
                                       verticalAlign="middle"
@@ -1374,16 +1339,10 @@ THE SOFTWARE.
                                         width="100%"
                                         selected="{_thingBinding.hasElevation}"
                                         change="{_thingBinding.hasElevation = hasElevationGroupCheckBox.selected;}">
-                        <s:Group width="100%"
-                                 height="100%"
+                        <s:Group width="100%" height="100%"
                                  enabled="{hasElevationGroupCheckBox.selected}">
                             <s:layout>
-                                <s:HorizontalLayout paddingLeft="10"
-                                                    paddingRight="10"
-                                                    paddingTop="10"
-                                                    paddingBottom="10"
-                                                    verticalAlign="middle"
-                                                    horizontalAlign="right"/>
+                                <s:HorizontalLayout padding="10" verticalAlign="middle" horizontalAlign="right"/>
                             </s:layout>
                             <s:Label text="{resourceManager.getString('strings', 'elevation') + ':'}"
                                      minWidth="60"
@@ -1686,10 +1645,7 @@ THE SOFTWARE.
                                    label="@Resource(key='flags', bundle='strings')"
                                    width="100%">
                         <nail:layout>
-                            <s:HorizontalLayout paddingLeft="10"
-                                                paddingRight="10"
-                                                paddingBottom="10"
-                                                paddingTop="10"/>
+                            <s:HorizontalLayout padding="10"/>
                         </nail:layout>
 
                         <s:VGroup id="flagsLeftColumn"
