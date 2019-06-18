@@ -115,5 +115,12 @@ package otlib.geom
             }
             return null;
         }
+
+        public static function isDiagonal(value:Direction):Boolean
+        {
+            if (!value)
+                return false;
+            return value === SOUTHWEST || value === SOUTHEAST || value === NORTHWEST || value === NORTHEAST;
+        }
     }
 }

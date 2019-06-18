@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2014-2018 Object Builder <https://github.com/ottools/ObjectBuilder>
+*  Copyright (c) 2014-2019 Object Builder <https://github.com/ottools/ObjectBuilder>
 *
 *  Permission is hereby granted, free of charge, to any person obtaining a copy
 *  of this software and associated documentation files (the "Software"), to deal
@@ -203,6 +203,11 @@ s|VSlider
 otlib|AmountNumericStepper
 {
     skinClass: ClassReference("otlib.components.skins.AmountNumericStepperSkin");
+}
+
+otlib|DirectionButton
+{
+    skinClass: ClassReference("otlib.components.skins.DirectionButtonSkin");
 }
 
 otlib|HSIColorPicker
