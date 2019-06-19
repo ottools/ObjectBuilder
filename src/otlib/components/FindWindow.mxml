@@ -439,6 +439,15 @@ THE SOFTWARE.
                         <s:CheckBox id="ignoreLookCheckBox"
                                     label="@Resource(key='ignoreLook', bundle='strings')"
                                     change="{m_bindableThingType.ignoreLook = ignoreLookCheckBox.selected;}"/>
+                        <s:CheckBox id="wrappableCheckBox"
+                                    label="@Resource(key='wrappable', bundle='strings')"
+                                    change="{m_bindableThingType.wrappable = wrappableCheckBox.selected;}"/>
+			<s:CheckBox id="unwrappableCheckBox"
+                                    label="@Resource(key='unwrappable', bundle='strings')"
+                                    change="{m_bindableThingType.unwrappable = unwrappableCheckBox.selected;}"/>			
+			<s:CheckBox id="topEffectCheckBox"
+                                    label="@Resource(key='topEffect', bundle='strings')"
+                                    change="{m_bindableThingType.topEffect = topEffectCheckBox.selected;}"/>
                         <s:CheckBox id="usableCheckBox"
                                     label="@Resource(key='usable', bundle='strings')"
                                     change="{m_bindableThingType.usable = usableCheckBox.selected;}"/>

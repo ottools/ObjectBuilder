@@ -359,6 +359,14 @@ THE SOFTWARE.
                 usableCheckBox.visible = visible;
                 usableCheckBox.includeInLayout = visible;
 
+                visible = (isItem && info.clientVersion >= 700);
+				wrappableCheckBox.visible = isItem;
+                wrappableCheckBox.includeInLayout = isItem;
+				unwrappableCheckBox.visible = isItem;
+                unwrappableCheckBox.includeInLayout = isItem;
+				topEffectCheckBox.visible = isItem;
+                topEffectCheckBox.includeInLayout = isItem;
+
                 updateAnimationControls();
             }
 
@@ -1720,6 +1728,18 @@ THE SOFTWARE.
                                         label="@Resource(key='ignoreLook', bundle='strings')"
                                         selected="{_thingBinding.ignoreLook}"
                                         change="{_thingBinding.ignoreLook = ignoreLookCheckBox.selected;}"/>
+                            <s:CheckBox id="wrappableCheckBox"
+                                        label="@Resource(key='wrappable', bundle='strings')"
+                                        selected="{_thingBinding.wrappable}"
+                                        change="{_thingBinding.wrappable = wrappableCheckBox.selected;}"/>			
+			                <s:CheckBox id="unwrappableCheckBox"
+                                        label="@Resource(key='unwrappable', bundle='strings')"
+                                        selected="{_thingBinding.unwrappable}"
+                                        change="{_thingBinding.unwrappable = unwrappableCheckBox.selected;}"/>
+			                <s:CheckBox id="topEffectCheckBox"
+                                        label="@Resource(key='topEffect', bundle='strings')"
+                                        selected="{_thingBinding.topEffect}"
+                                        change="{_thingBinding.topEffect = topEffectCheckBox.selected;}"/>
                             <s:CheckBox id="usableCheckBox"
                                         label="@Resource(key='usable', bundle='strings')"
                                         selected="{_thingBinding.usable}"

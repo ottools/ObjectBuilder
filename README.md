@@ -1,6 +1,3 @@
-![versions](https://user-images.githubusercontent.com/6242139/36123061-4574e88e-102a-11e8-917a-e075502eafa3.png)
-
-
 What is Object Builder?
 ----
 
@@ -17,7 +14,7 @@ Some features:
 Supported client versions:
 ----
 
-* 7.10 - 10.56
+* 7.10 - 10.98
 
 
 Downloads

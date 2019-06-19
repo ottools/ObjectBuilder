@@ -681,6 +681,15 @@ package otlib.things
                         thing.marketRestrictProfession = input.readUnsignedShort();
                         thing.marketRestrictLevel = input.readUnsignedShort();
                         break;
+                    case ThingTypeFlags6.WRAPPABLE:
+                        thing.wrappable = true;
+                        break;
+                    case ThingTypeFlags6.UNWRAPPABLE:
+                        thing.unwrappable = true;
+                        break;
+                    case ThingTypeFlags6.TOP_EFFECT:
+                        thing.topEffect = true;
+                        break;
                     default:
                         throw new Error(Resources.getString(
                             "readUnknownFlag",
@@ -1349,6 +1358,9 @@ package otlib.things
                 output.writeByte(MetadataFlags6.DEFAULT_ACTION);
                 output.writeShort(thing.defaultAction);
             }
+		if (thing.wrappable) output.writeByte(ThingTypeFlags6.WRAPPABLE);
+		if (thing.unwrappable) output.writeByte(ThingTypeFlags6.UNWRAPPABLE);
+		if (thing.topEffect) output.writeByte(ThingTypeFlags6.TOP_EFFECT);
             if (thing.usable) {
                 output.writeByte(MetadataFlags6.USABLE);
             }
