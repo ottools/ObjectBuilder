@@ -23,18 +23,20 @@
 package ob.core
 {
     import flash.filesystem.File;
-
+    
     import mx.core.IUIComponent;
     import mx.core.IWindow;
-
+    
     import ob.settings.ObjectBuilderSettings;
-
+    
     import otlib.core.IVersionStorage;
     import otlib.core.Version;
     import otlib.utils.ClientInfo;
 
     public interface IObjectBuilder extends IUIComponent, IWindow
     {
+        function get locked():Boolean;
+
         function get settings():ObjectBuilderSettings;
         function get versionStorage():IVersionStorage;
         function get version():Version;

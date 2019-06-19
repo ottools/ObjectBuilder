@@ -122,9 +122,9 @@ THE SOFTWARE.
             import ob.commands.things.UpdateThingCommand;
             import ob.components.AboutWindow;
             import ob.components.CompileFilesWindow;
+            import ob.components.CreateAssetsWindow;
             import ob.components.ErrorWindow;
             import ob.components.MergeFilesWindow;
-            import ob.components.CreateAssetsWindow;
             import ob.components.OpenAssetsWindow;
             import ob.components.PreferencesWindow;
             import ob.components.SplashScreen;
@@ -172,6 +172,7 @@ THE SOFTWARE.
             // PROPERTIES
             //--------------------------------------------------------------------------
 
+            private var _locked:Boolean;
             private var _creationComplete:Boolean;
             private var _invokeArgs:Array;
             private var _communicator:IWorkerCommunicator;
@@ -216,6 +217,7 @@ THE SOFTWARE.
             // Getters / Setters
             //--------------------------------------
 
+            public function get locked():Boolean { return _locked; }
             public function get worker():Worker { return _communicator.worker; }
             public function get running():Boolean { return _communicator.running; }
             public function get background():Boolean { return _communicator.background; }
@@ -302,6 +304,10 @@ THE SOFTWARE.
 
             public function createNewProject():void
             {
+                if (_locked) return;
+
+                _locked = true;
+
                 var window:CreateAssetsWindow = new CreateAssetsWindow();
                 window.extended = _settings.extended;
                 window.transparency = _settings.transparency;
@@ -311,6 +317,8 @@ THE SOFTWARE.
 
                 function windowCloseHandler(event:Event):void
                 {
+                    _locked = false;
+
                     if (window.detail == DialogDetail.OK)
                     {
                         // TODO: check if it's changed/compiled
@@ -326,6 +334,10 @@ THE SOFTWARE.
 
             public function openProject(directory:File = null):void
             {
+                if (_locked) return;
+
+                _locked = true;
+
                 var window:OpenAssetsWindow = new OpenAssetsWindow();
                 window.clientDirectory = directory || _settings.getLastDirectory();
                 window.extended = _settings.extended;
@@ -336,6 +348,8 @@ THE SOFTWARE.
 
                 function windowCloseHandler(event:Event):void
                 {
+                    _locked = false;
+
                     if (window.detail == DialogDetail.OK)
                     {
                         _settings.setLastDirectory(window.datFile);
@@ -2177,6 +2191,8 @@ THE SOFTWARE.
 
             protected function nativeMenuSelectedHandler(event:MenuEvent):void
             {
+                if (_locked) return;
+
                 switch(event.data)
                 {
                     case Menu.FILE_NEW:
