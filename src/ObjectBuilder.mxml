@@ -418,8 +418,9 @@ THE SOFTWARE.
 
             public function unloadProject():void
             {
-                if (!this.clientLoaded) return;
-                this.clear();
+                if (!clientLoaded) return;
+
+                clear();
                 sendCommand(new UnloadFilesCommand());
             }
 
@@ -633,7 +634,7 @@ THE SOFTWARE.
 
             public function importThingsFromFiles(list:Vector.<PathHelper>):void
             {
-                if (!this.clientLoaded || !list || list.length == 0) return;
+                if (!clientLoaded || !list || list.length == 0) return;
                 sendCommand(new ImportThingsFromFilesCommand(list));
             }
 
@@ -645,7 +646,7 @@ THE SOFTWARE.
                                          transparentBackground:Boolean,
                                          jpegQuality:uint):void
             {
-                if (!this.clientLoaded || !fileDataList || fileDataList.length == 0 || isNullOrEmpty(category) || !clientVersion) return;
+                if (!clientLoaded || !fileDataList || fileDataList.length == 0 || isNullOrEmpty(category) || !clientVersion) return;
                 var length:uint = fileDataList.length;
                 var list:Vector.<PathHelper> = new Vector.<PathHelper>(length, true);
                 for (var i:uint = 0; i < length; i++) {
@@ -656,45 +657,45 @@ THE SOFTWARE.
 
             public function replaceThings(list:Vector.<ThingData>):void
             {
-                if (!this.clientLoaded || !list || list.length == 0) return;
+                if (!clientLoaded || !list || list.length == 0) return;
                 sendCommand(new ReplaceThingsCommand(list));
             }
 
             public function duplicateThings(ids:Vector.<uint>, category:String):void
             {
-                if (!this.clientLoaded || !ids || ids.length == 0 || isNullOrEmpty(category)) return;
+                if (!clientLoaded || !ids || ids.length == 0 || isNullOrEmpty(category)) return;
                 sendCommand(new DuplicateThingCommand(ids, category));
             }
 
             public function replaceThingsFromFiles(list:Vector.<PathHelper>):void
             {
-                if (!this.clientLoaded || !list || list.length == 0) return;
+                if (!clientLoaded || !list || list.length == 0) return;
                 sendCommand(new ReplaceThingsFromFilesCommand(list));
             }
 
             public function removeThing(thing:ThingType, removeSprites:Boolean = false):void
             {
-                if (this.clientLoaded && thing) {
+                if (clientLoaded && thing) {
                     sendCommand(new RemoveThingCommand(Vector.<uint>([thing.id]), thing.category, removeSprites));
                 }
             }
 
             public function removeThings(list:Vector.<uint>, category:String, removeSprites:Boolean = false):void
             {
-                if (this.clientLoaded && list && !isNullOrEmpty(category)) {
+                if (clientLoaded && list && !isNullOrEmpty(category)) {
                     sendCommand(new RemoveThingCommand(list, category, removeSprites));
                 }
             }
 
             public function importSprites(list:Vector.<ByteArray>):void
             {
-                if (!this.clientLoaded || !list || list.length == 0) return;
+                if (!clientLoaded || !list || list.length == 0) return;
                 sendCommand(new ImportSpritesCommand(list));
             }
 
             public function importSpritesFromFiles(list:Vector.<PathHelper>):void
             {
-                if (!this.clientLoaded || !list || list.length == 0) return;
+                if (!clientLoaded || !list || list.length == 0) return;
                 sendCommand(new ImportSpritesFromFileCommand(list));
             }
 
@@ -702,7 +703,7 @@ THE SOFTWARE.
                                           transparentBackground:Boolean,
                                           jpegQuality:uint):void
             {
-                if (!this.clientLoaded || !fileDataList || fileDataList.length == 0) return;
+                if (!clientLoaded || !fileDataList || fileDataList.length == 0) return;
                 var length:uint = fileDataList.length;
                 var list:Vector.<PathHelper> = new Vector.<PathHelper>(length, true);
                 for (var i:uint = 0; i < length; i++) {
@@ -713,33 +714,33 @@ THE SOFTWARE.
 
             public function replaceSprite(id:uint, bitmap:BitmapData):void
             {
-                if (!this.clientLoaded || id == 0 || !bitmap) return;
+                if (!clientLoaded || id == 0 || !bitmap) return;
                 var spriteData:SpriteData = SpriteData.createSpriteData(id, bitmap.getPixels(bitmap.rect));
                 sendCommand(new ReplaceSpritesCommand(Vector.<SpriteData>([spriteData])));
             }
 
             public function replaceSprites(sprites:Vector.<SpriteData>):void
             {
-                if (!this.clientLoaded || !sprites || sprites.length == 0) return;
+                if (!clientLoaded || !sprites || sprites.length == 0) return;
                 sendCommand(new ReplaceSpritesCommand(sprites));
             }
 
             public function replaceSpritesFromFiles(list:Vector.<PathHelper>):void
             {
-                if (!this.clientLoaded || !list || list.length == 0) return;
+                if (!clientLoaded || !list || list.length == 0) return;
                 sendCommand(new ReplaceSpritesFromFilesCommand(list));
             }
 
             public function removeSpritesIds(sprites:Vector.<uint>):void
             {
-                if (!this.clientLoaded || !sprites || sprites.length == 0) return;
+                if (!clientLoaded || !sprites || sprites.length == 0) return;
                 sprites.sort(Array.NUMERIC | Array.DESCENDING);
                 sendCommand(new RemoveSpritesCommand(sprites));
             }
 
             public function removeSprites(sprites:Vector.<SpriteData>):void
             {
-                if (!this.clientLoaded || !sprites || sprites.length == 0) return;
+                if (!clientLoaded || !sprites || sprites.length == 0) return;
                 var length:uint = sprites.length;
                 var list:Vector.<uint> = new Vector.<uint>(length, true);
                 for (var i:uint = 0; i < length; i++) {
@@ -761,8 +762,8 @@ THE SOFTWARE.
 
             public function saveThingChanges():void
             {
-                if (this.clientLoaded && this.thingData && this.thingTypeEditor.changed) {
-                    if (this.thingTypeEditor.saveChanges()) {
+                if (clientLoaded && thingData && thingTypeEditor.changed) {
+                    if (thingTypeEditor.saveChanges()) {
                         sendCommand(new UpdateThingCommand(thingTypeEditor.thingData, true));
                     }
                 }
@@ -1148,7 +1149,7 @@ THE SOFTWARE.
             private function selectSprite(id:uint):void
             {
                 // Return if id is current selected.
-                if (!this.clientLoaded || this.spritesList.selectedId == id)  return;
+                if (!clientLoaded || spritesList.selectedId == id)  return;
 
                 // Search index if id is in range of loaded list.
                 if (id >= spritesList.minId && id <= spritesList.maxId) {
@@ -1162,7 +1163,7 @@ THE SOFTWARE.
 
             private function onCopySprite():void
             {
-                if (!this.clientLoaded) return;
+                if (!clientLoaded) return;
 
                 var data:SpriteData = spritesList.selectedSprite;
                 if (data) {
@@ -1174,7 +1175,7 @@ THE SOFTWARE.
 
             private function onPasteSprite():void
             {
-                if (!this.clientLoaded) return;
+                if (!clientLoaded) return;
 
                 if (Clipboard.generalClipboard.hasFormat(ClipboardFormats.BITMAP_FORMAT)) {
                     var bitmap:BitmapData = BitmapData(Clipboard.generalClipboard.getData(ClipboardFormats.BITMAP_FORMAT));
@@ -1284,7 +1285,7 @@ THE SOFTWARE.
 
             private function getMaxThingId():uint
             {
-                if (this.clientLoaded)
+                if (clientLoaded)
                 {
                     switch(currentCategory)
                     {
@@ -1321,8 +1322,7 @@ THE SOFTWARE.
                     }
 
                     thingView.play();
-
-                    this.currentCategory = thingData.category;
+                    currentCategory = thingData.category;
 
                     var id:uint = thingData.id;
                     thingStepper.minimum = getMinThingId();
@@ -1359,7 +1359,9 @@ THE SOFTWARE.
                     _datSprProgressBar = new DatSprProgressBar();
                     _datSprProgressBar.title = title;
                 }
+
                 _datSprProgressBar.open();
+                _locked = true;
             }
 
             private function hideDatSprProgressBar():void
@@ -1367,6 +1369,7 @@ THE SOFTWARE.
                 if (_datSprProgressBar) {
                     _datSprProgressBar.close();
                     _datSprProgressBar = null;
+                    _locked = false;
                 }
             }
 
@@ -1376,7 +1379,9 @@ THE SOFTWARE.
                     _defaultProgressBar = new DefaultProgressBar();
                     _defaultProgressBar.title = title;
                 }
+
                 _defaultProgressBar.open();
+                _locked = true;
             }
 
             private function hideDefaultProgressBar():void
@@ -1384,6 +1389,7 @@ THE SOFTWARE.
                 if (_defaultProgressBar) {
                     _defaultProgressBar.close();
                     _defaultProgressBar = null;
+                    _locked = false;
                 }
             }
 
@@ -1391,10 +1397,10 @@ THE SOFTWARE.
             {
                 switch(id) {
                     case ProgressBarID.DAT_SPR:
-                        this.showDatSprProgressBar(title);
+                        showDatSprProgressBar(title);
                         break;
                     case ProgressBarID.DEFAULT:
-                        this.showDefaultProgressBar(title);
+                        showDefaultProgressBar(title);
                         break;
                 }
             }
@@ -1403,18 +1409,18 @@ THE SOFTWARE.
             {
                 switch(id) {
                     case ProgressBarID.DAT_SPR:
-                        this.hideDatSprProgressBar();
+                        hideDatSprProgressBar();
                         break;
                     case ProgressBarID.DEFAULT:
-                        this.hideDefaultProgressBar();
+                        hideDefaultProgressBar();
                         break;
                 }
             }
 
             private function logCallback(level:uint, message:String, stack:String, id:uint):void
             {
-                this.hideDatSprProgressBar();
-                this.hideDefaultProgressBar();
+                hideDatSprProgressBar();
+                hideDefaultProgressBar();
 
                 if (level != Log.INFO)
                 {
@@ -1423,7 +1429,7 @@ THE SOFTWARE.
                     openErrorWindow(text);
                 }
                 else
-                    this.appendLog(message);
+                    appendLog(message);
             }
 
             private function progressCallback(id:uint, loaded:uint, total:uint, label:String):void
@@ -1460,7 +1466,7 @@ THE SOFTWARE.
 
             private function onSetCategory(category:String):void
             {
-                if (this.clientLoaded) {
+                if (clientLoaded) {
                     switch(category) {
                         case ThingCategory.ITEM:
                             categoryDropDownList.selectedIndex = 0;
@@ -1547,7 +1553,7 @@ THE SOFTWARE.
 
             protected function creationCompleteHandler(event:FlexEvent):void
             {
-                this.toobar.communicator = _communicator;
+                toobar.communicator = _communicator;
 
                 loadSettings();
                 loadVersions();
@@ -1567,19 +1573,19 @@ THE SOFTWARE.
 
             protected function applicationClosingHandler(event:Event):void
             {
-                this.closeLogWindow();
-                this.closeFinder();
-                this.closeLookGenerator();
-                this.closeObjectViewer();
-                this.closeSlicer();
-                this.closeAnimationEditor();
-                this.saveWindowState();
-                this.saveSettings();
-                this.saveVersions();
+                closeLogWindow();
+                closeFinder();
+                closeLookGenerator();
+                closeObjectViewer();
+                closeSlicer();
+                closeAnimationEditor();
+                saveWindowState();
+                saveSettings();
+                saveVersions();
 
                 _logTarget.writeEnd();
 
-                if (this.clientLoaded && this.clientChanged) {
+                if (clientLoaded && clientChanged) {
                     event.preventDefault();
                     Alert.show(
                         resourceManager.getString("strings", "wantToCompile"),
@@ -1630,9 +1636,10 @@ THE SOFTWARE.
 
             protected function thingListChangeHandler(event:IndexChangeEvent):void
             {
-                if (!this.clientLoaded) return;
+                if (!clientLoaded) return;
+
                 if (thingList.selectedId != 0) {
-                    sendCommand(new GetThingCommand(thingList.selectedId, this.currentCategory));
+                    sendCommand(new GetThingCommand(thingList.selectedId, currentCategory));
                 }
                 editThingButton.enabled = !thingList.multipleSelected;
             }
@@ -1641,16 +1648,16 @@ THE SOFTWARE.
             {
                 switch(event.newIndex) {
                     case 0:
-                        this.currentCategory = ThingCategory.ITEM;
+                        currentCategory = ThingCategory.ITEM;
                         break;
                     case 1:
-                        this.currentCategory = ThingCategory.OUTFIT;
+                        currentCategory = ThingCategory.OUTFIT;
                         break;
                     case 2:
-                        this.currentCategory = ThingCategory.EFFECT;
+                        currentCategory = ThingCategory.EFFECT;
                         break;
                     case 3:
-                        this.currentCategory = ThingCategory.MISSILE;
+                        currentCategory = ThingCategory.MISSILE;
                         break;
                 }
             }
@@ -1662,7 +1669,7 @@ THE SOFTWARE.
                     title = ObUtils.toLocale(event.data.category) + " " + event.data.id;
                 }
 
-                this.updateTitle(title);
+                updateTitle(title);
                 confirmButton.enabled = false;
             }
 
@@ -1674,7 +1681,7 @@ THE SOFTWARE.
                     title = ObUtils.toLocale(event.data.category) + " " + event.data.id;
                 }
 
-                this.updateTitle(title, !thingTypeEditor.changed);
+                updateTitle(title, !thingTypeEditor.changed);
 
                 confirmButton.enabled = thingTypeEditor.changed;
 
@@ -1696,14 +1703,14 @@ THE SOFTWARE.
 
             protected function thingStepperChangeHandler(event:Event):void
             {
-                if (this.clientLoaded && this.thingData) {
-                    sendCommand(new GetThingCommand(thingStepper.value, this.currentCategory));
+                if (clientLoaded && thingData) {
+                    sendCommand(new GetThingCommand(thingStepper.value, currentCategory));
                 }
             }
 
             protected function replaceThingHandler(event:Event):void
             {
-                if (!this.clientLoaded) return;
+                if (!clientLoaded) return;
 
                 var filter:FileFilter = new FileFilter("Object Builder Data", "*.obd;");
                 var file:File = _settings.getIODirectory() || File.userDirectory;
@@ -1741,7 +1748,7 @@ THE SOFTWARE.
 
             protected function importThingHandler(event:Event):void
             {
-                if (!this.clientLoaded) return;
+                if (!clientLoaded) return;
 
                 var filter:FileFilter = new FileFilter("Object Builder Data", "*.obd;");
                 var file:File = _settings.getIODirectory() || File.userDirectory;
@@ -1769,7 +1776,7 @@ THE SOFTWARE.
 
             protected function exportThingHandler(event:Event):void
             {
-                if (!this.clientLoaded) return;
+                if (!clientLoaded) return;
 
                 var things:Vector.<ThingType> = thingList.selectedThings;
                 if (things.length == 0) return;
@@ -1781,7 +1788,7 @@ THE SOFTWARE.
 
                 var window:ExportWindow = new ExportWindow();
                 window.enableObdFormat = true;
-                window.fileName = this.currentCategory;
+                window.fileName = currentCategory;
                 window.directory = _settings.getIODirectory();
                 window.format = _settings.getLastExportThingFormat();
                 window.version = version;
@@ -1822,7 +1829,8 @@ THE SOFTWARE.
 
             protected function duplicateThingHandler(event:Event):void
             {
-                if (!this.clientLoaded) return;
+                if (!clientLoaded) return;
+
                 var things:Vector.<uint> = thingList.selectedIds;
                 if (things && things.length > 0) {
                     duplicateThings(things, currentCategory);
@@ -1831,10 +1839,10 @@ THE SOFTWARE.
 
             protected function editThingHandler(event:Event):void
             {
-                if (!this.clientLoaded || thingTypeEditor.thingData == this.thingData) return;
+                if (!clientLoaded || thingTypeEditor.thingData == thingData) return;
 
                 if (_settings.autosaveThingChanges) {
-                    this.saveThingChanges();
+                    saveThingChanges();
                 }
 
                 if (thingTypeEditor.thingData != null && thingTypeEditor.changed) {
@@ -1873,19 +1881,19 @@ THE SOFTWARE.
 
             protected function newThingHandler(event:Event):void
             {
-                if (this.clientLoaded) {
-                    if (this.currentCategory) {
-                        sendCommand(new NewThingCommand(this.currentCategory));
+                if (clientLoaded) {
+                    if (currentCategory) {
+                        sendCommand(new NewThingCommand(currentCategory));
                     }
                 }
             }
 
             protected function removeThingHandler(event:Event):void
             {
-                if (this.clientLoaded) {
+                if (clientLoaded) {
                     var selectedIds:Vector.<uint> = thingList.selectedIds;
                     if (selectedIds && selectedIds.length > 0) {
-                        removeThings(selectedIds, this.currentCategory);
+                        removeThings(selectedIds, currentCategory);
                     }
                 }
             }
@@ -1909,7 +1917,7 @@ THE SOFTWARE.
 
             protected function thingDataNativeDragDropHandler(event:NativeDragEvent):void
             {
-                if (!this.clientLoaded) return;
+                if (!clientLoaded) return;
 
                 var clipboard:Clipboard = event.clipboard;
                 if (clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) {
@@ -1942,7 +1950,7 @@ THE SOFTWARE.
 
             protected function thingEditorDragDropHandler(event:NativeDragEvent):void
             {
-                if (!this.clientLoaded) return;
+                if (!clientLoaded) return;
 
                 var clipboard:Clipboard = event.clipboard;
                 if (clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) {
@@ -1984,7 +1992,7 @@ THE SOFTWARE.
 
             protected function replaceSpriteHandler(event:Event):void
             {
-                if (!this.clientLoaded) return;
+                if (!clientLoaded) return;
 
                 var filters:Array = ObUtils.createImagesFileFilter();
                 var file:File = _settings.getIODirectory() || File.userDirectory;
@@ -2025,7 +2033,7 @@ THE SOFTWARE.
 
             protected function importSpriteHandler(event:MouseEvent):void
             {
-                if (!this.clientLoaded) return;
+                if (!clientLoaded) return;
 
                 var filters:Array = ObUtils.createImagesFileFilter();
                 var file:File = _settings.getIODirectory() || File.userDirectory;
@@ -2055,7 +2063,7 @@ THE SOFTWARE.
 
             protected function exportSpriteHandler(event:Event):void
             {
-                if (!this.clientLoaded) return;
+                if (!clientLoaded) return;
 
                 var sprites:Vector.<SpriteData> = spritesList.selectedSprites;
                 if (sprites.length == 0) return;
@@ -2096,20 +2104,20 @@ THE SOFTWARE.
 
             protected function newSpriteButtonClickHandler(event:MouseEvent):void
             {
-                if (this.clientLoaded) {
+                if (clientLoaded) {
                     sendCommand(new NewSpriteCommand());
                 }
             }
 
             protected function removeSpriteHandler(event:Event):void
             {
-                this.removeSpritesIds(spritesList.selectedIds);
+                removeSpritesIds(spritesList.selectedIds);
             }
 
             protected function spritesListChangeHandler(event:IndexChangeEvent):void
             {
-                if (this.clientLoaded) {
-                    spriteStepper.value = this.spritesList.selectedId;
+                if (clientLoaded) {
+                    spriteStepper.value = spritesList.selectedId;
                     var enable:Boolean = !spritesList.multipleSelected;
                     copySpriteButton.enabled = enable;
                     pasteSpriteButton.enabled = enable;
@@ -2118,7 +2126,7 @@ THE SOFTWARE.
 
             protected function spriteStepperChangeHandler(event:Event):void
             {
-                if (this.clientLoaded) {
+                if (clientLoaded) {
                     selectSprite(spriteStepper.value);
                 }
             }
@@ -2135,7 +2143,7 @@ THE SOFTWARE.
 
             protected function spritesListNativeDragDropHandler(event:NativeDragEvent):void
             {
-                if (!this.clientLoaded) return;
+                if (!clientLoaded) return;
 
                 var clipboard:Clipboard = event.clipboard;
                 if (clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) {
@@ -2192,23 +2200,23 @@ THE SOFTWARE.
                 switch(event.data)
                 {
                     case Menu.FILE_NEW:
-                        this.createNewProject();
+                        createNewProject();
                         break;
 
                     case Menu.FILE_OPEN:
-                        this.openProject();
+                        openProject();
                         break;
 
                     case Menu.FILE_COMPILE:
-                        this.compileProject();
+                        compileProject();
                         break;
 
                     case Menu.FILE_COMPILE_AS:
-                        this.compileProjectAs();
+                        compileProjectAs();
                         break;
 
                     case Menu.FILE_CLOSE:
-                        this.unloadProject();
+                        unloadProject();
                         break;
 
                     case Menu.FILE_MERGE:
@@ -2216,67 +2224,67 @@ THE SOFTWARE.
                         break;
 
                     case Menu.FILE_PREFERENCES:
-                        this.openPreferencesWindow();
+                        openPreferencesWindow();
                         break;
 
                     case Menu.FILE_EXIT:
-                        this.close();
+                        close();
                         break;
 
                     case Menu.VIEW_SHOW_PREVIEW:
-                        this.showPreviewPanel = !this.showPreviewPanel;
+                        showPreviewPanel = !showPreviewPanel;
                         break;
 
                     case Menu.VIEW_SHOW_OBJECTS:
-                        this.showThingsPanel = !this.showThingsPanel;
+                        showThingsPanel = !showThingsPanel;
                         break;
 
                     case Menu.VIEW_SHOW_SPRITES:
-                        this.showSpritesPanel = !this.showSpritesPanel;
+                        showSpritesPanel = !showSpritesPanel;
                         break;
 
                     case Menu.TOOLS_FIND:
-                        this.openFinder();
+                        openFinder();
                         break;
 
                     case Menu.TOOLS_LOOK_TYPE_GENERATOR:
-                        this.openLookGenerator();
+                        openLookGenerator();
                         break;
 
                     case Menu.TOOLS_OBJECT_VIEWER:
-                        this.openObjectViewer();
+                        openObjectViewer();
                         break;
 
                     case Menu.TOOLS_SLICER:
-                        this.openSlicer();
+                        openSlicer();
                         break;
 
                     case Menu.TOOLS_ANIMATION_EDITOR:
-                        this.openAnimationEditor();
+                        openAnimationEditor();
                         break;
 
                     case Menu.TOOLS_SPRITES_OPTIMIZER:
-                        this.openSpritesOptimizer();
+                        openSpritesOptimizer();
                         break;
 
                     case Menu.WINDOW_LOG:
-                        this.openLogWindow();
+                        openLogWindow();
                         break;
 
                     case Menu.WINDOW_VERSIONS:
-                        this.openVersionsWindow();
+                        openVersionsWindow();
                         break;
 
                     case Menu.HELP_CONTENTS:
-                        //this.openHelpWindow();
+                        //openHelpWindow();
                         break;
 
                     case Menu.HELP_CHECK_FOR_UPDATES:
-                        this.checkForUpdates();
+                        checkForUpdates();
                         break;
 
                     case Menu.HELP_ABOUT:
-                        this.onAboutApplication();
+                        onAboutApplication();
                         break;
                 }
             }
