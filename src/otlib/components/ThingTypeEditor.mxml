@@ -359,7 +359,20 @@ THE SOFTWARE.
                 usableCheckBox.visible = visible;
                 usableCheckBox.includeInLayout = visible;
 
-                visible = (_filesInfo.improvedAnimations && _thingBinding.frames > 1 && (category == ThingCategory.ITEM || category == ThingCategory.EFFECT));
+                updateAnimationControls();
+            }
+
+            private function updateAnimationControls():void
+            {
+                var category:String = _thingBinding.category;
+                var visible:Boolean = false;
+
+                if (_thingBinding && _filesInfo && _filesInfo.improvedAnimations && _thingBinding.frames > 1) {
+                    if (category == ThingCategory.ITEM || (category == ThingCategory.OUTFIT && _thingBinding.animateAlways)) {
+                        visible = true;
+                    }
+                }
+
                 animationGroupBox.visible = visible;
                 animationGroupBox.includeInLayout = visible;
                 minimumGroup.visible = visible;
@@ -943,12 +956,7 @@ THE SOFTWARE.
                                               click="playAnimationButtonClickHandler(event)"/>
                         </s:HGroup>
 
-                        <s:HGroup id="minimumGroup" width="100%"
-                                  verticalAlign="middle"
-                                  horizontalAlign="right"
-                                  paddingRight="72"
-                                  visible="{_thingBinding.frames > 1}"
-                                  includeInLayout="{_thingBinding.frames > 1}">
+                        <s:HGroup id="minimumGroup" width="100%" horizontalAlign="right" visible="false">
                             <s:Label text="{resourceManager.getString('strings', 'minimumDuration') + ':'}"/>
                             <s:NumericStepper id="minimumNumericStepper"
                                               width="100"
@@ -957,12 +965,7 @@ THE SOFTWARE.
                                               change="minimumNumericStepperChangeHandler(event)"/>
                         </s:HGroup>
 
-                        <s:HGroup id="maximumGroup" width="100%"
-                                  verticalAlign="middle"
-                                  horizontalAlign="right"
-                                  paddingRight="72"
-                                  visible="{_thingBinding.frames > 1}"
-                                  includeInLayout="{_thingBinding.frames > 1}">
+                        <s:HGroup id="maximumGroup" width="100%" verticalAlign="middle" horizontalAlign="right" visible="false">
                             <s:Label text="{resourceManager.getString('strings', 'maximumDuration') + ':'}"/>
                             <s:NumericStepper id="maximumNumericStepper"
                                               width="100"
@@ -1096,7 +1099,7 @@ THE SOFTWARE.
                                               minimum="1"
                                               maximum="60"
                                               value="{_thingBinding.frames}"
-                                              change="{_thingBinding.frames = framesNumericStepper.value; textureUpdate(event);}"/>
+                                              change="{_thingBinding.frames = framesNumericStepper.value; textureUpdate(event); updateAnimationControls();}"/>
                         </s:TileGroup>
                     </mg:GroupBox>
 
@@ -1614,7 +1617,6 @@ THE SOFTWARE.
                         </mg:layout>
 
                         <s:VGroup id="flagsLeftColumn" width="100%" height="100%">
-
                             <s:RadioButton id="commonRadioButton"
                                            label="@Resource(key='isCommon', bundle='strings')"
                                            group="{renderOrder}"/>
@@ -1669,9 +1671,7 @@ THE SOFTWARE.
                                         change="{_thingBinding.blockPathfind = blockPathfindCheckBox.selected;}"/>
                         </s:VGroup>
 
-                        <s:VGroup id="flagsRightColumn"
-                                  width="100%" height="100%">
-
+                        <s:VGroup id="flagsRightColumn" width="100%" height="100%">
                             <s:CheckBox id="noMoveAnimationCheckBox"
                                         label="@Resource(key='noMoveAnimation', bundle='strings')"
                                         selected="{_thingBinding.noMoveAnimation}"
@@ -1711,7 +1711,7 @@ THE SOFTWARE.
                             <s:CheckBox id="animateAlwaysCheckBox"
                                         label="@Resource(key='animateAlways', bundle='strings')"
                                         selected="{_thingBinding.animateAlways}"
-                                        change="{_thingBinding.animateAlways = animateAlwaysCheckBox.selected;}"/>
+                                        change="{_thingBinding.animateAlways = animateAlwaysCheckBox.selected; updateAnimationControls();}"/>
                             <s:CheckBox id="fullGroundCheckBox"
                                         label="@Resource(key='fullGround', bundle='strings')"
                                         selected="{_thingBinding.isFullGround}"
