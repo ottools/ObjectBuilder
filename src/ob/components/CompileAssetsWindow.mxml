@@ -21,26 +21,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009"
-          xmlns:s="library://ns.adobe.com/flex/spark"
-          xmlns:mx="library://ns.adobe.com/flex/mx"
-          xmlns:nail="library://ns.nail.com/naillib"
-          xmlns:otlib="otlib.components.*"
-          width="500"
-          height="350"
-          resizable="false"
-          maximizable="false"
-          minimizable="false"
-          fontSize="11"
-          backgroundColor="0x494949"
-          showStatusBar="false"
-          type="utility"
-          title="@Resource(key='compileClientFiles', bundle='strings')"
-          creationComplete="creationCompleteHandler(event)"
-          closing="windowClosingHandler(event)">
+<mg:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:mg="library://ns.mignari.com/mg"
+                xmlns:otlib="otlib.components.*"
+                width="500"
+                height="350"
+                fontSize="11"
+                title="@Resource(key='compileAssetFiles', bundle='strings')"
+                creationComplete="creationCompleteHandler(event)">
 
     <fx:Script>
         <![CDATA[
+            import com.mignari.skins.PixeledBorderContainerSkin;
             import com.mignari.utils.DialogDetail;
             
             import mx.collections.ArrayCollection;
@@ -135,8 +129,7 @@ THE SOFTWARE.
             public function get improvedAnimations():Boolean { return m_improvedAnimations; }
             public function set improvedAnimations(value:Boolean):void
             {
-                if (value != m_improvedAnimations)
-                {
+                if (value != m_improvedAnimations) {
                     m_improvedAnimations = value;
                     m_improvedAnimationsChanged = true;
                     invalidateProperties();
@@ -208,18 +201,14 @@ THE SOFTWARE.
             private function updateProperties():void
             {
                 var done:Boolean = (m_datFile && m_sprFile && m_version);
-
-                if (done)
-                {
+                if (done) {
                     m_extended = (m_extended || m_version.value >= 960);
                     m_improvedAnimations = (m_improvedAnimations || m_version.value >= 1050);
 
                     extendedCheckBox.enabled = (m_version.value < 960);
                     transparencyCheckBox.enabled = true;
                     improvedAnimationsCheckBox.enabled = (m_version.value < 1050);
-                }
-                else
-                {
+                } else {
                     extendedCheckBox.enabled = false;
                     transparencyCheckBox.enabled = false;
                     improvedAnimationsCheckBox.enabled = false;
@@ -235,7 +224,7 @@ THE SOFTWARE.
             // Event Handlers
             //--------------------------------------
 
-            protected function creationCompleteHandler(event:FlexEvent):void
+            private function creationCompleteHandler(event:FlexEvent):void
             {
                 versionsDropDownList.dataProvider = new ArrayCollection(VersionStorage.getInstance().getList());
                 versionsDropDownList.selectedItem = m_version;
@@ -243,7 +232,7 @@ THE SOFTWARE.
                 focusManager.showFocus();
             }
 
-            protected function browseButtonClickHandler(event:MouseEvent):void
+            private function browseButtonClickHandler(event:MouseEvent):void
             {
                 var path:String = m_clientDirectory ? m_clientDirectory.nativePath : File.userDirectory.nativePath;
                 var dir:File = new File(path);
@@ -256,97 +245,69 @@ THE SOFTWARE.
                 }
             }
 
-            protected function directorChangeHandler(event:FileTextInputEvent):void
+            private function directorChangeHandler(event:FileTextInputEvent):void
             {
                 this.directory = event.file;
             }
 
-            protected function nameTextInputChangeHandler(event:TextOperationEvent):void
+            private function nameTextInputChangeHandler(event:TextOperationEvent):void
             {
                 this.filesName = nameTextInput.text;
             }
 
-            protected function confirmButtonClickHandler(event:MouseEvent):void
+            private function versionsDropDownListChangeHandler(event:IndexChangeEvent):void
+            {
+                version = versionsDropDownList.selectedItem as Version;
+            }
+
+            private function extendedCheckBoxChangeHandler(event:Event):void
+            {
+                extended = extendedCheckBox.selected;
+            }
+
+            private function transparencyCheckBoxChangeHandler(event:Event):void
+            {
+                transparency = transparencyCheckBox.selected;
+            }
+
+            private function improvedAnimationsCheckBoxChangeHandler(event:Event):void
+            {
+                improvedAnimations = improvedAnimationsCheckBox.selected;
+            }
+
+            private function confirmButtonClickHandler(event:MouseEvent):void
             {
                 m_detail = DialogDetail.OK;
-                this.close();
+                close();
             }
 
-            protected function cancelButtonClickHandler(event:MouseEvent):void
+            private function cancelButtonClickHandler(event:MouseEvent):void
             {
                 m_detail = DialogDetail.CANCEL;
-                this.close();
-            }
-
-            protected function windowClosingHandler(event:Event):void
-            {
-                if (m_detail == DialogDetail.CANCEL) {
-                    m_datFile = null;
-                    m_sprFile = null;
-                    m_version = null;
-                }
-            }
-
-            protected function versionsDropDownListChangeHandler(event:IndexChangeEvent):void
-            {
-                this.version = versionsDropDownList.selectedItem as Version;
-            }
-
-            protected function extendedCheckBoxChangeHandler(event:Event):void
-            {
-                this.extended = extendedCheckBox.selected;
-            }
-
-            protected function transparencyCheckBoxChangeHandler(event:Event):void
-            {
-                this.transparency = transparencyCheckBox.selected;
-            }
-
-            protected function improvedAnimationsCheckBoxChangeHandler(event:Event):void
-            {
-                this.improvedAnimations = improvedAnimationsCheckBox.selected;
+                close();
             }
 
         ]]>
     </fx:Script>
 
-    <s:Group width="100%"
-             height="100%">
-        <s:layout>
-            <s:VerticalLayout gap="10"
-                              paddingLeft="10"
-                              paddingRight="10"
-                              paddingTop="10"
-                              paddingBottom="10"
-                              horizontalAlign="right"/>
-        </s:layout>
+    <mg:layout>
+        <s:VerticalLayout />
+    </mg:layout>
 
-        <nail:GroupBox width="100%"
-                       label="{resourceManager.getString('strings', 'name') + ':'}">
-            <nail:layout>
-                <s:HorizontalLayout gap="10"
-                                    verticalAlign="middle"
-                                    horizontalAlign="right"
-                                    paddingLeft="10"
-                                    paddingRight="10"
-                                    paddingTop="10"
-                                    paddingBottom="10"/>
-            </nail:layout>
+    <s:VGroup width="100%" height="100%" gap="10" padding="10">
+        <mg:GroupBox width="100%" label="{resourceManager.getString('strings', 'name') + ':'}">
+            <mg:layout>
+                <s:HorizontalLayout gap="10" verticalAlign="middle" horizontalAlign="right" padding="10"/>
+            </mg:layout>
             <s:TextInput id="nameTextInput"
                          width="100%"
                          change="nameTextInputChangeHandler(event)"/>
-        </nail:GroupBox>
+        </mg:GroupBox>
 
-        <nail:GroupBox width="100%" label="{resourceManager.getString('strings', 'outputFolder') + ':'}">
-            <nail:layout>
-                <s:HorizontalLayout gap="10"
-                                    verticalAlign="middle"
-                                    horizontalAlign="right"
-                                    paddingLeft="10"
-                                    paddingRight="10"
-                                    paddingTop="10"
-                                    paddingBottom="10"/>
-            </nail:layout>
+        <mg:GroupBox width="100%" label="{resourceManager.getString('strings', 'outputFolder') + ':'}">
+            <mg:layout>
+                <s:HorizontalLayout gap="10" verticalAlign="middle" horizontalAlign="right" padding="10"/>
+            </mg:layout>
 
             <otlib:FileTextInput id="directoryTextInput"
                                  left="0"
@@ -357,36 +318,22 @@ THE SOFTWARE.
                       label="@Resource(key='browse', bundle='strings')"
                       height="21"
                       click="browseButtonClickHandler(event)"/>
-        </nail:GroupBox>
+        </mg:GroupBox>
 
-        <nail:GroupBox width="100%" label="@Resource(key='version', bundle='strings')">
-            <nail:layout>
-                <s:HorizontalLayout gap="10"
-                                    paddingLeft="10"
-                                    paddingRight="10"
-                                    paddingTop="10"
-                                    paddingBottom="10"
-                                    verticalAlign="middle"/>
-            </nail:layout>
+        <mg:GroupBox width="100%" label="@Resource(key='version', bundle='strings')">
+            <mg:layout>
+                <s:HorizontalLayout gap="10" padding="10" verticalAlign="middle"/>
+            </mg:layout>
             <s:DropDownList id="versionsDropDownList"
-                            width="100%"
-                            height="21"
+                            width="100%" height="21"
                             change="versionsDropDownListChangeHandler(event)"/>
-        </nail:GroupBox>
+        </mg:GroupBox>
 
         <!-- client options -->
-        <nail:GroupBox width="100%"
-                       label="@Resource(key='options', bundle='strings')">
-
-            <nail:layout>
-                <s:VerticalLayout gap="5"
-                                  verticalAlign="middle"
-                                  horizontalAlign="left"
-                                  paddingLeft="10"
-                                  paddingRight="10"
-                                  paddingTop="10"
-                                  paddingBottom="10"/>
-            </nail:layout>
+        <mg:GroupBox width="100%" label="@Resource(key='options', bundle='strings')">
+            <mg:layout>
+                <s:VerticalLayout gap="5" verticalAlign="middle" horizontalAlign="left" padding="10"/>
+            </mg:layout>
 
             <s:CheckBox id="extendedCheckBox"
                         label="@Resource(key='extended', bundle='strings')"
@@ -400,22 +347,23 @@ THE SOFTWARE.
             <s:CheckBox id="improvedAnimationsCheckBox"
                         label="@Resource(key='improvedAnimations', bundle='strings')"
                         change="improvedAnimationsCheckBoxChangeHandler(event)"/>
-        </nail:GroupBox>
+        </mg:GroupBox>
+    </s:VGroup>
 
-        <nail:ShadowLine width="100%"/>
+    <s:BorderContainer width="100%" skinClass="com.mignari.skins.PixeledBorderContainerSkin">
+        <s:layout>
+            <s:HorizontalLayout gap="10" padding="10" verticalAlign="middle" horizontalAlign="right" />
+        </s:layout>
 
-        <s:HGroup width="100%"
-                  verticalAlign="middle"
-                  horizontalAlign="right">
-            <s:Button id="confirmButton"
-                      label="@Resource(key='confirm', bundle='strings')"
-                      minWidth="70"
-                      enabled="false"
-                      click="confirmButtonClickHandler(event)"/>
-            <s:Button id="cancelButton"
-                      label="@Resource(key='cancel', bundle='strings')"
-                      minWidth="70"
-                      click="cancelButtonClickHandler(event)"/>
-        </s:HGroup>
-    </s:Group>
-</s:Window>
+        <s:Button id="confirmButton"
+                  label="@Resource(key='confirm', bundle='strings')"
+                  minWidth="70"
+                  enabled="false"
+                  click="confirmButtonClickHandler(event)"/>
+
+        <s:Button id="cancelButton"
+                  label="@Resource(key='cancel', bundle='strings')"
+                  minWidth="70"
+                  click="cancelButtonClickHandler(event)"/>
+    </s:BorderContainer>
+</mg:TitleWindow>

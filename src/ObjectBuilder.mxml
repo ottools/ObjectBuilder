@@ -121,7 +121,7 @@ THE SOFTWARE.
             import ob.commands.things.SetThingListCommand;
             import ob.commands.things.UpdateThingCommand;
             import ob.components.AboutWindow;
-            import ob.components.CompileFilesWindow;
+            import ob.components.CompileAssetsWindow;
             import ob.components.CreateAssetsWindow;
             import ob.components.ErrorWindow;
             import ob.components.MergeFilesWindow;
@@ -382,9 +382,11 @@ THE SOFTWARE.
 
             public function compileProjectAs():void
             {
-                if (!this.clientLoaded) return;
+                if (!clientLoaded || _locked) return;
 
-                var window:CompileFilesWindow = new CompileFilesWindow();
+                _locked = true;
+
+                var window:CompileAssetsWindow = new CompileAssetsWindow();
                 window.directory = _settings.getLastDirectory();
                 window.version = _versionStorage.getFromClientInfo(_clientInfo);
                 window.extended = _clientInfo.extended;
@@ -392,12 +394,11 @@ THE SOFTWARE.
                 window.improvedAnimations = _clientInfo.improvedAnimations;
                 window.filesName = isNullOrEmpty(_filesName) ? "Tibia" : _filesName;
                 window.addEventListener(Event.CLOSE, windowCloseHandler);
-                window.open();
-
-                PopUpWindowManager.addWindow(window);
+                window.open(this);
 
                 function windowCloseHandler(event:Event):void
                 {
+                    _locked = false;
                     _settings.setLastDirectory(window.directory);
 
                     if (window.detail == DialogDetail.OK)
