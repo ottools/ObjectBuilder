@@ -573,13 +573,7 @@ THE SOFTWARE.
                        backgroundColor="0x636363"
                        borderAlpha="0">
         <s:layout>
-            <s:HorizontalLayout gap="10"
-                                paddingLeft="10"
-                                paddingRight="10"
-                                paddingTop="10"
-                                paddingBottom="10"
-                                verticalAlign="middle"
-                                horizontalAlign="right"/>
+            <s:HorizontalLayout gap="10" padding="10" verticalAlign="middle" horizontalAlign="right"/>
         </s:layout>
 
         <s:Button id="loadButton"

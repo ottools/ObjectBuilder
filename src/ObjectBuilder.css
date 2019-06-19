@@ -22,6 +22,7 @@
 
 @namespace s "library://ns.adobe.com/flex/spark";
 @namespace mx "library://ns.adobe.com/flex/mx";
+@namespace mg "library://ns.mignari.com/mg";
 @namespace otlib "otlib.components.*";
 @namespace ob "ob.components.*";
 
@@ -56,14 +57,14 @@
 
 global
 {
-    chromeColor: #494949;
-    rollOverColor: #355D89;
-    selectionColor: #294867;
-    color: #DFDFDF;
-    contentBackgroundColor: #494949;
+    chromeColor: #444444;
+    rollOverColor: #3385b2;
+    selectionColor: #156692;
+    color: #CBCBCB;
+    contentBackgroundColor: #444444;
     focusedTextSelectionColor: #272727;
     symbolColor: #DFDFDF;
-    fontFamily: ubuntu;
+    fontFamily: Ubuntu;
     modal-transparency-blur: 0;
     modal-transparency: 0.3;
     modalTransparencyColor: #656565;
@@ -82,29 +83,30 @@ mx|HDividedBox
     horizontalGap: 6;
 }
 
-mx|ToolTip
-{
-    backgroundAlpha: 1.0;
-    backgroundColor: #272727;
-    color: #355D89;
-    cornerRadius: 0;
-    fontSize: 12;
-    shadowColor: #DFDFDF;
-    borderColor: #DFDFDF;
-    borderStyle: solid;
-    borderAlpha: 1.0;
-}
-
 mx|ProgressBar
 {
-    barSkin: ClassReference("nail.components.skins.ProgressBarSkin");
+    barSkin: ClassReference("com.mignari.skins.ProgressBarSkin");
+}
+
+mx|ScrollBar
+{
+    paddingBottom: 0;
+    paddingLeft: 0;
+    paddingRight: 0;
+    paddingTop: 0;
+    thumbOffset: 0;
+    thumbSkin: ClassReference("com.mignari.skins.ScrollBarThumbSkin");
+    trackSkin: ClassReference("com.mignari.skins.ScrollBarTrackSkin");
+    downArrowSkin: ClassReference(null);
+    upArrowSkin: ClassReference(null);
 }
 
 mx|ToolTip
 {
     backgroundAlpha: 1.0;
-    backgroundColor: #294867;
-    color: #DFDFDF;
+    backgroundColor: #212121;
+    borderColor: #69BEEF;
+    color: #69BEEF;
     cornerRadius: 0;
     fontSize: 11;
 }
@@ -115,14 +117,28 @@ mx|ToolTip
 //--------------------------------------
 */
 
+s|Application
+{
+    backgroundColor: #212F43;
+    skinClass: ClassReference("spark.skins.spark.ApplicationSkin");
+}
+
+s|BorderContainer
+{
+    backgroundColor: #212F43;
+    borderStyle : "solid"; 
+    cornerRadius: 0;
+    skinClass: ClassReference("spark.skins.spark.BorderContainerSkin");
+}
+
 s|Button
 {
-    skinClass: ClassReference("nail.components.skins.ButtonSkin");
+    skinClass: ClassReference("com.mignari.skins.ButtonSkin");
 }
 
 s|CheckBox
 {
-    skinClass: ClassReference("nail.components.skins.CheckBoxSkin");
+    skinClass: ClassReference("com.mignari.skins.SwitchSkin");
 }
 
 s|ComboBox
@@ -136,7 +152,7 @@ s|ComboBox
 
 s|DropDownList
 {
-    skinClass: ClassReference("nail.components.skins.DropDownListSkin");
+    skinClass: ClassReference("com.mignari.skins.DropDownListSkin");
 }
 
 s|HScrollBar
@@ -151,19 +167,18 @@ s|HSlider
 
 s|NumericStepper
 {
-    color: #000000;
-    skinClass: ClassReference("nail.components.skins.NumericStepperSkin");
+    skinClass: ClassReference("com.mignari.skins.NumericStepperSkin");
 }
 
 s|RadioButton
 {
-    skinClass: ClassReference("nail.components.skins.RadioButtonSkin");
+    skinClass: ClassReference("com.mignari.skins.RadioButtonSkin");
 }
 
 s|SkinnableComponent
 {
-    errorSkin: ClassReference("nail.components.skins.ErrorSkin");
-    focusSkin: ClassReference("nail.components.skins.FocusSkin");
+    errorSkin: ClassReference("com.mignari.skins.ErrorSkin");
+    focusSkin: ClassReference("com.mignari.skins.FocusSkin");
 }
 
 s|TextInput
@@ -176,7 +191,7 @@ s|TextInput
     borderColor: #272727;
     contentBackgroundColor: #A2A2A2;
     focusedTextSelectionColor: #CCCCCC;
-    skinClass: ClassReference("nail.components.skins.TextInputSkin");
+    skinClass: ClassReference("com.mignari.skins.TextInputSkin");
 }
 
 s|ToggleButton
@@ -192,6 +207,28 @@ s|VScrollBar
 s|VSlider
 {
     skinClass: ClassReference("nail.components.skins.VSliderSkin");
+}
+
+/*
+//--------------------------------------
+// mg components
+//--------------------------------------
+*/
+
+mg|GroupBox
+{
+    backgroundColor: #494949;
+    borderColor: #272727;
+    shadowColor: #535353;
+    skinClass: ClassReference("com.mignari.skins.GroupBoxSkin");
+}
+
+mg|GroupCheckBox
+{
+    backgroundColor: #494949;
+    borderColor: #272727;
+    shadowColor: #535353;
+    skinClass: ClassReference("com.mignari.skins.GroupSwitchSkin");
 }
 
 /*

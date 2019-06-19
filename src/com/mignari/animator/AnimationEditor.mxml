@@ -551,7 +551,7 @@ THE SOFTWARE.
 
                 var decoder:GIFDecoder = new GIFDecoder();
                 decoder.addEventListener(GIFDecoderEvent.DECODE_COMPLETE, gifDecoderCompleteHandler);
-                decoder.decodeBytes(stream);
+                decoder.decode(stream);
                 stream.close();
             }
 
@@ -797,7 +797,7 @@ THE SOFTWARE.
                     else
                         duration = FrameDuration.getDefaultDuration( getCurrentCategory() );
 
-                    var f:Frame = new Frame(frame.bitmapData);
+                    var f:Frame = new Frame(frame.bitmap);
                     f.duration = new FrameDuration(duration, duration);
                     frames[i] = f;
                 }

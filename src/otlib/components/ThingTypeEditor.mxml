@@ -25,6 +25,7 @@ THE SOFTWARE.
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:nail="library://ns.nail.com/naillib"
+         xmlns:mg="library://ns.mignari.com/mg"
          xmlns:otlib="otlib.components.*"
          minWidth="300"
          minHeight="0"
@@ -825,7 +826,8 @@ THE SOFTWARE.
         ]]>
     </fx:Script>
 
-    <nail:TabNavigator width="100%" height="100%"
+    <nail:TabNavigator id="tabNavigator"
+                       width="100%" height="100%"
                        change="{setPreviewMode(false);}">
         <s:NavigatorContent label="@Resource(key='texture', bundle='strings')"
                             width="100%" height="100%">
@@ -836,13 +838,13 @@ THE SOFTWARE.
                     </s:layout>
 
                     <!-- appearance group -->
-                    <nail:GroupBox id="appearanceGroupBox"
-                                   label="@Resource(key='appearance', bundle='strings')"
-                                   width="100%"
-                                   minHeight="470">
-                        <nail:layout>
+                    <mg:GroupBox id="appearanceGroupBox"
+                                 label="@Resource(key='appearance', bundle='strings')"
+                                 width="100%"
+                                 minHeight="470">
+                        <mg:layout>
                             <s:VerticalLayout padding="10" gap="10"/>
-                        </nail:layout>
+                        </mg:layout>
 
                         <s:Group width="100%" height="100%">
 
@@ -1018,12 +1020,12 @@ THE SOFTWARE.
                         <s:CheckBox id="showGridCheckBox"
                                     label="@Resource(key='showGrid', bundle='strings')"
                                     change="{changeButtonsVisible(showGridCheckBox.selected);}"/>
-                    </nail:GroupBox>
+                    </mg:GroupBox>
 
                     <!-- patterns group -->
-                    <nail:GroupBox id="patternsGroupBox"
-                                   label="@Resource(key='patterns', bundle='strings')"
-                                   width="100%">
+                    <mg:GroupBox id="patternsGroupBox"
+                                 label="@Resource(key='patterns', bundle='strings')"
+                                 width="100%">
 
                         <s:TileGroup id="patternsTileGroup" right="35"
                                      requestedColumnCount="2"
@@ -1096,14 +1098,14 @@ THE SOFTWARE.
                                               value="{_thingBinding.frames}"
                                               change="{_thingBinding.frames = framesNumericStepper.value; textureUpdate(event);}"/>
                         </s:TileGroup>
-                    </nail:GroupBox>
+                    </mg:GroupBox>
 
                     <!-- animation -->
-                    <nail:GroupBox id="animationGroupBox"
-                                   label="@Resource(key='animation', bundle='strings')"
-                                   width="100%"
-                                   visible="{_thingBinding.frames > 1}"
-                                   includeInLayout="{_thingBinding.frames > 1}">
+                    <mg:GroupBox id="animationGroupBox"
+                                 label="@Resource(key='animation', bundle='strings')"
+                                 width="100%"
+                                 visible="{_thingBinding.frames > 1}"
+                                 includeInLayout="{_thingBinding.frames > 1}">
                         <s:TileGroup id="animationTileGroup"
                                      right="35"
                                      requestedColumnCount="2"
@@ -1156,7 +1158,7 @@ THE SOFTWARE.
                                               maximum="{_thingBinding.frames - 1}"
                                               change="startFrameNumericStepperChangeHandler(event)"/>
                         </s:TileGroup>
-                    </nail:GroupBox>
+                    </mg:GroupBox>
                 </s:Group>
             </s:Scroller>
         </s:NavigatorContent>
@@ -1169,11 +1171,11 @@ THE SOFTWARE.
                     </s:layout>
 
                     <!-- ground group -->
-                    <nail:GroupCheckBox id="groundGroupCheckBox"
-                                        label="@Resource(key='isGround', bundle='strings')"
-                                        width="100%"
-                                        selected="{_thingBinding.isGround}"
-                                        change="{_thingBinding.isGround = groundGroupCheckBox.selected;}">
+                    <mg:GroupCheckBox id="groundGroupCheckBox"
+                                      label="@Resource(key='isGround', bundle='strings')"
+                                      width="100%"
+                                      selected="{_thingBinding.isGround}"
+                                      change="{_thingBinding.isGround = groundGroupCheckBox.selected;}">
                         <s:Group width="100%" height="100%"
                                  enabled="{groundGroupCheckBox.selected}">
                             <s:layout>
@@ -1189,14 +1191,14 @@ THE SOFTWARE.
                                               change="{_thingBinding.groundSpeed = groundSpeedNumericStepper.value;}"/>
                             <s:Spacer width="30"/>
                         </s:Group>
-                    </nail:GroupCheckBox>
+                    </mg:GroupCheckBox>
 
                     <!-- has ligth group -->
-                    <nail:GroupCheckBox id="hasLigthGroupCheckBox"
-                                        label="@Resource(key='hasLight', bundle='strings')"
-                                        width="100%"
-                                        selected="{_thingBinding.hasLight}"
-                                        change="{_thingBinding.hasLight = hasLigthGroupCheckBox.selected;}">
+                    <mg:GroupCheckBox id="hasLigthGroupCheckBox"
+                                      label="@Resource(key='hasLight', bundle='strings')"
+                                      width="100%"
+                                      selected="{_thingBinding.hasLight}"
+                                      change="{_thingBinding.hasLight = hasLigthGroupCheckBox.selected;}">
                         <s:Group width="100%" height="100%"
                                  enabled="{hasLigthGroupCheckBox.selected}">
                             <s:layout>
@@ -1231,14 +1233,14 @@ THE SOFTWARE.
                                 <s:Spacer width="30"/>
                             </s:HGroup>
                         </s:Group>
-                    </nail:GroupCheckBox>
+                    </mg:GroupCheckBox>
 
                     <!-- automap group -->
-                    <nail:GroupCheckBox id="automapGroupCheckBox"
-                                        label="@Resource(key='automap', bundle='strings')"
-                                        width="100%"
-                                        selected="{_thingBinding.miniMap}"
-                                        change="{_thingBinding.miniMap = automapGroupCheckBox.selected;}">
+                    <mg:GroupCheckBox id="automapGroupCheckBox"
+                                      label="@Resource(key='automap', bundle='strings')"
+                                      width="100%"
+                                      selected="{_thingBinding.miniMap}"
+                                      change="{_thingBinding.miniMap = automapGroupCheckBox.selected;}">
                         <s:Group width="100%"
                                  height="100%"
                                  enabled="{automapGroupCheckBox.selected}">
@@ -1257,14 +1259,14 @@ THE SOFTWARE.
                                                        color="{_thingBinding.miniMapColor}"
                                                        change="{_thingBinding.miniMapColor = automapColorSwitchColor.color;}"/>
                         </s:Group>
-                    </nail:GroupCheckBox>
+                    </mg:GroupCheckBox>
 
                     <!-- has offset group -->
-                    <nail:GroupCheckBox id="hasOffsetGroupCheckBox"
-                                        label="@Resource(key='hasOffset', bundle='strings')"
-                                        width="100%"
-                                        selected="{_thingBinding.hasOffset}"
-                                        change="{_thingBinding.hasOffset = hasOffsetGroupCheckBox.selected;}">
+                    <mg:GroupCheckBox id="hasOffsetGroupCheckBox"
+                                      label="@Resource(key='hasOffset', bundle='strings')"
+                                      width="100%"
+                                      selected="{_thingBinding.hasOffset}"
+                                      change="{_thingBinding.hasOffset = hasOffsetGroupCheckBox.selected;}">
                         <s:Group width="100%"
                                  height="100%"
                                  enabled="{hasOffsetGroupCheckBox.selected}">
@@ -1298,14 +1300,14 @@ THE SOFTWARE.
                                 <s:Spacer width="30"/>
                             </s:HGroup>
                         </s:Group>
-                    </nail:GroupCheckBox>
+                    </mg:GroupCheckBox>
 
                     <!-- has elevation group -->
-                    <nail:GroupCheckBox id="hasElevationGroupCheckBox"
-                                        label="@Resource(key='hasElevation', bundle='strings')"
-                                        width="100%"
-                                        selected="{_thingBinding.hasElevation}"
-                                        change="{_thingBinding.hasElevation = hasElevationGroupCheckBox.selected;}">
+                    <mg:GroupCheckBox id="hasElevationGroupCheckBox"
+                                      label="@Resource(key='hasElevation', bundle='strings')"
+                                      width="100%"
+                                      selected="{_thingBinding.hasElevation}"
+                                      change="{_thingBinding.hasElevation = hasElevationGroupCheckBox.selected;}">
                         <s:Group width="100%"
                                  height="100%"
                                  enabled="{hasElevationGroupCheckBox.selected}">
@@ -1322,15 +1324,15 @@ THE SOFTWARE.
                                               change="{_thingBinding.elevation = elevationNumericStepper.value;}"/>
                             <s:Spacer width="30"/>
                         </s:Group>
-                    </nail:GroupCheckBox>
+                    </mg:GroupCheckBox>
 
                     <!-- equip group -->
-                    <nail:GroupCheckBox id="equipGroupCheckBox"
-                                        label="@Resource(key='cloth', bundle='strings')"
-                                        width="100%"
-                                        selected="{_thingBinding.cloth}"
-                                        change="{_thingBinding.cloth = equipGroupCheckBox.selected;
-                                        if (!equipGroupCheckBox.selected)equipSlotDropDownList.selectedIndex = -1;}">
+                    <mg:GroupCheckBox id="equipGroupCheckBox"
+                                      label="@Resource(key='cloth', bundle='strings')"
+                                      width="100%"
+                                      selected="{_thingBinding.cloth}"
+                                      change="{_thingBinding.cloth = equipGroupCheckBox.selected;
+                                      if (!equipGroupCheckBox.selected)equipSlotDropDownList.selectedIndex = -1;}">
                         <s:Group width="100%"
                                  height="100%"
                                  enabled="{equipGroupCheckBox.selected}">
@@ -1364,14 +1366,14 @@ THE SOFTWARE.
                                 </s:dataProvider>
                             </s:DropDownList>
                         </s:Group>
-                    </nail:GroupCheckBox>
+                    </mg:GroupCheckBox>
 
                     <!-- market group -->
-                    <nail:GroupCheckBox id="marketGroupCheckBox"
-                                        label="@Resource(key='market', bundle='strings')"
-                                        width="100%"
-                                        selected="{_thingBinding.isMarketItem}"
-                                        change="{_thingBinding.isMarketItem = marketGroupCheckBox.selected;}">
+                    <mg:GroupCheckBox id="marketGroupCheckBox"
+                                      label="@Resource(key='market', bundle='strings')"
+                                      width="100%"
+                                      selected="{_thingBinding.isMarketItem}"
+                                      change="{_thingBinding.isMarketItem = marketGroupCheckBox.selected;}">
                         <s:Group width="100%"
                                  height="100%"
                                  enabled="{marketGroupCheckBox.selected}">
@@ -1482,12 +1484,12 @@ THE SOFTWARE.
                                                   change="{_thingBinding.marketRestrictLevel = marketRestrictLevelNumericStepper.value;}"/>
                             </s:HGroup>
                         </s:Group>
-                    </nail:GroupCheckBox>
+                    </mg:GroupCheckBox>
 
                     <!-- write / read group -->
-                    <nail:GroupBox id="writeReadGroupCheckBox"
-                                   label="@Resource(key='writeRead', bundle='strings')"
-                                   width="100%">
+                    <mg:GroupBox id="writeReadGroupCheckBox"
+                                 label="@Resource(key='writeRead', bundle='strings')"
+                                 width="100%">
                         <s:Group width="100%"
                                  height="100%">
                             <s:layout>
@@ -1519,13 +1521,13 @@ THE SOFTWARE.
                                                   change="{_thingBinding.maxTextLength = maxTextLengthNumericStepper.value;}"/>
                             </s:HGroup>
                         </s:Group>
-                    </nail:GroupBox>
+                    </mg:GroupBox>
 
-                    <nail:GroupCheckBox id="actionGroupCheckBox"
-                                        label="@Resource(key='hasAction', bundle='strings')"
-                                        width="100%"
-                                        selected="{_thingBinding.hasDefaultAction}"
-                                        change="{_thingBinding.hasDefaultAction = actionGroupCheckBox.selected;}">
+                    <mg:GroupCheckBox id="actionGroupCheckBox"
+                                      label="@Resource(key='hasAction', bundle='strings')"
+                                      width="100%"
+                                      selected="{_thingBinding.hasDefaultAction}"
+                                      change="{_thingBinding.hasDefaultAction = actionGroupCheckBox.selected;}">
                         <s:Group width="100%"
                                  height="100%"
                                  enabled="{actionGroupCheckBox.selected}">
@@ -1557,14 +1559,14 @@ THE SOFTWARE.
                                 </s:dataProvider>
                             </s:DropDownList>
                         </s:Group>
-                    </nail:GroupCheckBox>
+                    </mg:GroupCheckBox>
 
                     <!-- Lens Help-->
-                    <nail:GroupCheckBox id="isLensHelpGroupCheckBox"
-                                        label="@Resource(key='lensHelp', bundle='strings')"
-                                        width="100%"
-                                        selected="{_thingBinding.isLensHelp}"
-                                        change="{_thingBinding.isLensHelp = isLensHelpGroupCheckBox.selected;}">
+                    <mg:GroupCheckBox id="isLensHelpGroupCheckBox"
+                                      label="@Resource(key='lensHelp', bundle='strings')"
+                                      width="100%"
+                                      selected="{_thingBinding.isLensHelp}"
+                                      change="{_thingBinding.isLensHelp = isLensHelpGroupCheckBox.selected;}">
                         <s:HGroup width="100%"
                                   paddingLeft="10"
                                   paddingRight="45"
@@ -1601,19 +1603,17 @@ THE SOFTWARE.
                                 </s:dataProvider>
                             </s:DropDownList>
                         </s:HGroup>
-                    </nail:GroupCheckBox>
+                    </mg:GroupCheckBox>
 
                     <!-- flags -->
-                    <nail:GroupBox id="flagsGroupBox"
-                                   label="@Resource(key='flags', bundle='strings')"
-                                   width="100%">
-                        <nail:layout>
+                    <mg:GroupBox id="flagsGroupBox"
+                                 label="@Resource(key='flags', bundle='strings')"
+                                 width="100%">
+                        <mg:layout>
                             <s:HorizontalLayout padding="10"/>
-                        </nail:layout>
+                        </mg:layout>
 
-                        <s:VGroup id="flagsLeftColumn"
-                                  width="100%"
-                                  height="100%">
+                        <s:VGroup id="flagsLeftColumn" width="100%" height="100%">
 
                             <s:RadioButton id="commonRadioButton"
                                            label="@Resource(key='isCommon', bundle='strings')"
@@ -1733,7 +1733,7 @@ THE SOFTWARE.
                                         selected="{_thingBinding.floorChange}"
                                         change="{_thingBinding.floorChange = floorChangeCheckBox.selected;}"/>
                         </s:VGroup>
-                    </nail:GroupBox>
+                    </mg:GroupBox>
                 </s:Group>
             </s:Scroller>
         </s:NavigatorContent>

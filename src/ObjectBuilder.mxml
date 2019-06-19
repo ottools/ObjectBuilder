@@ -41,7 +41,7 @@ THE SOFTWARE.
                        applicationComplete="applicationCompleteHandler(event)"
                        closing="applicationClosingHandler(event)">
 
-    <fx:Style source="../assets/styles/object_builder.css"/>
+    <fx:Style source="ObjectBuilder.css"/>
 
     <fx:Metadata>
         [ResourceBundle("strings")]
@@ -2372,6 +2372,7 @@ THE SOFTWARE.
                                       height="100%"
                                       fontSize="11"
                                       borderAlpha="0"
+                                      contentBackgroundColor="0x494949"
                                       horizontalScrollPolicy="off"
                                       doubleClickEnabled="true"
                                       allowMultipleSelection="true"
@@ -2391,26 +2392,23 @@ THE SOFTWARE.
                                         width="100%"
                                         value="{thingList.selectedId}"
                                         change="thingStepperChangeHandler(event)"/>
-            <s:HGroup width="100%"
-                      horizontalAlign="center"
-                      verticalAlign="middle"
-                      gap="3">
+            <s:HGroup width="100%" horizontalAlign="center" verticalAlign="middle" gap="3">
                 <s:Button id="replaceThingButton"
                           toolTip="@Resource(key='replace', bundle='strings')"
-                          width="19"
-                          height="19"
+                          width="22"
+                          height="22"
                           icon="{Assets.REPLACE}"
                           click="replaceThingHandler(event)"/>
                 <s:Button id="importThingButton"
                           toolTip="@Resource(key='import', bundle='strings')"
-                          width="19"
-                          height="19"
+                          width="22"
+                          height="22"
                           icon="{Assets.IMPORT}"
                           click="importThingHandler(event)"/>
                 <s:Button id="exportThingButton"
                           toolTip="@Resource(key='export', bundle='strings')"
-                          width="19"
-                          height="19"
+                          width="22"
+                          height="22"
                           icon="{Assets.EXPORT}"
                           click="exportThingHandler(event)"/>
                 <s:Button id="editThingButton"
@@ -2421,20 +2419,20 @@ THE SOFTWARE.
                           click="editThingHandler(event)"/>
                 <s:Button id="duplicateThingButton"
                           toolTip="@Resource(key='duplicate', bundle='strings')"
-                          width="19"
-                          height="19"
+                          width="22"
+                          height="22"
                           icon="{Assets.DUPLICATE}"
                           click="duplicateThingHandler(event)"/>
                 <s:Button id="newThingButton"
                           toolTip="@Resource(key='new', bundle='strings')"
-                          width="19"
-                          height="19"
+                          width="22"
+                          height="22"
                           icon="{Assets.NEW}"
                           click="newThingHandler(event)"/>
                 <s:Button id="removeThingButton"
                           toolTip="@Resource(key='remove', bundle='strings')"
-                          width="19"
-                          height="19"
+                          width="22"
+                          height="22"
                           icon="{Assets.DELETE}"
                           click="removeThingHandler(event)"/>
             </s:HGroup>
@@ -2514,6 +2512,7 @@ THE SOFTWARE.
                                        dragEnabled="true"
                                        fontSize="11"
                                        borderAlpha="0"
+                                       contentBackgroundColor="0x494949"
                                        requireSelection="true"
                                        change="spritesListChangeHandler(event)"
                                        copy="onCopySprite()"
@@ -2530,50 +2529,47 @@ THE SOFTWARE.
                                         value="{spritesList.selectedId}"
                                         change="spriteStepperChangeHandler(event)"/>
 
-            <s:HGroup width="100%"
-                      horizontalAlign="center"
-                      verticalAlign="middle"
-                      gap="3">
+            <s:HGroup width="100%" horizontalAlign="center" verticalAlign="middle" gap="3">
                 <s:Button id="replaceSpriteButton"
                           toolTip="@Resource(key='replace', bundle='strings')"
-                          width="19"
-                          height="19"
+                          width="22"
+                          height="22"
                           icon="{Assets.REPLACE}"
                           click="replaceSpriteHandler(event)"/>
                 <s:Button id="importSpriteButton"
                           toolTip="@Resource(key='import', bundle='strings')"
-                          width="19"
-                          height="19"
+                          width="22"
+                          height="22"
                           icon="{Assets.IMPORT}"
                           click="importSpriteHandler(event)"/>
                 <s:Button id="exportSpriteButton"
                           toolTip="@Resource(key='export', bundle='strings')"
-                          width="19"
-                          height="19"
+                          width="22"
+                          height="22"
                           icon="{Assets.EXPORT}"
                           click="exportSpriteHandler(event)"/>
                 <s:Button id="copySpriteButton"
                           toolTip="@Resource(key='copy', bundle='strings')"
-                          width="19"
-                          height="19"
+                          width="22"
+                          height="22"
                           icon="{Assets.MINI_COPY}"
                           click="onCopySprite()"/>
                 <s:Button id="pasteSpriteButton"
                           toolTip="@Resource(key='paste', bundle='strings')"
-                          width="19"
-                          height="19"
+                          width="22"
+                          height="22"
                           icon="{Assets.MINI_PASTE}"
                           click="onPasteSprite()"/>
                 <s:Button id="newSpriteButton"
                           toolTip="@Resource(key='new', bundle='strings')"
-                          width="19"
-                          height="19"
+                          width="22"
+                          height="22"
                           icon="{Assets.NEW}"
                           click="newSpriteButtonClickHandler(event)"/>
                 <s:Button id="removeSpriteButton"
                           toolTip="@Resource(key='remove', bundle='strings')"
-                          width="19"
-                          height="19"
+                          width="22"
+                          height="22"
                           icon="{Assets.DELETE}"
                           click="removeSpriteHandler(event)"/>
             </s:HGroup>
