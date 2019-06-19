@@ -21,21 +21,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009"
-          xmlns:s="library://ns.adobe.com/flex/spark"
-          xmlns:mx="library://ns.adobe.com/flex/mx"
-          xmlns:nail="library://ns.nail.com/naillib"
-          xmlns:otlib="otlib.components.*"
-          width="550"
-          height="500"
-          fontSize="11"
-          type="utility"
-          resizable="false"
-          showStatusBar="false"
-          backgroundColor="0x494949"
-          title="@Resource(key='openClientFiles', bundle='strings')"
-          creationComplete="windowCreationCompleteHandler(event)"
-          closing="windowClosingHandler(event)">
+<mg:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:mg="library://ns.mignari.com/mg"
+                xmlns:otlib="otlib.components.*"
+                width="550"
+                height="500"
+                fontSize="11"
+                title="@Resource(key='openAssetFiles', bundle='strings')"
+                creationComplete="windowCreationCompleteHandler(event)">
 
     <fx:Metadata>
         [ResourceBundle("strings")]
@@ -44,12 +39,12 @@ THE SOFTWARE.
     <fx:Script>
         <![CDATA[
             import com.mignari.utils.DialogDetail;
-            
+
             import mx.events.FlexEvent;
-            
+
             import nail.utils.FileUtil;
             import nail.utils.isNullOrEmpty;
-            
+
             import otlib.assets.Assets;
             import otlib.core.Version;
             import otlib.core.VersionStorage;
@@ -332,12 +327,12 @@ THE SOFTWARE.
             // Event Handlers
             //--------------------------------------
 
-            protected function windowCreationCompleteHandler(event:FlexEvent):void
+            private function windowCreationCompleteHandler(event:FlexEvent):void
             {
                 updateProperties();
             }
 
-            protected function clientBrowseButtonClickHandler(event:MouseEvent):void
+            private function clientBrowseButtonClickHandler(event:MouseEvent):void
             {
                 var path:String = m_clientDirectory ? m_clientDirectory.nativePath : File.documentsDirectory.nativePath;
                 var directory:File = new File(path);
@@ -350,83 +345,48 @@ THE SOFTWARE.
                 }
             }
 
-            protected function clientDirectoryChangeHandler(event:FileTextInputEvent):void
+            private function clientDirectoryChangeHandler(event:FileTextInputEvent):void
             {
-                this.clientDirectory = event.file;
+                clientDirectory = event.file;
             }
 
-            protected function extendedCheckBoxChangeHandler(event:Event):void
+            private function extendedCheckBoxChangeHandler(event:Event):void
             {
-                this.extended = extendedCheckBox.selected;
+                extended = extendedCheckBox.selected;
             }
 
-            protected function transparencyCheckBoxChangeHandler(event:Event):void
+            private function transparencyCheckBoxChangeHandler(event:Event):void
             {
-                this.transparency = transparencyCheckBox.selected;
+                transparency = transparencyCheckBox.selected;
             }
 
-            protected function improvedAnimationsCheckBoxChangeHandler(event:Event):void
+            private function improvedAnimationsCheckBoxChangeHandler(event:Event):void
             {
-                this.improvedAnimations = improvedAnimationsCheckBox.selected;
+                improvedAnimations = improvedAnimationsCheckBox.selected;
             }
 
-            protected function loadButtonClickHandler(event:MouseEvent):void
+            private function loadButtonClickHandler(event:MouseEvent):void
             {
                 m_detail = DialogDetail.OK;
-                this.close();
+                close();
             }
 
-            protected function cancelButtonClickHandler(event:MouseEvent):void
+            private function cancelButtonClickHandler(event:MouseEvent):void
             {
                 m_detail = DialogDetail.CANCEL;
-                this.close();
-            }
-
-            protected function windowClosingHandler(event:Event):void
-            {
-                if (m_detail == DialogDetail.CANCEL)
-                    resetInfo();
+                close();
             }
 
         ]]>
     </fx:Script>
 
-    <s:layout>
-        <s:VerticalLayout gap="1"/>
-    </s:layout>
+    <mg:layout>
+        <s:VerticalLayout />
+    </mg:layout>
 
-    <s:BorderContainer width="100%"
-                       height="40"
-                       backgroundColor="0x636363"
-                       borderColor="0x636363">
+    <s:Group width="100%" height="100%">
         <s:layout>
-            <s:HorizontalLayout paddingLeft="10"
-                                paddingRight="10"
-                                paddingTop="5"
-                                paddingBottom="5"
-                                gap="10"
-                                verticalAlign="middle"
-                                horizontalAlign="left"/>
-        </s:layout>
-
-        <s:Image id="errorIcon"
-                 visible="false"
-                 source="{Assets.ERROR}"/>
-
-        <s:Label id="errorLabel"
-                 visible="false"/>
-    </s:BorderContainer>
-
-    <nail:ShadowLine width="100%"/>
-
-    <s:Group width="100%"
-             height="100%">
-        <s:layout>
-            <s:VerticalLayout gap="10"
-                              paddingLeft="10"
-                              paddingRight="10"
-                              paddingTop="10"
-                              paddingBottom="10"/>
+            <s:VerticalLayout gap="10" padding="10"/>
         </s:layout>
 
         <!-- client files directory -->
@@ -456,35 +416,24 @@ THE SOFTWARE.
         </s:Group>
 
         <!-- client version -->
-        <nail:GroupBox width="100%"
+        <mg:GroupBox width="100%"
                        label="@Resource(key='version', bundle='strings')">
 
-            <nail:layout>
-                <s:HorizontalLayout gap="5"
-                                    verticalAlign="middle"
-                                    paddingLeft="10"
-                                    paddingRight="10"
-                                    paddingTop="10"
-                                    paddingBottom="10"/>
-            </nail:layout>
+            <mg:layout>
+                <s:HorizontalLayout gap="5" verticalAlign="middle" padding="10"/>
+            </mg:layout>
 
             <s:Label id="clientVersionLabel"/>
 
-        </nail:GroupBox>
+        </mg:GroupBox>
 
         <!-- client options -->
-        <nail:GroupBox width="100%"
+        <mg:GroupBox width="100%"
                        label="@Resource(key='options', bundle='strings')">
 
-            <nail:layout>
-                <s:VerticalLayout gap="5"
-                                  verticalAlign="middle"
-                                  horizontalAlign="left"
-                                  paddingLeft="10"
-                                  paddingRight="10"
-                                  paddingTop="10"
-                                  paddingBottom="10"/>
-            </nail:layout>
+            <mg:layout>
+                <s:VerticalLayout gap="5" verticalAlign="middle" horizontalAlign="left" padding="10"/>
+            </mg:layout>
 
             <s:CheckBox id="extendedCheckBox"
                         label="@Resource(key='extended', bundle='strings')"
@@ -498,19 +447,14 @@ THE SOFTWARE.
             <s:CheckBox id="improvedAnimationsCheckBox"
                         label="@Resource(key='improvedAnimations', bundle='strings')"
                         change="improvedAnimationsCheckBoxChangeHandler(event)"/>
-        </nail:GroupBox>
+        </mg:GroupBox>
 
         <!-- dat -->
-        <nail:GroupBox width="100%" label="DAT">
+        <mg:GroupBox width="100%" label="DAT">
 
-            <nail:layout>
-                <s:TileLayout requestedColumnCount="2"
-                              paddingLeft="10"
-                              paddingRight="10"
-                              paddingTop="10"
-                              paddingBottom="10"
-                              horizontalGap="10"/>
-            </nail:layout>
+            <mg:layout>
+                <s:TileLayout requestedColumnCount="2" padding="10" horizontalGap="10"/>
+            </mg:layout>
 
             <s:Label text="{resourceManager.getString('strings', 'signature') + ':'}"
                      textAlign="right"/>
@@ -540,18 +484,13 @@ THE SOFTWARE.
                      textAlign="right"/>
             <s:Label id="missilesCountLabel"
                      color="0x9AC9F8"/>
-        </nail:GroupBox>
+        </mg:GroupBox>
 
         <!-- spr -->
-        <nail:GroupBox width="100%" label="SPR">
-            <nail:layout>
-                <s:TileLayout requestedColumnCount="2"
-                              paddingLeft="10"
-                              paddingRight="10"
-                              paddingTop="10"
-                              paddingBottom="10"
-                              horizontalGap="10"/>
-            </nail:layout>
+        <mg:GroupBox width="100%" label="SPR">
+            <mg:layout>
+                <s:TileLayout requestedColumnCount="2" padding="10" horizontalGap="10" />
+            </mg:layout>
 
             <s:Label text="{resourceManager.getString('strings', 'signature') + ':'}"
                      textAlign="right"/>
@@ -565,17 +504,18 @@ THE SOFTWARE.
                      textAlign="right"/>
             <s:Label id="spritesCountLabel"
                      color="0x9AC9F8"/>
-        </nail:GroupBox>
+        </mg:GroupBox>
     </s:Group>
 
-    <nail:ShadowLine width="100%"/>
-
-    <s:BorderContainer width="100%"
-                       backgroundColor="0x636363"
-                       borderAlpha="0">
+    <s:BorderContainer width="100%" skinClass="com.mignari.skins.PixeledBorderContainerSkin">
         <s:layout>
-            <s:HorizontalLayout gap="10" padding="10" verticalAlign="middle" horizontalAlign="right"/>
+            <s:HorizontalLayout gap="10" padding="10" verticalAlign="middle" />
         </s:layout>
+
+        <s:Image id="errorIcon" visible="false" source="{Assets.ERROR}"/>
+        <s:Label id="errorLabel" visible="false" color="0xffffff" />
+
+        <s:Spacer width="100%" />
 
         <s:Button id="loadButton"
                   label="@Resource(key='load', bundle='strings')"
@@ -588,4 +528,4 @@ THE SOFTWARE.
                   minWidth="70"
                   click="cancelButtonClickHandler(event)"/>
     </s:BorderContainer>
-</s:Window>
+</mg:TitleWindow>

@@ -125,7 +125,7 @@ THE SOFTWARE.
             import ob.components.ErrorWindow;
             import ob.components.MergeFilesWindow;
             import ob.components.CreateAssetsWindow;
-            import ob.components.OpenFilesWindow;
+            import ob.components.OpenAssetsWindow;
             import ob.components.PreferencesWindow;
             import ob.components.SplashScreen;
             import ob.components.SpritesOptimizerWindow;
@@ -326,27 +326,13 @@ THE SOFTWARE.
 
             public function openProject(directory:File = null):void
             {
-                var window:OpenFilesWindow;
-
-                if (PopUpWindowManager.currentWindow is OpenFilesWindow) {
-                    window = OpenFilesWindow(PopUpWindowManager.currentWindow);
-                    window.clientDirectory = directory || _settings.getLastDirectory();
-                    window.extended = _settings.extended;
-                    window.transparency = _settings.transparency;
-                    window.improvedAnimations = _settings.improvedAnimations;
-                }
-                else
-                {
-                    window = new OpenFilesWindow();
-                    window.clientDirectory = directory || _settings.getLastDirectory();
-                    window.extended = _settings.extended;
-                    window.transparency = _settings.transparency;
-                    window.improvedAnimations = _settings.improvedAnimations;
-                    window.addEventListener(Event.CLOSE, windowCloseHandler);
-                    window.open();
-
-                    PopUpWindowManager.addWindow(window);
-                }
+                var window:OpenAssetsWindow = new OpenAssetsWindow();
+                window.clientDirectory = directory || _settings.getLastDirectory();
+                window.extended = _settings.extended;
+                window.transparency = _settings.transparency;
+                window.improvedAnimations = _settings.improvedAnimations;
+                window.addEventListener(Event.CLOSE, windowCloseHandler);
+                window.open(this);
 
                 function windowCloseHandler(event:Event):void
                 {
