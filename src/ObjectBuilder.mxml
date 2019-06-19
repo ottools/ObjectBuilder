@@ -587,13 +587,19 @@ THE SOFTWARE.
 
             public function openSpritesOptimizer():void
             {
-                if (!clientLoaded) return;
+                if (!clientLoaded || _locked) return;
+
+                _locked = true;
 
                 var window:SpritesOptimizerWindow = new SpritesOptimizerWindow();
                 window.communicator = _communicator;
-                window.open();
+                window.addEventListener(Event.CLOSE, closeHandler);
+                window.open(this);
 
-                PopUpWindowManager.addWindow(window);
+                function closeHandler(event:Event):void
+                {
+                    _locked = false;
+                }
             }
 
             public function openLogWindow():void

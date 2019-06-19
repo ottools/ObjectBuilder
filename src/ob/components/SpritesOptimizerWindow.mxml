@@ -21,28 +21,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009"
-          xmlns:s="library://ns.adobe.com/flex/spark"
-          xmlns:mx="library://ns.adobe.com/flex/mx"
-          xmlns:nail="library://ns.nail.com/naillib"
-          width="400"
-          height="195"
-          type="utility"
-          backgroundColor="0x494949"
-          showStatusBar="false"
-          fontSize="11"
-          resizable="false"
-          title="@Resource(key='spritesOptimizer', bundle='strings')"
-          creationComplete="creationCompleteHandler(event)"
-          closing="closingHandler(event)">
+<mg:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:mg="library://ns.mignari.com/mg"
+                width="400"
+                height="220"
+                fontSize="11"
+                title="@Resource(key='spritesOptimizer', bundle='strings')"
+                creationComplete="creationCompleteHandler(event)"
+                closing="closingHandler(event)">
 
     <fx:Script>
         <![CDATA[
+            import com.mignari.skins.PixeledBorderContainerSkin;
             import com.mignari.workers.IWorkerCommunicator;
-
+            
             import mx.core.FlexGlobals;
             import mx.events.FlexEvent;
-
+            
             import ob.commands.ProgressBarID;
             import ob.commands.ProgressCommand;
             import ob.commands.sprites.OptimizeSpritesCommand;
@@ -91,8 +88,7 @@ THE SOFTWARE.
 
             private function progressCallback(id:uint, loaded:uint, total:uint, label:String):void
             {
-                if (id == ProgressBarID.OPTIMIZE)
-                {
+                if (id == ProgressBarID.OPTIMIZE) {
                     progressBar.setProgress(loaded, total);
                     progressBar.label = label;
                 }
@@ -110,13 +106,12 @@ THE SOFTWARE.
             // Event Handlers
             //--------------------------------------
 
-            protected function creationCompleteHandler(event:FlexEvent):void
+            private function creationCompleteHandler(event:FlexEvent):void
             {
                 m_application = FlexGlobals.topLevelApplication as IObjectBuilder;
-
             }
 
-            protected function closingHandler(event:Event):void
+            private function closingHandler(event:Event):void
             {
                 if (m_inProgress)
                 {
@@ -124,10 +119,10 @@ THE SOFTWARE.
                     return;
                 }
 
-                this.communicator = null;
+                communicator = null;
             }
 
-            protected function startButtonClickHandler(event:MouseEvent):void
+            private function startButtonClickHandler(event:MouseEvent):void
             {
                 if (m_inProgress) return;
 
@@ -141,77 +136,69 @@ THE SOFTWARE.
         ]]>
     </fx:Script>
 
-    <s:layout>
-        <s:VerticalLayout padding="10" gap="5" />
-    </s:layout>
+    <mg:layout>
+        <s:VerticalLayout />
+    </mg:layout>
 
-    <nail:GroupBox width="100%" height="80"
-                   label="@Resource(key='result', bundle='strings')">
+    <s:VGroup width="100%" height="100%" gap="10" padding="10">
+        <mg:GroupBox width="100%" height="80" label="@Resource(key='result', bundle='strings')">
+            <mg:layout>
+                <s:TileLayout padding="10" requestedColumnCount="2" horizontalGap="5" verticalGap="8" />
+            </mg:layout>
 
-        <nail:layout>
-            <s:TileLayout padding="10"
-                          requestedColumnCount="2"
-                          horizontalGap="5"
-                          verticalGap="8" />
-        </nail:layout>
+            <s:Label minWidth="70"
+                     text="{resourceManager.getString('strings', 'removedSprites') + ':'}"
+                     textAlign="right"/>
+            <s:Label id="removedValueLabel"
+                     minWidth="70"
+                     color="0x9AC9F8"
+                     text="0"/>
 
-        <s:Label minWidth="70"
-                 text="{resourceManager.getString('strings', 'removedSprites') + ':'}"
-                 textAlign="right"/>
-        <s:Label id="removedValueLabel"
-                 minWidth="70"
-                 color="0x9AC9F8"
-                 text="0"/>
+            <s:Label minWidth="70"
+                     text="{resourceManager.getString('strings', 'oldSpriteCount') + ':'}"
+                     textAlign="right"/>
+            <s:Label id="oldCountValueLabel"
+                     minWidth="70"
+                     color="0x9AC9F8"
+                     text="0"/>
 
-        <s:Label minWidth="70"
-                 text="{resourceManager.getString('strings', 'oldSpriteCount') + ':'}"
-                 textAlign="right"/>
-        <s:Label id="oldCountValueLabel"
-                 minWidth="70"
-                 color="0x9AC9F8"
-                 text="0"/>
+            <s:Label minWidth="70"
+                     text="{resourceManager.getString('strings', 'newSpriteCount') + ':'}"
+                     textAlign="right"/>
+            <s:Label id="newCountValueLabel"
+                     minWidth="70"
+                     color="0x9AC9F8"
+                     text="0"/>
+        </mg:GroupBox>
 
-        <s:Label minWidth="70"
-                 text="{resourceManager.getString('strings', 'newSpriteCount') + ':'}"
-                 textAlign="right"/>
-        <s:Label id="newCountValueLabel"
-                 minWidth="70"
-                 color="0x9AC9F8"
-                 text="0"/>
-    </nail:GroupBox>
+        <mg:GroupBox width="100%" height="55" label="@Resource(key='progress', bundle='strings')">
+            <mg:layout>
+                <s:HorizontalLayout padding="10" gap="10" />
+            </mg:layout>
 
-    <nail:GroupBox width="100%"
-                   height="55"
-                   label="@Resource(key='progress', bundle='strings')">
+            <s:Button id="startButton" minWidth="70" height="20"
+                      label="@Resource(key='start', bundle='strings')"
+                      click="startButtonClickHandler(event)"/>
 
-        <nail:layout>
-            <s:HorizontalLayout padding="10" gap="10" />
-        </nail:layout>
+            <mx:ProgressBar id="progressBar"
+                            width="100%"
+                            height="20"
+                            fontWeight="normal"
+                            mode="manual"
+                            labelPlacement="center"
+                            label=""
+                            visible="{m_inProgress}"/>
+        </mg:GroupBox>
+    </s:VGroup>
 
-        <s:Button id="startButton"
-                  minWidth="70"
-                  height="20"
-                  label="@Resource(key='start', bundle='strings')"
-                  click="startButtonClickHandler(event)"/>
-
-        <mx:ProgressBar id="progressBar"
-                        width="100%"
-                        height="20"
-                        fontWeight="normal"
-                        mode="manual"
-                        labelPlacement="center"
-                        label=""
-                        visible="{m_inProgress}"/>
-    </nail:GroupBox>
-
-    <s:HGroup id="test" width="100%"
-              paddingTop="5"
-              horizontalAlign="right"
-              verticalAlign="middle">
+    <s:BorderContainer width="100%" skinClass="com.mignari.skins.PixeledBorderContainerSkin">
+        <s:layout>
+            <s:HorizontalLayout gap="10" padding="10" verticalAlign="middle" horizontalAlign="right" />
+        </s:layout>
 
         <s:Button id="closeButton"
                   minWidth="70"
                   label="@Resource(key='close', bundle='strings')"
                   click="close()"/>
-    </s:HGroup>
-</s:Window>
+    </s:BorderContainer>
+</mg:TitleWindow>
