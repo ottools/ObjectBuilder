@@ -124,7 +124,7 @@ THE SOFTWARE.
             import ob.components.CompileAssetsWindow;
             import ob.components.CreateAssetsWindow;
             import ob.components.ErrorWindow;
-            import ob.components.MergeFilesWindow;
+            import ob.components.MergeAssetsWindow;
             import ob.components.OpenAssetsWindow;
             import ob.components.PreferencesWindow;
             import ob.components.SplashScreen;
@@ -425,24 +425,19 @@ THE SOFTWARE.
 
             public function mergeProject():void
             {
-                var window:MergeFilesWindow;
+                if (_locked) return;
 
-                if (PopUpWindowManager.currentWindow is MergeFilesWindow) {
-                    window = MergeFilesWindow(PopUpWindowManager.currentWindow);
-                    window.clientDirectory = _settings.getLastMergeDirectory();
-                }
-                else
-                {
-                    window = new MergeFilesWindow();
-                    window.clientDirectory = _settings.getLastMergeDirectory();
-                    window.addEventListener(Event.CLOSE, windowCloseHandler);
-                    window.open();
+                _locked = true;
 
-                    PopUpWindowManager.addWindow(window);
-                }
+                var window:MergeAssetsWindow = new MergeAssetsWindow();
+                window.clientDirectory = _settings.getLastMergeDirectory();
+                window.addEventListener(Event.CLOSE, windowCloseHandler);
+                window.open(this);
 
                 function windowCloseHandler(event:Event):void
                 {
+                    _locked = false;
+
                     if (window.detail == DialogDetail.OK)
                     {
                         _settings.setLastMergeDirectory(window.datFile);
