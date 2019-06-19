@@ -21,20 +21,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009"
-          xmlns:s="library://ns.adobe.com/flex/spark"
-          xmlns:mx="library://ns.adobe.com/flex/mx"
-          xmlns:nail="library://ns.nail.com/naillib"
-          width="400"
-          height="250"
-          resizable="false"
-          showStatusBar="false"
-          backgroundColor="0x494949"
-          type="utility"
-          fontSize="11"
-          title="@Resource(key='newClientFiles', bundle='strings')"
-          creationComplete="creationCompleteHandler(event)"
-          closing="closingHandler(event)">
+<mg:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:mg="library://ns.mignari.com/mg"
+                width="400"
+                height="220"
+                fontSize="11"
+                title="@Resource(key='createAssetFiles', bundle='strings')"
+                creationComplete="creationCompleteHandler(event)">
 
     <fx:Metadata>
         [ResourceBundle("strings")]
@@ -42,12 +37,12 @@ THE SOFTWARE.
 
     <fx:Script>
         <![CDATA[
+            import com.mignari.utils.DialogDetail;
+
             import mx.collections.ArrayCollection;
             import mx.events.FlexEvent;
 
             import spark.events.IndexChangeEvent;
-
-            import nail.utils.DialogDetail;
 
             import otlib.core.Version;
             import otlib.core.VersionStorage;
@@ -93,8 +88,7 @@ THE SOFTWARE.
             public function get transparency():Boolean { return m_transparency; }
             public function set transparency(value:Boolean):void
             {
-                if (value != m_transparency)
-                {
+                if (value != m_transparency) {
                     m_transparency = value;
                     m_transparencyChanged = true;
                     invalidateProperties();
@@ -104,8 +98,7 @@ THE SOFTWARE.
             public function get improvedAnimations():Boolean { return m_improvedAnimations; }
             public function set improvedAnimations(value:Boolean):void
             {
-                if (value != m_improvedAnimations)
-                {
+                if (value != m_improvedAnimations) {
                     m_improvedAnimations = value;
                     m_improvedAnimationsChanged = true;
                     invalidateProperties();
@@ -157,17 +150,14 @@ THE SOFTWARE.
 
                 versionsDropDownList.selectedItem = m_version;
 
-                if (done)
-                {
+                if (done) {
                     m_extended = (m_extended || m_version.value >= 960);
                     m_improvedAnimations = (m_improvedAnimations || m_version.value >= 1050);
 
                     extendedCheckBox.enabled = (m_version.value < 960);
                     transparencyCheckBox.enabled = true;
                     improvedAnimationsCheckBox.enabled = (m_version.value < 1050);
-                }
-                else
-                {
+                } else {
                     extendedCheckBox.enabled = false;
                     transparencyCheckBox.enabled = false;
                     improvedAnimationsCheckBox.enabled = false;
@@ -183,7 +173,7 @@ THE SOFTWARE.
             // Event Handlers
             //--------------------------------------
 
-            protected function creationCompleteHandler(event:FlexEvent):void
+            private function creationCompleteHandler(event:FlexEvent):void
             {
                 versionsDropDownList.dataProvider = new ArrayCollection(VersionStorage.getInstance().getList());
                 versionsDropDownList.setSelectedIndex(0, true);
@@ -191,112 +181,92 @@ THE SOFTWARE.
                 focusManager.showFocus();
             }
 
-            protected function versionsDropDownListChangeHandler(event:IndexChangeEvent):void
+            private function versionsDropDownListChangeHandler(event:IndexChangeEvent):void
             {
-                this.version = versionsDropDownList.selectedItem as Version;
+                version = versionsDropDownList.selectedItem as Version;
             }
 
-            protected function extendedCheckBoxChangeHandler(event:Event):void
+            private function extendedCheckBoxChangeHandler(event:Event):void
             {
-                this.extended = extendedCheckBox.selected;
+                extended = extendedCheckBox.selected;
             }
 
-            protected function transparencyCheckBoxChangeHandler(event:Event):void
+            private function transparencyCheckBoxChangeHandler(event:Event):void
             {
-                this.transparency = transparencyCheckBox.selected;
+                transparency = transparencyCheckBox.selected;
             }
 
-            protected function improvedAnimationsCheckBoxChangeHandler(event:Event):void
+            private function improvedAnimationsCheckBoxChangeHandler(event:Event):void
             {
-                this.improvedAnimations = improvedAnimationsCheckBox.selected;
+                improvedAnimations = improvedAnimationsCheckBox.selected;
             }
 
-            protected function confirmButtonClickHandler(event:MouseEvent):void
+            private function confirmButtonClickHandler(event:MouseEvent):void
             {
-                m_detail = DialogDetail.CONFIRM;
-                this.close();
+                m_detail = DialogDetail.OK;
+                close();
             }
 
-            protected function cancelButtonClickHandler(event:MouseEvent):void
+            private function cancelButtonClickHandler(event:MouseEvent):void
             {
                 m_detail = DialogDetail.CANCEL;
-                this.close();
-            }
-
-            protected function closingHandler(event:Event):void
-            {
-                if (m_detail == DialogDetail.CANCEL)
-                    m_version = null;
+                close();
             }
 
         ]]>
     </fx:Script>
 
-    <s:layout>
-        <s:VerticalLayout gap="10"
-                          paddingLeft="10"
-                          paddingRight="10"
-                          paddingTop="10"
-                          paddingBottom="10"
-                          horizontalAlign="right"/>
-    </s:layout>
+    <mg:layout>
+        <s:VerticalLayout />
+    </mg:layout>
 
-    <nail:GroupBox width="100%"
-                   label="@Resource(key='version', bundle='strings')">
+    <s:VGroup width="100%" height="100%" gap="10" padding="10">
+        <mg:GroupBox width="100%"
+                     label="@Resource(key='version', bundle='strings')">
 
-        <nail:layout>
-            <s:HorizontalLayout gap="10"
-                                paddingLeft="10"
-                                paddingRight="10"
-                                paddingTop="10"
-                                paddingBottom="10"
-                                verticalAlign="middle"/>
-        </nail:layout>
+            <mg:layout>
+                <s:HorizontalLayout gap="10" padding="10" verticalAlign="middle" />
+            </mg:layout>
 
-        <s:DropDownList id="versionsDropDownList"
-                        width="100%"
-                        height="21"
-                        change="versionsDropDownListChangeHandler(event)"/>
-    </nail:GroupBox>
+            <s:DropDownList id="versionsDropDownList"
+                            width="100%" height="21"
+                            change="versionsDropDownListChangeHandler(event)" />
+        </mg:GroupBox>
 
-    <nail:GroupBox width="100%"
-                   label="@Resource(key='options', bundle='strings')">
-        <nail:layout>
-            <s:VerticalLayout gap="5"
-                              paddingLeft="10"
-                              paddingRight="10"
-                              paddingTop="10"
-                              paddingBottom="10"/>
-        </nail:layout>
+        <mg:GroupBox width="100%"
+                     label="@Resource(key='options', bundle='strings')">
+            <mg:layout>
+                <s:VerticalLayout gap="5" padding="10" />
+            </mg:layout>
 
-        <s:CheckBox id="extendedCheckBox"
-                    label="@Resource(key='extended', bundle='strings')"
-                    change="extendedCheckBoxChangeHandler(event)"/>
+            <s:CheckBox id="extendedCheckBox"
+                        label="@Resource(key='extended', bundle='strings')"
+                        change="extendedCheckBoxChangeHandler(event)" />
 
-        <s:CheckBox id="transparencyCheckBox"
-                    label="@Resource(key='transparency', bundle='strings')"
-                    change="transparencyCheckBoxChangeHandler(event)"/>
+            <s:CheckBox id="transparencyCheckBox"
+                        label="@Resource(key='transparency', bundle='strings')"
+                        change="transparencyCheckBoxChangeHandler(event)" />
 
-        <s:CheckBox id="improvedAnimationsCheckBox"
-                    label="@Resource(key='improvedAnimations', bundle='strings')"
-                    change="improvedAnimationsCheckBoxChangeHandler(event)"/>
-    </nail:GroupBox>
+            <s:CheckBox id="improvedAnimationsCheckBox"
+                        label="@Resource(key='improvedAnimations', bundle='strings')"
+                        change="improvedAnimationsCheckBoxChangeHandler(event)" />
+        </mg:GroupBox>
+    </s:VGroup>
 
-    <nail:ShadowLine width="100%"/>
-
-    <s:HGroup width="100%"
-              verticalAlign="middle"
-              horizontalAlign="right">
+    <s:BorderContainer width="100%" skinClass="com.mignari.skins.PixeledBorderContainerSkin">
+        <s:layout>
+            <s:HorizontalLayout gap="10" padding="10" verticalAlign="middle" horizontalAlign="right" />
+        </s:layout>
 
         <s:Button id="confirmButton"
                   label="@Resource(key='confirm', bundle='strings')"
                   minWidth="70"
                   enabled="false"
-                  click="confirmButtonClickHandler(event)"/>
+                  click="confirmButtonClickHandler(event)" />
 
         <s:Button id="cancelButton"
                   label="@Resource(key='cancel', bundle='strings')"
                   minWidth="70"
-                  click="cancelButtonClickHandler(event)"/>
-    </s:HGroup>
-</s:Window>
+                  click="cancelButtonClickHandler(event)" />
+    </s:BorderContainer>
+</mg:TitleWindow>

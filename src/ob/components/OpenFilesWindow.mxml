@@ -43,12 +43,13 @@ THE SOFTWARE.
 
     <fx:Script>
         <![CDATA[
+            import com.mignari.utils.DialogDetail;
+            
             import mx.events.FlexEvent;
-
-            import nail.utils.DialogDetail;
+            
             import nail.utils.FileUtil;
             import nail.utils.isNullOrEmpty;
-
+            
             import otlib.assets.Assets;
             import otlib.core.Version;
             import otlib.core.VersionStorage;
@@ -371,7 +372,7 @@ THE SOFTWARE.
 
             protected function loadButtonClickHandler(event:MouseEvent):void
             {
-                m_detail = DialogDetail.CONFIRM;
+                m_detail = DialogDetail.OK;
                 this.close();
             }
 

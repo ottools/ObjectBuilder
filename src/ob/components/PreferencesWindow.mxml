@@ -51,14 +51,15 @@ THE SOFTWARE.
 
     <fx:Script>
         <![CDATA[
+            import com.mignari.utils.DialogDetail;
+            
             import mx.collections.ArrayCollection;
             import mx.events.FlexEvent;
-
+            
             import nail.errors.NullArgumentError;
-            import nail.utils.DialogDetail;
-
+            
             import ob.settings.ObjectBuilderSettings;
-
+            
             import otlib.assets.Assets;
 
             //--------------------------------------------------------------------------
@@ -67,7 +68,7 @@ THE SOFTWARE.
 
             private var _settings:ObjectBuilderSettings;
             private var _settingsChanged:Boolean;
-            private var _detail:uint;
+            private var _detail:uint = DialogDetail.CANCEL;
             private var _languages:ArrayCollection;
 
             //--------------------------------------
@@ -190,7 +191,7 @@ THE SOFTWARE.
 
             protected function confirmButtonClickHandler(event:MouseEvent):void
             {
-                _detail = DialogDetail.CONFIRM;
+                _detail = DialogDetail.OK;
                 _settings.language = getLanguage();
                 _settings.autosaveThingChanges = autosaveChangesCheckBox.selected;
                 _settings.extended = extendedCheckBox.selected;

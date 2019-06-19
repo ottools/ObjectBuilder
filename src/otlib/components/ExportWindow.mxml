@@ -57,16 +57,17 @@ THE SOFTWARE.
 
     <fx:Script>
         <![CDATA[
+            import com.mignari.utils.DialogDetail;
+            
             import mx.collections.ArrayCollection;
             import mx.events.FlexEvent;
-
+            
             import spark.events.IndexChangeEvent;
             import spark.events.TextOperationEvent;
-
+            
             import nail.image.ImageFormat;
-            import nail.utils.DialogDetail;
             import nail.utils.isNullOrEmpty;
-
+            
             import otlib.core.Version;
             import otlib.core.VersionStorage;
             import otlib.events.FileTextInputEvent;
@@ -308,7 +309,7 @@ THE SOFTWARE.
 
             protected function confirmButtonClickHandler(event:MouseEvent):void
             {
-                _detail = DialogDetail.CONFIRM;
+                _detail = DialogDetail.OK;
                 this.close();
             }
 

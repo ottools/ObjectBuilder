@@ -50,12 +50,11 @@ THE SOFTWARE.
     <fx:Script>
         <![CDATA[
             import com.mignari.animator.AnimationEditor;
+            import com.mignari.utils.DialogDetail;
             import com.mignari.workers.IWorkerCommunicator;
             import com.mignari.workers.WorkerCommand;
             import com.mignari.workers.WorkerCommunicator;
-
-            import flash.net.registerClassAlias;
-
+            
             import mx.core.UIComponent;
             import mx.events.CloseEvent;
             import mx.events.FlexEvent;
@@ -63,12 +62,12 @@ THE SOFTWARE.
             import mx.logging.LogEventLevel;
             import mx.managers.DragManager;
             import mx.resources.ResourceManager;
-
+            
             import spark.events.IndexChangeEvent;
-
+            
             import air.update.ApplicationUpdaterUI;
             import air.update.events.UpdateEvent;
-
+            
             import nail.commands.LogCommand;
             import nail.components.controls.Alert;
             import nail.core.nail_internal;
@@ -79,14 +78,13 @@ THE SOFTWARE.
             import nail.logging.LogFileTarget;
             import nail.managers.PopUpWindowManager;
             import nail.utils.Descriptor;
-            import nail.utils.DialogDetail;
             import nail.utils.FileData;
             import nail.utils.FileQueueHelper;
             import nail.utils.FileUtil;
             import nail.utils.StringUtil;
             import nail.utils.WindowUtil;
             import nail.utils.isNullOrEmpty;
-
+            
             import ob.commands.HideProgressBarCommand;
             import ob.commands.LoadVersionsCommand;
             import ob.commands.NeedToReloadCommand;
@@ -126,14 +124,16 @@ THE SOFTWARE.
             import ob.components.CompileFilesWindow;
             import ob.components.ErrorWindow;
             import ob.components.MergeFilesWindow;
-            import ob.components.NewFilesWindow;
+            import ob.components.CreateAssetsWindow;
             import ob.components.OpenFilesWindow;
             import ob.components.PreferencesWindow;
             import ob.components.SplashScreen;
             import ob.components.SpritesOptimizerWindow;
             import ob.settings.ObjectBuilderSettings;
             import ob.utils.ObUtils;
-
+            
+            import objectview.ObjectViewer;
+            
             import otlib.animation.FrameDuration;
             import otlib.assets.Assets;
             import otlib.components.ClientVersionsWindow;
@@ -163,9 +163,7 @@ THE SOFTWARE.
             import otlib.utils.OTFormat;
             import otlib.utils.SpriteUtils;
             import otlib.utils.ThingListItem;
-
-            import objectview.ObjectViewer;
-
+            
             import slicer.Slicer;
 
             use namespace nail_internal;
@@ -304,18 +302,16 @@ THE SOFTWARE.
 
             public function createNewProject():void
             {
-                var window:NewFilesWindow = new NewFilesWindow();
+                var window:CreateAssetsWindow = new CreateAssetsWindow();
                 window.extended = _settings.extended;
                 window.transparency = _settings.transparency;
                 window.improvedAnimations = _settings.improvedAnimations;
                 window.addEventListener(Event.CLOSE, windowCloseHandler);
-                window.open();
-
-                PopUpWindowManager.addWindow(window);
+                window.open(this);
 
                 function windowCloseHandler(event:Event):void
                 {
-                    if (window.detail == DialogDetail.CONFIRM)
+                    if (window.detail == DialogDetail.OK)
                     {
                         // TODO: check if it's changed/compiled
 
@@ -354,7 +350,7 @@ THE SOFTWARE.
 
                 function windowCloseHandler(event:Event):void
                 {
-                    if (window.detail == DialogDetail.CONFIRM)
+                    if (window.detail == DialogDetail.OK)
                     {
                         _settings.setLastDirectory(window.datFile);
                         _filesName = FileUtil.getName(window.datFile);
@@ -404,7 +400,7 @@ THE SOFTWARE.
                 {
                     _settings.setLastDirectory(window.directory);
 
-                    if (window.detail == DialogDetail.CONFIRM)
+                    if (window.detail == DialogDetail.OK)
                     {
                         if (_settings.autosaveThingChanges)
                             saveThingChanges();
@@ -446,7 +442,7 @@ THE SOFTWARE.
 
                 function windowCloseHandler(event:Event):void
                 {
-                    if (window.detail == DialogDetail.CONFIRM)
+                    if (window.detail == DialogDetail.OK)
                     {
                         _settings.setLastMergeDirectory(window.datFile);
 
@@ -471,7 +467,7 @@ THE SOFTWARE.
 
                 function closeHandler(event:Event):void
                 {
-                    if (window.detail == DialogDetail.CONFIRM)
+                    if (window.detail == DialogDetail.OK)
                     {
                         thingStepper.amount = _settings.objectsListAmount;
                         spriteStepper.amount = _settings.spritesListAmount;
@@ -1802,7 +1798,7 @@ THE SOFTWARE.
 
                 function windowCloseHandler(event:Event):void
                 {
-                    if (window.detail == DialogDetail.CONFIRM &&
+                    if (window.detail == DialogDetail.OK &&
                         window.fileName != null &&
                         window.directory &&
                         window.format != null &&
@@ -2082,7 +2078,7 @@ THE SOFTWARE.
 
                 function windowCloseHandler(event:Event):void
                 {
-                    if (window.detail == DialogDetail.CONFIRM &&
+                    if (window.detail == DialogDetail.OK &&
                         window.fileName != null &&
                         window.format != null
                         && window.directory) {
