@@ -455,15 +455,19 @@ THE SOFTWARE.
 
             public function openPreferencesWindow():void
             {
+                if (_locked) return;
+
+                _locked = true;
+
                 var window:PreferencesWindow = new PreferencesWindow();
                 window.settings = _settings;
                 window.addEventListener(Event.CLOSE, closeHandler);
-                window.open();
-
-                PopUpWindowManager.addWindow(window);
+                window.open(this);
 
                 function closeHandler(event:Event):void
                 {
+                    _locked = false;
+
                     if (window.detail == DialogDetail.OK)
                     {
                         thingStepper.amount = _settings.objectsListAmount;

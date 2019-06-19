@@ -21,24 +21,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009"
-          xmlns:s="library://ns.adobe.com/flex/spark"
-          xmlns:mx="library://ns.adobe.com/flex/mx"
-          xmlns:nail="library://ns.nail.com/naillib"
-          width="400"
-          height="300"
-          resizable="false"
-          showStatusBar="false"
-          backgroundColor="0x494949"
-          fontSize="11"
-          type="utility"
-          title="@Resource(key='menu.preferences', bundle='strings')"
-          creationComplete="creationCompleteHandler(event)">
-
-    <s:layout>
-        <s:VerticalLayout gap="10"
-                          horizontalAlign="center"/>
-    </s:layout>
+<mg:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:mg="library://ns.mignari.com/mg"
+                width="400"
+                height="320"
+                fontSize="11"
+                title="@Resource(key='menu.preferences', bundle='strings')"
+                creationComplete="creationCompleteHandler(event)">
 
     <fx:Declarations>
         <s:RadioButtonGroup id="savePropertiesRadioButtonGroup"
@@ -51,6 +42,7 @@ THE SOFTWARE.
 
     <fx:Script>
         <![CDATA[
+            import com.mignari.skins.PixeledBorderContainerSkin;
             import com.mignari.utils.DialogDetail;
             
             import mx.collections.ArrayCollection;
@@ -205,56 +197,41 @@ THE SOFTWARE.
         ]]>
     </fx:Script>
 
-    <nail:TabNavigator width="100%"
-                       height="100%"
-                       tabWidth="130"
-                       focusEnabled="false">
+    <mg:layout>
+        <s:VerticalLayout />
+    </mg:layout>
 
+    <s:TabBar width="100%" dataProvider="{viewStack}"
+              skinClass="com.mignari.skins.TabBarSkin" />
+
+    <mx:ViewStack id="viewStack" width="100%" height="100%" focusEnabled="false" creationPolicy="all">
         <s:NavigatorContent label="@Resource(key='general', bundle='strings')"
-                            width="100%"
-                            height="100%">
+                            width="100%" height="100%">
             <s:layout>
-                <s:VerticalLayout paddingLeft="10"
-                                  paddingRight="10"
-                                  paddingTop="20"
-                                  paddingBottom="10"/>
+                <s:VerticalLayout padding="10" paddingTop="20" />
             </s:layout>
-            <nail:GroupBox width="100%"
-                           label="@Resource(key='language', bundle='strings')">
-                <nail:layout>
-                    <s:VerticalLayout gap="10"
-                                      paddingLeft="10"
-                                      paddingRight="10"
-                                      paddingTop="10"
-                                      paddingBottom="10"/>
-                </nail:layout>
+            <mg:GroupBox width="100%" label="@Resource(key='language', bundle='strings')">
+                <mg:layout>
+                    <s:VerticalLayout gap="10" padding="10"/>
+                </mg:layout>
 
                 <s:DropDownList id="languageDropDownList"
                                 width="100%"
                                 requireSelection="true"/>
-            </nail:GroupBox>
+            </mg:GroupBox>
 
-            <nail:GroupBox width="100%"
+            <mg:GroupBox width="100%"
                            label="@Resource(key='edition', bundle='strings')">
-                <nail:layout>
-                    <s:VerticalLayout gap="10"
-                                      paddingLeft="10"
-                                      paddingRight="10"
-                                      paddingTop="10"
-                                      paddingBottom="10"/>
-                </nail:layout>
+                <mg:layout>
+                    <s:VerticalLayout gap="10" padding="10"/>
+                </mg:layout>
                 <s:CheckBox id="autosaveChangesCheckBox"
                             label="@Resource(key='autosaveChanges', bundle='strings')"/>
-            </nail:GroupBox>
-            <nail:GroupBox width="100%"
-                           label="@Resource(key='listAmount', bundle='strings')">
-                <nail:layout>
-                    <s:TileLayout requestedColumnCount="3"
-                                  paddingLeft="10"
-                                  paddingRight="10"
-                                  paddingTop="10"
-                                  paddingBottom="10"/>
-                </nail:layout>
+            </mg:GroupBox>
+            <mg:GroupBox width="100%" label="@Resource(key='listAmount', bundle='strings')">
+                <mg:layout>
+                    <s:TileLayout requestedColumnCount="3" padding="10"/>
+                </mg:layout>
 
                 <s:HSlider id="objectsAmountSlider"
                            minimum="100"
@@ -277,55 +254,39 @@ THE SOFTWARE.
 
                 <s:Label text="@Resource(key='sprites', bundle='strings')"
                          textAlign="left"/>
-            </nail:GroupBox>
+            </mg:GroupBox>
         </s:NavigatorContent>
 
         <s:NavigatorContent label="@Resource(key='customClient', bundle='strings')"
                             width="100%"
                             height="100%">
             <s:layout>
-                <s:VerticalLayout paddingLeft="10"
-                                  paddingRight="10"
-                                  paddingTop="20"
-                                  paddingBottom="10"/>
+                <s:VerticalLayout padding="10" paddingTop="20" />
             </s:layout>
-            <nail:GroupBox width="100%"
-                           label="@Resource(key='openNew', bundle='strings')">
-                <nail:layout>
-                    <s:VerticalLayout gap="8"
-                                      paddingLeft="10"
-                                      paddingRight="10"
-                                      paddingTop="10"
-                                      paddingBottom="10"/>
-                </nail:layout>
+            <mg:GroupBox width="100%" label="@Resource(key='openNew', bundle='strings')">
+                <mg:layout>
+                    <s:VerticalLayout gap="8" padding="10"/>
+                </mg:layout>
 
                 <s:CheckBox id="extendedCheckBox"
                             label="@Resource(key='extendedAlwaysSelected', bundle='strings')"/>
 
                 <s:CheckBox id="transparencyCheckBox"
                             label="@Resource(key='transparencyAlwaysSelected', bundle='strings')"/>
-            </nail:GroupBox>
+            </mg:GroupBox>
         </s:NavigatorContent>
 
         <s:NavigatorContent label="@Resource(key='spriteSheet', bundle='strings')"
-                            width="100%"
-                            height="100%">
+                            width="100%" height="100%">
             <s:layout>
-                <s:VerticalLayout paddingLeft="10"
-                                  paddingRight="10"
-                                  paddingTop="20"
-                                  paddingBottom="10"/>
+                <s:VerticalLayout padding="10" paddingTop="20" />
             </s:layout>
-            <nail:GroupCheckBox id="savePropertiesGroupCheckBox"
-                                width="100%"
-                                label="@Resource(key='saveObjectProperties', bundle='strings')">
-                <nail:layout>
-                    <s:VerticalLayout gap="8"
-                                      paddingLeft="10"
-                                      paddingRight="10"
-                                      paddingTop="10"
-                                      paddingBottom="10"/>
-                </nail:layout>
+            <mg:GroupCheckBox id="savePropertiesGroupCheckBox"
+                              width="100%"
+                              label="@Resource(key='saveObjectProperties', bundle='strings')">
+                <mg:layout>
+                    <s:VerticalLayout gap="8" padding="10"/>
+                </mg:layout>
 
                 <s:RadioButton id="onlyPatternsRadioButton"
                                label="@Resource(key='onlyPatterns', bundle='strings')"
@@ -336,16 +297,14 @@ THE SOFTWARE.
                                groupName="savePropertiesRadioButtonGroup"
                                label="@Resource(key='allProperties', bundle='strings')"
                                enabled="{savePropertiesGroupCheckBox.selected}"/>
-            </nail:GroupCheckBox>
+            </mg:GroupCheckBox>
         </s:NavigatorContent>
-    </nail:TabNavigator>
+    </mx:ViewStack>
 
-    <s:HGroup width="100%"
-              paddingLeft="10"
-              paddingRight="10"
-              paddingBottom="10"
-              verticalAlign="middle"
-              horizontalAlign="right">
+    <s:BorderContainer width="100%" skinClass="com.mignari.skins.PixeledBorderContainerSkin">
+        <s:layout>
+            <s:HorizontalLayout gap="10" padding="10" verticalAlign="middle" horizontalAlign="right" />
+        </s:layout>
 
         <s:Button id="infoButton"
                   width="25"
@@ -366,5 +325,5 @@ THE SOFTWARE.
                   label="@Resource(key='cancel', bundle='strings')"
                   minWidth="70"
                   click="close()"/>
-    </s:HGroup>
-</s:Window>
+    </s:BorderContainer>
+</mg:TitleWindow>
