@@ -124,10 +124,11 @@ package otlib.sprites
             if (!version)
                 throw new NullArgumentError("version");
 
-            if (this.loaded)
+            if (loaded)
                 return;
 
-            this.onLoad(file, version, extended, transparency, false);
+            dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.SPRITES, 0, 100));
+            onLoad(file, version, extended, transparency, false);
         }
 
         public function createNew(version:Version, extended:Boolean, transparency:Boolean):void
@@ -424,7 +425,7 @@ package otlib.sprites
                 if (!equal)
                     FileUtil.copyToAsync(_file, file);
 
-                dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.SPR, _spritesCount, _spritesCount));
+                dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.SPRITES, _spritesCount, _spritesCount));
                 return true;
             }
 
@@ -454,7 +455,7 @@ package otlib.sprites
                 var addressPosition:uint = stream.position;
                 var offset:uint = (count * 4) + headSize;
                 var dispatchProgess:Boolean = this.hasEventListener(ProgressEvent.PROGRESS);
-                var progressEvent:ProgressEvent = new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.SPR);
+                var progressEvent:ProgressEvent = new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.SPRITES);
                 progressEvent.total = count;
 
                 for (var i:uint = 1; i <= count; i++) {
@@ -754,6 +755,7 @@ package otlib.sprites
 
             if (!reloading)
             {
+                dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.SPRITES, _spritesCount, _spritesCount));
                 dispatchEvent(new StorageEvent(StorageEvent.LOAD));
                 dispatchEvent(new StorageEvent(StorageEvent.CHANGE));
             }

@@ -50,6 +50,7 @@ THE SOFTWARE.
     <fx:Script>
         <![CDATA[
             import com.mignari.animator.AnimationEditor;
+            import com.mignari.components.ProgressWidget;
             import com.mignari.utils.DialogDetail;
             import com.mignari.workers.IWorkerCommunicator;
             import com.mignari.workers.WorkerCommand;
@@ -88,11 +89,9 @@ THE SOFTWARE.
             import ob.commands.HideProgressBarCommand;
             import ob.commands.LoadVersionsCommand;
             import ob.commands.NeedToReloadCommand;
-            import ob.commands.ProgressBarID;
             import ob.commands.ProgressCommand;
             import ob.commands.SetClientInfoCommand;
             import ob.commands.SettingsCommand;
-            import ob.commands.ShowProgressBarCommand;
             import ob.commands.files.CompileAsCommand;
             import ob.commands.files.CompileCommand;
             import ob.commands.files.CreateNewFilesCommand;
@@ -137,8 +136,6 @@ THE SOFTWARE.
             import otlib.animation.FrameDuration;
             import otlib.assets.Assets;
             import otlib.components.ClientVersionsWindow;
-            import otlib.components.DatSprProgressBar;
-            import otlib.components.DefaultProgressBar;
             import otlib.components.ExportWindow;
             import otlib.components.FindWindow;
             import otlib.components.LogWindow;
@@ -199,8 +196,7 @@ THE SOFTWARE.
             private var _showThingsPanel:Boolean = true;
             private var _showSpritesPanel:Boolean = true;
             private var _showPanelChanged:Boolean;
-            private var _datSprProgressBar:DatSprProgressBar;
-            private var _defaultProgressBar:DefaultProgressBar;
+            private var _progressWidget:ProgressWidget;
             private var _category:String;
             private var _categoryChanged:Boolean;
             private var _objectViewer:ObjectViewer;
@@ -830,7 +826,6 @@ THE SOFTWARE.
 
                 _communicator.registerCallback(LogCommand, logCallback);
                 _communicator.registerCallback(ProgressCommand, progressCallback);
-                _communicator.registerCallback(ShowProgressBarCommand, showProgressBarCallback);
                 _communicator.registerCallback(HideProgressBarCommand, hideProgressBarCallback);
                 _communicator.registerCallback(SetClientInfoCommand, setClientInfoCallback);
 
@@ -1363,98 +1358,40 @@ THE SOFTWARE.
                 _settings.showSpritesPanel = showSpritesPanel;
             }
 
-            private function showDatSprProgressBar(title:String):void
+            private function hideProgressBarCallback(id:String):void
             {
-                if (!_datSprProgressBar) {
-                    _datSprProgressBar = new DatSprProgressBar();
-                    _datSprProgressBar.title = title;
-                }
-
-                _datSprProgressBar.open();
-                _locked = true;
+                if (_progressWidget)
+                    _progressWidget.progress(id, 100, 100, null);
             }
 
-            private function hideDatSprProgressBar():void
+            private function progressCallback(id:String, loaded:uint, total:uint, label:String):void
             {
-                if (_datSprProgressBar) {
-                    _datSprProgressBar.close();
-                    _datSprProgressBar = null;
-                    _locked = false;
-                }
-            }
-
-            private function showDefaultProgressBar(title:String):void
-            {
-                if (!_defaultProgressBar) {
-                    _defaultProgressBar = new DefaultProgressBar();
-                    _defaultProgressBar.title = title;
+                if (!_progressWidget) {
+                    _progressWidget = new ProgressWidget();
+                    _progressWidget.addEventListener(Event.CLOSE, function closeHandler(event:Event):void
+                    {
+                        _locked = false;
+                        _progressWidget = null;
+                    });
+                    _progressWidget.open(this);
+                    _locked = true;
                 }
 
-                _defaultProgressBar.open();
-                _locked = true;
-            }
-
-            private function hideDefaultProgressBar():void
-            {
-                if (_defaultProgressBar) {
-                    _defaultProgressBar.close();
-                    _defaultProgressBar = null;
-                    _locked = false;
-                }
-            }
-
-            private function showProgressBarCallback(id:uint, title:String):void
-            {
-                switch(id) {
-                    case ProgressBarID.DAT_SPR:
-                        showDatSprProgressBar(title);
-                        break;
-                    case ProgressBarID.DEFAULT:
-                        showDefaultProgressBar(title);
-                        break;
-                }
-            }
-
-            private function hideProgressBarCallback(id:uint):void
-            {
-                switch(id) {
-                    case ProgressBarID.DAT_SPR:
-                        hideDatSprProgressBar();
-                        break;
-                    case ProgressBarID.DEFAULT:
-                        hideDefaultProgressBar();
-                        break;
-                }
+                _progressWidget.progress(id, loaded, total, label);
             }
 
             private function logCallback(level:uint, message:String, stack:String, id:uint):void
             {
-                hideDatSprProgressBar();
-                hideDefaultProgressBar();
+                if (_progressWidget)
+                    _progressWidget.close();
 
-                if (level != Log.INFO)
-                {
+                if (level != Log.INFO) {
                     var text:String = isNullOrEmpty(stack) ? message : stack;
                     _logTarget.write(text);
                     openErrorWindow(text);
                 }
                 else
                     appendLog(message);
-            }
-
-            private function progressCallback(id:uint, loaded:uint, total:uint, label:String):void
-            {
-                switch(id)
-                {
-                    case ProgressBarID.DAT:
-                    case ProgressBarID.SPR:
-                        if (_datSprProgressBar) _datSprProgressBar.setProgress(id, loaded, total);
-                        break;
-
-                    case ProgressBarID.DEFAULT:
-                        if (_defaultProgressBar) _defaultProgressBar.setProgress(loaded, total);
-                        break;
-                }
             }
 
             private function toLogString(level:uint):String

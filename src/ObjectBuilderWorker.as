@@ -25,7 +25,7 @@ package
     import com.mignari.workers.IWorkerCommunicator;
     import com.mignari.workers.WorkerCommand;
     import com.mignari.workers.WorkerCommunicator;
-
+    
     import flash.display.BitmapData;
     import flash.display.Sprite;
     import flash.events.ErrorEvent;
@@ -33,9 +33,9 @@ package
     import flash.filesystem.File;
     import flash.geom.Rectangle;
     import flash.utils.ByteArray;
-
+    
     import mx.resources.ResourceManager;
-
+    
     import nail.errors.NullArgumentError;
     import nail.errors.NullOrEmptyArgumentError;
     import nail.image.ImageCodec;
@@ -46,7 +46,7 @@ package
     import nail.utils.StringUtil;
     import nail.utils.VectorUtils;
     import nail.utils.isNullOrEmpty;
-
+    
     import ob.commands.FindResultCommand;
     import ob.commands.HideProgressBarCommand;
     import ob.commands.LoadVersionsCommand;
@@ -55,7 +55,6 @@ package
     import ob.commands.ProgressCommand;
     import ob.commands.SetClientInfoCommand;
     import ob.commands.SettingsCommand;
-    import ob.commands.ShowProgressBarCommand;
     import ob.commands.files.CompileAsCommand;
     import ob.commands.files.CompileCommand;
     import ob.commands.files.CreateNewFilesCommand;
@@ -91,7 +90,7 @@ package
     import ob.settings.ObjectBuilderSettings;
     import ob.utils.ObUtils;
     import ob.utils.SpritesFinder;
-
+    
     import otlib.animation.FrameDuration;
     import otlib.core.Version;
     import otlib.core.VersionStorage;
@@ -365,11 +364,11 @@ package
         }
 
         private function loadFilesCallback(datPath:String,
-                                     sprPath:String,
-                                     version:Version,
-                                     extended:Boolean,
-                                     transparency:Boolean,
-                                     improvedAnimations:Boolean):void
+                                           sprPath:String,
+                                           version:Version,
+                                           extended:Boolean,
+                                           transparency:Boolean,
+                                           improvedAnimations:Boolean):void
         {
             if (isNullOrEmpty(datPath))
                 throw new NullOrEmptyArgumentError("datPath");
@@ -388,9 +387,6 @@ package
             _extended = (extended || _version.value >= 960);
             _transparency = transparency;
             _improvedAnimations = (improvedAnimations || _version.value >= 1050);
-
-            var title:String = Resources.getString("loading");
-            sendCommand(new ShowProgressBarCommand(ProgressBarID.DAT_SPR, title));
 
             createStorage();
 
@@ -413,8 +409,6 @@ package
 
             if (!version)
                 throw new NullArgumentError("version");
-
-            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, "Merging..."));
 
             var datFile:File = new File(datPath);
             var sprFile:File = new File(sprPath);
@@ -490,9 +484,6 @@ package
             var structureChanged:Boolean = (_extended != extended ||
                                             _transparency != transparency ||
                                             _improvedAnimations != improvedAnimations);
-            var title:String = Resources.getString("compiling");
-
-            sendCommand(new ShowProgressBarCommand(ProgressBarID.DAT_SPR, title));
 
             if (!_things.compile(dat, version, extended, improvedAnimations) ||
                 !_sprites.compile(spr, version, extended, transparency)) {
@@ -700,8 +691,7 @@ package
             //============================================================================
             // Export things
 
-            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("exportingObjects")));
-
+            var label:String = Resources.getString("exportingObjects");
             var encoder:OBDEncoder = new OBDEncoder();
             var helper:SaveHelper = new SaveHelper();
             var backgoundColor:uint = (_transparency || transparentBackground) ? 0x00FF00FF : 0xFFFF00FF;
@@ -735,7 +725,7 @@ package
 
             function progressHandler(event:flash.events.ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal));
+                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal, label));
             }
 
             function completeHandler(event:Event):void
@@ -843,11 +833,11 @@ package
             loader.addEventListener(ErrorEvent.ERROR, errorHandler);
             loader.loadFiles(list);
 
-            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("loading")));
+            var label:String = Resources.getString("loading");
 
             function progressHandler(event:ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(event.id, event.loaded, event.total));
+                sendCommand(new ProgressCommand(event.id, event.loaded, event.total, label));
             }
 
             function completeHandler(event:Event):void
@@ -966,11 +956,11 @@ package
             loader.addEventListener(ErrorEvent.ERROR, errorHandler);
             loader.loadFiles(list);
 
-            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("loading")));
+            var label:String = Resources.getString("loading");
 
             function progressHandler(event:ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(event.id, event.loaded, event.total));
+                sendCommand(new ProgressCommand(event.id, event.loaded, event.total, label));
             }
 
             function completeHandler(event:Event):void
@@ -1223,11 +1213,11 @@ package
             loader.addEventListener(ProgressEvent.PROGRESS, progressHandler);
             loader.loadFiles(list);
 
-            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("loading")));
+            var label:String = Resources.getString("loading");
 
             function progressHandler(event:ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(event.id, event.loaded, event.total));
+                sendCommand(new ProgressCommand(event.id, event.loaded, event.total, label));
             }
 
             function completeHandler(event:Event):void
@@ -1293,11 +1283,11 @@ package
             loader.addEventListener(ErrorEvent.ERROR, errorHandler);
             loader.loadFiles(list);
 
-            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("loading")));
+            var label:String = Resources.getString("loading");
 
             function progressHandler(event:ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(event.id, event.loaded, event.total));
+                sendCommand(new ProgressCommand(event.id, event.loaded, event.total, label));
             }
 
             function completeHandler(event:Event):void
@@ -1338,8 +1328,7 @@ package
             //============================================================================
             // Save sprites
 
-            sendCommand(new ShowProgressBarCommand(ProgressBarID.DEFAULT, Resources.getString("exportingSprites")));
-
+            var label:String = Resources.getString("exportingSprites");
             var helper:SaveHelper = new SaveHelper();
 
             for (var i:uint = 0; i < length; i++) {
@@ -1362,7 +1351,7 @@ package
 
             function progressHandler(event:flash.events.ProgressEvent):void
             {
-                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal));
+                sendCommand(new ProgressCommand(ProgressBarID.DEFAULT, event.bytesLoaded, event.bytesTotal, label));
             }
 
             function completeHandler(event:Event):void
@@ -1493,7 +1482,7 @@ package
 
         private function clientLoadComplete():void
         {
-            sendCommand(new HideProgressBarCommand(ProgressBarID.DAT_SPR));
+            sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
             sendClientInfo();
             sendThingList(Vector.<uint>([ThingTypeStorage.MIN_ITEM_ID]), ThingCategory.ITEM);
             sendThingData(Vector.<uint>([ThingTypeStorage.MIN_ITEM_ID]), ThingCategory.ITEM);
@@ -1503,7 +1492,7 @@ package
 
         private function clientCompileComplete():void
         {
-            sendCommand(new HideProgressBarCommand(ProgressBarID.DAT_SPR));
+            sendCommand(new HideProgressBarCommand(ProgressBarID.DEFAULT));
             sendClientInfo();
             Log.info(Resources.getString("compileComplete"));
         }
@@ -1713,7 +1702,7 @@ package
 
         protected function thingsProgressHandler(event:ProgressEvent):void
         {
-            sendCommand(new ProgressCommand(event.id, event.loaded, event.total));
+            sendCommand(new ProgressCommand(event.id, event.loaded, event.total, "Metadata"));
         }
 
         protected function thingsErrorHandler(event:ErrorEvent):void
@@ -1743,7 +1732,7 @@ package
 
         protected function spritesProgressHandler(event:ProgressEvent):void
         {
-            sendCommand(new ProgressCommand(event.id, event.loaded, event.total));
+            sendCommand(new ProgressCommand(event.id, event.loaded, event.total, "Sprites"));
         }
 
         protected function spritesErrorHandler(event:ErrorEvent):void

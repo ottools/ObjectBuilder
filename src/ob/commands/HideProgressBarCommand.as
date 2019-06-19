@@ -30,7 +30,7 @@ package ob.commands
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
 
-        public function HideProgressBarCommand(id:uint)
+        public function HideProgressBarCommand(id:String)
         {
             super(id);
         }

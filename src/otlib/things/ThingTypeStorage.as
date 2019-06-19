@@ -967,7 +967,7 @@ package otlib.things
                 if (dispatchProgress) {
                     dispatchEvent(new ProgressEvent(
                         ProgressEvent.PROGRESS,
-                        ProgressBarID.DAT,
+                        ProgressBarID.METADATA,
                         _progressCount,
                         _thingsCount));
                     _progressCount++;
@@ -1001,7 +1001,7 @@ package otlib.things
                 }
 
                 if (dispatchProgress) {
-                    dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.DAT, _progressCount, _thingsCount));
+                    dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.METADATA, _progressCount, _thingsCount));
                     _progressCount++;
                 }
             }
@@ -1034,7 +1034,7 @@ package otlib.things
                 }
 
                 if (dispatchProgress) {
-                    dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.DAT, _progressCount, _thingsCount));
+                    dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, ProgressBarID.METADATA, _progressCount, _thingsCount));
                     _progressCount++;
                 }
             }

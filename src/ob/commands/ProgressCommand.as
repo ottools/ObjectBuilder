@@ -30,7 +30,7 @@ package ob.commands
         // CONSTRUCTOR
         //--------------------------------------------------------------------------
 
-        public function ProgressCommand(id:uint, value:uint, total:uint, label:String = null)
+        public function ProgressCommand(id:String, value:uint, total:uint, label:String = null)
         {
             super(id, value, total, label);
         }

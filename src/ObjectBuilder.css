@@ -231,6 +231,16 @@ mg|GroupCheckBox
     skinClass: ClassReference("com.mignari.skins.GroupSwitchSkin");
 }
 
+mg|ProgressBar
+{
+    barSkin: ClassReference("com.mignari.skins.ProgressBarSkin");
+}
+
+mg|ProgressWidget
+{
+    skinClass: ClassReference("com.mignari.skins.ProgressWidgetSkin");
+}
+
 /*
 //--------------------------------------
 // otlib components

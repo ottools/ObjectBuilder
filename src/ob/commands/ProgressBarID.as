@@ -39,11 +39,10 @@ package ob.commands
         // STATIC
         //--------------------------------------------------------------------------
 
-        public static const DAT:uint = 1;
-        public static const SPR:uint = 2;
-        public static const DAT_SPR:uint = 3;
-        public static const DEFAULT:uint = 4;
-        public static const FIND:uint = 5;
-        public static const OPTIMIZE:uint = 6;
+        public static const DEFAULT:String = "default";
+        public static const METADATA:String = "metadata";
+        public static const SPRITES:String = "sprites";
+        public static const FIND:String = "find";
+        public static const OPTIMIZE:String = "optimize";
     }
 }

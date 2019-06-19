@@ -30,7 +30,7 @@ package otlib.events
         // PROPERTIES
         //--------------------------------------------------------------------------
 
-        public var id:uint;
+        public var id:String;
         public var loaded:uint;
         public var total:uint;
         public var label:String;
@@ -40,7 +40,7 @@ package otlib.events
         //--------------------------------------------------------------------------
 
         public function ProgressEvent(type:String,
-                                      id:uint,
+                                      id:String,
                                       loaded:uint = 0,
                                       total:uint = 0,
                                       label:String = null)

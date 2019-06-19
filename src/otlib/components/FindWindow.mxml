@@ -48,11 +48,11 @@ THE SOFTWARE.
     <fx:Script>
         <![CDATA[
             import com.mignari.workers.IWorkerCommunicator;
-
+            
             import mx.core.FlexGlobals;
             import mx.events.FlexEvent;
             import mx.events.PropertyChangeEvent;
-
+            
             import ob.commands.FindResultCommand;
             import ob.commands.ProgressBarID;
             import ob.commands.ProgressCommand;
@@ -63,7 +63,7 @@ THE SOFTWARE.
             import ob.commands.things.GetThingCommand;
             import ob.commands.things.RemoveThingCommand;
             import ob.core.IObjectBuilder;
-
+            
             import otlib.assets.Assets;
             import otlib.components.renders.SpriteListRenderer;
             import otlib.components.renders.ThingListRenderer;
@@ -111,7 +111,7 @@ THE SOFTWARE.
             // Private
             //--------------------------------------
 
-            private function progressCallback(id:uint,
+            private function progressCallback(id:String,
                                               loaded:uint,
                                               total:uint,
                                               label:String):void

@@ -86,7 +86,7 @@ THE SOFTWARE.
             // Private
             //--------------------------------------
 
-            private function progressCallback(id:uint, loaded:uint, total:uint, label:String):void
+            private function progressCallback(id:String, loaded:uint, total:uint, label:String):void
             {
                 if (id == ProgressBarID.OPTIMIZE) {
                     progressBar.setProgress(loaded, total);
