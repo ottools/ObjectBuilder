@@ -44,17 +44,18 @@ THE SOFTWARE.
             import com.mignari.animator.settings.AnimationEditorSettings;
             import com.mignari.settings.ISettingsManager;
             import com.mignari.settings.SettingsManager;
+            import com.mignari.utils.DialogDetail;
             import com.worlize.gif.GIFDecoder;
             import com.worlize.gif.GIFFrame;
             import com.worlize.gif.events.GIFDecoderEvent;
-
+            
             import mx.events.DragEvent;
             import mx.events.FlexEvent;
             import mx.events.MoveEvent;
             import mx.managers.DragManager;
-
+            
             import spark.events.IndexChangeEvent;
-
+            
             import nail.assets.NailAssets;
             import nail.components.controls.Alert;
             import nail.image.ClipboardBitmapLoader;
@@ -66,9 +67,9 @@ THE SOFTWARE.
             import nail.utils.SaveHelper;
             import nail.utils.StringUtil;
             import nail.utils.WindowUtil;
-
+            
             import ob.utils.ObUtils;
-
+            
             import otlib.animation.FrameDuration;
             import otlib.assets.Assets;
             import otlib.components.ExportWindow;
@@ -177,15 +178,12 @@ THE SOFTWARE.
                 window.version = _settings.getLastExportVersion();
                 window.title = resourceManager.getString("strings", "menu.save");
                 window.addEventListener(Event.CLOSE, windowCloseHandler);
-                window.open();
-
-                PopUpWindowManager.addWindow(window);
+                window.open(this);
 
                 function windowCloseHandler(event:Event):void
                 {
-                    if (window.fileName == null || !window.directory || window.format == null) {
+                    if (window.detail != DialogDetail.OK)
                         return;
-                    }
 
                     var file:File = window.directory.resolvePath(window.fileName + "." + window.format);
                     var backgoundColor:uint = true ? 0x00FF00FF : 0xFFFF00FF;
@@ -194,13 +192,10 @@ THE SOFTWARE.
                     var format:String = file.extension;
 
                     var helper:SaveHelper = new SaveHelper();
-                    if (ImageFormat.hasImageFormat(format))
-                    {
+                    if (ImageFormat.hasImageFormat(format)) {
                         bitmap = thingView.thingData.getSpriteSheet(null, backgoundColor);
                         bytes = ImageCodec.encode(bitmap, format);
-                    }
-                    else if (format == OTFormat.OBD)
-                    {
+                    } else if (format == OTFormat.OBD) {
                         bytes = new OBDEncoder().encode(thingView.thingData);
                     }
 

@@ -21,30 +21,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009"
-          xmlns:s="library://ns.adobe.com/flex/spark"
-          xmlns:mx="library://ns.adobe.com/flex/mx"
-          xmlns:nail="library://ns.nail.com/naillib"
-          xmlns:otlib="nail.otlib.components.*"
-          showStatusBar="false"
-          backgroundColor="0x494949"
-          width="400"
-          height="270"
-          resizable="false"
-          fontSize="11"
-          type="utility"
-          title="@Resource(key='export', bundle='strings')"
-          preinitialize="preinitializeHandler(event)"
-          closing="windowClosingHandler(event)" xmlns:components="otlib.components.*">
-
-    <s:layout>
-        <s:VerticalLayout gap="10"
-                          paddingLeft="10"
-                          paddingRight="10"
-                          paddingTop="10"
-                          paddingBottom="10"
-                          horizontalAlign="right"/>
-    </s:layout>
+<mg:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:mg="library://ns.mignari.com/mg"
+                xmlns:otlib="otlib.components.*"
+                width="400"
+                height="270"
+                fontSize="11"
+                title="@Resource(key='export', bundle='strings')"
+                preinitialize="preinitializeHandler(event)">
 
     <fx:Metadata>
         [ResourceBundle("strings")]
@@ -57,6 +43,7 @@ THE SOFTWARE.
 
     <fx:Script>
         <![CDATA[
+            import com.mignari.skins.PixeledBorderContainerSkin;
             import com.mignari.utils.DialogDetail;
             
             import mx.collections.ArrayCollection;
@@ -268,12 +255,12 @@ THE SOFTWARE.
 
             protected function nameTextInputChangeHandler(event:TextOperationEvent):void
             {
-                this.fileName = nameTextInput.text;
+                fileName = nameTextInput.text;
             }
 
             protected function directoryChangeHandler(event:FileTextInputEvent):void
             {
-                this.directory = event.file;
+                directory = event.file;
             }
 
             protected function browseButtonClickHandler(event:MouseEvent):void
@@ -291,208 +278,169 @@ THE SOFTWARE.
 
             protected function formatRadioButtonGroupChangeHandler(event:Event):void
             {
-                this.format = formatRadioButtonGroup.selectedValue as String;
+                format = formatRadioButtonGroup.selectedValue as String;
             }
 
             protected function versionDropDownListChangeHandler(event:IndexChangeEvent):void
             {
-                this.version = versionDropDownList.selectedItem as Version;
+                version = versionDropDownList.selectedItem as Version;
             }
 
             protected function obdVersionDropDownListChangeHandler(event:IndexChangeEvent):void
             {
                 if (obdVersionDropDownList.selectedIndex == 0)
-                    this.obdVersion = OBDVersions.OBD_VERSION_2;
+                    obdVersion = OBDVersions.OBD_VERSION_2;
                 else if (obdVersionDropDownList.selectedIndex == 1)
-                    this.obdVersion = OBDVersions.OBD_VERSION_1;
+                    obdVersion = OBDVersions.OBD_VERSION_1;
             }
 
             protected function confirmButtonClickHandler(event:MouseEvent):void
             {
                 _detail = DialogDetail.OK;
-                this.close();
+                close();
             }
 
             protected function cancelButtonClickHandler(event:MouseEvent):void
             {
                 _detail = DialogDetail.CANCEL;
-                this.close();
-            }
-
-            protected function windowClosingHandler(event:Event):void
-            {
-                if (_detail == DialogDetail.CANCEL) {
-                    _fileName = null;
-                    _format = null;
-                    _directory = null;
-                    _version = null;
-                }
+                close();
             }
 
         ]]>
     </fx:Script>
 
-    <s:Group width="100%">
+    <mg:layout>
+        <s:VerticalLayout />
+    </mg:layout>
 
-        <s:Label text="{resourceManager.getString('strings', 'name') + ':'}"
-                 fontSize="11"
-                 color="0xDFDFDF"/>
+    <s:VGroup width="100%" height="100%" gap="10" padding="10">
+        <s:Group width="100%">
+            <s:Label text="{resourceManager.getString('strings', 'name') + ':'}"
+                     fontSize="11"
+                     color="0xDFDFDF"/>
 
-        <s:TextInput id="nameTextInput"
-                     left="0"
-                     right="0"
-                     top="15"
-                     change="nameTextInputChangeHandler(event)"/>
-    </s:Group>
+            <s:TextInput id="nameTextInput"
+                         left="0" right="0" top="15"
+                         change="nameTextInputChangeHandler(event)"/>
+        </s:Group>
 
-    <s:Group width="100%">
+        <s:Group width="100%">
+            <s:Label text="{resourceManager.getString('strings', 'outputFolder') + ':'}"
+                     fontSize="11"
+                     color="0xDFDFDF"/>
 
-        <s:Label text="{resourceManager.getString('strings', 'outputFolder') + ':'}"
-                 fontSize="11"
-                 color="0xDFDFDF"/>
+            <otlib:FileTextInput id="directoryTextInput"
+                                 left="0" right="65" top="15"
+                                 fileChange="directoryChangeHandler(event)"/>
 
-        <components:FileTextInput id="directoryTextInput"
-                             left="0"
-                             right="65"
-                             top="15"
-                             fileChange="directoryChangeHandler(event)"/>
+            <s:Button id="browseButton"
+                      label="@Resource(key='browse', bundle='strings')"
+                      height="22" top="15" right="0"
+                      click="browseButtonClickHandler(event)"/>
+        </s:Group>
 
-        <s:Button id="browseButton"
-                  label="@Resource(key='browse', bundle='strings')"
-                  height="22"
-                  top="15"
-                  right="0"
-                  click="browseButtonClickHandler(event)"/>
-    </s:Group>
+        <mg:GroupBox label="@Resource(key='format', bundle='strings')" width="100%">
+            <mg:layout>
+                <s:HorizontalLayout gap="20" padding="10" verticalAlign="middle"/>
+            </mg:layout>
 
-    <nail:GroupBox label="@Resource(key='format', bundle='strings')"
-                   width="100%">
+            <s:RadioButton id="pngFormatRadioButton"
+                           label="PNG"
+                           groupName="formatRadioButtonGroup"/>
+            <s:RadioButton id="bmpFormatRadioButton"
+                           label="BMP"
+                           groupName="formatRadioButtonGroup"/>
+            <s:RadioButton id="jpgFormatRadioButton"
+                           label="JPG"
+                           groupName="formatRadioButtonGroup"/>
+            <s:RadioButton id="obdFormatRadioButton"
+                           label="OBD"
+                           visible="false"
+                           groupName="formatRadioButtonGroup"/>
+        </mg:GroupBox>
 
-        <nail:layout>
-            <s:HorizontalLayout gap="20"
-                                paddingLeft="10"
-                                paddingRight="10"
-                                paddingTop="10"
-                                paddingBottom="10"
-                                verticalAlign="middle"/>
-        </nail:layout>
+        <mg:GroupBox label="@Resource(key='options', bundle='strings')" width="100%">
+            <mx:ViewStack id="stackView" width="100%" creationPolicy="all" selectedIndex="0">
+                <!-- PNG options -->
+                <s:NavigatorContent>
+                    <s:layout>
+                        <s:HorizontalLayout gap="20" padding="10" verticalAlign="middle"/>
+                    </s:layout>
 
-        <s:RadioButton id="pngFormatRadioButton"
-                       label="PNG"
-                       groupName="formatRadioButtonGroup"/>
-        <s:RadioButton id="bmpFormatRadioButton"
-                       label="BMP"
-                       groupName="formatRadioButtonGroup"/>
-        <s:RadioButton id="jpgFormatRadioButton"
-                       label="JPG"
-                       groupName="formatRadioButtonGroup"/>
-        <s:RadioButton id="obdFormatRadioButton"
-                       label="OBD"
-                       visible="false"
-                       groupName="formatRadioButtonGroup"/>
-    </nail:GroupBox>
+                    <s:CheckBox id="transparentBackgroundCheckBox"
+                                label="@Resource(key='transparentBackground', bundle='strings')"
+                                selected="{transparentBackground}"
+                                change="{transparentBackground = transparentBackgroundCheckBox.selected}"/>
+                </s:NavigatorContent>
 
-    <nail:GroupBox label="@Resource(key='options', bundle='strings')"
-                   width="100%">
+                <!-- BMP options -->
+                <s:NavigatorContent/>
 
-        <mx:ViewStack id="stackView"
-                      width="100%"
-                      creationPolicy="all"
-                      selectedIndex="0">
+                <!-- JPG options -->
+                <s:NavigatorContent>
+                    <s:layout>
+                        <s:HorizontalLayout gap="20" padding="10" verticalAlign="middle"/>
+                    </s:layout>
 
-            <!-- PNG options -->
-            <s:NavigatorContent>
-                <s:layout>
-                    <s:HorizontalLayout gap="20"
-                                        paddingLeft="10"
-                                        paddingRight="10"
-                                        paddingTop="10"
-                                        paddingBottom="10"
-                                        verticalAlign="middle"/>
-                </s:layout>
+                    <s:Label text="{resourceManager.getString('strings', 'quality') + ':'}"/>
 
-                <s:CheckBox id="transparentBackgroundCheckBox"
-                            label="@Resource(key='transparentBackground', bundle='strings')"
-                            selected="{transparentBackground}"
-                            change="{transparentBackground = transparentBackgroundCheckBox.selected}"/>
-            </s:NavigatorContent>
+                    <s:HSlider id="qualityHSlider"
+                               width="120"
+                               minimum="10"
+                               maximum="100"
+                               stepSize="5"
+                               value="{jpegQuality}"
+                               change="{jpegQuality = qualityHSlider.value}"/>
 
-            <!-- BMP options -->
-            <s:NavigatorContent/>
+                    <s:Label text="{qualityHSlider.value + ' %'}"/>
 
-            <!-- JPG options -->
-            <s:NavigatorContent>
-                <s:layout>
-                    <s:HorizontalLayout gap="20"
-                                        paddingLeft="10"
-                                        paddingRight="10"
-                                        paddingTop="10"
-                                        paddingBottom="10"
-                                        verticalAlign="middle"/>
-                </s:layout>
+                </s:NavigatorContent>
 
-                <s:Label text="{resourceManager.getString('strings', 'quality') + ':'}"/>
+                <!-- OBD options -->
+                <s:NavigatorContent>
+                    <s:layout>
+                        <s:HorizontalLayout gap="20" padding="10" verticalAlign="middle"/>
+                    </s:layout>
 
-                <s:HSlider id="qualityHSlider"
-                           width="120"
-                           minimum="10"
-                           maximum="100"
-                           stepSize="5"
-                           value="{jpegQuality}"
-                           change="{jpegQuality = qualityHSlider.value}"/>
+                    <s:Label text="{resourceManager.getString('strings', 'version') + ':'}"/>
+                    <s:DropDownList id="versionDropDownList"
+                                    minWidth="100"
+                                    enabled="{obdFormatRadioButton.selected}"
+                                    dataProvider="{_versionCollection}"
+                                    change="versionDropDownListChangeHandler(event)"/>
 
-                <s:Label text="{qualityHSlider.value + ' %'}"/>
+                    <s:Label text="OBD:"/>
+                    <s:DropDownList id="obdVersionDropDownList"
+                                    minWidth="80"
+                                    requireSelection="true"
+                                    enabled="{obdFormatRadioButton.selected}"
+                                    change="obdVersionDropDownListChangeHandler(event)">
+                        <s:dataProvider>
+                            <s:ArrayList>
+                                <fx:String>2</fx:String>
+                                <fx:String>1</fx:String>
+                            </s:ArrayList>
+                        </s:dataProvider>
+                    </s:DropDownList>
+                </s:NavigatorContent>
+            </mx:ViewStack>
+        </mg:GroupBox>
+    </s:VGroup>
 
-            </s:NavigatorContent>
+    <s:BorderContainer width="100%" skinClass="com.mignari.skins.PixeledBorderContainerSkin">
+        <s:layout>
+            <s:HorizontalLayout gap="10" padding="10" verticalAlign="middle" horizontalAlign="right" />
+        </s:layout>
 
-            <!-- OBD options -->
-            <s:NavigatorContent>
-                <s:layout>
-                    <s:HorizontalLayout gap="20"
-                                        paddingLeft="10"
-                                        paddingRight="10"
-                                        paddingTop="10"
-                                        paddingBottom="10"
-                                        verticalAlign="middle"/>
-                </s:layout>
-
-                <s:Label text="{resourceManager.getString('strings', 'version') + ':'}"/>
-                <s:DropDownList id="versionDropDownList"
-                                minWidth="100"
-                                enabled="{obdFormatRadioButton.selected}"
-                                dataProvider="{_versionCollection}"
-                                change="versionDropDownListChangeHandler(event)"/>
-
-                <s:Label text="OBD:"/>
-                <s:DropDownList id="obdVersionDropDownList"
-                                minWidth="80"
-                                requireSelection="true"
-                                enabled="{obdFormatRadioButton.selected}"
-                                change="obdVersionDropDownListChangeHandler(event)">
-                    <s:dataProvider>
-                        <s:ArrayList>
-                            <fx:String>2</fx:String>
-                            <fx:String>1</fx:String>
-                        </s:ArrayList>
-                    </s:dataProvider>
-                </s:DropDownList>
-            </s:NavigatorContent>
-        </mx:ViewStack>
-    </nail:GroupBox>
-
-    <nail:ShadowLine width="100%"/>
-
-    <s:HGroup width="100%"
-              verticalAlign="middle"
-              horizontalAlign="right">
         <s:Button id="confirmButton"
                   label="@Resource(key='confirm', bundle='strings')"
                   minWidth="70"
                   enabled="false"
-                  click="confirmButtonClickHandler(event)"/>
+                  click="confirmButtonClickHandler(event)" />
+
         <s:Button id="cancelButton"
                   label="@Resource(key='cancel', bundle='strings')"
                   minWidth="70"
-                  click="cancelButtonClickHandler(event)"/>
-    </s:HGroup>
-</s:Window>
+                  click="cancelButtonClickHandler(event)" />
+    </s:BorderContainer>
+</mg:TitleWindow>

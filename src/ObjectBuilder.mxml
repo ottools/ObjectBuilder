@@ -1776,15 +1776,16 @@ THE SOFTWARE.
 
             protected function exportThingHandler(event:Event):void
             {
-                if (!clientLoaded) return;
+                if (!clientLoaded || _locked) return;
 
                 var things:Vector.<ThingType> = thingList.selectedThings;
                 if (things.length == 0) return;
 
                 var version:Version = _settings.getLastExportThingVersion();
-                if (!version) {
+                if (!version)
                     version = _versionStorage.getFromClientInfo(_clientInfo);
-                }
+
+                _locked = true;
 
                 var window:ExportWindow = new ExportWindow();
                 window.enableObdFormat = true;
@@ -1795,18 +1796,13 @@ THE SOFTWARE.
                 window.transparentBackground = _settings.exportWithTransparentBackground;
                 window.jpegQuality = _settings.jpegQuality;
                 window.addEventListener(Event.CLOSE, windowCloseHandler);
-                window.open();
-
-                PopUpWindowManager.addWindow(window);
+                window.open(this);
 
                 function windowCloseHandler(event:Event):void
                 {
-                    if (window.detail == DialogDetail.OK &&
-                        window.fileName != null &&
-                        window.directory &&
-                        window.format != null &&
-                        window.version) {
+                    _locked = false;
 
+                    if (window.detail == DialogDetail.OK && window.fileName != null && window.directory && window.format != null && window.version) {
                         _settings.setIODirectory(window.directory);
                         _settings.setLastExportThingFormat(window.format);
                         _settings.setLastExportThingVersion(window.version);
@@ -2063,10 +2059,12 @@ THE SOFTWARE.
 
             protected function exportSpriteHandler(event:Event):void
             {
-                if (!clientLoaded) return;
+                if (!clientLoaded || _locked) return;
 
                 var sprites:Vector.<SpriteData> = spritesList.selectedSprites;
                 if (sprites.length == 0) return;
+
+                _locked = false;
 
                 var window:ExportWindow = new ExportWindow();
                 window.fileName = "sprite";
@@ -2076,16 +2074,11 @@ THE SOFTWARE.
                 window.transparentBackground = _settings.exportWithTransparentBackground;
                 window.jpegQuality = _settings.jpegQuality;
                 window.addEventListener(Event.CLOSE, windowCloseHandler);
-                window.open();
-
-                PopUpWindowManager.addWindow(window);
+                window.open(this);
 
                 function windowCloseHandler(event:Event):void
                 {
-                    if (window.detail == DialogDetail.OK &&
-                        window.fileName != null &&
-                        window.format != null
-                        && window.directory) {
+                    if (window.detail == DialogDetail.OK && window.fileName != null && window.format != null && window.directory) {
 
                         _settings.setIODirectory(window.directory);
                         _settings.setLastExportSpriteFormat(window.format);
