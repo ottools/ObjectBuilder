@@ -99,6 +99,9 @@ package otlib.assets
         [Embed(source="../../../assets/icons/animation.png", mimeType="image/png")]
         public static const ANIMATION:Class;
 
+        [Embed(source="../../../assets/icons/store.png", mimeType="image/png")]
+        public static const ASSET_STORE:Class;
+
         [Embed(source="../../../assets/icons/outfit.png", mimeType="image/png")]
         public static const OUTFIT:Class;
 

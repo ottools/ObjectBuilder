@@ -74,6 +74,9 @@ package ob.core
 
         function openAnimationEditor():void;
         function closeAnimationEditor():void;
+    
+        function openAssetStore():void;
+        function closeAssetStore():void;
 
         function openSpritesOptimizer():void;
 

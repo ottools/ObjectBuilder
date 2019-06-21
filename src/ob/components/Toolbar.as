@@ -68,6 +68,9 @@ package ob.components
         public var openAnimationEditorButton:Button;
 
         [SkinPart(required="true", type="spark.components.Button")]
+        public var assetStoreButton:Button;
+
+        [SkinPart(required="true", type="spark.components.Button")]
         public var openLogWindowButton:Button;
 
         private var m_application:IObjectBuilder;
@@ -122,6 +125,7 @@ package ob.components
                 instance == openObjectViewerButton ||
                 instance == openSlicerButton ||
                 instance == openAnimationEditorButton ||
+                instance == assetStoreButton ||
                 instance == openLogWindowButton)
             {
                 Button(instance).addEventListener(MouseEvent.CLICK, buttonClickHandler);
@@ -137,6 +141,7 @@ package ob.components
             openFindWindowButton.enabled = info.loaded;
             compileButton.enabled = (m_application.clientChanged && !m_application.clientIsTemporary);
             compileAsButton.enabled = m_application.clientLoaded;
+            assetStoreButton.enabled = info.loaded;
         }
 
         //--------------------------------------
@@ -182,6 +187,10 @@ package ob.components
 
                 case openAnimationEditorButton:
                     m_application.openAnimationEditor();
+                    break;
+
+                case assetStoreButton:
+                    m_application.openAssetStore();
                     break;
 
                 case openLogWindowButton:

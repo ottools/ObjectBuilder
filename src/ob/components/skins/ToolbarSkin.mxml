@@ -58,17 +58,11 @@ THE SOFTWARE.
     </s:Rect>
 
     <s:Group id="contentGroup"
-             left="0"
-             right="0"
-             top="0"
-             bottom="0"
-             minWidth="0"
-             minHeight="0">
+             left="0" right="0" top="0" bottom="0"
+             minWidth="0" minHeight="0">
 
         <s:layout>
-            <s:HorizontalLayout paddingLeft="10"
-                                paddingRight="10"
-                                verticalAlign="middle"/>
+            <s:HorizontalLayout paddingLeft="10" paddingRight="10" verticalAlign="middle"/>
         </s:layout>
 
         <s:Button id="newButton"
@@ -134,6 +128,16 @@ THE SOFTWARE.
 
         <nail:ShadowLine height="20"/>
 
+        <s:Button id="assetStoreButton"
+                  width="25"
+                  height="25"
+                  toolTip="Asset Store"
+                  enabled="false"
+                  icon="{Assets.ASSET_STORE}"
+                  skinClass="nail.components.skins.IconButtonSkin"/>
+
+        <nail:ShadowLine height="20"/>
+        
         <s:Button id="openLogWindowButton"
                   width="25"
                   height="25"
