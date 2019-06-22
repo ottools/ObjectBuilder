@@ -424,8 +424,27 @@ THE SOFTWARE.
             {
                 if (!clientLoaded) return;
 
-                clear();
-                sendCommand(new UnloadFilesCommand());
+                if (clientChanged) {
+                    Alert.show(
+                        resourceManager.getString("strings", "wantToCompile"),
+                        "",
+                        Alert.YES | Alert.NO | Alert.CANCEL,
+                        this,
+                        alertCloseHandler);
+                } else {
+                    clear();
+                    sendCommand(new UnloadFilesCommand());
+                }
+
+                function alertCloseHandler(event:CloseEvent):void
+                {
+                    if (event.detail == Alert.YES)
+                        compileProject();
+                    else if (event.detail == Alert.NO) {
+                        clear();
+                        sendCommand(new UnloadFilesCommand());
+                    }
+                }
             }
 
             public function mergeProject():void
