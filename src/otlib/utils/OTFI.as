@@ -39,6 +39,7 @@ package otlib.utils
         public var transparency:Boolean;
         public var improvedAnimations:Boolean;
         public var frameGroups:Boolean;
+        public var assetsName:String;
 
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
@@ -47,12 +48,14 @@ package otlib.utils
         public function OTFI(extended:Boolean = false,
                              transparency:Boolean = false,
                              improvedAnimations:Boolean = false,
-                             frameGroups:Boolean = false)
+                             frameGroups:Boolean = false,
+                             assetsName:String = null)
         {
             this.extended = extended;
             this.transparency = transparency;
             this.improvedAnimations = improvedAnimations;
             this.frameGroups = frameGroups;
+            this.assetsName = assetsName;
         }
 
         //--------------------------------------------------------------------------
@@ -82,10 +85,11 @@ package otlib.utils
             if (!doc.load(file) || doc.length == 0 || !doc.hasChild("DatSpr")) return false;
 
             var node:OTMLNode = doc.getChild("DatSpr");
-            this.extended = node.booleanAt("extended");
-            this.transparency = node.booleanAt("transparency");
-            this.improvedAnimations = node.booleanAt("frame-durations");
-            this.frameGroups = node.booleanAt("frame-groups");
+            extended = node.booleanAt("extended");
+            transparency = node.booleanAt("transparency");
+            improvedAnimations = node.booleanAt("frame-durations");
+            frameGroups = node.booleanAt("frame-groups");
+            assetsName = node.valueAt("assets-name");
             return true;
         }
 
@@ -98,10 +102,13 @@ package otlib.utils
 
             var node:OTMLNode = new OTMLNode();
             node.tag = "DatSpr";
-            node.writeAt("extended", this.extended);
-            node.writeAt("transparency", this.transparency);
-            node.writeAt("frame-durations", this.improvedAnimations);
-            node.writeAt("frame-groups", this.frameGroups);
+            node.writeAt("extended", extended);
+            node.writeAt("transparency", transparency);
+            node.writeAt("frame-durations", improvedAnimations);
+            node.writeAt("frame-groups", frameGroups);
+
+            if (assetsName)
+                node.writeAt("assets-name", assetsName);
 
             var doc:OTMLDocument = OTMLDocument.create();
             doc.addChild(node);
