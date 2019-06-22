@@ -91,6 +91,7 @@ THE SOFTWARE.
             import ob.commands.HideProgressBarCommand;
             import ob.commands.LoadVersionsCommand;
             import ob.commands.NeedToReloadCommand;
+            import ob.commands.ProgressBarID;
             import ob.commands.ProgressCommand;
             import ob.commands.SetClientInfoCommand;
             import ob.commands.SettingsCommand;
@@ -1410,6 +1411,9 @@ THE SOFTWARE.
 
             private function progressCallback(id:String, loaded:uint, total:uint, label:String):void
             {
+                if (id == ProgressBarID.FIND || id == ProgressBarID.OPTIMIZE)
+                    return;
+
                 if (!_progressWidget) {
                     _progressWidget = new ProgressWidget();
                     _progressWidget.addEventListener(Event.CLOSE, function closeHandler(event:Event):void
