@@ -491,10 +491,9 @@ package
             }
 
             // Save .otfi file
-            var name:String = FileUtil.getName(dat);
             var dir:File = FileUtil.getDirectory(dat);
-            var otfiFile:File = dir.resolvePath(name + ".otfi");
-            var otfi:OTFI = new OTFI(extended, transparency, improvedAnimations, false, name);
+            var otfiFile:File = dir.resolvePath(FileUtil.getName(dat) + ".otfi");
+            var otfi:OTFI = new OTFI(extended, transparency, improvedAnimations, false, dat.name, spr.name);
             otfi.save(otfiFile);
 
             clientCompileComplete();

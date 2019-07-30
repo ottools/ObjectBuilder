@@ -39,7 +39,8 @@ package otlib.utils
         public var transparency:Boolean;
         public var improvedAnimations:Boolean;
         public var frameGroups:Boolean;
-        public var assetsName:String;
+        public var metadataFile:String;
+        public var spritesFile:String;
 
         //--------------------------------------------------------------------------
         // CONSTRUCTOR
@@ -49,13 +50,15 @@ package otlib.utils
                              transparency:Boolean = false,
                              improvedAnimations:Boolean = false,
                              frameGroups:Boolean = false,
-                             assetsName:String = null)
+                             metadataFile:String = null,
+                             spritesFile:String = null)
         {
             this.extended = extended;
             this.transparency = transparency;
             this.improvedAnimations = improvedAnimations;
             this.frameGroups = frameGroups;
-            this.assetsName = assetsName;
+            this.metadataFile = metadataFile;
+            this.spritesFile = spritesFile;
         }
 
         //--------------------------------------------------------------------------
@@ -89,7 +92,8 @@ package otlib.utils
             transparency = node.booleanAt("transparency");
             improvedAnimations = node.booleanAt("frame-durations");
             frameGroups = node.booleanAt("frame-groups");
-            assetsName = node.valueAt("assets-name");
+            metadataFile = node.valueAt("metadata-file");
+            spritesFile = node.valueAt("sprites-file");
             return true;
         }
 
@@ -107,8 +111,11 @@ package otlib.utils
             node.writeAt("frame-durations", improvedAnimations);
             node.writeAt("frame-groups", frameGroups);
 
-            if (assetsName)
-                node.writeAt("assets-name", assetsName);
+            if (metadataFile)
+                node.writeAt("metadata-file", metadataFile);
+
+            if (spritesFile)
+                node.writeAt("sprites-file", spritesFile);
 
             var doc:OTMLDocument = OTMLDocument.create();
             doc.addChild(node);
