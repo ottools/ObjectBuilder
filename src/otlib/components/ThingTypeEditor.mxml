@@ -92,6 +92,8 @@ THE SOFTWARE.
             private var _previewMode:Boolean;
             private var _lastAnimationFrame:uint;
 
+			private var _virtualTransferArea:Vector.<SpriteData>;
+
             //--------------------------------------
             // Getters / Setters
             //--------------------------------------
@@ -121,6 +123,20 @@ THE SOFTWARE.
                     invalidateProperties();
                 }
             }
+
+			public function get currentFrame():int
+			{
+				if(_thingData)
+					return animationSlider.value;
+				return -1;
+			}
+
+			public function get hasTransferData():Boolean
+			{
+				if(_thingData && _virtualTransferArea)
+					return true;
+				return false;
+			}
 
             //--------------------------------------------------------------------------
             // METHODS
@@ -185,6 +201,62 @@ THE SOFTWARE.
                 invalidateProperties();
             }
 
+			public function clearSprite(frame:int, index:int):void
+			{
+				if (!_thingData || frame < 0 || frame >= _thingBinding.frames || index < 0 || index >= _thingBinding.spriteIndex.length)
+					return;
+
+				_thingBinding.setSprite(index, new SpriteData());
+				updatePreview();
+			}
+
+			public function copyFrame(frame:int):void
+			{
+				if (!_thingData || frame < 0 || frame >= _thingBinding.frames)
+					return;
+
+				var length:int = buttonsContainer.numElements;
+				_virtualTransferArea = new Vector.<SpriteData>(length, true);
+				for (var i:int = 0; i < length; i++) {
+					var button:Button = buttonsContainer.getElementAt(i) as Button;
+					var index:int = parseInt(button.label);
+					_virtualTransferArea[i] = _thingBinding.sprites[index].clone();
+				}
+			}
+
+			public function pasteFrame(frame:int):void
+			{
+				if (!_thingData || frame < 0 || frame >= _thingBinding.frames)
+					return;
+
+				if (!_virtualTransferArea) return;
+
+				var length:int = buttonsContainer.numElements;
+				if (_virtualTransferArea.length != length) return;
+
+				for (var i:int = 0; i < length; i++) {
+					var button:Button = buttonsContainer.getElementAt(i) as Button;
+					var index:int = parseInt(button.label);
+					_thingBinding.setSprite(index, _virtualTransferArea[i]);
+				}
+				updatePreview();
+			}
+
+			public function clearFrame(frame:int):void
+			{
+				if (!_thingData || frame < 0 || frame >= _thingBinding.frames)
+					return;
+
+				var sprite:SpriteData = new SpriteData();
+				var length:int = buttonsContainer.numElements;
+				for (var i:int = 0; i < length; i++) {
+					var button:Button = buttonsContainer.getElementAt(i) as Button;
+					var index:int = parseInt(button.label);
+					_thingBinding.setSprite(index, sprite);
+				}
+				updatePreview();
+			}
+
             //--------------------------------------
             // Override Protected
             //--------------------------------------
@@ -220,6 +292,7 @@ THE SOFTWARE.
                 _lastAnimationFrame = 0;
                 thingView.thingData = thingData;
 
+                _virtualTransferArea = null;
                 _thingBinding.reset();
                 animationSlider.value = 0;
                 mountSlider.value = 0;
@@ -929,10 +1002,11 @@ THE SOFTWARE.
                                                      change="thingViewFrameChangeHandler(event)"
                                                      complete="thingViewAnimationCompleteHandler(event)"/>
 
-                                <s:Group id="buttonsContainer"
-                                         updateComplete="drawCropSize()"
-                                         width="{bitmapView.width}"
-                                         height="{bitmapView.height}"/>
+                                <otlib:FrameSpriteGroup id="buttonsContainer"
+														editor="{this}"
+														updateComplete="drawCropSize()"
+                                                        width="{bitmapView.width}"
+                                                        height="{bitmapView.height}"/>
                             </s:Group>
                         </s:Group>
 

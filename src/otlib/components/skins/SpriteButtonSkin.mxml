@@ -25,12 +25,89 @@ THE SOFTWARE.
                    xmlns:s="library://ns.adobe.com/flex/spark"
                    xmlns:fb="http://ns.adobe.com/flashbuilder/2009"
                    minWidth="23"
-                   minHeight="23">
+                   minHeight="23"
+                   creationComplete="creationCompleteHandler(event)">
 
     <!-- host component -->
     <fx:Metadata>
         <![CDATA[[HostComponent("spark.components.Button")]]]>
     </fx:Metadata>
+
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			import mx.resources.IResourceManager;
+			import mx.resources.ResourceManager;
+
+			import spark.components.Button;
+
+			import otlib.components.FrameSpriteGroup;
+			import otlib.core.otlib_internal;
+			import otlib.events.FrameSpriteGroupEvent;
+
+			use namespace otlib_internal;
+
+			//--------------------------------------------------------------------------
+			// METHODS
+			//--------------------------------------------------------------------------
+
+			//--------------------------------------
+			// Event Handlers
+			//--------------------------------------
+
+			private function creationCompleteHandler(event:FlexEvent):void
+			{
+				if (owner is Button) {
+					var cm:ContextMenu = createContextMenu();
+					cm.addEventListener(Event.SELECT, contextMenuSelectHandler);
+					cm.addEventListener(Event.DISPLAYING, contextMenuDisplayingHandler);
+					Button(owner).contextMenu = cm;
+				}
+			}
+
+			private function contextMenuDisplayingHandler(event:Event):void
+			{
+				if (owner is Button) {
+					var parent:DisplayObjectContainer = Button(owner).parent;
+					if (parent && parent is FrameSpriteGroup) {
+						FrameSpriteGroup(parent).onContextMenuDisplaying(Button(owner), ContextMenu(event.target));
+					}
+				}
+			}
+
+			private function contextMenuSelectHandler(event:Event):void
+			{
+				if (owner is Button) {
+					var parent:DisplayObjectContainer = Button(owner).parent;
+					if (parent && parent is FrameSpriteGroup) {
+						var type:String = NativeMenuItem(event.target).data as String;
+						FrameSpriteGroup(parent).onContextMenuSelect(Button(owner), type);
+					}
+				}
+			}
+
+			//--------------------------------------------------------------------------
+			// STATIC
+			//--------------------------------------------------------------------------
+
+			private static function createContextMenu():ContextMenu
+			{
+				var resource:IResourceManager = ResourceManager.getInstance();
+				var clearSpriteMenu:ContextMenuItem = new ContextMenuItem("Clear Sprite");
+				clearSpriteMenu.data = FrameSpriteGroupEvent.CLEAR_SPRITE;
+				var copyFrameMenu:ContextMenuItem = new ContextMenuItem("Copy Frame", true);
+				copyFrameMenu.data = FrameSpriteGroupEvent.COPY_FRAME;
+				var pasteFrameMenu:ContextMenuItem = new ContextMenuItem("Paste Frame");
+				pasteFrameMenu.data = FrameSpriteGroupEvent.PASTE_FRAME;
+				var clearFrameMenu:ContextMenuItem = new ContextMenuItem("Clear Frame");
+				clearFrameMenu.data = FrameSpriteGroupEvent.CLEAR_FRAME;
+				var menu:ContextMenu = new ContextMenu();
+				menu.customItems = [clearSpriteMenu, copyFrameMenu, pasteFrameMenu, clearFrameMenu];
+				return menu;
+			}
+
+		]]>
+	</fx:Script>
 
     <!-- states -->
     <s:states>
